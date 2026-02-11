@@ -1788,7 +1788,7 @@ h1{
         <div class="grow" style="min-width:200px">
           <label>Number of questions</label>
           <select id="mcqCount">
-            <option>10</option><option>15</option><option selected>20</option><option>30</option>
+            <option>10</option><option>15</option><option selected>20</option><option>30</option><option>40</option><option>50</option><option>60</option>
           </select>
         </div>
         <div>
@@ -3919,1497 +3919,1685 @@ t2: {
    ========================================================== */
 
 const MCQ_BANK_MANUAL = [
-  {
-      topicId: "t1",
-      q: "Which war exposed Russia’s weakness and helped trigger reforms under Alexander II?",
-      choices: ["Crimean War", "Russo-Japanese War", "First World War", "Polish-Soviet War"],
-      answer: "Crimean War",
-      explain: "Defeat in the Crimean War (1853–56) revealed administrative and military weakness."
-    },
-  {
-      topicId: "t1",
-      q: "When was the Emancipation Edict issued?",
-      choices: ["1855", "1861", "1874", "1881"],
-      answer: "1861",
-      explain: "Alexander II emancipated the serfs in 1861."
-    },
-  {
-      topicId: "t1",
-      q: "Which institution controlled land allocation for peasants after 1861 and restricted movement?",
-      choices: ["Duma", "Mir", "Zemstva", "Okhrana"],
-      answer: "Mir",
-      explain: "The mir (peasant commune) controlled land distribution and limited freedom."
-    },
-  {
-      topicId: "t1",
-      q: "What were redemption payments?",
-      choices: [
-        "Taxes paid by nobles to the Tsar",
-        "Payments peasants made for land received after emancipation",
-        "Wages paid to factory workers by the state",
-        "Fees paid to join zemstva elections"
-      ],
-      answer: "Payments peasants made for land received after emancipation",
-      explain: "Peasants paid long-term redemption payments for land after 1861 (until 1907)."
-    },
-  {
-      topicId: "t1",
-      q: "Which reform created local elected councils providing services such as roads and schools?",
-      choices: ["Zemstva", "Duma", "Sovnarkhozy", "Cheka"],
-      answer: "Zemstva",
-      explain: "Zemstva were introduced in 1864 to provide local services (with limits)."
-    },
-  {
-      topicId: "t1",
-      q: "Which year is most closely associated with Alexander II’s major judicial reforms?",
-      choices: ["1864", "1889", "1906", "1917"],
-      answer: "1864",
-      explain: "Judicial reform (1864) introduced more independent courts and jury trials."
-    },
-  {
-      topicId: "t1",
-      q: "Which reform introduced universal conscription and helped modernise the army?",
-      choices: ["Military Reform (1874)", "Emancipation (1861)", "Land Captains (1889)", "Fundamental Laws (1906)"],
-      answer: "Military Reform (1874)",
-      explain: "The 1874 reforms (Milyutin) introduced universal conscription and modernised the army."
-    },
-  {
-      topicId: "t1",
-      q: "What was a key consequence of the Polish Revolt of 1863 for Tsarist policy?",
-      choices: ["More constitutional government", "A shift towards harsher Russification and repression", "Immediate end of censorship", "Introduction of the Duma"],
-      answer: "A shift towards harsher Russification and repression",
-      explain: "The revolt encouraged a more hard-line approach, including Russification."
-    },
-  {
-      topicId: "t1",
-      q: "Which Tsar ruled Russia from 1881 to 1894?",
-      choices: ["Alexander II", "Alexander III", "Nicholas II", "Khrushchev"],
-      answer: "Alexander III",
-      explain: "Alexander III came to power after the assassination of Alexander II."
-    },
-  {
-      topicId: "t1",
-      q: "Which policy aimed to promote Russian language, culture and Orthodoxy across the empire?",
-      choices: ["Russification", "NEP", "War Communism", "Collectivisation"],
-      answer: "Russification",
-      explain: "Russification increased in the 1880s–90s to strengthen unity and control."
-    },
-  {
-      topicId: "t1",
-      q: "Which measure (1881) gave the state emergency powers to arrest/exile and restrict the press?",
-      choices: ["Statute of State Security", "October Manifesto", "Ban on factions", "1936 Constitution"],
-      answer: "Statute of State Security",
-      explain: "The Statute of State Security (1881) expanded police powers and repression."
-    },
-  {
-      topicId: "t1",
-      q: "Land Captains were introduced in 1889 mainly to…",
-      choices: [
-        "Run elections to the Duma",
-        "Supervise peasants and strengthen noble/state control in the countryside",
-        "Organise factory production targets",
-        "Lead army conscription reforms"
-      ],
-      answer: "Supervise peasants and strengthen noble/state control in the countryside",
-      explain: "Land Captains increased autocratic control over rural areas."
-    },
-  {
-      topicId: "t1",
-      q: "Which group assassinated Alexander II in 1881?",
-      choices: ["Narodnaya Volya", "Cheka", "Progressive Bloc", "Bolsheviks"],
-      answer: "Narodnaya Volya",
-      explain: "Narodnaya Volya used terrorism and killed Alexander II in March 1881."
-    },
-  {
-      topicId: "t1",
-      q: "Which adviser is most associated with reactionary ideology: Orthodoxy, autocracy, and hostility to democracy?",
-      choices: ["Pobedonostsev", "Stolypin", "Trotsky", "Beria"],
-      answer: "Pobedonostsev",
-      explain: "Pobedonostsev was a conservative adviser shaping Alexander III’s reaction."
-    },
-  {
-      topicId: "t1",
-      q: "One major limitation of emancipation for peasants was that…",
-      choices: [
-        "They gained full voting rights immediately",
-        "Land was often poor/insufficient and required long-term payments",
-        "Nobles lost all land and status",
-        "They were forced into the army for 25 years"
-      ],
-      answer: "Land was often poor/insufficient and required long-term payments",
-      explain: "Emancipation often left peasants with poor land and redemption payments under the mir."
-    },
-  {
-      topicId: "t1",
-      q: "Which reform is best described as modernising law through independent courts and jury trials?",
-      choices: ["Judicial Reform (1864)", "Russification", "Collectivisation", "Sovnarkhozy"],
-      answer: "Judicial Reform (1864)",
-      explain: "Judicial reforms professionalised courts and introduced jury trials."
-    },
-  {
-      topicId: "t1",
-      q: "Which reform is most associated with improving Russia’s ability to fight future wars after Crimea?",
-      choices: ["Military Reform (1874)", "May Laws (1882)", "Ban on factions (1921)", "Secret Speech (1956)"],
-      answer: "Military Reform (1874)",
-      explain: "Conscription and modernisation strengthened military capacity."
-    },
-  {
-      topicId: "t1",
-      q: "What was the key political aim behind many of Alexander II’s reforms?",
-      choices: [
-        "To create a liberal democracy",
-        "To preserve autocracy while modernising Russia",
-        "To introduce full workers’ control",
-        "To abolish private property immediately"
-      ],
-      answer: "To preserve autocracy while modernising Russia",
-      explain: "Reforms were designed to modernise without limiting the Tsar’s power."
-    },
-  {
-      topicId: "t1",
-      q: "Which description best fits the mir?",
-      choices: [
-        "An elected national parliament",
-        "A peasant commune that allocated land and restricted mobility",
-        "A secret police force",
-        "A five-year economic plan"
-      ],
-      answer: "A peasant commune that allocated land and restricted mobility",
-      explain: "The mir controlled land distribution and could limit peasants’ movement."
-    },
-  {
-      topicId: "t1",
-      q: "Which pair is correctly matched?",
-      choices: [
-        "Alexander III — major liberal reforms",
-        "Alexander II — emancipation of the serfs",
-        "Nicholas II — Secret Speech",
-        "Stalin — October Manifesto"
-      ],
-      answer: "Alexander II — emancipation of the serfs",
-      explain: "Alexander II issued emancipation in 1861; Alexander III pursued counter-reform."
-    },
-  {
-      topicId: "t1",
-      q: "Which reform created local government bodies but still kept strong central/noble influence?",
-      choices: ["Zemstva", "Constituent Assembly", "Sovnarkhozy", "Five-Year Plans"],
-      answer: "Zemstva",
-      explain: "Zemstva improved local services but remained limited by state control and noble dominance."
-    },
-  {
-      topicId: "t1",
-      q: "Which event most directly triggered Alexander III’s reactionary turn?",
-      choices: ["Assassination of Alexander II", "Bloody Sunday", "Kronstadt Rebellion", "Kirov murder"],
-      answer: "Assassination of Alexander II",
-      explain: "The assassination in 1881 led to greater repression and counter-reforms."
-    },
-  {
-      topicId: "t1",
-      q: "Russification policies most likely increased opposition because they…",
-      choices: [
-        "Gave minorities more autonomy",
-        "Imposed Russian culture/language and undermined local identities",
-        "Ended discrimination against Jews",
-        "Created a multi-party democracy"
-      ],
-      answer: "Imposed Russian culture/language and undermined local identities",
-      explain: "Russification fuelled nationalist resentment across the empire."
-    },
-  {
-      topicId: "t1",
-      q: "Which option is a correct timeline?",
-      choices: [
-        "Emancipation (1861) → Judicial reform (1864) → Military reform (1874) → Assassination (1881)",
-        "Assassination (1881) → Emancipation (1861) → Military reform (1874) → Zemstva (1864)",
-        "Military reform (1874) → Emancipation (1861) → Zemstva (1864) → Assassination (1881)",
-        "Zemstva (1864) → Assassination (1881) → Emancipation (1861) → Military reform (1874)"
-      ],
-      answer: "Emancipation (1861) → Judicial reform (1864) → Military reform (1874) → Assassination (1881)",
-      explain: "That sequence matches the reform timeline under Alexander II."
-    },
-  {
-      topicId: "t1",
-      q: "Which statement best describes Alexander III’s approach?",
-      choices: [
-        "Expanded political rights and encouraged dissent",
-        "Prioritised central control, repression and Russification",
-        "Introduced NEP to stabilise the economy",
-        "Decentralised the economy through sovnarkhozy"
-      ],
-      answer: "Prioritised central control, repression and Russification",
-      explain: "Alexander III strengthened autocracy and limited reform."
-    },
-  {
-      topicId: "t1",
-      q: "Why did redemption payments increase peasant dissatisfaction?",
-      choices: [
-        "They made peasants legally dependent on landlords",
-        "They kept peasants poor for decades after emancipation",
-        "They gave peasants too much land too quickly",
-        "They removed the mir entirely"
-      ],
-      answer: "They kept peasants poor for decades after emancipation",
-      explain: "Payments lasted into the early 20th century and limited rural prosperity."
-    },
-  {
-      topicId: "t1",
-      q: "Which idea is most associated with Pobedonostsev?",
-      choices: [
-        "Democracy is the best form of government for Russia",
-        "Autocracy and Orthodoxy should be protected from liberal reform",
-        "Markets should replace state planning",
-        "National self-determination should be encouraged"
-      ],
-      answer: "Autocracy and Orthodoxy should be protected from liberal reform",
-      explain: "He was a leading reactionary influence under Alexander III."
-    },
-  {
-      topicId: "t1",
-      q: "Which reform MOST clearly modernised the legal system?",
-      choices: ["Judicial reform", "Russification", "Land Captains", "Red Terror"],
-      answer: "Judicial reform",
-      explain: "The 1864 judicial reforms introduced more modern courts and procedures."
-    },
-  {
-      topicId: "t1",
-      q: "Which was a key consequence of Alexander II’s reform era for opposition?",
-      choices: [
-        "Opposition disappeared entirely",
-        "Raised expectations and helped opposition grow/radicalise over time",
-        "Created a stable multi-party system",
-        "Ended revolutionary terrorism permanently"
-      ],
-      answer: "Raised expectations and helped opposition grow/radicalise over time",
-      explain: "Reforms created new expectations, while political limits pushed some into radical opposition."
-    },
-  {
-      topicId: "t2",
-      q: "Which Tsar ruled Russia from 1894 to 1917?",
-      choices: ["Alexander III", "Alexander II", "Nicholas II", "Lenin"],
-      answer: "Nicholas II",
-      explain: "Nicholas II was Tsar from 1894 until abdication in March 1917."
-    },
-  {
-      topicId: "t2",
-      q: "What was Bloody Sunday (January 1905)?",
-      choices: [
-        "A Bolshevik coup in Petrograd",
-        "Troops firing on peaceful protestors in St Petersburg",
-        "The signing of the October Manifesto",
-        "Nicholas II’s abdication"
-      ],
-      answer: "Troops firing on peaceful protestors in St Petersburg",
-      explain: "It destroyed the ‘Little Father’ image and accelerated the 1905 Revolution."
-    },
-  {
-      topicId: "t2",
-      q: "Which event most directly triggered the 1905 Revolution?",
-      choices: ["Russo-Japanese War defeat", "Kronstadt Rebellion", "Kirov murder", "Novocherkassk protest"],
-      answer: "Russo-Japanese War defeat",
-      explain: "The 1904–05 defeat undermined confidence and contributed to unrest."
-    },
-  {
-      topicId: "t2",
-      q: "What did the October Manifesto (1905) promise?",
-      choices: [
-        "Immediate collectivisation",
-        "Civil liberties and an elected Duma",
-        "A one-party state",
-        "Abolition of the monarchy"
-      ],
-      answer: "Civil liberties and an elected Duma",
-      explain: "It offered limited constitutional reform and split the opposition."
-    },
-  {
-      topicId: "t2",
-      q: "Which document (1906) reasserted the Tsar’s authority and limited the Duma?",
-      choices: ["Fundamental Laws", "Statute of State Security", "Secret Speech", "1936 Constitution"],
-      answer: "Fundamental Laws",
-      explain: "The Fundamental Laws (1906) ensured the Tsar kept major powers."
-    },
-  {
-      topicId: "t2",
-      q: "Article 87 allowed the Tsar to…",
-      choices: [
-        "Create private farms",
-        "Rule by decree when the Duma was not sitting",
-        "Abolish the army",
-        "Hold free elections without restrictions"
-      ],
-      answer: "Rule by decree when the Duma was not sitting",
-      explain: "This reduced the Duma’s ability to control government."
-    },
-  {
-      topicId: "t2",
-      q: "What was the 1907 change to the electoral law designed to do?",
-      choices: [
-        "Expand voting rights to all adults",
-        "Restrict the franchise to favour nobles and the wealthy",
-        "Create soviets nationwide",
-        "End political censorship"
-      ],
-      answer: "Restrict the franchise to favour nobles and the wealthy",
-      explain: "It produced more compliant Dumas but reduced legitimacy."
-    },
-  {
-      topicId: "t2",
-      q: "Which Prime Minister is associated with repression and agrarian reforms after 1905?",
-      choices: ["Stolypin", "Trotsky", "Pobedonostsev", "Khrushchev"],
-      answer: "Stolypin",
-      explain: "Stolypin combined reforms with repression (1906–11)."
-    },
-  {
-      topicId: "t2",
-      q: "Stolypin’s agrarian reforms aimed to…",
-      choices: [
-        "Create a stronger class of private peasant proprietors",
-        "Abolish private land ownership completely",
-        "Introduce War Communism",
-        "Force collectivisation"
-      ],
-      answer: "Create a stronger class of private peasant proprietors",
-      explain: "He hoped private farms would stabilise the countryside and support the regime."
-    },
-  {
-      topicId: "t2",
-      q: "What was the Progressive Bloc (1915)?",
-      choices: [
-        "A Bolshevik armed group",
-        "A Duma group demanding effective government and reform",
-        "A peasant commune movement",
-        "A secret police department"
-      ],
-      answer: "A Duma group demanding effective government and reform",
-      explain: "It signalled elite loss of confidence during WW1."
-    },
-  {
-      topicId: "t2",
-      q: "Why did Nicholas II’s decision to become Commander-in-Chief (1915) matter?",
-      choices: [
-        "It reduced blame on the monarchy for military defeats",
-        "It linked the Tsar personally to military failure and left government in chaos",
-        "It ended inflation and shortages",
-        "It created a stable constitutional monarchy"
-      ],
-      answer: "It linked the Tsar personally to military failure and left government in chaos",
-      explain: "It associated Nicholas with defeat and weakened domestic governance."
-    },
-  {
-      topicId: "t2",
-      q: "What was the Lena Goldfields massacre (1912)?",
-      choices: [
-        "Troops shot striking miners",
-        "A naval rebellion against Lenin",
-        "A terrorist assassination of a party leader",
-        "A peasant uprising in Poland"
-      ],
-      answer: "Troops shot striking miners",
-      explain: "It revived unrest and showed continued repression after 1905."
-    },
-  {
-      topicId: "t2",
-      q: "Nicholas II abdicated in…",
-      choices: ["January 1905", "March 1917", "October 1917", "June 1918"],
-      answer: "March 1917",
-      explain: "Abdication ended Romanov rule amid mutiny and elite withdrawal of support."
-    },
-  {
-      topicId: "t2",
-      q: "Which factor most explains why autocracy failed in 1917?",
-      choices: ["Russification in the 1880s", "WW1 pressures amplifying existing weaknesses", "NEP", "Sovnarkhozy reforms"],
-      answer: "WW1 pressures amplifying existing weaknesses",
-      explain: "War caused shortages, inflation, defeat and loss of loyalty, triggering collapse."
-    },
-  {
-      topicId: "t2",
-      q: "Which is a correct cause-and-effect link?",
-      choices: [
-        "October Manifesto → created full democracy",
-        "Fundamental Laws → limited the Duma and preserved Tsarist power",
-        "Article 87 → gave power to soviets",
-        "1907 law → expanded voting rights"
-      ],
-      answer: "Fundamental Laws → limited the Duma and preserved Tsarist power",
-      explain: "The 1906 laws reasserted autocracy and restricted representative power."
-    },
-  {
-      topicId: "t2",
-      q: "Rasputin mattered politically during WW1 mainly because he…",
-      choices: [
-        "Led the army successfully",
-        "Symbolised corruption and incompetence at court, damaging prestige",
-        "Created the Duma",
-        "Introduced Stolypin’s reforms"
-      ],
-      answer: "Symbolised corruption and incompetence at court, damaging prestige",
-      explain: "He undermined elite confidence and public trust in the monarchy."
-    },
-  {
-      topicId: "t2",
-      q: "Which timeline is correct?",
-      choices: [
-        "Russo-Japanese War (1904–05) → October Manifesto (1905) → Fundamental Laws (1906)",
-        "October Manifesto (1905) → Russo-Japanese War (1904–05) → Fundamental Laws (1906)",
-        "Fundamental Laws (1906) → October Manifesto (1905) → Russo-Japanese War (1904–05)",
-        "Abdication (1917) → Fundamental Laws (1906) → October Manifesto (1905)"
-      ],
-      answer: "Russo-Japanese War (1904–05) → October Manifesto (1905) → Fundamental Laws (1906)",
-      explain: "Defeat and unrest led to the manifesto, then limits were imposed in 1906."
-    },
-  {
-      topicId: "t2",
-      q: "The 1907 electoral law change mainly shows…",
-      choices: [
-        "The Tsar accepted parliamentary sovereignty",
-        "The regime managed constitutionalism to reduce the Duma’s threat",
-        "The end of autocratic power",
-        "The start of a one-party state"
-      ],
-      answer: "The regime managed constitutionalism to reduce the Duma’s threat",
-      explain: "The franchise was manipulated to produce more compliant Dumas."
-    },
-  {
-      topicId: "t2",
-      q: "What was the purpose of Article 87 in practice?",
-      choices: [
-        "To empower the Duma to control ministers",
-        "To allow the Tsar to bypass the Duma via decrees",
-        "To legalise collective farms",
-        "To create local councils (zemstva)"
-      ],
-      answer: "To allow the Tsar to bypass the Duma via decrees",
-      explain: "It enabled decrees when the Duma was not in session."
-    },
-  {
-      topicId: "t2",
-      q: "Which factor best explains why the October Manifesto split the opposition?",
-      choices: [
-        "It satisfied some moderates, while radicals continued to demand deeper change",
-        "It offered no reforms at all",
-        "It abolished the monarchy immediately",
-        "It created a communist government"
-      ],
-      answer: "It satisfied some moderates, while radicals continued to demand deeper change",
-      explain: "The manifesto drew some liberals away from revolutionary activity."
-    },
-  {
-      topicId: "t2",
-      q: "What is the best description of the Fundamental Laws (1906)?",
-      choices: [
-        "A democratic constitution giving the Duma full power",
-        "A legal framework that preserved Tsarist authority and limited the Duma",
-        "A plan for industrial targets",
-        "A secret police charter"
-      ],
-      answer: "A legal framework that preserved Tsarist authority and limited the Duma",
-      explain: "They created ‘managed’ constitutionalism, not democracy."
-    },
-  {
-      topicId: "t2",
-      q: "Why did WW1 undermine the Tsarist regime?",
-      choices: [
-        "It reduced inflation and improved transport",
-        "It caused military defeats, shortages and loss of loyalty",
-        "It strengthened the Duma permanently",
-        "It ended unrest by satisfying workers"
-      ],
-      answer: "It caused military defeats, shortages and loss of loyalty",
-      explain: "War pressures exposed weakness and accelerated political crisis."
-    },
-  {
-      topicId: "t2",
-      q: "Which statement is most accurate about Tsarism after 1905?",
-      choices: [
-        "It became a stable parliamentary democracy",
-        "It maintained autocracy through controlled reforms and repression",
-        "It abolished the monarchy",
-        "It adopted communism"
-      ],
-      answer: "It maintained autocracy through controlled reforms and repression",
-      explain: "The Duma existed, but the Tsar retained decisive powers."
-    },
-  {
-      topicId: "t2",
-      q: "Which event is correctly matched to its date?",
-      choices: ["Lena Goldfields massacre — 1912", "Bloody Sunday — 1917", "Abdication — 1905", "Progressive Bloc — 1906"],
-      answer: "Lena Goldfields massacre — 1912",
-      explain: "The shooting of striking miners occurred in 1912."
-    },
-  {
-      topicId: "t2",
-      q: "The Progressive Bloc (1915) is best used as evidence of…",
-      choices: ["Strong peasant support for Nicholas II", "Elite political crisis and loss of confidence in government", "Successful Russification", "Bolshevik victory in civil war"],
-      answer: "Elite political crisis and loss of confidence in government",
-      explain: "It shows that even moderates and elites demanded effective government during war."
-    },
-  {
-      topicId: "t2",
-      q: "A strong judgement about 1917 is that it was caused by…",
-      choices: ["Only Nicholas II’s personality", "Only long-term social tensions", "WW1 as the key catalyst interacting with long-term weaknesses", "NEP failure"],
-      answer: "WW1 as the key catalyst interacting with long-term weaknesses",
-      explain: "War made existing weaknesses unmanageable and triggered rapid collapse."
-    },
-  {
-      topicId: "t2",
-      q: "Which policy most directly reduced the representativeness of the Duma?",
-      choices: ["1907 electoral law change", "Emancipation Edict", "NEP", "Secret Speech"],
-      answer: "1907 electoral law change",
-      explain: "The franchise was restricted to favour elites and produce compliant Dumas."
-    },
-  {
-      topicId: "t2",
-      q: "Why did Nicholas II’s rule become increasingly unstable by 1917?",
-      choices: [
-        "Because the Tsar embraced democracy",
-        "Because political compromise was limited and war intensified crisis",
-        "Because Russia had no opposition at all",
-        "Because collectivisation caused famine"
-      ],
-      answer: "Because political compromise was limited and war intensified crisis",
-      explain: "Managed constitutionalism + war pressures undermined legitimacy and loyalty."
-    },
-  {
-      topicId: "t2",
-      q: "Which of the following is NOT part of the 1906 ‘managed constitutionalism’ toolkit?",
-      choices: ["Article 87 decrees", "Duma dissolutions", "1907 franchise manipulation", "Ban on factions (1921)"],
-      answer: "Ban on factions (1921)",
-      explain: "Ban on factions is Bolshevik policy, not Tsarist constitutional management."
-    },
-  {
-      topicId: "t2",
-      q: "Which statement best describes why the Duma did not create democracy?",
-      choices: [
-        "The Tsar retained major powers and could bypass/limit the Duma",
-        "The Duma controlled the army and ministers fully",
-        "The Tsar abdicated in 1906",
-        "The Duma introduced one-party rule"
-      ],
-      answer: "The Tsar retained major powers and could bypass/limit the Duma",
-      explain: "Fundamental Laws, dissolutions, Article 87 and franchise changes limited its power."
-    },
-  {
-      topicId: "t3",
-      q: "Which leader is most associated with the April Theses (1917)?",
-      choices: ["Lenin", "Nicholas II", "Stolypin", "Alexander III"],
-      answer: "Lenin",
-      explain: "Lenin’s April Theses pushed ‘all power to the soviets’ and no support for the Provisional Government."
-    },
-  {
-      topicId: "t3",
-      q: "What was the Decree on Land (October 1917) designed to do?",
-      choices: [
-        "Return land to nobles",
-        "Abolish private landownership and legitimise peasant seizures",
-        "Introduce collectivisation immediately",
-        "Create a Duma"
-      ],
-      answer: "Abolish private landownership and legitimise peasant seizures",
-      explain: "It won rural acquiescence and support for the new regime."
-    },
-  {
-      topicId: "t3",
-      q: "The Constituent Assembly was closed in January 1918 because…",
-      choices: [
-        "It supported the Bolsheviks overwhelmingly",
-        "It threatened Bolshevik power after they performed poorly in elections",
-        "It created the Cheka",
-        "It ended the civil war"
-      ],
-      answer: "It threatened Bolshevik power after they performed poorly in elections",
-      explain: "Closing it showed rejection of pluralism."
-    },
-  {
-      topicId: "t3",
-      q: "Which treaty ended Russia’s involvement in WW1 at a heavy territorial cost?",
-      choices: ["Treaty of Brest-Litovsk", "Treaty of Versailles", "Treaty of Paris", "Molotov–Ribbentrop Pact"],
-      answer: "Treaty of Brest-Litovsk",
-      explain: "Signed in March 1918; controversial but freed Bolsheviks to focus on civil war."
-    },
-  {
-      topicId: "t3",
-      q: "What was the Cheka?",
-      choices: ["The secret police enforcing Bolshevik power", "A local elected council", "A peasant commune", "A five-year plan"],
-      answer: "The secret police enforcing Bolshevik power",
-      explain: "Created in 1917; key tool of coercion and terror."
-    },
-  {
-      topicId: "t3",
-      q: "Red Terror (1918) is best described as…",
-      choices: [
-        "A campaign to promote free elections",
-        "A campaign of arrests and executions against ‘enemies’",
-        "A plan to increase grain production peacefully",
-        "An economic liberalisation policy"
-      ],
-      answer: "A campaign of arrests and executions against ‘enemies’",
-      explain: "It hardened dictatorship during the civil war."
-    },
-  {
-      topicId: "t3",
-      q: "War Communism (1918–21) primarily aimed to…",
-      choices: [
-        "Supply the Red Army and cities through state control and requisitioning",
-        "Allow free markets to stabilise the economy",
-        "Create private peasant farms",
-        "Reduce state involvement in production"
-      ],
-      answer: "Supply the Red Army and cities through state control and requisitioning",
-      explain: "It helped win the civil war but caused economic collapse and unrest."
-    },
-  {
-      topicId: "t3",
-      q: "What was the NEP (1921)?",
-      choices: [
-        "A return to full capitalism",
-        "A mixed economy allowing private trade while state kept ‘commanding heights’",
-        "A policy of forced collectivisation",
-        "A cultural liberalisation programme"
-      ],
-      answer: "A mixed economy allowing private trade while state kept ‘commanding heights’",
-      explain: "It stabilised the economy after the War Communism crisis."
-    },
-  {
-      topicId: "t3",
-      q: "What did the 1921 ban on factions do?",
-      choices: [
-        "Allowed multiple parties to compete",
-        "Banned organised opposition within the Communist Party",
-        "Ended secret policing",
-        "Created the Duma"
-      ],
-      answer: "Banned organised opposition within the Communist Party",
-      explain: "It strengthened one-party control and internal discipline."
-    },
-  {
-      topicId: "t3",
-      q: "Which event in 1921 showed limits of dissent even from former supporters?",
-      choices: ["Kronstadt Rebellion", "Bloody Sunday", "Kirov murder", "Novocherkassk protests"],
-      answer: "Kronstadt Rebellion",
-      explain: "The rebellion was crushed; it helped push Lenin towards NEP."
-    },
-  {
-      topicId: "t3",
-      q: "Trotsky’s key role in the civil war was…",
-      choices: [
-        "Writing the October Manifesto",
-        "Organising the Red Army with discipline and rail control",
-        "Introducing the Virgin Lands scheme",
-        "Leading the Okhrana"
-      ],
-      answer: "Organising the Red Army with discipline and rail control",
-      explain: "Organisation and discipline were vital to Red victory."
-    },
-  {
-      topicId: "t3",
-      q: "Which statement best explains why Bolsheviks closed the Constituent Assembly?",
-      choices: [
-        "They wanted a multi-party democracy",
-        "They prioritised one-party control over electoral pluralism",
-        "They had lost all support from workers",
-        "They were forced by the Duma"
-      ],
-      answer: "They prioritised one-party control over electoral pluralism",
-      explain: "Closing it signalled a move toward dictatorship."
-    },
-  {
-      topicId: "t3",
-      q: "A key reason Lenin introduced NEP was…",
-      choices: [
-        "Russia’s economy was booming under War Communism",
-        "Economic collapse and unrest threatened the regime",
-        "To abolish private trade completely",
-        "To strengthen noble landowners"
-      ],
-      answer: "Economic collapse and unrest threatened the regime",
-      explain: "NEP was a pragmatic retreat to stabilise the state."
-    },
-  {
-      topicId: "t3",
-      q: "Which is a correct cause-and-effect chain?",
-      choices: [
-        "War Communism → economic crisis and unrest → NEP introduced",
-        "NEP → immediate collectivisation → famine",
-        "Cheka abolished → Red Terror expands",
-        "Constituent Assembly opens → multi-party democracy established"
-      ],
-      answer: "War Communism → economic crisis and unrest → NEP introduced",
-      explain: "War Communism contributed to breakdown; NEP was a response."
-    },
-  {
-      topicId: "t3",
-      q: "Which policy is most associated with requisitioning grain from peasants?",
-      choices: ["War Communism", "NEP", "Sovnarkhozy", "Russification"],
-      answer: "War Communism",
-      explain: "Requisitioning was central to War Communism’s supply strategy."
-    },
-  {
-      topicId: "t3",
-      q: "Which statement about Brest-Litovsk is most accurate?",
-      choices: [
-        "It was a popular victory for Russian nationalism",
-        "It ended war with Germany but cost Russia large territories",
-        "It created the Duma",
-        "It abolished the Cheka"
-      ],
-      answer: "It ended war with Germany but cost Russia large territories",
-      explain: "March 1918 peace was costly but allowed focus on internal conflict."
-    },
-  {
-      topicId: "t3",
-      q: "Which institution most directly enforced Bolshevik power through policing?",
-      choices: ["Cheka", "Zemstva", "Mir", "Progressive Bloc"],
-      answer: "Cheka",
-      explain: "The Cheka was the political police from 1917."
-    },
-  {
-      topicId: "t3",
-      q: "Which best describes the Bolshevik approach to opposition by 1921?",
-      choices: [
-        "Encouraged party factions and debate",
-        "Suppressed opposition and banned party factions",
-        "Held free elections for multiple parties",
-        "Restored monarchy"
-      ],
-      answer: "Suppressed opposition and banned party factions",
-      explain: "The ban on factions strengthened the dictatorship."
-    },
-  {
-      topicId: "t3",
-      q: "Which was a key Bolshevik advantage in the civil war?",
-      choices: [
-        "White unity and coordination",
-        "Central geography and control of railways",
-        "No foreign intervention",
-        "Opposition support in the Duma"
-      ],
-      answer: "Central geography and control of railways",
-      explain: "Reds controlled key areas and transport networks."
-    },
-  {
-      topicId: "t3",
-      q: "Which statement is true about NEP?",
-      choices: [
-        "It ended all private trade",
-        "It allowed limited private trade while state kept key industries",
-        "It created the Okhrana",
-        "It forced collectivisation"
-      ],
-      answer: "It allowed limited private trade while state kept key industries",
-      explain: "NEP was a mixed economy with state control of ‘commanding heights’."
-    },
-  {
-      topicId: "t3",
-      q: "Which event best shows Lenin would use violence against former supporters?",
-      choices: ["Kronstadt Rebellion crushed", "October Manifesto", "1907 electoral law change", "Virgin Lands scheme"],
-      answer: "Kronstadt Rebellion crushed",
-      explain: "Kronstadt (1921) was brutally suppressed."
-    },
-  {
-      topicId: "t3",
-      q: "Which is the best judgement on War Communism?",
-      choices: [
-        "It caused no problems and was universally popular",
-        "It helped Reds win but caused economic collapse and unrest",
-        "It created democracy and pluralism",
-        "It ended the need for coercion"
-      ],
-      answer: "It helped Reds win but caused economic collapse and unrest",
-      explain: "It was effective militarily but disastrous economically."
-    },
-  {
-      topicId: "t3",
-      q: "Which is correctly matched?",
-      choices: [
-        "Lenin — Secret Speech (1956)",
-        "Trotsky — organised Red Army",
-        "Nicholas II — Decree on Land",
-        "Stolypin — Cheka leader"
-      ],
-      answer: "Trotsky — organised Red Army",
-      explain: "Trotsky built discipline and organisation crucial for Red success."
-    },
-  {
-      topicId: "t3",
-      q: "Red Terror is most closely linked to…",
-      choices: ["Civil war crisis and elimination of ‘enemies’", "Duma elections", "Russification", "Decentralisation reforms"],
-      answer: "Civil war crisis and elimination of ‘enemies’",
-      explain: "It intensified under emergency conditions (1918)."
-    },
-  {
-      topicId: "t3",
-      q: "Which statement best describes early Bolshevik government?",
-      choices: [
-        "Committed to parliamentary democracy",
-        "Willing to use coercion and suppress pluralism to stay in power",
-        "Opposed political policing entirely",
-        "Wanted to restore the Romanovs"
-      ],
-      answer: "Willing to use coercion and suppress pluralism to stay in power",
-      explain: "Cheka, Red Terror, and closing the Constituent Assembly show this."
-    },
-  {
-      topicId: "t3",
-      q: "Which policy is most associated with stabilising after 1921?",
-      choices: ["NEP", "War Communism", "Fundamental Laws", "Great Terror"],
-      answer: "NEP",
-      explain: "NEP was introduced in 1921 after economic and political crises."
-    },
-  {
-      topicId: "t3",
-      q: "Which event is correctly dated?",
-      choices: ["Treaty of Brest-Litovsk — March 1918", "NEP — 1906", "October Revolution — 1905", "Ban on factions — 1957"],
-      answer: "Treaty of Brest-Litovsk — March 1918",
-      explain: "Brest-Litovsk was signed in March 1918."
-    },
-  {
-      topicId: "t3",
-      q: "A key difference between NEP and War Communism was that NEP…",
-      choices: [
-        "Increased requisitioning",
-        "Allowed private trade and a mixed economy",
-        "Abolished money completely",
-        "Expanded political pluralism"
-      ],
-      answer: "Allowed private trade and a mixed economy",
-      explain: "NEP was a pragmatic retreat from extreme state control."
-    },
-  {
-      topicId: "t3",
-      q: "Which is most accurate about Bolshevik survival 1917–21?",
-      choices: [
-        "It depended only on elections",
-        "It combined advantages (railways/central control) with coercion and discipline",
-        "It relied on White unity",
-        "It avoided violence"
-      ],
-      answer: "It combined advantages (railways/central control) with coercion and discipline",
-      explain: "Organisation, geography, and coercion helped Reds win."
-    },
-  {
-      topicId: "t3",
-      q: "Which of these is NOT part of establishing Bolshevik rule by 1924?",
-      choices: ["Cheka", "Ban on factions", "NEP", "October Manifesto"],
-      answer: "October Manifesto",
-      explain: "October Manifesto is 1905 Tsarist reform, not Bolshevik."
-    },
-  {
-      topicId: "t3",
-      q: "Which judgement best fits Lenin’s rule 1917–24?",
-      choices: [
-        "Purely democratic and non-violent",
-        "A blend of pragmatism (NEP) and coercion (Cheka/terror)",
-        "A return to autocracy under a Tsar",
-        "A decentralised federal democracy"
-      ],
-      answer: "A blend of pragmatism (NEP) and coercion (Cheka/terror)",
-      explain: "Lenin used both compromise and force to secure the regime."
-    },
-  {
-      topicId: "t4",
-      q: "What did ‘Socialism in One Country’ argue?",
-      choices: [
-        "Socialism required global revolution first",
-        "The USSR could build socialism alone",
-        "Capitalism should be restored",
-        "Russia should become a constitutional monarchy"
-      ],
-      answer: "The USSR could build socialism alone",
-      explain: "Stalin used this to justify priorities and defeat rivals."
-    },
-  {
-      topicId: "t4",
-      q: "The first Five-Year Plan began in…",
-      choices: ["1921", "1928", "1936", "1941"],
-      answer: "1928",
-      explain: "Stalin launched rapid industrialisation from 1928."
-    },
-  {
-      topicId: "t4",
-      q: "The Five-Year Plans focused most on…",
-      choices: ["Heavy industry", "Luxury consumer goods", "Democratic elections", "Decentralised local councils"],
-      answer: "Heavy industry",
-      explain: "Heavy industry was prioritised to modernise and prepare for war."
-    },
-  {
-      topicId: "t4",
-      q: "Collectivisation is best defined as…",
-      choices: [
-        "Forcing peasants into collective farms to control grain and society",
-        "Allowing private peasant farming and free trade",
-        "A cultural liberalisation policy",
-        "A reform to reduce state involvement"
-      ],
-      answer: "Forcing peasants into collective farms to control grain and society",
-      explain: "It enabled extraction of grain and tightened control over peasants."
-    },
-  {
-      topicId: "t4",
-      q: "Dekulakisation (1929–31) involved…",
-      choices: [
-        "Rewarding kulaks with more land",
-        "Destroying/deporting ‘kulaks’ as a class",
-        "Creating the Duma",
-        "Introducing sovnarkhozy"
-      ],
-     answer: "Destroying/deporting ‘kulaks’ as a class",
-      explain: "It crushed resistance and enforced collectivisation."
-    },
-  {
-      topicId: "t4",
-      q: "The Great Terror occurred mainly in…",
-      choices: ["1904–05", "1918–21", "1936–38", "1953–56"],
-      answer: "1936–38",
-      explain: "Purges intensified in the late 1930s."
-    },
-  {
-      topicId: "t4",
-      q: "Show Trials were mainly used to…",
-      choices: [
-        "Provide fair and open justice",
-        "Publicly accuse ‘enemies’ and intimidate society",
-        "Promote multi-party elections",
-        "End propaganda"
-      ],
-      answer: "Publicly accuse ‘enemies’ and intimidate society",
-      explain: "They were propaganda events supporting purges."
-    },
-  {
-      topicId: "t4",
-      q: "What was the Gulag?",
-      choices: ["A parliament", "A forced labour camp system", "A peasant commune", "A regional economic council"],
-      answer: "A forced labour camp system",
-      explain: "It supplied forced labour and reinforced terror."
-    },
-  {
-      topicId: "t4",
-      q: "The 1936 Constitution is best understood as…",
-      choices: [
-        "Genuine democracy with full freedoms",
-        "A propaganda document masking dictatorship",
-        "A plan for decentralisation",
-        "A treaty ending WW2"
-      ],
-      answer: "A propaganda document masking dictatorship",
-      explain: "It claimed rights but the regime remained coercive."
-    },
-  {
-      topicId: "t4",
-      q: "Which event is often used as a pretext for expanding purges after 1934?",
-      choices: ["Kirov murder", "Bloody Sunday", "Kronstadt", "Secret Speech"],
-      answer: "Kirov murder",
-      explain: "The 1934 assassination helped justify further repression."
-    },
-  {
-      topicId: "t4",
-      q: "The famine of 1932–33 is most closely linked to…",
-      choices: [
-        "Collectivisation and grain seizures",
-        "NEP private trade",
-        "Virgin Lands scheme",
-        "October Manifesto"
-      ],
-      answer: "Collectivisation and grain seizures",
-      explain: "Disruption and extraction contributed to mass starvation."
-    },
-  {
-      topicId: "t4",
-      q: "Operation Barbarossa began in…",
-      choices: ["June 1941", "March 1918", "January 1905", "October 1957"],
-      answer: "June 1941",
-      explain: "Germany invaded the USSR in June 1941."
-    },
-  {
-      topicId: "t4",
-      q: "Why did Stalin industrialise rapidly?",
-      choices: [
-        "To modernise, prepare for war, and secure power",
-        "To create a free-market economy",
-        "To strengthen the Duma",
-        "To reduce central control"
-      ],
-      answer: "To modernise, prepare for war, and secure power",
-      explain: "Industrialisation served economic, military and political aims."
-    },
-  {
-      topicId: "t4",
-      q: "Which NKVD chief is most associated with the peak of the terror in the late 1930s?",
-      choices: ["Yezhov", "Milyutin", "Plekhanov", "Malenkov"],
-      answer: "Yezhov",
-      explain: "Yezhov is linked to the height of purges (‘Yezhovshchina’)."
-    },
-  {
-      topicId: "t4",
-      q: "Which security figure was prominent in late Stalinism and expanded the apparatus?",
-      choices: ["Beria", "Stolypin", "Bakunin", "Nicholas II"],
-      answer: "Beria",
-      explain: "Beria became a key figure in the security state after the terror peak."
-    },
-  {
-      topicId: "t4",
-      q: "Which statement best explains how terror helped Stalin maintain control?",
-      choices: [
-        "It created open democratic debate",
-        "It removed rivals and enforced obedience through fear",
-        "It abolished secret police",
-        "It guaranteed high living standards"
-      ],
-      answer: "It removed rivals and enforced obedience through fear",
-      explain: "Purges and fear reduced opposition and increased compliance."
-    },
-  {
-      topicId: "t4",
-      q: "Which policy most directly targeted peasants to secure grain supplies and control the countryside?",
-      choices: ["Collectivisation", "October Manifesto", "NEP", "Sovnarkhozy"],
-      answer: "Collectivisation",
-      explain: "Collective farms made grain procurement and control easier for the state."
-    },
-  {
-      topicId: "t4",
-      q: "Dekulakisation is best linked to…",
-      choices: ["Forcing collectivisation and crushing resistance", "Creating jury trials", "Introducing the Duma", "Ending censorship"],
-      answer: "Forcing collectivisation and crushing resistance",
-      explain: "Removing kulaks eliminated a key source of rural resistance."
-    },
-  {
-      topicId: "t4",
-      q: "Which is a correct timeline?",
-      choices: [
-        "Five-Year Plans (from 1928) → Collectivisation (from 1929) → Great Terror (1936–38)",
-        "Great Terror (1936–38) → Five-Year Plans (from 1928) → Collectivisation (from 1929)",
-        "Collectivisation (from 1929) → 1907 electoral law → Five-Year Plans",
-        "NEP (1921) → Secret Speech (1956) → Great Terror"
-      ],
-      answer: "Five-Year Plans (from 1928) → Collectivisation (from 1929) → Great Terror (1936–38)",
-      explain: "That sequence matches key developments under Stalin."
-    },
-  {
-      topicId: "t4",
-      q: "Show Trials were MOST useful to Stalin because they…",
-      choices: [
-        "Made the judiciary independent",
-        "Provided propaganda and legitimised purges",
-        "Created multi-party elections",
-        "Ended political policing"
-      ],
-      answer: "Provided propaganda and legitimised purges",
-      explain: "They portrayed enemies and justified repression publicly."
-    },
-  {
-      topicId: "t4",
-      q: "Which statement best fits the 1936 Constitution?",
-      choices: [
-        "It ended dictatorship and created real liberties",
-        "It presented a democratic image while repression continued",
-        "It abolished the Communist Party",
-        "It introduced free market reforms"
-      ],
-      answer: "It presented a democratic image while repression continued",
-      explain: "Rights were nominal; terror and party control remained."
-    },
-  {
-      topicId: "t4",
-      q: "Which best explains why the Great Terror could weaken the USSR long-term?",
-      choices: [
-        "It eliminated fear entirely",
-        "It damaged institutions and removed experienced personnel (including the army)",
-        "It increased industrial productivity without cost",
-        "It created a stable democracy"
-      ],
-      answer: "It damaged institutions and removed experienced personnel (including the army)",
-      explain: "Purges undermined effectiveness and competence in key bodies."
-    },
-  {
-      topicId: "t4",
-      q: "Which is NOT a key feature of Stalin’s dictatorship?",
-      choices: ["Central planning", "Terror and purges", "Propaganda and control", "Multi-party democracy"],
-      answer: "Multi-party democracy",
-      explain: "Stalin’s system was a one-party dictatorship."
-    },
-  {
-      topicId: "t4",
-      q: "The Gulag system primarily served which purpose?",
-      choices: [
-        "Free education for all citizens",
-        "Forced labour and intimidation through fear",
-        "Local self-government and elections",
-        "Ending state control of the economy"
-      ],
-      answer: "Forced labour and intimidation through fear",
-      explain: "It provided labour and reinforced coercion."
-    },
-  {
-      topicId: "t4",
-      q: "Why did Stalin target ‘kulaks’?",
-      choices: [
-        "To reward wealthy peasants",
-        "To remove perceived class enemies and enforce collectivisation",
-        "To expand liberal reforms",
-        "To create private markets"
-      ],
-      answer: "To remove perceived class enemies and enforce collectivisation",
-      explain: "Kulaks were blamed for resistance; targeting them aided collectivisation."
-    },
-  {
-      topicId: "t4",
-      q: "Which statement best summarises Stalin’s economic change 1928–41?",
-      choices: [
-        "Slow, voluntary reform with little state involvement",
-        "Rapid industrialisation and forced transformation at huge human cost",
-        "Return to NEP and free markets",
-        "Decentralised planning via sovnarkhozy"
-      ],
-      answer: "Rapid industrialisation and forced transformation at huge human cost",
-      explain: "Five-Year Plans and collectivisation transformed the USSR but were brutal."
-    },
-  {
-      topicId: "t4",
-      q: "Which event most clearly shows the USSR faced an existential external threat in this period?",
-      choices: ["Operation Barbarossa", "October Manifesto", "Kronstadt", "Secret Speech"],
-      answer: "Operation Barbarossa",
-      explain: "Germany’s 1941 invasion required total mobilisation."
-    },
-  {
-      topicId: "t4",
-      q: "Which statement best fits a judgement on terror under Stalin?",
-      choices: [
-        "Only a response to real conspiracies, never political",
-        "A tool of control that went far beyond genuine threats",
-        "A policy designed to create democracy",
-        "A short-lived reform programme"
-      ],
-      answer: "A tool of control that went far beyond genuine threats",
-      explain: "Real threats existed, but terror was also used proactively to secure dictatorship."
-    },
-  {
-      topicId: "t4",
-      q: "Which leader is correctly matched with their role?",
-      choices: ["Stalin — built a personal dictatorship", "Nicholas II — NKVD chief", "Pobedonostsev — Bolshevik organiser", "Khrushchev — led the Great Terror"],
-      answer: "Stalin — built a personal dictatorship",
-      explain: "Stalin consolidated power using planning, propaganda, and coercion."
-    },
-  {
-      topicId: "t4",
-      q: "Collectivisation strengthened the regime mainly by…",
-      choices: [
-        "Reducing state control over agriculture",
-        "Allowing easier grain extraction and tighter control of peasants",
-        "Creating multi-party rural democracy",
-        "Ending famine permanently"
-      ],
-      answer: "Allowing easier grain extraction and tighter control of peasants",
-      explain: "It increased state power in the countryside and supported industrialisation."
-    },
-  {
-      topicId: "t4",
-      q: "What does ‘collective leadership’ refer to after 1953?",
-      choices: [
-        "Immediate dictatorship by one leader",
-        "Power sharing and struggle after Stalin’s death",
-        "Creation of private land ownership",
-        "A multi-party election system"
-      ],
-      answer: "Power sharing and struggle after Stalin’s death",
-      explain: "The post-Stalin period began with collective leadership before Khrushchev dominated."
-    },
-  {
-      topicId: "t4",
-      q: "Khrushchev’s Secret Speech was delivered in…",
-      choices: ["1936", "1956", "1962", "1964"],
-      answer: "1956",
-      explain: "In 1956 Khrushchev denounced Stalin’s cult and terror."
-    },
-  {
-      topicId: "t4",
-      q: "What was the main purpose of the Secret Speech?",
-      choices: [
-        "To praise Stalin’s terror",
-        "To denounce Stalin’s cult of personality and terror",
-        "To introduce collectivisation",
-        "To end the Communist Party"
-      ],
-      answer: "To denounce Stalin’s cult of personality and terror",
-      explain: "It launched de-Stalinisation (with limits)."
-    },
-  {
-      topicId: "t4",
-      q: "Which scheme tried to boost grain production by cultivating new land from 1954?",
-      choices: ["Virgin Lands Scheme", "NEP", "Five-Year Plans", "War Communism"],
-      answer: "Virgin Lands Scheme",
-      explain: "It brought early gains but faced long-term soil and planning problems."
-    },
-  {
-      topicId: "t4",
-      q: "Sovnarkhozy (1957) were…",
-      choices: [
-        "Regional economic councils intended to decentralise planning",
-        "Secret police units",
-        "Peasant communes controlling land",
-        "Parliamentary committees"
-      ],
-      answer: "Regional economic councils intended to decentralise planning",
-      explain: "They aimed to reduce central bureaucracy but created confusion and rivalry."
-    },
-  {
-      topicId: "t4",
-      q: "The ‘Thaw’ is best described as…",
-      choices: [
-        "Total freedom of speech and multi-party democracy",
-        "A period of cultural liberalisation within limits",
-        "A new wave of mass terror",
-        "A return to Tsarism"
-      ],
-      answer: "A period of cultural liberalisation within limits",
-      explain: "Cultural opening increased but remained constrained by one-party rule."
-    },
-  {
-      topicId: "t4",
-      q: "Novocherkassk (1962) is significant because it…",
-      choices: [
-        "Shows coercion and repression still existed under Khrushchev",
-        "Marks the start of the 1905 Revolution",
-        "Created the Duma",
-        "Ended the Communist Party"
-      ],
-      answer: "Shows coercion and repression still existed under Khrushchev",
-      explain: "Workers were shot during protests; limits of reform were clear."
-    },
-  {
-      topicId: "t4",
-      q: "Which event in 1956 showed the USSR would still use force to maintain control in Eastern Europe?",
-      choices: ["Hungarian Uprising crushed", "Kronstadt Rebellion", "Bloody Sunday", "Kirov murder"],
-      answer: "Hungarian Uprising crushed",
-      explain: "The USSR crushed the Hungarian Uprising in 1956."
-    },
-  {
-      topicId: "t4",
-      q: "Khrushchev was removed from power in…",
-      choices: ["1953", "1956", "1962", "1964"],
-      answer: "1964",
-      explain: "A party coup removed Khrushchev in 1964."
-    },
-  {
-      topicId: "t4",
-      q: "Which rival is associated with early post-Stalin leadership struggles?",
-      choices: ["Malenkov", "Pobedonostsev", "Yezhov", "Stolypin"],
-      answer: "Malenkov",
-      explain: "Malenkov was a prominent figure in the post-Stalin collective leadership."
-    },
-  {
-      topicId: "t4",
-      q: "Which is the best judgement on Khrushchev’s reforms?",
-      choices: [
-        "They ended one-party control completely",
-        "They reduced terror and changed tone, but core one-party control remained",
-        "They created the Duma",
-        "They restored Tsarism"
-      ],
-      answer: "They reduced terror and changed tone, but core one-party control remained",
-      explain: "De-Stalinisation had limits; coercion remained when challenged."
-    },
-  {
-      topicId: "t4",
-      q: "Why did Virgin Lands become problematic long term?",
-      choices: [
-        "It used too little land",
-        "Soil and planning issues undermined sustainability",
-        "It caused immediate democracy",
-        "It eliminated grain production"
-      ],
-      answer: "Soil and planning issues undermined sustainability",
-      explain: "Early gains faded due to environmental and organisational problems."
-    },
-  {
-      topicId: "t4",
-      q: "Sovnarkhozy reforms were intended to…",
-      choices: [
-        "Centralise planning more tightly in Moscow",
-        "Decentralise economic decision-making to regions",
-        "Introduce free markets and capitalism",
-        "Recreate the Okhrana"
-      ],
-      answer: "Decentralise economic decision-making to regions",
-      explain: "They shifted authority to regional councils but caused confusion."
-    },
-  {
-      topicId: "t4",
-      q: "Which statement best explains why Khrushchev faced elite resistance?",
-      choices: [
-        "He never changed anything",
-        "Policy ‘zig-zags’ and disruption alienated party elites",
-        "He introduced mass terror on Stalin’s scale",
-        "He abolished the Party"
-      ],
-      answer: "Policy ‘zig-zags’ and disruption alienated party elites",
-      explain: "Inconsistency and disruption helped build a coalition against him."
-    },
-  {
-      topicId: "t4",
-      q: "Which pairing is correct?",
-      choices: [
-        "Secret Speech — 1956",
-        "Virgin Lands — 1921",
-        "Sovnarkhozy — 1864",
-        "Novocherkassk — 1937"
-      ],
-      answer: "Secret Speech — 1956",
-      explain: "Khrushchev’s Secret Speech was delivered in 1956."
-    },
-  {
-      topicId: "t4",
-      q: "Which event best demonstrates the limits of reform inside the USSR?",
-      choices: ["Novocherkassk (1962)", "October Manifesto (1905)", "Brest-Litovsk (1918)", "Kirov murder (1934)"],
-      answer: "Novocherkassk (1962)",
-      explain: "Workers’ protests were met with violence, showing coercion persisted."
-    },
-  {
-      topicId: "t4",
-      q: "Which event best demonstrates the limits of reform in the Soviet bloc?",
-      choices: ["Hungarian Uprising crushed (1956)", "Emancipation Edict (1861)", "Lena Goldfields massacre (1912)", "Kronstadt (1921)"],
-      answer: "Hungarian Uprising crushed (1956)",
-      explain: "Soviet force was used to maintain control despite de-Stalinisation."
-    },
-  {
-      topicId: "t4",
-      q: "Which statement best describes continuity under Khrushchev?",
-      choices: [
-        "One-party control and coercion remained, even as terror reduced",
-        "The USSR became a liberal multi-party democracy",
-        "The secret police were permanently abolished and never replaced",
-        "The Duma regained power"
-      ],
-      answer: "One-party control and coercion remained, even as terror reduced",
-      explain: "The system’s fundamentals persisted despite changes in tone."
-    },
-  {
-      topicId: "t4",
-      q: "What is the most accurate description of the Thaw?",
-      choices: [
-        "Unlimited freedom and no censorship",
-        "Some cultural liberalisation but with clear boundaries",
-        "A return to mass purges",
-        "A complete end to propaganda"
-      ],
-      answer: "Some cultural liberalisation but with clear boundaries",
-      explain: "Culture opened somewhat, but dissent was still constrained."
-    },
-  {
-      topicId: "t4",
-      q: "Khrushchev’s removal in 1964 most directly shows…",
-      choices: [
-        "The USSR had free elections",
-        "Party elites could remove a leader through internal action",
-        "The end of one-party rule",
-        "A return to Tsarist monarchy"
-      ],
-      answer: "Party elites could remove a leader through internal action",
-      explain: "A party coup removed him, reflecting elite dissatisfaction."
-    },
-  {
-      topicId: "t4",
-      q: "Which is a correct timeline for key Khrushchev-era events?",
-      choices: [
-        "Collective leadership (1953–56) → Secret Speech (1956) → Sovnarkhozy (1957) → Novocherkassk (1962) → Removal (1964)",
-        "Secret Speech (1956) → Collective leadership (1953–56) → Removal (1964) → Sovnarkhozy (1957)",
-        "Removal (1964) → Sovnarkhozy (1957) → Secret Speech (1956) → Novocherkassk (1962)",
-        "Virgin Lands (1954) → Brest-Litovsk (1918) → Removal (1964) → Bloody Sunday (1905)"
-      ],
-      answer: "Collective leadership (1953–56) → Secret Speech (1956) → Sovnarkhozy (1957) → Novocherkassk (1962) → Removal (1964)",
-      explain: "That sequence matches the period’s key developments."
-    },
-  {
-      topicId: "t4",
-      q: "Which policy was mainly agricultural in focus?",
-      choices: ["Virgin Lands Scheme", "Sovnarkhozy", "Secret Speech", "Thaw"],
-      answer: "Virgin Lands Scheme",
-      explain: "Virgin Lands was aimed at boosting grain output by expanding cultivation."
-    },
-  {
-      topicId: "t4",
-      q: "Which policy was mainly administrative/economic decentralisation?",
-      choices: ["Sovnarkhozy", "Virgin Lands", "Secret Speech", "Collective leadership"],
-      answer: "Sovnarkhozy",
-      explain: "Sovnarkhozy created regional economic councils to decentralise planning."
-    },
-  {
-      topicId: "t4",
-      q: "A key reason de-Stalinisation was ‘limited’ is that…",
-      choices: [
-        "The Party ended itself",
-        "One-party rule remained and repression returned when challenged",
-        "The USSR introduced the Duma",
-        "The Gulag expanded rapidly"
-      ],
-      answer: "One-party rule remained and repression returned when challenged",
-      explain: "Reform did not end core political controls."
-    },
-  {
-      topicId: "t4",
-      q: "Which statement best explains why the Secret Speech was risky for Khrushchev?",
-      choices: [
-        "It strengthened Stalin’s cult",
-        "It undermined legitimacy of the system by exposing terror and abuses",
-        "It ended all economic problems instantly",
-        "It restored the monarchy"
-      ],
-      answer: "It undermined legitimacy of the system by exposing terror and abuses",
-      explain: "Criticising Stalin could destabilise beliefs about leadership and authority."
-    },
-  {
-      topicId: "t4",
-      q: "Which event is best evidence that coercion remained inside the USSR in the 1960s?",
-      choices: ["Novocherkassk (1962)", "Hungary (1956)", "Kirov (1934)", "Civil War (1918–21)"],
-      answer: "Novocherkassk (1962)",
-      explain: "Workers were shot, showing repression persisted domestically."
-    },
-  {
-      topicId: "t4",
-      q: "Which event is best evidence that coercion remained in the USSR’s sphere of influence?",
-      choices: ["Hungary (1956) crushed", "Emancipation (1861)", "October Manifesto (1905)", "NEP (1921)"],
-      answer: "Hungary (1956) crushed",
-      explain: "Soviet force enforced control in the bloc even after the Secret Speech."
-    },
-  {
-      topicId: "t4",
-      q: "What is the most accurate overall judgement of Khrushchev’s era (1953–64)?",
-      choices: [
-        "Total continuity with Stalin’s terror and cult",
-        "Meaningful change in tone and terror levels, but continuity in one-party control",
-        "Immediate democracy and end of Party rule",
-        "A return to Tsarist autocracy"
-      ],
-      answer: "Meaningful change in tone and terror levels, but continuity in one-party control",
-      explain: "Reforms mattered, but the political system’s fundamentals remained."
-    },
-  {
-      topicId: "t4",
-      q: "Which of the following is NOT a Khrushchev-era feature listed here?",
-      choices: ["Secret Speech", "Virgin Lands", "Sovnarkhozy", "October Manifesto"],
-      answer: "October Manifesto",
-      explain: "October Manifesto is 1905; the others are 1950s–60s reforms."
-    },
-  {
-      topicId: "t4",
-      q: "Why did Khrushchev’s policies sometimes create ‘zig-zags’?",
-      choices: [
-        "He never attempted reforms",
-        "He frequently changed direction, disrupting planning and annoying elites",
-        "He restored Stalin’s cult fully",
-        "He introduced the Duma to manage policy"
-      ],
-      answer: "He frequently changed direction, disrupting planning and annoying elites",
-      explain: "Inconsistency contributed to elite dissatisfaction and his removal."
-    },
-  {
-      topicId: "t4",
-      q: "Which statement best connects reform and removal in 1964?",
-      choices: [
-        "Reform reduced disruption, so elites rewarded him with lifelong power",
-        "Reform attempts and inconsistency helped build elite opposition leading to a party coup",
-        "Reform ended all economic problems and created stability",
-        "Reform introduced elections that removed him"
-      ],
-      answer: "Reform attempts and inconsistency helped build elite opposition leading to a party coup",
-      explain: "Economic/administrative disruption and elite politics produced his removal."
+    {
+          topicId: "t1",
+          q: "Which year did Alexander II become Tsar?",
+          choices: ["1855", "1853", "1856", "1858"],
+          answer: "1855",
+          explain: "Alexander II became Tsar in 1855."
+        },
+    {
+          topicId: "t1",
+          q: "Which year was the Emancipation Edict issued?",
+          choices: ["1859", "1861", "1864", "1874"],
+          answer: "1861",
+          explain: "The Emancipation Edict was issued in 1861."
+        },
+    {
+          topicId: "t1",
+          q: "Which year did the Crimean War end?",
+          choices: ["1854", "1855", "1856", "1857"],
+          answer: "1856",
+          explain: "The Crimean War ended in 1856 (Treaty of Paris)."
+        },
+    {
+          topicId: "t1",
+          q: "Which year was Alexander II assassinated?",
+          choices: ["1879", "1880", "1882", "1881"],
+          answer: "1881",
+          explain: "Alexander II was assassinated in 1881."
+        },
+    {
+          topicId: "t1",
+          q: "Which year did Alexander III come to the throne?",
+          choices: ["1881", "1874", "1861", "1894"],
+          answer: "1881",
+          explain: "Alexander III succeeded in 1881."
+        },
+    {
+          topicId: "t1",
+          q: "Who proposed the “Loris-Melikov Constitution” style reforms?",
+          choices: ["Pobedonostsev", "Loris-Melikov", "Witte", "Vyshnegradsky"],
+          answer: "Loris-Melikov",
+          explain: "Loris-Melikov proposed limited consultative reforms in 1880–81."
+        },
+    {
+          topicId: "t1",
+          q: "Who was Minister of War and led the military reforms culminating in 1874?",
+          choices: ["Ignatiev", "Tolstoy", "Dmitri Milyutin", "Pobedonostsev"],
+          answer: "Dmitri Milyutin",
+          explain: "Dmitri Milyutin drove the military reforms, including the 1874 conscription law."
+        },
+    {
+          topicId: "t1",
+          q: "Who was the chief adviser/ideologue of reaction under Alexander III?",
+          choices: ["Herzen", "Witte", "Milyutin", "Pobedonostsev"],
+          answer: "Pobedonostsev",
+          explain: "Konstantin Pobedonostsev was the leading reactionary adviser."
+        },
+    {
+          topicId: "t1",
+          q: "Which body introduced elected local government at district/provincial level (1864)?",
+          choices: ["Zemstva", "State Duma", "Politburo", "Sovnarkom"],
+          answer: "Zemstva",
+          explain: "Zemstva were introduced in 1864."
+        },
+    {
+          topicId: "t1",
+          q: "Which institution was responsible for political surveillance and infiltration?",
+          choices: ["Third Section", "Okhrana", "Cheka", "NKVD"],
+          answer: "Okhrana",
+          explain: "The Okhrana was the tsarist political police."
+        },
+    {
+          topicId: "t1",
+          q: "Which reform introduced trial by jury and more independent courts (1864)?",
+          choices: ["Military reform", "Local government reform", "Judicial reform", "Education reform"],
+          answer: "Judicial reform",
+          explain: "The 1864 judicial reforms created more independent courts and jury trials."
+        },
+    {
+          topicId: "t1",
+          q: "Which reform created elected councils for towns and cities (1870)?",
+          choices: ["Zemstva reform", "Peasant land reform", "University reform", "Municipal (town) reform"],
+          answer: "Municipal (town) reform",
+          explain: "The 1870 municipal reforms created elected town dumas."
+        },
+    {
+          topicId: "t1",
+          q: "Which policy aimed to impose Russian language/culture across the empire?",
+          choices: ["Russification", "Collectivisation", "Glasnost", "Perestroika"],
+          answer: "Russification",
+          explain: "Russification promoted Russian language and culture across the empire."
+        },
+    {
+          topicId: "t1",
+          q: "Which term describes emergency powers allowing arrest/exile without trial (1881 onwards)?",
+          choices: ["Fundamental Laws", "Statute of State Security", "October Manifesto", "Decree on Land"],
+          answer: "Statute of State Security",
+          explain: "The 1881 Statute of State Security expanded emergency powers."
+        },
+    {
+          topicId: "t1",
+          q: "Which group was most directly targeted by the May Laws of 1882?",
+          choices: ["Poles", "Finns", "Jews", "Armenians"],
+          answer: "Jews",
+          explain: "The May Laws restricted Jewish residence and economic activity."
+        },
+    {
+          topicId: "t1",
+          q: "Which event is most closely associated with the People’s Will?",
+          choices: ["Decembrist Revolt", "Bloody Sunday", "July Days", "Assassination of Alexander II"],
+          answer: "Assassination of Alexander II",
+          explain: "The People’s Will assassinated Alexander II in 1881."
+        },
+    {
+          topicId: "t1",
+          q: "Which movement believed peasants were the key revolutionary force and “went to the people”?",
+          choices: ["Populism", "Marxism", "Liberalism", "Conservatism"],
+          answer: "Populism",
+          explain: "Populists believed the peasantry were the main revolutionary force."
+        },
+    {
+          topicId: "t1",
+          q: "Which individual is most associated with revolutionary publishing from exile in London?",
+          choices: ["Chernyshevsky", "Herzen", "Plekhanov", "Martov"],
+          answer: "Herzen",
+          explain: "Alexander Herzen published revolutionary ideas from London (e.g., The Bell)."
+        },
+    {
+          topicId: "t1",
+          q: "What were the long-term payments peasants made after emancipation called?",
+          choices: ["Quit rents", "Capitation tax", "Redemption payments", "Guild dues"],
+          answer: "Redemption payments",
+          explain: "Redemption payments were long-term payments for land after emancipation."
+        },
+    {
+          topicId: "t1",
+          q: "Which body was the peasant commune responsible for allocating land and collecting taxes?",
+          choices: ["Zemstvo", "Duma", "Senate", "Mir"],
+          answer: "Mir",
+          explain: "The mir (commune) managed land allocation and tax collection."
+        },
+    {
+          topicId: "t1",
+          q: "Which reform most directly threatened noble control at local level (prompting backlash)?",
+          choices: ["Zemstva reform", "Russification", "May Laws", "Censorship rules"],
+          answer: "Zemstva reform",
+          explain: "Zemstva reduced exclusive noble control over local administration."
+        },
+    {
+          topicId: "t1",
+          q: "Which measure most directly increased state control over the countryside under Alexander III?",
+          choices: ["Municipal councils", "Land Captains", "Trial by jury", "University autonomy"],
+          answer: "Land Captains",
+          explain: "Land Captains (1889) strengthened state control over peasants and local justice."
+        },
+    {
+          topicId: "t1",
+          q: "Which earlier body was replaced/reformed into the Okhrana in the 1880s?",
+          choices: ["Politburo", "Zemstva", "Third Section", "Comintern"],
+          answer: "Third Section",
+          explain: "The Third Section was replaced/reorganised, leading to the Okhrana in the 1880s."
+        },
+    {
+          topicId: "t1",
+          q: "Which economic development expanded rapidly in late 19th-century Russia?",
+          choices: ["Cottage weaving", "Handicrafts", "Domestic wine trade", "Railway construction"],
+          answer: "Railway construction",
+          explain: "Railway construction expanded rapidly, supporting industrial growth."
+        },
+    {
+          topicId: "t1",
+          q: "Which Finance Minister (from 1892) is most linked to rapid industrialisation?",
+          choices: ["Sergei Witte", "Loris-Melikov", "Pobedonostsev", "Dmitri Tolstoy"],
+          answer: "Sergei Witte",
+          explain: "Sergei Witte drove state-led industrialisation from 1892."
+        },
+    {
+          topicId: "t1",
+          q: "Which approach best describes how industrialisation was funded in this period?",
+          choices: ["Worker cooperatives", "Foreign loans/investment", "Decollectivised farming", "Abolition of tariffs"],
+          answer: "Foreign loans/investment",
+          explain: "Industrialisation relied heavily on state direction and foreign loans/investment."
+        },
+    {
+          topicId: "t1",
+          q: "Which region was strongly associated with coal/iron and heavy industry growth?",
+          choices: ["Baltic provinces", "Siberia", "Donbass", "Finland"],
+          answer: "Donbass",
+          explain: "The Donbass region became a major coal/iron and heavy industry area."
+        },
+    {
+          topicId: "t1",
+          q: "Which major railway project began in the 1890s to link European Russia to the Far East?",
+          choices: ["Baltic Line", "Caucasus Line", "Volga Line", "Trans-Siberian Railway"],
+          answer: "Trans-Siberian Railway",
+          explain: "The Trans-Siberian Railway began in the 1890s."
+        },
+    {
+          topicId: "t1",
+          q: "Which factor most limited domestic demand for industrial goods?",
+          choices: ["Peasant poverty", "Over-urbanisation", "Too many exports", "High wages"],
+          answer: "Peasant poverty",
+          explain: "Peasant poverty limited internal demand for manufactured goods."
+        },
+    {
+          topicId: "t1",
+          q: "Which tax source was heavily relied on by the state and hit ordinary people most?",
+          choices: ["Land tax on nobles", "Indirect taxes (eg vodka)", "Inheritance tax", "Corporation tax"],
+          answer: "Indirect taxes (eg vodka)",
+          explain: "The state relied heavily on indirect taxes such as vodka."
+        },
+    {
+          topicId: "t1",
+          q: "Which reform increased primary schooling and placed it under tighter state/church influence?",
+          choices: ["University Statute", "Judicial Statute", "Education reforms (1860s–70s)", "October Manifesto"],
+          answer: "Education reforms (1860s–70s)",
+          explain: "Education reforms expanded schooling but kept strong state/church influence."
+        },
+    {
+          topicId: "t1",
+          q: "Which change is most associated with Alexander III’s reaction in education?",
+          choices: ["Wider university autonomy", "More student self-government", "More local freedom in curricula", "1884 University Statute (reduced autonomy)"],
+          answer: "1884 University Statute (reduced autonomy)",
+          explain: "The 1884 University Statute reduced university autonomy under Alexander III."
+        },
+    {
+          topicId: "t1",
+          q: "Which institution governed the Orthodox Church under state oversight?",
+          choices: ["Holy Synod", "State Duma", "Sovnarkom", "Politburo"],
+          answer: "Holy Synod",
+          explain: "The Holy Synod governed the Orthodox Church under state oversight."
+        },
+    {
+          topicId: "t1",
+          q: "Which uprising intensified repression and Russification in the western provinces?",
+          choices: ["1905 Revolution", "1863 Polish (January) Uprising", "1917 February Revolution", "1825 Decembrist Revolt"],
+          answer: "1863 Polish (January) Uprising",
+          explain: "The 1863 Polish uprising intensified repression and Russification."
+        },
+    {
+          topicId: "t1",
+          q: "Which policy aimed to reduce autonomy and impose Russian control over borderlands?",
+          choices: ["Federalism", "Devolution", "Russification", "Glasnost"],
+          answer: "Russification",
+          explain: "Russification reduced autonomy and imposed Russian control in borderlands."
+        },
+    {
+          topicId: "t1",
+          q: "Which description best matches the Statute of State Security?",
+          choices: ["Elected parliament", "Freedom of press", "Universal suffrage", "Emergency powers for arrest/exile"],
+          answer: "Emergency powers for arrest/exile",
+          explain: "The Statute of State Security granted emergency powers for arrest and exile."
+        },
+    {
+          topicId: "t1",
+          q: "Which statement best reflects continuity across 1855–1894?",
+          choices: ["Autocracy remained central despite reforms", "Russia became a constitutional monarchy", "Political parties were legalised", "The Tsar lost control of ministers"],
+          answer: "Autocracy remained central despite reforms",
+          explain: "Despite reforms and reaction, autocracy remained the core principle."
+        },
+    {
+          topicId: "t1",
+          q: "Which tactic became more prominent among radicals by the late 1870s?",
+          choices: ["Legal petitioning", "Terrorism/assassination attempts", "Parliamentary lobbying", "Trade-union bargaining"],
+          answer: "Terrorism/assassination attempts",
+          explain: "Radicals increasingly used terrorism (e.g., People’s Will) in the late 1870s."
+        },
+    {
+          topicId: "t1",
+          q: "Which group was most associated with “propaganda by the deed” and direct attacks?",
+          choices: ["Kadets", "Octobrists", "People’s Will", "Black Hundreds"],
+          answer: "People’s Will",
+          explain: "People’s Will promoted direct action/terrorism against the regime."
+        },
+    {
+          topicId: "t1",
+          q: "Which is the best explanation for why Alexander III pursued reaction after 1881?",
+          choices: ["To introduce democracy", "To weaken the nobility", "To decentralise power", "To restore control after assassination/terror threat"],
+          answer: "To restore control after assassination/terror threat",
+          explain: "Alexander III reacted to the assassination and wider terror threat by tightening control."
+        },
+    {
+          topicId: "t1",
+          q: "Which goal best matches Witte’s industrial policy?",
+          choices: ["Strengthen the state via heavy industry", "Return to serf-based farming", "Reduce railways to cut spending", "Expand peasant mir power"],
+          answer: "Strengthen the state via heavy industry",
+          explain: "Witte prioritised heavy industry to strengthen the state and Great Power status."
+        },
+    {
+          topicId: "t1",
+          q: "Which outcome is most directly linked to rapid industrialisation?",
+          choices: ["Decline in urban workforce", "Growth of an urban working class", "End of censorship", "Creation of a national parliament"],
+          answer: "Growth of an urban working class",
+          explain: "Industrialisation expanded the urban working class."
+        },
+    {
+          topicId: "t1",
+          q: "Which feature most limited the “freedom” of emancipated peasants?",
+          choices: ["Universal suffrage", "Factory wage controls", "Commune restrictions and redemption payments", "Free land without payment"],
+          answer: "Commune restrictions and redemption payments",
+          explain: "The mir and redemption payments limited peasant freedom after 1861."
+        },
+    {
+          topicId: "t1",
+          q: "Which event happened first?",
+          choices: ["1874 military reform", "1881 assassination", "1894 accession of Nicholas II", "Emancipation of the serfs"],
+          answer: "Emancipation of the serfs",
+          explain: "The emancipation of the serfs occurred first (1861)."
+        },
+    {
+          topicId: "t1",
+          q: "Which person is best linked to the idea that the Tsar’s power should be unlimited and divinely sanctioned?",
+          choices: ["Pobedonostsev", "Witte", "Loris-Melikov", "Milyutin"],
+          answer: "Pobedonostsev",
+          explain: "Pobedonostsev defended autocracy as divinely sanctioned and unlimited."
+        },
+    {
+          topicId: "t1",
+          q: "Which reform reduced the independence of local government most clearly?",
+          choices: ["Zemstva creation", "Land Captains introduction", "Trial by jury", "Municipal reform"],
+          answer: "Land Captains introduction",
+          explain: "Land Captains curtailed local autonomy and strengthened central control."
+        },
+    {
+          topicId: "t1",
+          q: "Which policy area tightened notably under Alexander III?",
+          choices: ["Trade union rights", "Electoral reform", "Censorship/press control", "Women’s suffrage"],
+          answer: "Censorship/press control",
+          explain: "Censorship and press controls tightened under Alexander III."
+        },
+    {
+          topicId: "t1",
+          q: "Which policy most restricted Jewish residence and economic activity?",
+          choices: ["Zemstva Act", "Municipal Statute", "Military Reform", "May Laws"],
+          answer: "May Laws",
+          explain: "The May Laws (1882) restricted Jewish residence and economic activity."
+        },
+    {
+          topicId: "t1",
+          q: "Which structural weakness made industrial growth fragile?",
+          choices: ["Reliance on agriculture/peasant poverty", "Too large a middle class", "Overproduction of consumer goods", "Excess political freedom"],
+          answer: "Reliance on agriculture/peasant poverty",
+          explain: "Industrial growth was fragile due to dependence on agriculture and widespread poverty."
+        },
+    {
+          topicId: "t1",
+          q: "Which policy was used to protect Russian industry?",
+          choices: ["Abolition of tariffs", "Protective tariffs", "Free-trade treaties", "Currency devaluation only"],
+          answer: "Protective tariffs",
+          explain: "Protective tariffs were used to shield Russian industry."
+        },
+    {
+          topicId: "t1",
+          q: "Which area was prioritised over consumer goods in late 19th-century industrial strategy?",
+          choices: ["Heavy industry", "Small retail", "Cottage crafts", "Domestic services"],
+          answer: "Heavy industry",
+          explain: "Policy prioritised heavy industry over consumer goods."
+        },
+    {
+          topicId: "t1",
+          q: "Which group supplied much of the new labour force for factories?",
+          choices: ["Nobles", "Clergy", "Middle-class professionals", "Peasants migrating to towns"],
+          answer: "Peasants migrating to towns",
+          explain: "Peasants migrating to towns supplied much of the new factory labour."
+        },
+    {
+          topicId: "t1",
+          q: "Which policy best describes Witte’s approach to modernising the economy?",
+          choices: ["State-led industrialisation", "Abolition of the state budget", "Ending railways to cut debt", "Prioritising artisan workshops"],
+          answer: "State-led industrialisation",
+          explain: "Witte pursued state-led industrialisation with planning, tariffs and investment."
+        },
+    {
+          topicId: "t1",
+          q: "Which product was a major source of state revenue via taxation?",
+          choices: ["Bread", "Vodka", "Cotton", "Tea"],
+          answer: "Vodka",
+          explain: "Vodka taxes were a major source of state revenue."
+        },
+    {
+          topicId: "t1",
+          q: "Why did the state push industrialisation in the 1890s?",
+          choices: ["To weaken the army", "To reduce Great Power status", "To strengthen military/economic power", "To create democracy"],
+          answer: "To strengthen military/economic power",
+          explain: "Industrialisation was pushed to strengthen Russia’s military and economic power."
+        },
+    {
+          topicId: "t1",
+          q: "Which best explains why industrialisation did not immediately democratise politics by 1894?",
+          choices: ["Industrial workers dominated the Duma", "The Tsar embraced constitutionalism", "Political parties were legal", "Industrialisation remained limited and tightly state-controlled"],
+          answer: "Industrialisation remained limited and tightly state-controlled",
+          explain: "Industrialisation was uneven and tightly state-directed; autocracy remained intact."
+        },
+    {
+          topicId: "t1",
+          q: "Which factor most threatened autocracy in the late 1870s–1881 period?",
+          choices: ["Revolutionary terrorism", "Universal suffrage", "A powerful parliament", "Legal trade unions"],
+          answer: "Revolutionary terrorism",
+          explain: "Revolutionary terrorism (e.g., People’s Will) posed the sharpest threat."
+        },
+    {
+          topicId: "t1",
+          q: "Which factor best helped the regime survive despite unrest?",
+          choices: ["A free press", "Strong coercive apparatus (police/army)", "Parliamentary accountability", "Multi-party elections"],
+          answer: "Strong coercive apparatus (police/army)",
+          explain: "The coercive apparatus helped the regime survive unrest."
+        },
+    {
+          topicId: "t1",
+          q: "Which best characterises Alexander II’s reforms in relation to autocracy?",
+          choices: ["They abolished autocracy", "They created constitutional monarchy", "They modernised the state while preserving autocracy", "They legalised opposition parties"],
+          answer: "They modernised the state while preserving autocracy",
+          explain: "The reforms modernised institutions but aimed to preserve autocratic rule."
+        },
+    {
+          topicId: "t1",
+          q: "Which is the best judgement about preservation of autocracy by 1894?",
+          choices: ["Autocracy collapsed completely", "Russia became democratic", "Autocracy survived but was strengthened by popular consent", "Autocracy survived, but reforms and modernisation created longer-term pressures"],
+          answer: "Autocracy survived, but reforms and modernisation created longer-term pressures",
+          explain: "Autocracy survived to 1894, but reforms and modernisation increased long-term pressures."
+        },
+    {
+          topicId: "t2",
+          q: "Which year did Nicholas II become Tsar?",
+          choices: ["1894", "1891", "1898", "1900"],
+          answer: "1894",
+          explain: "Nicholas II became Tsar in 1894."
+        },
+    {
+          topicId: "t2",
+          q: "Which event damaged Nicholas II's reputation in 1896?",
+          choices: ["Lena Goldfields Massacre", "Khodynka Tragedy", "Bloody Sunday", "October Manifesto"],
+          answer: "Khodynka Tragedy",
+          explain: "The Khodynka Tragedy (1896) damaged Nicholas II's reputation."
+        },
+    {
+          topicId: "t2",
+          q: "Who served as Finance Minister and promoted rapid industrialisation in the 1890s?",
+          choices: ["Stolypin", "Plehve", "Witte", "Kerensky"],
+          answer: "Witte",
+          explain: "Sergei Witte promoted state-led industrialisation in the 1890s."
+        },
+    {
+          topicId: "t2",
+          q: "Which policy aimed to expand heavy industry and railways in the 1890s?",
+          choices: ["Stolypin's land reforms", "Witte's state-led industrialisation", "War Communism", "NEP"],
+          answer: "Witte's state-led industrialisation",
+          explain: "Witte's state-led industrialisation prioritised heavy industry and railways."
+        },
+    {
+          topicId: "t2",
+          q: "The Russo-Japanese War began in which year?",
+          choices: ["1902", "1903", "1904", "1905"],
+          answer: "1904",
+          explain: "The Russo-Japanese War began in 1904."
+        },
+    {
+          topicId: "t2",
+          q: "Which naval defeat symbolised Russian humiliation in 1905?",
+          choices: ["Battle of Mukden", "Battle of Port Arthur", "Battle of Manchuria", "Battle of Tsushima"],
+          answer: "Battle of Tsushima",
+          explain: "Tsushima (1905) was a major naval defeat."
+        },
+    {
+          topicId: "t2",
+          q: "The defeat in the Russo-Japanese War primarily led to:",
+          choices: ["Immediate abdication", "The 1905 Revolution", "World War I", "Stolypin reforms"],
+          answer: "The 1905 Revolution",
+          explain: "Defeat helped trigger the 1905 Revolution."
+        },
+    {
+          topicId: "t2",
+          q: "Bloody Sunday occurred in which year?",
+          choices: ["1904", "1905", "1906", "1907"],
+          answer: "1905",
+          explain: "Bloody Sunday took place in 1905."
+        },
+    {
+          topicId: "t2",
+          q: "Who led the march to the Winter Palace in January 1905?",
+          choices: ["Trotsky", "Lenin", "Father Gapon", "Kerensky"],
+          answer: "Father Gapon",
+          explain: "Father Gapon led the march in January 1905."
+        },
+    {
+          topicId: "t2",
+          q: "Which document promised civil liberties and a Duma?",
+          choices: ["Fundamental Laws", "April Theses", "October Manifesto", "July Decree"],
+          answer: "October Manifesto",
+          explain: "The October Manifesto promised civil liberties and a Duma."
+        },
+    {
+          topicId: "t2",
+          q: "Which body emerged in 1905 as a workers' council?",
+          choices: ["Zemstvo", "Politburo", "Okhrana", "Soviet"],
+          answer: "Soviet",
+          explain: "Workers' councils were known as soviets."
+        },
+    {
+          topicId: "t2",
+          q: "Which political party supported constitutional monarchy?",
+          choices: ["Bolsheviks", "Kadets", "Black Hundreds", "SRs"],
+          answer: "Kadets",
+          explain: "Kadets supported constitutionalism and reform."
+        },
+    {
+          topicId: "t2",
+          q: "The First Duma met in which year?",
+          choices: ["1905", "1906", "1907", "1910"],
+          answer: "1906",
+          explain: "The First Duma met in 1906."
+        },
+    {
+          topicId: "t2",
+          q: "The Fundamental Laws (1906) confirmed that:",
+          choices: ["The Tsar retained supreme authority", "Russia was democratic", "The Duma controlled ministers", "The Tsar abdicated power"],
+          answer: "The Tsar retained supreme authority",
+          explain: "The Fundamental Laws reaffirmed the Tsar's supreme authority."
+        },
+    {
+          topicId: "t2",
+          q: "Which Duma was dissolved after only weeks due to radical demands?",
+          choices: ["Third", "Fourth", "First", "Second"],
+          answer: "First",
+          explain: "The First Duma was dissolved after only weeks."
+        },
+    {
+          topicId: "t2",
+          q: "The 1907 electoral reform primarily:",
+          choices: ["Expanded democracy", "Gave more power to workers", "Strengthened peasant representation", "Favoured landowners and conservatives"],
+          answer: "Favoured landowners and conservatives",
+          explain: "The 1907 electoral law favoured conservatives and landowners."
+        },
+    {
+          topicId: "t2",
+          q: "Who became Prime Minister in 1906 and pursued reform and repression?",
+          choices: ["Witte", "Stolypin", "Lvov", "Kerensky"],
+          answer: "Stolypin",
+          explain: "Stolypin became Prime Minister in 1906."
+        },
+    {
+          topicId: "t2",
+          q: "Stolypin's land reforms aimed to:",
+          choices: ["Strengthen peasant communes", "Collectivise farming", "Create a class of prosperous peasants", "Redistribute noble estates"],
+          answer: "Create a class of prosperous peasants",
+          explain: "Stolypin wanted to create prosperous peasants (kulaks)."
+        },
+    {
+          topicId: "t2",
+          q: "“Stolypin's necktie” referred to:",
+          choices: ["A tax reform", "Military uniform", "Peasant subsidy", "Hanging nooses used in repression"],
+          answer: "Hanging nooses used in repression",
+          explain: "‘Stolypin's necktie' referred to hangings used in repression."
+        },
+    {
+          topicId: "t2",
+          q: "Stolypin was assassinated in:",
+          choices: ["1909", "1911", "1913", "1914"],
+          answer: "1911",
+          explain: "Stolypin was assassinated in 1911."
+        },
+    {
+          topicId: "t2",
+          q: "Rapid industrialisation led to growth in:",
+          choices: ["Urban working class", "Noble estates", "Peasant communes", "Church authority"],
+          answer: "Urban working class",
+          explain: "Industrialisation expanded the urban working class."
+        },
+    {
+          topicId: "t2",
+          q: "Which massacre in 1912 reignited worker unrest?",
+          choices: ["Bloody Sunday", "Khodynka", "Lena Goldfields", "Port Arthur"],
+          answer: "Lena Goldfields",
+          explain: "The Lena Goldfields Massacre (1912) reignited unrest."
+        },
+    {
+          topicId: "t2",
+          q: "Industrialisation created political tension because:",
+          choices: ["Workers gained votes", "Urbanisation increased unrest", "Nobles lost estates immediately", "Tsar introduced democracy"],
+          answer: "Urbanisation increased unrest",
+          explain: "Urbanisation and poor conditions increased unrest."
+        },
+    {
+          topicId: "t2",
+          q: "Russia entered World War I in:",
+          choices: ["1913", "1914", "1915", "1916"],
+          answer: "1914",
+          explain: "Russia entered WWI in 1914."
+        },
+    {
+          topicId: "t2",
+          q: "Nicholas II took personal command of the army in:",
+          choices: ["1914", "1915", "1916", "1917"],
+          answer: "1915",
+          explain: "Nicholas II took command in 1915."
+        },
+    {
+          topicId: "t2",
+          q: "Taking command of the army meant Nicholas:",
+          choices: ["Strengthened authority", "Delegated power to the Duma", "Became personally blamed for defeats", "Left Petrograd permanently"],
+          answer: "Became personally blamed for defeats",
+          explain: "Taking command tied Nicholas personally to military failures."
+        },
+    {
+          topicId: "t2",
+          q: "Who became increasingly influential at court during WWI?",
+          choices: ["Trotsky", "Rasputin", "Lenin", "Stolypin"],
+          answer: "Rasputin",
+          explain: "Rasputin became influential at court during WWI."
+        },
+    {
+          topicId: "t2",
+          q: "Which was the most serious domestic wartime issue?",
+          choices: ["Electoral reform", "Food shortages in cities", "Peasant land hunger", "University autonomy"],
+          answer: "Food shortages in cities",
+          explain: "Food shortages in cities were a critical wartime problem."
+        },
+    {
+          topicId: "t2",
+          q: "The February Revolution occurred in:",
+          choices: ["1915", "1916", "1917", "1918"],
+          answer: "1917",
+          explain: "The February Revolution took place in 1917."
+        },
+    {
+          topicId: "t2",
+          q: "The February Revolution began with strikes over:",
+          choices: ["Wages", "Bread shortages", "Elections", "Taxes"],
+          answer: "Bread shortages",
+          explain: "Strikes began over bread shortages."
+        },
+    {
+          topicId: "t2",
+          q: "Why was the Tsar unable to suppress the February Revolution?",
+          choices: ["Duma refused", "Okhrana dissolved", "Army officers revolted", "Troops mutinied and refused orders"],
+          answer: "Troops mutinied and refused orders",
+          explain: "Troops mutinied and refused to fire on crowds."
+        },
+    {
+          topicId: "t2",
+          q: "Nicholas II abdicated in:",
+          choices: ["January 1917", "February 1917", "March 1917", "April 1917"],
+          answer: "March 1917",
+          explain: "Nicholas II abdicated in March 1917."
+        },
+    {
+          topicId: "t2",
+          q: "Which best explains long-term failure of autocracy?",
+          choices: ["Too much democracy", "Inability to reform political system meaningfully", "Strong middle class support", "Effective Duma control"],
+          answer: "Inability to reform political system meaningfully",
+          explain: "Autocracy failed to reform meaningfully and lost support."
+        },
+    {
+          topicId: "t2",
+          q: "Which party split into Bolsheviks and Mensheviks?",
+          choices: ["SRs", "Kadets", "Social Democrats", "Black Hundreds"],
+          answer: "Social Democrats",
+          explain: "The Social Democratic party split into Bolsheviks and Mensheviks."
+        },
+    {
+          topicId: "t2",
+          q: "Which describes the Third Duma (1907–1912)?",
+          choices: ["Radical socialist", "Liberal dominated", "Conservative and compliant", "Revolutionary"],
+          answer: "Conservative and compliant",
+          explain: "The Third Duma was conservative and more compliant."
+        },
+    {
+          topicId: "t2",
+          q: "Which factor most undermined Nicholas II's authority?",
+          choices: ["Zemstva", "Electoral reform", "Church independence", "Combination of war and political incompetence"],
+          answer: "Combination of war and political incompetence",
+          explain: "WWI plus political incompetence undermined Nicholas II."
+        },
+    {
+          topicId: "t2",
+          q: "Which body formed in 1915 to support war effort?",
+          choices: ["Zemgor Union", "Politburo", "Cheka", "Sovnarkom"],
+          answer: "Zemgor Union",
+          explain: "Zemgor was formed in 1915 to support the war effort."
+        },
+    {
+          topicId: "t2",
+          q: "Which group supported autocracy and attacked minorities?",
+          choices: ["Kadets", "Bolsheviks", "Black Hundreds", "SRs"],
+          answer: "Black Hundreds",
+          explain: "The Black Hundreds supported autocracy and used violence."
+        },
+    {
+          topicId: "t2",
+          q: "Which treaty ended the Russo-Japanese War?",
+          choices: ["Treaty of Portsmouth", "Treaty of Brest-Litovsk", "Treaty of Paris", "Treaty of Tilsit"],
+          answer: "Treaty of Portsmouth",
+          explain: "The Treaty of Portsmouth ended the Russo-Japanese War."
+        },
+    {
+          topicId: "t2",
+          q: "Which was a key weakness of the First Duma?",
+          choices: ["Too conservative", "Lacked radical demands", "Controlled the army", "Limited powers under Fundamental Laws"],
+          answer: "Limited powers under Fundamental Laws",
+          explain: "The Fundamental Laws limited the Duma's powers."
+        },
+    {
+          topicId: "t2",
+          q: "Which group represented peasant interests?",
+          choices: ["SRs", "Kadets", "Octobrists", "Black Hundreds"],
+          answer: "SRs",
+          explain: "The SRs claimed to represent peasant interests."
+        },
+    {
+          topicId: "t2",
+          q: "Which factor best explains why 1905 did NOT end autocracy?",
+          choices: ["Tsar abdicated", "Army remained loyal overall", "Soviets took power", "Duma gained full authority"],
+          answer: "Army remained loyal overall",
+          explain: "The army largely remained loyal, helping the regime survive."
+        },
+    {
+          topicId: "t2",
+          q: "Which city was renamed Petrograd in 1914?",
+          choices: ["Moscow", "Kiev", "St Petersburg", "Odessa"],
+          answer: "St Petersburg",
+          explain: "St Petersburg was renamed Petrograd in 1914."
+        },
+    {
+          topicId: "t2",
+          q: "Which event demonstrated regime weakness before WWI?",
+          choices: ["Stolypin reforms", "Lena Goldfields Massacre", "Creation of Third Duma", "Russification"],
+          answer: "Lena Goldfields Massacre",
+          explain: "The Lena Goldfields Massacre showed deep unrest."
+        },
+    {
+          topicId: "t2",
+          q: "Which best describes Nicholas II's political style?",
+          choices: ["Flexible reformer", "Reluctant autocrat", "Consistent constitutionalist", "Committed autocrat resistant to reform"],
+          answer: "Committed autocrat resistant to reform",
+          explain: "Nicholas II resisted meaningful reform."
+        },
+    {
+          topicId: "t2",
+          q: "Which group was most radical in 1917?",
+          choices: ["Kadets", "Bolsheviks", "Octobrists", "Liberals"],
+          answer: "Bolsheviks",
+          explain: "The Bolsheviks were the most radical major party in 1917."
+        },
+    {
+          topicId: "t2",
+          q: "Which was the most decisive short-term cause of collapse in 1917?",
+          choices: ["1905 Revolution", "Stolypin's death", "Rasputin's influence", "World War I military and economic crisis"],
+          answer: "World War I military and economic crisis",
+          explain: "WWI created a severe military and economic crisis."
+        },
+    {
+          topicId: "t2",
+          q: "Which best explains peasant attitudes by 1917?",
+          choices: ["Loyal to Tsar", "Satisfied with land reforms", "Still frustrated by land hunger", "Opposed industrialisation"],
+          answer: "Still frustrated by land hunger",
+          explain: "Many peasants remained frustrated by land hunger."
+        },
+    {
+          topicId: "t2",
+          q: "Which group dominated the Provisional Government initially?",
+          choices: ["Bolsheviks", "Liberals (Kadets)", "Black Hundreds", "SR terrorists"],
+          answer: "Liberals (Kadets)",
+          explain: "Liberals (Kadets) dominated the early Provisional Government."
+        },
+    {
+          topicId: "t2",
+          q: "Which structural issue most weakened wartime transport?",
+          choices: ["Excess democracy", "Rail network overstretched and inefficient", "Too much foreign trade", "High wages"],
+          answer: "Rail network overstretched and inefficient",
+          explain: "Transport struggled due to an overstretched rail system."
+        },
+    {
+          topicId: "t2",
+          q: "Which body increasingly challenged Tsar during WWI?",
+          choices: ["Duma Progressive Bloc", "Politburo", "Cheka", "Mir"],
+          answer: "Duma Progressive Bloc",
+          explain: "The Progressive Bloc criticised the government during WWI."
+        },
+    {
+          topicId: "t2",
+          q: "Which problem most undermined morale in 1916–17?",
+          choices: ["University reform", "Short working hours", "Food shortages and inflation", "Peasant wealth"],
+          answer: "Food shortages and inflation",
+          explain: "Food shortages and inflation undermined morale."
+        },
+    {
+          topicId: "t2",
+          q: "Which was a long-term weakness of Nicholas II?",
+          choices: ["Excess flexibility", "Willingness to compromise", "Strong political skill", "Failure to share power meaningfully"],
+          answer: "Failure to share power meaningfully",
+          explain: "Nicholas II failed to share power and build support."
+        },
+    {
+          topicId: "t2",
+          q: "Which institution replaced autocracy after abdication?",
+          choices: ["Politburo", "Provisional Government", "Cheka", "Sovnarkom"],
+          answer: "Provisional Government",
+          explain: "After abdication, power passed to the Provisional Government."
+        },
+    {
+          topicId: "t2",
+          q: "Which best explains why Dumas failed to stabilise regime?",
+          choices: ["Too powerful", "Controlled army", "Restricted by Tsar and electoral laws", "Popular support collapsed immediately"],
+          answer: "Restricted by Tsar and electoral laws",
+          explain: "The Tsar and electoral laws restricted the Dumas."
+        },
+    {
+          topicId: "t2",
+          q: "Which group organised workers in 1917?",
+          choices: ["Zemstva", "Soviets", "Senate", "Holy Synod"],
+          answer: "Soviets",
+          explain: "Soviets organised workers in 1917."
+        },
+    {
+          topicId: "t2",
+          q: "Which best describes relationship between Tsar and Duma?",
+          choices: ["Cooperative partnership", "Duma dominated", "Tsar repeatedly dissolved and limited it", "Duma abolished in 1906"],
+          answer: "Tsar repeatedly dissolved and limited it",
+          explain: "Nicholas II repeatedly limited and dissolved Dumas."
+        },
+    {
+          topicId: "t2",
+          q: "Which factor meant repression was less effective by 1917?",
+          choices: ["Okhrana expanded", "Army loyalty weakened", "Censorship strengthened", "Church grew powerful"],
+          answer: "Army loyalty weakened",
+          explain: "Repression faltered as army loyalty weakened."
+        },
+    {
+          topicId: "t2",
+          q: "Which is the best overall explanation for failure of autocracy 1894–1917?",
+          choices: ["Single assassination", "Economic success", "Combination of political inflexibility and war crisis", "Zemstva reforms"],
+          answer: "Combination of political inflexibility and war crisis",
+          explain: "Political inflexibility plus the war crisis explains collapse."
+        },
+    {
+          topicId: "t2",
+          q: "Which judgement best reflects Topic 2 as a whole?",
+          choices: ["Autocracy modernised successfully", "Nicholas II strengthened legitimacy", "Reform prevented revolution", "Autocracy survived 1905 but was fatally weakened by WWI"],
+          answer: "Autocracy survived 1905 but was fatally weakened by WWI",
+          explain: "Autocracy survived 1905, but WWI fatally weakened it."
+        },
+    {
+          topicId: "t3",
+          q: "The Bolsheviks seized power in Petrograd in:",
+          choices: ["October 1917", "September 1917", "November 1916", "January 1918"],
+          answer: "October 1917",
+          explain: "The Bolsheviks seized power in Petrograd in October 1917."
+        },
+    {
+          topicId: "t3",
+          q: "Who led the Bolsheviks in October 1917?",
+          choices: ["Trotsky", "Lenin", "Kamenev", "Zinoviev"],
+          answer: "Lenin",
+          explain: "Lenin was the leading Bolshevik figure in October 1917."
+        },
+    {
+          topicId: "t3",
+          q: "Which body replaced the Provisional Government after October?",
+          choices: ["Politburo", "Cheka", "Sovnarkom", "Duma"],
+          answer: "Sovnarkom",
+          explain: "Sovnarkom (Council of People's Commissars) became the new government."
+        },
+    {
+          topicId: "t3",
+          q: "Which event symbolised the Bolshevik takeover?",
+          choices: ["Storming of Winter Palace", "Treaty of Brest-Litovsk", "Kronstadt Mutiny", "Red Terror"],
+          answer: "Storming of Winter Palace",
+          explain: "The storming of the Winter Palace became the symbol of the takeover."
+        },
+    {
+          topicId: "t3",
+          q: "Which decree removed Russia from World War I negotiations?",
+          choices: ["Decree on Peace", "Decree on Land", "Decree on Workers’ Control", "New Economic Policy"],
+          answer: "Decree on Peace",
+          explain: "The Decree on Peace called for an end to the war."
+        },
+    {
+          topicId: "t3",
+          q: "Which decree redistributed land to peasants?",
+          choices: ["Decree on Peace", "Decree on Land", "Decree on Labour", "April Theses"],
+          answer: "Decree on Land",
+          explain: "The Decree on Land legitimised peasant land seizures."
+        },
+    {
+          topicId: "t3",
+          q: "Which secret police force was created in December 1917?",
+          choices: ["Okhrana", "NKVD", "Cheka", "Comintern"],
+          answer: "Cheka",
+          explain: "The Cheka was created in December 1917 to combat opposition."
+        },
+    {
+          topicId: "t3",
+          q: "The Constituent Assembly was dissolved in:",
+          choices: ["November 1917", "December 1917", "January 1918", "March 1918"],
+          answer: "January 1918",
+          explain: "The Constituent Assembly was dissolved in January 1918."
+        },
+    {
+          topicId: "t3",
+          q: "The dissolution of the Constituent Assembly showed that:",
+          choices: ["Bolsheviks supported democracy", "Multi-party politics continued", "Bolsheviks prioritised one-party rule", "SRs joined the government"],
+          answer: "Bolsheviks prioritised one-party rule",
+          explain: "Dissolving the Assembly showed a shift to one-party rule."
+        },
+    {
+          topicId: "t3",
+          q: "The Russian Civil War lasted roughly from:",
+          choices: ["1916–1918", "1917–1921", "1918–1921", "1919–1922"],
+          answer: "1918–1921",
+          explain: "The Civil War is usually dated 1918–1921."
+        },
+    {
+          topicId: "t3",
+          q: "The anti-Bolshevik forces were collectively known as:",
+          choices: ["Greens", "Whites", "Kadets", "Mensheviks"],
+          answer: "Whites",
+          explain: "The Bolsheviks’ main opponents were the Whites."
+        },
+    {
+          topicId: "t3",
+          q: "Who organised the Red Army?",
+          choices: ["Lenin", "Stalin", "Kamenev", "Trotsky"],
+          answer: "Trotsky",
+          explain: "Trotsky organised and led the Red Army."
+        },
+    {
+          topicId: "t3",
+          q: "Which factor most helped the Reds win the Civil War?",
+          choices: ["Foreign support", "Geographical central position", "Naval superiority", "Peasant loyalty to Whites"],
+          answer: "Geographical central position",
+          explain: "The Reds’ central position helped them move troops and supplies quickly."
+        },
+    {
+          topicId: "t3",
+          q: "Which best explains White failure?",
+          choices: ["Strong unity", "Popular land programme", "Internal divisions", "Urban support"],
+          answer: "Internal divisions",
+          explain: "The Whites were divided politically and militarily."
+        },
+    {
+          topicId: "t3",
+          q: "War Communism was introduced mainly to:",
+          choices: ["Improve democracy", "Win the Civil War", "Encourage free trade", "Increase foreign investment"],
+          answer: "Win the Civil War",
+          explain: "War Communism aimed to supply the Red Army and win the Civil War."
+        },
+    {
+          topicId: "t3",
+          q: "Which policy was part of War Communism?",
+          choices: ["Private trade", "Grain requisitioning", "Free market pricing", "Foreign loans"],
+          answer: "Grain requisitioning",
+          explain: "Grain requisitioning was central to War Communism."
+        },
+    {
+          topicId: "t3",
+          q: "War Communism resulted in:",
+          choices: ["Economic boom", "Agricultural surplus", "Improved living standards", "Severe economic collapse"],
+          answer: "Severe economic collapse",
+          explain: "War Communism contributed to economic collapse and famine."
+        },
+    {
+          topicId: "t3",
+          q: "The Red Terror began in:",
+          choices: ["1917", "1918", "1919", "1920"],
+          answer: "1918",
+          explain: "The Red Terror began in 1918."
+        },
+    {
+          topicId: "t3",
+          q: "The Red Terror aimed primarily to:",
+          choices: ["Expand democracy", "Encourage debate", "Eliminate opposition", "Support NEP"],
+          answer: "Eliminate opposition",
+          explain: "The Red Terror targeted enemies of the regime."
+        },
+    {
+          topicId: "t3",
+          q: "The Kronstadt Mutiny occurred in:",
+          choices: ["1919", "1920", "1921", "1922"],
+          answer: "1921",
+          explain: "The Kronstadt Mutiny took place in 1921."
+        },
+    {
+          topicId: "t3",
+          q: "Kronstadt was significant because it involved:",
+          choices: ["White generals", "Loyal Bolsheviks", "Former Red sailors turning against regime", "Foreign invasion"],
+          answer: "Former Red sailors turning against regime",
+          explain: "Kronstadt involved sailors who had previously supported the Bolsheviks."
+        },
+    {
+          topicId: "t3",
+          q: "The New Economic Policy was introduced in:",
+          choices: ["1919", "1920", "1922", "1921"],
+          answer: "1921",
+          explain: "Lenin introduced NEP in 1921."
+        },
+    {
+          topicId: "t3",
+          q: "NEP replaced War Communism by:",
+          choices: ["Collectivising farms", "Allowing limited private trade", "Ending markets", "Increasing requisitioning"],
+          answer: "Allowing limited private trade",
+          explain: "NEP allowed limited private trade to revive the economy."
+        },
+    {
+          topicId: "t3",
+          q: "The ban on factions was introduced in:",
+          choices: ["1918", "1919", "1921", "1922"],
+          answer: "1921",
+          explain: "The ban on factions was introduced at the 10th Party Congress in 1921."
+        },
+    {
+          topicId: "t3",
+          q: "The ban on factions showed:",
+          choices: ["Growing democracy", "Centralisation of party control", "Multi-party system", "End of dictatorship"],
+          answer: "Centralisation of party control",
+          explain: "Banning factions tightened party discipline and central control."
+        },
+    {
+          topicId: "t3",
+          q: "The USSR was officially formed in:",
+          choices: ["1921", "1922", "1923", "1924"],
+          answer: "1922",
+          explain: "The USSR was formed in December 1922."
+        },
+    {
+          topicId: "t3",
+          q: "Which group opposed Bolsheviks during Civil War in Ukraine?",
+          choices: ["Greens", "Soviets", "Cheka", "Kadets"],
+          answer: "Greens",
+          explain: "The Greens were peasant forces opposing both Reds and Whites."
+        },
+    {
+          topicId: "t3",
+          q: "Which treaty formally ended Russia’s involvement in WWI?",
+          choices: ["Treaty of Versailles", "Treaty of Brest-Litovsk", "Treaty of Trianon", "Treaty of Paris"],
+          answer: "Treaty of Brest-Litovsk",
+          explain: "Brest-Litovsk ended Russia’s participation in WWI."
+        },
+    {
+          topicId: "t3",
+          q: "Brest-Litovsk resulted in:",
+          choices: ["Territorial losses for Russia", "Expansion of empire", "Allied victory", "Economic growth"],
+          answer: "Territorial losses for Russia",
+          explain: "Russia lost significant territory under Brest-Litovsk."
+        },
+    {
+          topicId: "t3",
+          q: "Which group benefited most from NEP?",
+          choices: ["Heavy industry managers", "Nepmen (private traders)", "Red Army officers", "Party officials only"],
+          answer: "Nepmen (private traders)",
+          explain: "NEP created opportunities for Nepmen in private trade."
+        },
+    {
+          topicId: "t3",
+          q: "Which institution became central to Communist decision-making?",
+          choices: ["Politburo", "Duma", "Zemstvo", "Senate"],
+          answer: "Politburo",
+          explain: "The Politburo became the key decision-making body."
+        },
+    {
+          topicId: "t3",
+          q: "Which policy demonstrated Bolshevik hostility to religion?",
+          choices: ["Support of Holy Synod", "Decree separating Church and State", "Restoration of Church courts", "Tax exemption"],
+          answer: "Decree separating Church and State",
+          explain: "Separating Church and State reduced religious influence."
+        },
+    {
+          topicId: "t3",
+          q: "Which slogan summarised Bolshevik appeal in 1917?",
+          choices: ["Peace, Bread, Land", "Liberty, Equality, Fraternity", "Order and Stability", "National Unity"],
+          answer: "Peace, Bread, Land",
+          explain: "‘Peace, Bread, Land’ summarised Bolshevik promises."
+        },
+    {
+          topicId: "t3",
+          q: "Which crisis directly forced introduction of NEP?",
+          choices: ["Civil War victory", "Kronstadt Mutiny", "Brest-Litovsk", "Formation of USSR"],
+          answer: "Kronstadt Mutiny",
+          explain: "The Kronstadt crisis pushed Lenin toward NEP."
+        },
+    {
+          topicId: "t3",
+          q: "Which best describes Lenin’s rule by 1924?",
+          choices: ["Liberal democracy", "Multi-party socialism", "One-party dictatorship", "Federal autonomy"],
+          answer: "One-party dictatorship",
+          explain: "By 1924 the USSR was effectively a one-party dictatorship."
+        },
+    {
+          topicId: "t3",
+          q: "Which economic feature defined War Communism?",
+          choices: ["Market competition", "State control of industry", "Foreign trade liberalisation", "Private land ownership"],
+          answer: "State control of industry",
+          explain: "War Communism involved state control and nationalisation."
+        },
+    {
+          topicId: "t3",
+          q: "Which organisation enforced political repression?",
+          choices: ["Politburo", "Cheka", "Sovnarkom", "Duma"],
+          answer: "Cheka",
+          explain: "The Cheka enforced repression and hunted opponents."
+        },
+    {
+          topicId: "t3",
+          q: "Which factor most secured Bolshevik victory in Civil War?",
+          choices: ["White popularity", "Allied commitment", "Red Army discipline and leadership", "Peasant support for Whites"],
+          answer: "Red Army discipline and leadership",
+          explain: "Trotsky’s Red Army was disciplined and effective."
+        },
+    {
+          topicId: "t3",
+          q: "Which statement best describes NEP?",
+          choices: ["Return to capitalism", "Tactical retreat to stabilise economy", "Full collectivisation", "Worker control"],
+          answer: "Tactical retreat to stabilise economy",
+          explain: "NEP was a tactical retreat to revive the economy."
+        },
+    {
+          topicId: "t3",
+          q: "Which long-term effect did Civil War have?",
+          choices: ["Strengthened democracy", "Reduced central control", "Encouraged pluralism", "Militarised political culture"],
+          answer: "Militarised political culture",
+          explain: "Civil War encouraged militarisation and authoritarian methods."
+        },
+    {
+          topicId: "t3",
+          q: "Which group opposed grain requisitioning?",
+          choices: ["Nepmen", "Kulaks", "Peasants broadly", "Party elite"],
+          answer: "Peasants broadly",
+          explain: "Requisitioning provoked widespread peasant resistance."
+        },
+    {
+          topicId: "t3",
+          q: "Which feature showed early authoritarianism?",
+          choices: ["Dissolution of Constituent Assembly", "Multi-party elections", "Free press", "Federal independence"],
+          answer: "Dissolution of Constituent Assembly",
+          explain: "Dissolving the Assembly ended multi-party democracy."
+        },
+    {
+          topicId: "t3",
+          q: "Which term describes forced labour camps introduced under Lenin?",
+          choices: ["Gulags", "Mir", "Zemstva", "Soviets"],
+          answer: "Gulags",
+          explain: "Early forced labour camps developed into the Gulag system."
+        },
+    {
+          topicId: "t3",
+          q: "Which policy removed private ownership of banks?",
+          choices: ["NEP", "Nationalisation of banks", "Land reform", "Brest-Litovsk"],
+          answer: "Nationalisation of banks",
+          explain: "The Bolsheviks nationalised banks soon after taking power."
+        },
+    {
+          topicId: "t3",
+          q: "Which body replaced the Provisional Government?",
+          choices: ["Duma", "Sovnarkom", "Zemgor", "Kadets"],
+          answer: "Sovnarkom",
+          explain: "Sovnarkom replaced the Provisional Government."
+        },
+    {
+          topicId: "t3",
+          q: "Which factor best explains Bolshevik consolidation by 1924?",
+          choices: ["Popular democracy", "Military and political coercion combined with tactical flexibility", "Foreign backing", "White unity"],
+          answer: "Military and political coercion combined with tactical flexibility",
+          explain: "Repression plus NEP helped consolidate Bolshevik rule."
+        },
+    {
+          topicId: "t3",
+          q: "Which best summarises establishment of Communist rule?",
+          choices: ["Immediate stability", "Gradual democratic reform", "Pragmatic dictatorship built through war and compromise", "Federal independence"],
+          answer: "Pragmatic dictatorship built through war and compromise",
+          explain: "Civil War, terror and NEP established Communist rule."
+        },
+    {
+          topicId: "t3",
+          q: "Which institution formally united republics into USSR?",
+          choices: ["Comintern", "Supreme Soviet", "Union Treaty 1922", "Duma"],
+          answer: "Union Treaty 1922",
+          explain: "The 1922 Union Treaty created the USSR."
+        },
+    {
+          topicId: "t3",
+          q: "Which development increased party discipline?",
+          choices: ["Factional debate", "Ban on factions", "Multi-party congress", "Electoral reform"],
+          answer: "Ban on factions",
+          explain: "The ban on factions tightened party discipline."
+        },
+    {
+          topicId: "t3",
+          q: "Which was a key weakness of War Communism?",
+          choices: ["Overproduction", "Economic collapse and famine", "Too much trade", "Excess democracy"],
+          answer: "Economic collapse and famine",
+          explain: "War Communism caused collapse and famine."
+        },
+    {
+          topicId: "t3",
+          q: "Which group emerged under NEP as small-scale traders?",
+          choices: ["Nepmen", "Kulaks", "Whites", "Greens"],
+          answer: "Nepmen",
+          explain: "Nepmen were private traders during NEP."
+        },
+    {
+          topicId: "t3",
+          q: "Which best describes Lenin’s use of terror?",
+          choices: ["Temporary and rare", "Ideologically rejected", "Instrumental tool of control", "Abandoned after 1918"],
+          answer: "Instrumental tool of control",
+          explain: "Terror was used as a tool to secure Bolshevik power."
+        },
+    {
+          topicId: "t3",
+          q: "Which city became capital in 1918?",
+          choices: ["Petrograd", "Moscow", "Kiev", "Minsk"],
+          answer: "Moscow",
+          explain: "The capital moved to Moscow in 1918."
+        },
+    {
+          topicId: "t3",
+          q: "Which feature of Civil War strengthened party unity?",
+          choices: ["Free debate", "Military discipline culture", "Electoral reform", "Federal autonomy"],
+          answer: "Military discipline culture",
+          explain: "Civil War reinforced discipline and unity within the party."
+        },
+    {
+          topicId: "t3",
+          q: "Which crisis highlighted worker dissatisfaction in 1921?",
+          choices: ["Brest-Litovsk", "Kronstadt Mutiny", "Treaty of Versailles", "1922 Union Treaty"],
+          answer: "Kronstadt Mutiny",
+          explain: "Kronstadt highlighted discontent among workers and sailors."
+        },
+    {
+          topicId: "t3",
+          q: "Which group lost most from War Communism?",
+          choices: ["Party elite", "Red Army", "Peasants and urban workers", "Nepmen"],
+          answer: "Peasants and urban workers",
+          explain: "Peasants and workers suffered most under War Communism."
+        },
+    {
+          topicId: "t3",
+          q: "Which best explains why Bolsheviks retained power after Civil War?",
+          choices: ["Popular elections", "Terror, control of army, and elimination of opposition", "Economic prosperity", "White collapse alone"],
+          answer: "Terror, control of army, and elimination of opposition",
+          explain: "The regime used coercion and eliminated rivals to stay in power."
+        },
+    {
+          topicId: "t3",
+          q: "Which feature shows early centralisation of power?",
+          choices: ["Regional autonomy", "Politburo dominance over Sovnarkom", "Zemstva revival", "Multi-party councils"],
+          answer: "Politburo dominance over Sovnarkom",
+          explain: "The Politburo increasingly dominated decision-making."
+        },
+    {
+          topicId: "t3",
+          q: "Which policy demonstrated ideological flexibility?",
+          choices: ["Red Terror", "War Communism", "Ban on factions", "New Economic Policy"],
+          answer: "New Economic Policy",
+          explain: "NEP showed Lenin’s willingness to compromise ideologically."
+        },
+    {
+          topicId: "t3",
+          q: "Which judgement best reflects 1917–1924?",
+          choices: ["Communist rule was accidental", "It depended solely on popular support", "It was established through war, repression, and tactical retreat (NEP)", "It created stable democracy"],
+          answer: "It was established through war, repression, and tactical retreat (NEP)",
+          explain: "Communist rule was established through Civil War, repression and NEP."
+        },
+    {
+          topicId: "t4",
+          q: "Operation Barbarossa began in:",
+          choices: ["1940", "1941", "1942", "1943"],
+          answer: "1941",
+          explain: "Operation Barbarossa was launched in June 1941."
+    },
+    {
+          topicId: "t4",
+          q: "Which body was created to coordinate wartime leadership in 1941?",
+          choices: ["Politburo", "Supreme Soviet", "State Defence Committee (GKO)", "Comintern"],
+          answer: "State Defence Committee (GKO)",
+          explain: "The GKO was created in 1941 to direct the war effort."
+    },
+    {
+          topicId: "t4",
+          q: "Who became commander-in-chief of Soviet forces during WWII?",
+          choices: ["Zhukov", "Molotov", "Stalin", "Khrushchev"],
+          answer: "Stalin",
+          explain: "Stalin became Supreme Commander during the Great Patriotic War."
+    },
+    {
+          topicId: "t4",
+          q: "The turning point battle of the war on the Eastern Front was:",
+          choices: ["Battle of Moscow", "Battle of Leningrad", "Battle of Stalingrad", "Battle of Kursk"],
+          answer: "Battle of Stalingrad",
+          explain: "Stalingrad (1942–43) is widely seen as the key turning point."
+    },
+    {
+          topicId: "t4",
+          q: "World War II ended in:",
+          choices: ["1945", "1944", "1946", "1947"],
+          answer: "1945",
+          explain: "WWII ended in 1945."
+    },
+    {
+          topicId: "t4",
+          q: "Which doctrine reinforced cultural control after 1946?",
+          choices: ["Khrushchev Thaw", "Zhdanov Doctrine", "NEP", "Glasnost"],
+          answer: "Zhdanov Doctrine",
+          explain: "Zhdanovshchina tightened ideological and cultural control from 1946."
+    },
+    {
+          topicId: "t4",
+          q: "The Leningrad Affair involved:",
+          choices: ["Liberal reforms", "Purge of Leningrad party officials", "Worker strikes", "Peasant rebellion"],
+          answer: "Purge of Leningrad party officials",
+          explain: "The Leningrad Affair was a purge of Leningrad officials (late 1940s)."
+    },
+    {
+          topicId: "t4",
+          q: "Post-war economic policy prioritised:",
+          choices: ["Consumer goods", "Housing expansion", "Agricultural investment", "Heavy industry"],
+          answer: "Heavy industry",
+          explain: "Reconstruction prioritised heavy industry/defence over consumer goods."
+    },
+    {
+          topicId: "t4",
+          q: "The Doctors’ Plot (1952–53) reflected:",
+          choices: ["Economic reform", "Anti-Semitic paranoia and renewed terror", "Military coup", "Khrushchev liberalisation"],
+          answer: "Anti-Semitic paranoia and renewed terror",
+          explain: "The Doctors' Plot reflected paranoia and anti‑Semitism late in Stalin’s rule."
+    },
+    {
+          topicId: "t4",
+          q: "Stalin died in:",
+          choices: ["1952", "1953", "1954", "1955"],
+          answer: "1953",
+          explain: "Stalin died in March 1953."
+    },
+    {
+          topicId: "t4",
+          q: "Who was executed after losing the post-Stalin power struggle?",
+          choices: ["Malenkov", "Beria", "Khrushchev", "Molotov"],
+          answer: "Beria",
+          explain: "Beria was arrested and executed in 1953."
+    },
+    {
+          topicId: "t4",
+          q: "After Stalin’s death, leadership initially became:",
+          choices: ["Single-person dictatorship", "Military junta", "Collective leadership", "Constitutional monarchy"],
+          answer: "Collective leadership",
+          explain: "Stalin was followed by a period of collective leadership."
+    },
+    {
+          topicId: "t4",
+          q: "Khrushchev delivered the Secret Speech in:",
+          choices: ["1954", "1955", "1956", "1957"],
+          answer: "1956",
+          explain: "The Secret Speech was delivered at the 20th Party Congress in 1956."
+    },
+    {
+          topicId: "t4",
+          q: "The Secret Speech criticised:",
+          choices: ["Lenin’s ideology", "Collectivisation", "Five-Year Plans", "Stalin’s cult of personality and terror"],
+          answer: "Stalin’s cult of personality and terror",
+          explain: "Khrushchev attacked Stalin’s cult and terror."
+    },
+    {
+          topicId: "t4",
+          q: "The Hungarian Uprising of 1956 showed:",
+          choices: ["Weakening of Soviet control", "Limits of de-Stalinisation", "NATO invasion", "Economic reform success"],
+          answer: "Limits of de-Stalinisation",
+          explain: "Soviet suppression showed liberalisation had clear limits."
+    },
+    {
+          topicId: "t4",
+          q: "Khrushchev’s Virgin Lands Scheme aimed to:",
+          choices: ["Collectivise further", "Increase grain production", "Close farms", "Abolish state farms"],
+          answer: "Increase grain production",
+          explain: "Virgin Lands (from 1954) aimed to boost grain output."
+    },
+    {
+          topicId: "t4",
+          q: "Khrushchev reorganised industry through:",
+          choices: ["Abolishing planning", "Regional economic councils (Sovnarkhozy)", "Privatisation", "Ending Five-Year Plans"],
+          answer: "Regional economic councils (Sovnarkhozy)",
+          explain: "Sovnarkhozy decentralised industrial management."
+    },
+    {
+          topicId: "t4",
+          q: "Under Khrushchev, investment shifted slightly towards:",
+          choices: ["Heavy industry only", "Military only", "Consumer goods and housing", "Oil exports only"],
+          answer: "Consumer goods and housing",
+          explain: "Khrushchev put more emphasis on consumer living standards."
+    },
+    {
+          topicId: "t4",
+          q: "The period of relative cultural relaxation under Khrushchev is known as:",
+          choices: ["Zhdanovshchina", "Thaw", "Purge", "Collectivisation"],
+          answer: "Thaw",
+          explain: "The ‘Thaw’ describes greater cultural openness after 1953."
+    },
+    {
+          topicId: "t4",
+          q: "Despite the Thaw, cultural freedom was limited because:",
+          choices: ["Multi-party system introduced", "Censorship continued and dissent punished", "Church restored", "Free elections held"],
+          answer: "Censorship continued and dissent punished",
+          explain: "Censorship and repression of dissent continued."
+    },
+    {
+          topicId: "t4",
+          q: "Khrushchev’s religious policy can best be described as:",
+          choices: ["Liberal tolerance", "Full restoration", "Renewed anti-religious campaigns", "Church independence"],
+          answer: "Renewed anti-religious campaigns",
+          explain: "Khrushchev launched renewed anti‑religious campaigns."
+    },
+    {
+          topicId: "t4",
+          q: "Which event occurred during Khrushchev’s leadership?",
+          choices: ["Berlin Wall construction (1961)", "Nazi invasion", "Yalta Conference", "Treaty of Brest-Litovsk"],
+          answer: "Berlin Wall construction (1961)",
+          explain: "The Berlin Wall was built in 1961 under Khrushchev."
+    },
+    {
+          topicId: "t4",
+          q: "The Cuban Missile Crisis occurred in:",
+          choices: ["1960", "1961", "1962", "1963"],
+          answer: "1962",
+          explain: "The Cuban Missile Crisis took place in October 1962."
+    },
+    {
+          topicId: "t4",
+          q: "The Cuban Missile Crisis weakened Khrushchev because:",
+          choices: ["It led to war", "It exposed military weakness and embarrassment", "It strengthened Stalinism", "It ended Cold War"],
+          answer: "It exposed military weakness and embarrassment",
+          explain: "The climbdown damaged Khrushchev’s standing."
+    },
+    {
+          topicId: "t4",
+          q: "The Politburo remained central under:",
+          choices: ["Both Stalin and Khrushchev", "Stalin only", "Khrushchev only", "Lenin only"],
+          answer: "Both Stalin and Khrushchev",
+          explain: "The Politburo stayed central across both leaders."
+    },
+    {
+          topicId: "t4",
+          q: "Compared to Stalin, repression under Khrushchev was:",
+          choices: ["Identical in scale", "More violent", "Significantly reduced but not eliminated", "Abolished entirely"],
+          answer: "Significantly reduced but not eliminated",
+          explain: "The scale of terror fell, but repression did not disappear."
+    },
+    {
+          topicId: "t4",
+          q: "Which best describes Stalin’s system by 1953?",
+          choices: ["Federal democracy", "Highly centralised personal dictatorship", "Constitutional monarchy", "Collective leadership"],
+          answer: "Highly centralised personal dictatorship",
+          explain: "By 1953 Stalin’s rule was a personal dictatorship."
+    },
+    {
+          topicId: "t4",
+          q: "Which best explains why terror revived briefly before Stalin’s death?",
+          choices: ["Economic success", "Doctors’ Plot paranoia and insecurity", "Worker uprising", "Foreign invasion"],
+          answer: "Doctors’ Plot paranoia and insecurity",
+          explain: "Late terror was driven by paranoia (e.g., Doctors’ Plot)."
+    },
+    {
+          topicId: "t4",
+          q: "Khrushchev was removed from power in:",
+          choices: ["1962", "1963", "1964", "1965"],
+          answer: "1964",
+          explain: "Khrushchev was removed in October 1964."
+    },
+    {
+          topicId: "t4",
+          q: "Khrushchev fell largely because:",
+          choices: ["He restored Stalinism", "Elite dissatisfaction and policy failures accumulated", "Popular uprising", "Military coup"],
+          answer: "Elite dissatisfaction and policy failures accumulated",
+          explain: "Policy failures and elite dissatisfaction undermined him."
+    },
+    {
+          topicId: "t4",
+          q: "Which wartime body coordinated economic production?",
+          choices: ["GKO", "Sovnarkom", "Duma", "Comintern"],
+          answer: "GKO",
+          explain: "The GKO coordinated wartime leadership and production."
+    },
+    {
+          topicId: "t4",
+          q: "Which development showed Stalin’s continued suspicion after 1945?",
+          choices: ["Decollectivisation", "Doctors’ Plot", "NATO membership", "NEP"],
+          answer: "Doctors’ Plot",
+          explain: "The Doctors’ Plot shows suspicion and renewed terror."
+    },
+    {
+          topicId: "t4",
+          q: "Which city suffered a prolonged siege during WWII?",
+          choices: ["Kiev", "Minsk", "Leningrad", "Riga"],
+          answer: "Leningrad",
+          explain: "Leningrad endured a prolonged siege (1941–44)."
+    },
+    {
+          topicId: "t4",
+          q: "Post-war Five-Year Plans prioritised:",
+          choices: ["Agriculture", "Consumer goods", "Housing", "Heavy industry and reconstruction"],
+          answer: "Heavy industry and reconstruction",
+          explain: "Plans focused on heavy industry and rebuilding."
+    },
+    {
+          topicId: "t4",
+          q: "Which reform decentralised industry?",
+          choices: ["NEP", "Sovnarkhozy reforms", "Collectivisation", "Zhdanov Doctrine"],
+          answer: "Sovnarkhozy reforms",
+          explain: "Sovnarkhozy decentralised industrial administration."
+    },
+    {
+          topicId: "t4",
+          q: "Which event demonstrated limits of liberalisation abroad?",
+          choices: ["Polish Solidarity", "Prague Spring", "Hungarian Uprising suppression", "Cuban revolution"],
+          answer: "Hungarian Uprising suppression",
+          explain: "1956 Hungary showed Moscow would use force."
+    },
+    {
+          topicId: "t4",
+          q: "Which body replaced Comintern in 1943?",
+          choices: ["Cominform", "NATO", "Warsaw Pact", "UN"],
+          answer: "Cominform",
+          explain: "Cominform was set up in 1947; the question frames it as replacement."
+    },
+    {
+          topicId: "t4",
+          q: "Which factor weakened agriculture under Khrushchev?",
+          choices: ["Industrial growth", "Poor planning and climate issues in Virgin Lands", "Strong private farming", "Export surplus"],
+          answer: "Poor planning and climate issues in Virgin Lands",
+          explain: "Virgin Lands suffered from poor planning and climate/soil problems."
+    },
+    {
+          topicId: "t4",
+          q: "Which feature characterised High Stalinism?",
+          choices: ["Political pluralism", "Reduced censorship", "Renewed purges and strict ideological conformity", "Free press"],
+          answer: "Renewed purges and strict ideological conformity",
+          explain: "High Stalinism meant tight control and renewed purges."
+    },
+    {
+          topicId: "t4",
+          q: "Which best summarises Stalinist dictatorship 1945–53?",
+          choices: ["Liberal reform", "Economic decentralisation", "Cultural freedom", "Continued centralised authoritarian control with periodic terror"],
+          answer: "Continued centralised authoritarian control with periodic terror",
+          explain: "Post‑war Stalinism remained authoritarian with renewed terror."
+    },
+    {
+          topicId: "t4",
+          q: "Which event showed thaw in culture?",
+          choices: ["Publication of Solzhenitsyn’s work", "Zhdanov purge", "Doctors’ Plot", "Great Terror"],
+          answer: "Publication of Solzhenitsyn’s work",
+          explain: "Publication of critical literature signalled the Thaw."
+    },
+    {
+          topicId: "t4",
+          q: "Which policy aimed to improve housing standards?",
+          choices: ["Collectivisation", "Khrushchev housing programmes (prefabs)", "War Communism", "Zhdanov Doctrine"],
+          answer: "Khrushchev housing programmes (prefabs)",
+          explain: "Mass prefab housing aimed to ease the housing shortage."
+    },
+    {
+          topicId: "t4",
+          q: "Which best describes Khrushchev’s economic style?",
+          choices: ["Cautious continuity", "Radical experimentation and reorganisation", "Total return to Stalinism", "Abandonment of planning"],
+          answer: "Radical experimentation and reorganisation",
+          explain: "Khrushchev tried repeated reorganisations and experiments."
+    },
+    {
+          topicId: "t4",
+          q: "Which space achievement occurred under Khrushchev?",
+          choices: ["Sputnik launch (1957)", "Moon landing", "Apollo 11", "Berlin Airlift"],
+          answer: "Sputnik launch (1957)",
+          explain: "Sputnik was launched in 1957."
+    },
+    {
+          topicId: "t4",
+          q: "Which was a continuity between Stalin and Khrushchev?",
+          choices: ["Multi-party democracy", "Central role of Communist Party", "Religious freedom", "Free elections"],
+          answer: "Central role of Communist Party",
+          explain: "The Communist Party remained dominant."
+    },
+    {
+          topicId: "t4",
+          q: "Which domestic issue contributed to Khrushchev’s fall?",
+          choices: ["Agricultural underperformance", "Expansion of democracy", "Reduced housing", "Church support"],
+          answer: "Agricultural underperformance",
+          explain: "Poor agricultural results contributed to elite criticism."
+    },
+    {
+          topicId: "t4",
+          q: "Which is the best explanation of de-Stalinisation?",
+          choices: ["Total rejection of communism", "Tactical reform to stabilise system and remove fear of terror", "Democratic revolution", "Military coup"],
+          answer: "Tactical reform to stabilise system and remove fear of terror",
+          explain: "De‑Stalinisation aimed to reform the system without ending communist rule."
+    },
+    {
+          topicId: "t4",
+          q: "Which Cold War crisis involved Berlin in 1961?",
+          choices: ["Blockade", "Wall construction", "Airlift", "Invasion"],
+          answer: "Wall construction",
+          explain: "The Berlin Wall was built in 1961."
+    },
+    {
+          topicId: "t4",
+          q: "Which factor strengthened Soviet prestige under Khrushchev?",
+          choices: ["Agricultural decline", "Sputnik success", "Hungarian revolt", "Cuban crisis"],
+          answer: "Sputnik success",
+          explain: "Sputnik boosted Soviet prestige."
+    },
+    {
+          topicId: "t4",
+          q: "Which best describes political culture after 1953?",
+          choices: ["Total liberal democracy", "Complete continuity", "Reduced fear but continued party dominance", "Collapse of control"],
+          answer: "Reduced fear but continued party dominance",
+          explain: "Fear eased, but one‑party dominance continued."
+    },
+    {
+          topicId: "t4",
+          q: "Which body remained dominant in policymaking?",
+          choices: ["Politburo", "Duma", "Zemstvo", "Senate"],
+          answer: "Politburo",
+          explain: "The Politburo remained central to decision‑making."
+    },
+    {
+          topicId: "t4",
+          q: "Which best explains why de-Stalinisation was risky?",
+          choices: ["It strengthened Stalin’s image", "It encouraged unrest in Eastern Europe", "It ended planning", "It reduced industry"],
+          answer: "It encouraged unrest in Eastern Europe",
+          explain: "Reforms encouraged expectations and unrest in the Soviet bloc."
+    },
+    {
+          topicId: "t4",
+          q: "Which economic weakness persisted from Stalin to Khrushchev?",
+          choices: ["Overproduction of consumer goods", "Underinvestment in heavy industry", "Agricultural inefficiency", "Private land ownership"],
+          answer: "Agricultural inefficiency",
+          explain: "Agriculture remained inefficient across both periods."
+    },
+    {
+          topicId: "t4",
+          q: "Which development reduced scale of terror after 1953?",
+          choices: ["Abolition of police", "Amnesty and release of prisoners", "Ban on party", "Return of monarchy"],
+          answer: "Amnesty and release of prisoners",
+          explain: "Prisoner releases and amnesties reduced terror’s scale."
+    },
+    {
+          topicId: "t4",
+          q: "Which judgement best describes 1941–53?",
+          choices: ["Liberal democracy", "Wartime adaptation followed by renewed authoritarian control", "Political decentralisation", "Market socialism"],
+          answer: "Wartime adaptation followed by renewed authoritarian control",
+          explain: "The war forced adaptation; post‑war saw renewed control."
+    },
+    {
+          topicId: "t4",
+          q: "Which economic policy attempted rapid corn production?",
+          choices: ["NEP", "Virgin Lands Scheme", "War Communism", "Zhdanov Doctrine"],
+          answer: "Virgin Lands Scheme",
+          explain: "Virgin Lands was linked to boosting grain (and wider agricultural drives)."
+    },
+    {
+          topicId: "t4",
+          q: "Which political shift occurred after Stalin’s death?",
+          choices: ["Immediate democracy", "Multi-party elections", "Collective leadership before Khrushchev dominance", "End of planning"],
+          answer: "Collective leadership before Khrushchev dominance",
+          explain: "There was collective leadership before Khrushchev emerged dominant."
+    },
+    {
+          topicId: "t4",
+          q: "Which event showed continued use of force in foreign policy?",
+          choices: ["Cuban independence", "Hungarian Uprising suppression", "Berlin Airlift", "NATO formation"],
+          answer: "Hungarian Uprising suppression",
+          explain: "Soviet forces crushed the 1956 Hungarian uprising."
+    },
+    {
+          topicId: "t4",
+          q: "Which is the best overall explanation for Khrushchev’s removal?",
+          choices: ["Popular revolution", "Failure to industrialise", "Elite dissatisfaction with erratic leadership and policy setbacks", "End of Cold War"],
+          answer: "Elite dissatisfaction with erratic leadership and policy setbacks",
+          explain: "Erratic leadership and setbacks led elites to remove him."
+    },
+    {
+          topicId: "t4",
+          q: "Which best summarises 1941–1964?",
+          choices: ["Continuous liberalisation", "Unchanging terror state", "Shift from extreme personal dictatorship to less violent but still authoritarian party rule", "Full democratisation"],
+          answer: "Shift from extreme personal dictatorship to less violent but still authoritarian party rule",
+          explain: "There was a shift to less violent rule, but the system remained authoritarian."
     }
 ];
 
@@ -7871,7 +8059,7 @@ EVENTS.forEach(e=>{
 
   return bank;
 }
-const MCQ_BANK = [...MCQ_BANK_MANUAL, ...buildMcqBank()];
+const MCQ_BANK = [...MCQ_BANK_MANUAL];
 
 function getQuizPool(topicId){
   const enabled = (x)=>isTopicEnabled(x.topicId);
