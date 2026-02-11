@@ -614,7 +614,9 @@ h1{
       align-items:center;
       gap:10px;
       margin-top:10px;
+      transition: opacity .35s ease, filter .35s ease;
     }
+    .revealBand.isLocked{opacity:.28; filter:saturate(.4) grayscale(.15); pointer-events:none}
     .btn:hover{filter:brightness(1.03)}
     .btn:active{transform:translateY(1px)}
 
@@ -6986,9 +6988,17 @@ function checkDailyComplete(){
   }
 }
 
-function recordDailyFlashcard(topicId){
+function recordDailyFlashcard(topicId, cardId){
   const d = ensureDaily();
   if(topicId !== d.topicId) return;
+
+  // Only count once per card per day (prevents spamming Reveal / marking)
+  if(cardId){
+    d.revealedCards = Array.isArray(d.revealedCards) ? d.revealedCards : [];
+    if(d.revealedCards.includes(cardId)) return;
+    d.revealedCards.push(cardId);
+  }
+
   d.flash = (d.flash||0) + 1;
   saveState();
   updateDailyUI();
@@ -7800,6 +7810,36 @@ $("goDailyPlan").addEventListener("click", goDailyExam);
    ========================================================== */
 let CURRENT = { list:[], idx:0, card:null };
 
+let revealCooldownToken = 0;
+function startRevealCooldown(ms=3000){
+  const revealBtn = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
+  const aBox = document.getElementById("aBox");
+  if(!revealBtn) return;
+
+  const token = ++revealCooldownToken;
+  const end = Date.now() + ms;
+
+  revealBtn.disabled = true;
+  revealBtn.classList.add("isLocked");
+
+  const tick = ()=>{
+    if(token !== revealCooldownToken) return;
+    const remaining = end - Date.now();
+    if(remaining <= 0){
+      revealBtn.disabled = false;
+      revealBtn.classList.remove("isLocked");
+      const isHidden = aBox ? aBox.classList.contains("hidden") : true;
+      revealBtn.textContent = isHidden ? "👀 Reveal answer" : "🙈 Hide answer";
+      return;
+    }
+    const secs = Math.ceil(remaining/1000);
+    revealBtn.textContent = `⏳ Reveal in ${secs}s`;
+    setTimeout(tick, 200);
+  };
+  tick();
+}
+
+
 function getTopicIndex(topicId){
   const idx = TOPICS.findIndex(t=>t.id===topicId);
   return idx < 0 ? 999 : idx;
@@ -7879,6 +7919,10 @@ function renderCard(){
   const rb = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
   if(rb) rb.textContent = "👀 Reveal answer";
 
+
+  // Disable reveal briefly to encourage retrieval effort
+  startRevealCooldown(3000);
+
   const mode = $("modeSelect").value;
   const badge = mode === "focus" ? "🎯 FOCUS" : "📚 STUDY";
   $("cardMeta").textContent = `🃏 ${CURRENT.idx+1}/${CURRENT.list.length} • ${badge}`;
@@ -7906,7 +7950,15 @@ $("searchInput").addEventListener("input", debounce(loadNextCard, 250));
     revealBtn.addEventListener("click", ()=>{
       // If no card is loaded yet, load one first.
       if(!CURRENT.card){ loadNextCard(); }
+      if(!CURRENT.card) return;
+
+      const wasHidden = aBox.classList.contains("hidden"); // hidden -> reveal counts
       aBox.classList.toggle("hidden");
+
+      // Daily Challenge: ONLY count a flashcard when the student REVEALS the answer
+      if(wasHidden && !aBox.classList.contains("hidden")){
+        recordDailyFlashcard(CURRENT.card.topicId, CURRENT.card.id);
+      }
       syncLabel();
     });
     // Ensure correct label on load
@@ -7939,8 +7991,6 @@ document.querySelectorAll('#study [data-score]').forEach(btn=>{
 
     STATE.stats.studied = (STATE.stats.studied||0)+1;
     saveState();
-    // Daily challenge progress (only counts if today’s topic matches)
-    recordDailyFlashcard(CURRENT.card.topicId);
     computeKpis();
     nextCard();
   });
