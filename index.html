@@ -1093,6 +1093,86 @@ h1{
   line-height:1.25;
 }
 
+.beatClockCard{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  background: rgba(255,255,255,.92);
+  border:1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding:14px;
+}
+.beatClockCard::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image: var(--sectionCardBg);
+  background-size: cover;
+  background-position: center;
+  background-repeat:no-repeat;
+  opacity:.13;
+  filter:saturate(1.1) contrast(1.04);
+  transform:scale(1.05);
+  z-index:0;
+  pointer-events:none;
+}
+.beatClockCard > *{ position:relative; z-index:1; }
+
+.bcHeader{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+}
+
+.bcTopic{
+  font-weight:1000;
+  font-size:18px;
+}
+
+.bcGrid{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns: repeat(4, minmax(0,1fr));
+  gap:10px;
+}
+
+.bcTile{
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:12px 10px;
+  background:#fff;
+  font-weight:900;
+  min-height:56px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  cursor:pointer;
+  line-height:1.2;
+}
+
+.bcTile.selected{
+  outline:2px solid rgba(0,0,0,.18);
+  background:linear-gradient(180deg,#fff,rgba(242,183,166,.24));
+}
+
+.bcTile.correct{
+  border-color: rgba(119,207,163,.95);
+  background: rgba(119,207,163,.16);
+}
+
+.bcTile.wrong{
+  border-color: rgba(239,138,138,.95);
+  background: rgba(239,138,138,.16);
+}
+
+@media (max-width: 680px){
+  .bcGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
+}
+
 .gamePaneTop{
   position:sticky;
   top:0;
@@ -1893,6 +1973,11 @@ h1{
         <div class="gamePillTitle">Timeline Tension</div>
         <div class="gamePillDesc">Order key events. Dates reveal only after a perfect timeline.</div>
       </button>
+
+      <button class="gamePillBtn" type="button" id="openBeatClockBtn">
+        <div class="gamePillTitle">Beat the Clock</div>
+        <div class="gamePillDesc">Pick 4 correct key terms from 8 in 15 seconds. Miss the timer and restart the run.</div>
+      </button>
     </div>
 
     <!-- Connections game screen -->
@@ -2051,6 +2136,43 @@ h1{
       <div class="note">Tip: use key words (policy, dates, role) to eliminate distractors quickly.</div>
     </div>
     </div>
+    <!-- Beat the Clock game screen -->
+    <div id="gamesBeatClockPane" class="gamePane hidden">
+      <div class="gamePaneTop">
+        <button class="btn" type="button" id="backFromBeatClock">← Games</button>
+      </div>
+      <div class="beatClockCard">
+        <div class="bcHeader">
+          <div>
+            <div style="font-weight:1000;font-size:16px">⏱️ Beat the Clock</div>
+            <div class="note">Select the 4 key terms that match the topic before time runs out.</div>
+          </div>
+          <button class="btn primary" id="btnStartBeatClock" type="button">🚀 Start run</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div class="pill" id="bcTopicPill">Topic: —</div>
+          <div class="pill" id="bcTimerPill">⏳ 15s</div>
+          <div class="pill" id="bcRoundPill">Run: 0</div>
+          <div class="pill" id="bcBestPill">🏆 Best run: 0</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="bcTopic" id="bcPrompt">Press Start run to begin.</div>
+        <div class="bcGrid" id="bcGrid"></div>
+
+        <div class="connectionsActions" style="justify-content:flex-start">
+          <button class="connBtn primary" id="bcSubmitBtn" type="button" disabled>✅ Lock in 4</button>
+          <button class="connBtn" id="bcClearBtn" type="button" disabled>Clear</button>
+        </div>
+
+        <div class="connMsg" id="bcMsg">You have 15 seconds per round.</div>
+      </div>
+    </div>
+
     <!-- Timeline Tension game screen -->
     <div id="gamesTimelinePane" class="gamePane hidden">
       <div class="gamePaneTop">
@@ -6298,6 +6420,199 @@ if(state.solved.length === 4){
   buildBoard(topicSel.value || "t1");
 })();
 
+/* =========================
+   Beat the Clock game logic
+   ========================= */
+const BEAT_CLOCK = {
+  run: 0,
+  best: Number(localStorage.getItem("beat_clock_best_run") || 0),
+  timer: null,
+  timeLeft: 15,
+  active: false,
+  correctTerms: new Set(),
+  selected: new Set(),
+  roundTopicId: null,
+  terms: []
+};
+
+function bcAllTermsByTopic(){
+  const map = {};
+  Object.entries(FACT_BANK).forEach(([topicId, bank]) => {
+    const terms = (bank?.terms || []).map(t => String(t.term||"").trim()).filter(Boolean);
+    map[topicId] = Array.from(new Set(terms));
+  });
+  return map;
+}
+
+function bcSetMsg(msg){
+  const el = document.getElementById("bcMsg");
+  if(el) el.textContent = msg;
+}
+
+function bcUpdatePills(){
+  const timerPill = document.getElementById("bcTimerPill");
+  const runPill = document.getElementById("bcRoundPill");
+  const bestPill = document.getElementById("bcBestPill");
+  if(timerPill) timerPill.textContent = `⏳ ${BEAT_CLOCK.timeLeft}s`;
+  if(runPill) runPill.textContent = `Run: ${BEAT_CLOCK.run}`;
+  if(bestPill) bestPill.textContent = `🏆 Best run: ${BEAT_CLOCK.best}`;
+}
+
+function bcStopTimer(){
+  if(BEAT_CLOCK.timer){
+    clearInterval(BEAT_CLOCK.timer);
+    BEAT_CLOCK.timer = null;
+  }
+}
+
+function bcRenderGrid(){
+  const grid = document.getElementById("bcGrid");
+  if(!grid) return;
+  grid.innerHTML = "";
+
+  BEAT_CLOCK.terms.forEach(term => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "bcTile";
+    btn.textContent = term;
+    if(BEAT_CLOCK.selected.has(term)) btn.classList.add("selected");
+    if(!BEAT_CLOCK.active) btn.disabled = true;
+
+    btn.addEventListener("click", ()=>{
+      if(!BEAT_CLOCK.active) return;
+      if(BEAT_CLOCK.selected.has(term)){
+        BEAT_CLOCK.selected.delete(term);
+      }else{
+        if(BEAT_CLOCK.selected.size >= 4){
+          bcSetMsg("Select only 4 terms.");
+          return;
+        }
+        BEAT_CLOCK.selected.add(term);
+      }
+      bcRenderGrid();
+    });
+
+    grid.appendChild(btn);
+  });
+
+  const submit = document.getElementById("bcSubmitBtn");
+  const clear = document.getElementById("bcClearBtn");
+  if(submit) submit.disabled = !BEAT_CLOCK.active;
+  if(clear) clear.disabled = !BEAT_CLOCK.active;
+}
+
+function bcFailRun(reason){
+  bcStopTimer();
+  BEAT_CLOCK.active = false;
+  BEAT_CLOCK.run = 0;
+  bcUpdatePills();
+  bcSetMsg(`${reason} Run reset — press Start run to try again.`);
+  bcRenderGrid();
+}
+
+function bcPickRound(){
+  const byTopic = bcAllTermsByTopic();
+  const topicIds = Object.keys(byTopic).filter(id => byTopic[id].length >= 8);
+  if(!topicIds.length) return null;
+
+  const topicId = topicIds[Math.floor(Math.random()*topicIds.length)];
+  const topicTerms = shuffle(byTopic[topicId]).slice(0,4);
+  if(topicTerms.length < 4) return null;
+
+  const others = Object.entries(byTopic)
+    .filter(([id]) => id !== topicId)
+    .flatMap(([,terms]) => terms)
+    .filter(t => !topicTerms.includes(t));
+
+  if(others.length < 4) return null;
+  const distractors = shuffle(Array.from(new Set(others))).slice(0,4);
+  const mixed = shuffle([...topicTerms, ...distractors]);
+  return { topicId, topicTerms, mixed };
+}
+
+function bcStartRound(){
+  const round = bcPickRound();
+  if(!round){
+    bcSetMsg("Not enough terms to build Beat the Clock rounds.");
+    return;
+  }
+
+  BEAT_CLOCK.roundTopicId = round.topicId;
+  BEAT_CLOCK.correctTerms = new Set(round.topicTerms);
+  BEAT_CLOCK.terms = round.mixed;
+  BEAT_CLOCK.selected = new Set();
+  BEAT_CLOCK.timeLeft = 15;
+  BEAT_CLOCK.active = true;
+
+  const t = TOPICS.find(x=>x.id===round.topicId);
+  const topicPill = document.getElementById("bcTopicPill");
+  const prompt = document.getElementById("bcPrompt");
+  const title = t ? t.title : round.topicId;
+  if(topicPill) topicPill.textContent = `Topic: ${title}`;
+  if(prompt) prompt.textContent = `Choose the 4 terms that match: ${title}`;
+
+  bcUpdatePills();
+  bcSetMsg("Go! Pick 4 and lock them in before the timer ends.");
+  bcRenderGrid();
+
+  bcStopTimer();
+  BEAT_CLOCK.timer = setInterval(()=>{
+    BEAT_CLOCK.timeLeft--;
+    bcUpdatePills();
+    if(BEAT_CLOCK.timeLeft <= 0){
+      bcFailRun("⏰ Time up!");
+    }
+  }, 1000);
+}
+
+function bcSubmit(){
+  if(!BEAT_CLOCK.active) return;
+  if(BEAT_CLOCK.selected.size !== 4){
+    bcSetMsg("Select exactly 4 terms first.");
+    return;
+  }
+  const ok = [...BEAT_CLOCK.selected].every(t => BEAT_CLOCK.correctTerms.has(t));
+  if(!ok){
+    bcFailRun("❌ Wrong set.");
+    return;
+  }
+
+  bcStopTimer();
+  BEAT_CLOCK.run += 1;
+  if(BEAT_CLOCK.run > BEAT_CLOCK.best){
+    BEAT_CLOCK.best = BEAT_CLOCK.run;
+    localStorage.setItem("beat_clock_best_run", String(BEAT_CLOCK.best));
+  }
+  bcUpdatePills();
+  bcSetMsg(`✅ Nice! Round ${BEAT_CLOCK.run} cleared. Next round...`);
+  setTimeout(()=>{
+    if(BEAT_CLOCK.run > 0) bcStartRound();
+  }, 700);
+}
+
+(function initBeatClockGame(){
+  const startBtn = document.getElementById("btnStartBeatClock");
+  const submitBtn = document.getElementById("bcSubmitBtn");
+  const clearBtn = document.getElementById("bcClearBtn");
+  if(!startBtn || !submitBtn || !clearBtn) return;
+
+  bcUpdatePills();
+  bcRenderGrid();
+
+  startBtn.addEventListener("click", ()=>{
+    BEAT_CLOCK.run = 0;
+    bcStartRound();
+    bcUpdatePills();
+  });
+
+  submitBtn.addEventListener("click", bcSubmit);
+  clearBtn.addEventListener("click", ()=>{
+    if(!BEAT_CLOCK.active) return;
+    BEAT_CLOCK.selected.clear();
+    bcRenderGrid();
+  });
+})();
+
   
 /* ==========================================================
    EMOJI BANK (fully populated starter as provided)
@@ -7312,7 +7627,7 @@ document.querySelectorAll(".navBtn").forEach(btn=>{
 /* Games hub navigation */
 function gamesShowHub(){
   const hub = $("gamesHub");
-  const panes = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane"];
+  const panes = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane"];
   if(!hub) return;
   hub.classList.remove("hidden");
   panes.forEach(id => $(id) && $(id).classList.add("hidden"));
@@ -7321,22 +7636,24 @@ function gamesShowHub(){
 }
 function openGamePane(paneId){
   const hub = $("gamesHub");
-  const panes = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane"];
+  const panes = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane"];
   if(hub) hub.classList.add("hidden");
   panes.forEach(id => $(id) && $(id).classList.toggle("hidden", id!==paneId));
   window.scrollTo(0,0);
 }
 window.addEventListener("DOMContentLoaded", ()=>{
-  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn");
-  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline");
+  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn");
+  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock");
   if(openConn) openConn.addEventListener("click", ()=>openGamePane("gamesConnPane"));
   if(openEmoji) openEmoji.addEventListener("click", ()=>openGamePane("gamesEmojiPane"));
   if(openMatch) openMatch.addEventListener("click", ()=>openGamePane("gamesMatchPane"));
   if(openTimeline) openTimeline.addEventListener("click", ()=>openGamePane("gamesTimelinePane"));
+  if(openBeatClock) openBeatClock.addEventListener("click", ()=>openGamePane("gamesBeatClockPane"));
   if(backConn) backConn.addEventListener("click", gamesShowHub);
   if(backEmoji) backEmoji.addEventListener("click", gamesShowHub);
   if(backMatch) backMatch.addEventListener("click", gamesShowHub);
   if(backTimeline) backTimeline.addEventListener("click", gamesShowHub);
+  if(backBeatClock) backBeatClock.addEventListener("click", gamesShowHub);
   initTimelineGame();
 });
 
