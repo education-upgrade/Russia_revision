@@ -7205,6 +7205,9 @@ function setTab(tabId){
   document.querySelectorAll(".navBtn").forEach(b=>b.classList.toggle("active", b.dataset.tab===tabId));
   document.querySelectorAll(".tabpane").forEach(p=>p.classList.toggle("hidden", p.id!==tabId));
 
+  // Reset viewport position whenever changing tabs
+  window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+
   // Home header only
   $("homeHeader").style.display = (tabId==="home") ? "block" : "none";
 
