@@ -7187,7 +7187,31 @@ const confetti = (() => {
     running=true;
     requestAnimationFrame(tick);
   }
-  return { burst };
+  function fall(durationMs=2600){
+    // Single-pass fall: spawn once with extended lifetime (no looping re-spawn).
+    resize();
+    const count = Math.max(120, Math.floor(window.innerWidth / 7));
+    const colors = [
+      [242,183,166],[247,213,200],[119,207,163],[241,201,122],[239,138,138]
+    ];
+    pieces = Array.from({length:count}).map(()=> {
+      const c = colors[Math.floor(Math.random()*colors.length)];
+      return {
+        x: Math.random()*W,
+        y: (-H * (0.15 + Math.random()*0.55)),
+        r: (4+Math.random()*7)*devicePixelRatio,
+        vx: (-1.8 + Math.random()*3.6)*devicePixelRatio,
+        vy: (2.1 + Math.random()*3.2)*devicePixelRatio,
+        rot: Math.random()*Math.PI,
+        vr: (-0.16 + Math.random()*0.32),
+        c,
+        life: Math.max(90, Math.round(durationMs/16))
+      };
+    });
+    running = true;
+    requestAnimationFrame(tick);
+  }
+  return { burst, fall };
 })();
 
 /* ==========================================================
@@ -7778,7 +7802,7 @@ function goDailyFocus(){
   $("topicSelect").value = d.topicId;
   $("modeSelect").value = "all";
   $("orderSelect").value = "random";
-  loadNextCard();
+  startDailyFlashSession(d.topicId);
 }
 function goDailyQuiz(){
   const d = ensureDaily();
@@ -7809,6 +7833,45 @@ $("goDailyPlan").addEventListener("click", goDailyExam);
    FLASHCARDS
    ========================================================== */
 let CURRENT = { list:[], idx:0, card:null };
+
+function pickDailyFlashcards(topicId, count=DAILY_FLASH_GOAL){
+  const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
+  return shuffle(pool).slice(0, Math.min(count, pool.length));
+}
+
+function startDailyFlashSession(topicId){
+  CURRENT.dailySession = {
+    active: true,
+    topicId,
+    cardIds: new Set(),
+    complete: false
+  };
+  CURRENT.list = pickDailyFlashcards(topicId, DAILY_FLASH_GOAL);
+  CURRENT.dailySession.cardIds = new Set(CURRENT.list.map(c=>c.id));
+  CURRENT.idx = 0;
+  CURRENT.card = CURRENT.list[0] || null;
+  if(!CURRENT.card){
+    CURRENT.dailySession.active = false;
+    loadNextCard();
+    return;
+  }
+  renderCard();
+}
+
+function checkDailyFlashSessionComplete(cardId){
+  const session = CURRENT.dailySession;
+  if(!session?.active || session.complete || !cardId) return;
+
+  const d = ensureDaily();
+  const revealed = new Set(Array.isArray(d.revealedCards) ? d.revealedCards : []);
+  let done = 0;
+  session.cardIds.forEach(id=>{ if(revealed.has(id)) done++; });
+
+  if(done >= session.cardIds.size && session.cardIds.size > 0){
+    session.complete = true;
+    try{ confetti.fall(2600); }catch(e){}
+  }
+}
 
 let revealCooldownToken = 0;
 function startRevealCooldown(ms=3000){
@@ -7895,6 +7958,9 @@ function getFilteredCards(){
   return list;
 }
 function loadNextCard(){
+  if(CURRENT.dailySession?.active){
+    CURRENT.dailySession.active = false;
+  }
   CURRENT.list = getFilteredCards();
   CURRENT.idx = 0;
   CURRENT.card = CURRENT.list[0] || null;
@@ -7924,7 +7990,9 @@ function renderCard(){
   startRevealCooldown(3000);
 
   const mode = $("modeSelect").value;
-  const badge = mode === "focus" ? "🎯 FOCUS" : "📚 STUDY";
+  const badge = CURRENT.dailySession?.active
+    ? "🎯 DAILY 12"
+    : (mode === "focus" ? "🎯 FOCUS" : "📚 STUDY");
   $("cardMeta").textContent = `🃏 ${CURRENT.idx+1}/${CURRENT.list.length} • ${badge}`;
 }
 function nextCard(){
@@ -7958,6 +8026,7 @@ $("searchInput").addEventListener("input", debounce(loadNextCard, 250));
       // Daily Challenge: ONLY count a flashcard when the student REVEALS the answer
       if(wasHidden && !aBox.classList.contains("hidden")){
         recordDailyFlashcard(CURRENT.card.topicId, CURRENT.card.id);
+        checkDailyFlashSessionComplete(CURRENT.card.id);
       }
       syncLabel();
     });
