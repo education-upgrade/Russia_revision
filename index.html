@@ -6217,13 +6217,39 @@ function showConnWinOverlay(){
 
   const mistakeDots = ["m1","m2","m3","m4"].map(id => document.getElementById(id));
 
+  function getEnabledConnectionTopics(){
+    return TOPICS.map(t=>t.id).filter(id=>isTopicEnabled(id) && CONNECTIONS_BANK[id]);
+  }
+
+  function populateConnTopicSelect(){
+    const prev = topicSel.value;
+    topicSel.innerHTML = "";
+    getEnabledConnectionTopics().forEach((key) => {
+      const t = CONNECTIONS_BANK[key];
+      const opt = document.createElement("option");
+      opt.value = key;
+      opt.textContent = t.title;
+      topicSel.appendChild(opt);
+    });
+    if(topicSel.options.length){
+      const values = new Set(Array.from(topicSel.options).map(o=>o.value));
+      topicSel.value = values.has(prev) ? prev : topicSel.options[0].value;
+    }
+  }
+
+  window.refreshConnectionsTopicSelect = function(){
+    populateConnTopicSelect();
+    if(!topicSel.options.length){
+      gridEl.innerHTML = "";
+      solvedEl.innerHTML = "";
+      setMsg("No enabled topics available.");
+      return;
+    }
+    buildBoard(topicSel.value);
+  };
+
   // Populate topics
-  Object.entries(CONNECTIONS_BANK).forEach(([key, t]) => {
-    const opt = document.createElement("option");
-    opt.value = key;
-    opt.textContent = t.title;
-    topicSel.appendChild(opt);
-  });
+  populateConnTopicSelect();
 
   // Deterministic daily seed (same per day per topic per device)
   function dayKey(){
@@ -6417,7 +6443,11 @@ if(state.solved.length === 4){
   });
 
   // initial
-  buildBoard(topicSel.value || "t1");
+  if(topicSel.options.length){
+    buildBoard(topicSel.value || topicSel.options[0].value);
+  }else{
+    setMsg("No enabled topics available.");
+  }
 })();
 
 /* =========================
@@ -6438,6 +6468,7 @@ const BEAT_CLOCK = {
 function bcAllTermsByTopic(){
   const map = {};
   Object.entries(FACT_BANK).forEach(([topicId, bank]) => {
+    if(!isTopicEnabled(topicId)) return;
     const terms = (bank?.terms || []).map(t => String(t.term||"").trim()).filter(Boolean);
     map[topicId] = Array.from(new Set(terms));
   });
@@ -7897,9 +7928,26 @@ function renderTopicDashboard(){
       if(ms && ms.value !== "MIXED" && !isTopicEnabled(ms.value)) ms.value = "MIXED";
 
       // Refresh UI + daily topic (if needed)
-      try{ populateSelectors(); }catch(e){}
+      try{ populateTopics(); }catch(e){}
+
+      const syncIfMissing = (el, fallback)=>{
+        if(!el) return;
+        const values = new Set(Array.from(el.options||[]).map(o=>o.value));
+        if(!values.has(el.value)) el.value = fallback;
+      };
+      syncIfMissing(document.getElementById("topicSelect"), "ALL");
+      syncIfMissing(document.getElementById("mcqTopicSelect"), "MIXED");
+      syncIfMissing(document.getElementById("matchTopicSelect"), "MIXED");
+      syncIfMissing(document.getElementById("emojiTopicSelect"), "MIXED");
+      syncIfMissing(document.getElementById("examTopicSelect"), "ALL");
+
+      try{ if(typeof tlPopulateSelect === "function") tlPopulateSelect(); }catch(e){}
+      try{ if(typeof refreshConnectionsTopicSelect === "function") refreshConnectionsTopicSelect(); }catch(e){}
       try{ renderTopicDashboard(); }catch(e){}
       try{ renderTopicTiles(); }catch(e){} // legacy tiles (if present)
+      try{ renderExamSelect(); }catch(e){}
+      try{ startMatchGame(); }catch(e){}
+      try{ startEmojiRound(); }catch(e){}
       try{ updateDailyUI(); }catch(e){}
       try{ computeKpis(); }catch(e){}
     });
@@ -7942,7 +7990,7 @@ function populateTopics(){
   exAll.value="ALL"; exAll.textContent="🌍 All topics";
   selExamFilter.appendChild(exAll);
 
-  TOPICS.forEach(t=>{
+  TOPICS.filter(t=>isTopicEnabled(t.id)).forEach(t=>{
     const o = document.createElement("option");
     o.value = t.id;
     o.textContent = t.title;
@@ -7950,17 +7998,14 @@ function populateTopics(){
 
     const o2 = document.createElement("option");
     o2.value = t.id; o2.textContent = t.title;
-    if(!isTopicEnabled(t.id)){ o2.disabled = true; o2.textContent = t.title + ' (off)'; }
     selQuiz.appendChild(o2);
 
     const o3 = document.createElement("option");
     o3.value = t.id; o3.textContent = t.title;
-    if(!isTopicEnabled(t.id)){ o3.disabled = true; o3.textContent = t.title + ' (off)'; }
     selMatch.appendChild(o3);
 
     const o4 = document.createElement("option");
     o4.value = t.id; o4.textContent = t.title;
-    if(!isTopicEnabled(t.id)){ o4.disabled = true; o4.textContent = t.title + ' (off)'; }
     selEmoji.appendChild(o4);
 
     const o5 = document.createElement("option");
@@ -8706,6 +8751,7 @@ let EMOJI = { score:0, attempted:0, current:null, choices:[], streak:0, best:0 }
 
 function getEmojiPool(topicId, mode){
   const build = (tid)=>{
+    if(!isTopicEnabled(tid)) return [];
     const pack = EMOJI_BANK[tid];
     if(!pack) return [];
     if(mode === "terms") return (pack.terms||[]).map(x=>({...x, type:"term"}));
@@ -8716,13 +8762,14 @@ function getEmojiPool(topicId, mode){
     ];
   };
 
-  if(topicId === "MIXED") return TOPICS.flatMap(t=>build(t.id));
+  if(topicId === "MIXED") return enabledTopicIds().flatMap(tid=>build(tid));
   return build(topicId);
 }
 
 function allAnswerOptions(mode){
-  const terms = Object.keys(FACT_BANK).flatMap(tid => (FACT_BANK[tid].terms||[]).map(x=>x.term));
-  const people = Object.keys(FACT_BANK).flatMap(tid => (FACT_BANK[tid].people||[]).map(x=>x.name));
+  const allowed = new Set(enabledTopicIds());
+  const terms = Object.keys(FACT_BANK).filter(tid=>allowed.has(tid)).flatMap(tid => (FACT_BANK[tid].terms||[]).map(x=>x.term));
+  const people = Object.keys(FACT_BANK).filter(tid=>allowed.has(tid)).flatMap(tid => (FACT_BANK[tid].people||[]).map(x=>x.name));
   if(mode === "terms") return unique(terms);
   if(mode === "people") return unique(people);
   return unique([...terms, ...people]);
@@ -8833,8 +8880,12 @@ let MATCH = {
 };
 
 function buildPeoplePool(topicId){
-  const allP = Object.keys(FACT_BANK).flatMap(tid => (FACT_BANK[tid].people||[]).map(p=>({...p, topicId: tid})));
+  const allowed = new Set(enabledTopicIds());
+  const allP = Object.keys(FACT_BANK)
+    .filter(tid=>allowed.has(tid))
+    .flatMap(tid => (FACT_BANK[tid].people||[]).map(p=>({...p, topicId: tid})));
   if(topicId === "MIXED") return dedupeByName(allP);
+  if(!allowed.has(topicId)) return [];
 
   const topicPeople = (FACT_BANK[topicId]?.people || []).map(p=>({...p, topicId}));
   const decoys = shuffle(allP.filter(p=>p.topicId!==topicId)).slice(0, 6);
@@ -8980,7 +9031,7 @@ function renderExamSelect(){
   const filter = $("examTopicSelect").value;
   $("examSelect").innerHTML = "";
 
-  const list = EXAM_BANK.filter(q=>filter==="ALL" ? true : q.topicId===filter);
+  const list = EXAM_BANK.filter(q=>isTopicEnabled(q.topicId)).filter(q=>filter==="ALL" ? true : q.topicId===filter);
 
   list.forEach(q=>{
     const o=document.createElement("option");
