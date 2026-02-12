@@ -7093,11 +7093,12 @@ function loadState(){
     return baseState();
   }
 }
-let STATE = loadState();
+var STATE = loadState();
 function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); }
 
 
 function isTopicEnabled(topicId){
+  if(!STATE) STATE = loadState();
   STATE.disabledTopics ||= {};
   return !STATE.disabledTopics[topicId];
 }
