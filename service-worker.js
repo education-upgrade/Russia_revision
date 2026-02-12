@@ -1,7 +1,7 @@
 /* service-worker.js
    Minimal PWA cache with explicit precache list (includes header-bg.jpg)
 */
-const CACHE_NAME = "russia-1855-1964-v7";
+const CACHE_NAME = "russia-1855-1964-v8";
 
 const PRECACHE_URLS = [
   "./",
@@ -13,8 +13,7 @@ const PRECACHE_URLS = [
   "./icon-512.png",
   "./icon-512-maskable.png",
   "./header-bg.jpg",
-  "./README_PWA.txt",
-  "./icons/" // harmless if folder request fails; ok to remove if you prefer
+  "./README_PWA.txt"
 ];
 
 // Install: pre-cache core assets

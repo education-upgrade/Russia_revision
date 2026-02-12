@@ -9,7 +9,7 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="theme-color" content="#f8f3ef">
-  <link rel="preload" as="image" href="https://ctilley-bot.github.io/ctilley-bot-russia-revision-appV3/header-bg.jpg?v6">
+  <link rel="preload" as="image" href="./header-bg.jpg?v6">
 
     <link rel="preload" as="image" href="section-bg.jpg?v8">
 <style>
@@ -19,7 +19,7 @@
 
     :root{
       /* Home header background image (hosted in this repo) */
-      --homeHeaderBg: url("https://ctilley-bot.github.io/ctilley-bot-russia-revision-appV3/header-bg.jpg?v6");
+      --homeHeaderBg: url("./header-bg.jpg?v6");
       /* Background image used inside cards on all non-Home tabs */
       --sectionCardBg: url("./section-bg.jpg");
 
@@ -8616,7 +8616,7 @@ init();
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try{
-        const reg = await navigator.serviceWorker.register("./service-worker.js?v8", { scope: "./" });
+        const reg = await navigator.serviceWorker.register("./service-worker.js?v9", { scope: "./" });
         // Ask the browser to check for an updated SW file
         if (reg && reg.update) reg.update();
 
