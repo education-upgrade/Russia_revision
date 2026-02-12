@@ -8226,10 +8226,18 @@ function renderQuizQ(){
   $("quizQ").textContent = q.q;
   $("quizChoices").innerHTML = "";
 
+  const formatChoiceLabel = (rawChoice)=>{
+    const maxVisibleChars = 42;
+    if(rawChoice.length <= maxVisibleChars) return rawChoice;
+    return `${rawChoice.slice(0, maxVisibleChars - 1).trimEnd()}…`;
+  };
+
   q.choices.forEach(choice=>{
     const b = document.createElement("button");
     b.className = "choiceBtn";
-    b.textContent = choice;
+    b.textContent = formatChoiceLabel(choice);
+    b.title = choice;
+    b.setAttribute("aria-label", choice);
 
     b.addEventListener("click", ()=>{
       if(QUIZ.locked) return;
