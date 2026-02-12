@@ -1976,7 +1976,7 @@ h1{
 
       <button class="gamePillBtn" type="button" id="openBeatClockBtn">
         <div class="gamePillTitle">Beat the Clock</div>
-        <div class="gamePillDesc">Pick 4 correct key terms from 8 in 15 seconds. Miss the timer and restart the run.</div>
+        <div class="gamePillDesc">Pick 4 correct key terms from 8 in 20 seconds. Miss the timer and restart the run.</div>
       </button>
     </div>
 
@@ -2169,7 +2169,7 @@ h1{
           <button class="connBtn" id="bcClearBtn" type="button" disabled>Clear</button>
         </div>
 
-        <div class="connMsg" id="bcMsg">You have 15 seconds per round.</div>
+        <div class="connMsg" id="bcMsg">You have 20 seconds per round.</div>
       </div>
     </div>
 
@@ -6427,7 +6427,7 @@ const BEAT_CLOCK = {
   run: 0,
   best: Number(localStorage.getItem("beat_clock_best_run") || 0),
   timer: null,
-  timeLeft: 15,
+  timeLeft: 20,
   active: false,
   correctTerms: new Set(),
   selected: new Set(),
@@ -6541,7 +6541,7 @@ function bcStartRound(){
   BEAT_CLOCK.correctTerms = new Set(round.topicTerms);
   BEAT_CLOCK.terms = round.mixed;
   BEAT_CLOCK.selected = new Set();
-  BEAT_CLOCK.timeLeft = 15;
+  BEAT_CLOCK.timeLeft = 20;
   BEAT_CLOCK.active = true;
 
   const t = TOPICS.find(x=>x.id===round.topicId);
