@@ -7188,28 +7188,10 @@ const confetti = (() => {
     requestAnimationFrame(tick);
   }
   function fall(durationMs=2600){
-    // Single-pass fall: spawn once with extended lifetime (no looping re-spawn).
-    resize();
     const count = Math.max(120, Math.floor(window.innerWidth / 7));
-    const colors = [
-      [242,183,166],[247,213,200],[119,207,163],[241,201,122],[239,138,138]
-    ];
-    pieces = Array.from({length:count}).map(()=> {
-      const c = colors[Math.floor(Math.random()*colors.length)];
-      return {
-        x: Math.random()*W,
-        y: (-H * (0.15 + Math.random()*0.55)),
-        r: (4+Math.random()*7)*devicePixelRatio,
-        vx: (-1.8 + Math.random()*3.6)*devicePixelRatio,
-        vy: (2.1 + Math.random()*3.2)*devicePixelRatio,
-        rot: Math.random()*Math.PI,
-        vr: (-0.16 + Math.random()*0.32),
-        c,
-        life: Math.max(90, Math.round(durationMs/16))
-      };
-    });
-    running = true;
-    requestAnimationFrame(tick);
+    burst(count);
+    const interval = setInterval(()=>spawn(count), 420);
+    setTimeout(()=>clearInterval(interval), Math.max(600, durationMs));
   }
   return { burst, fall };
 })();
