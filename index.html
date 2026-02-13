@@ -2339,8 +2339,8 @@ h1{
 const TOPICS = [
   { id:"t1", title:"1. Preserving Autocracy 1855-1894" },
   { id:"t2", title:"2. Failure of Autocracy 1894-1917" },
-  { id:"t3", title:"3. Establishing Communist Rule 1917-1924" },
-  { id:"t4", title:"4. Stalinist Dictatorship and reaction 1941-1964 " }
+  { id:"t3", title:"3. Establishing Communist Rule 1917-1941" },
+  { id:"t4", title:"4. Stalinist Dictatorship and reaction 1941-1964" }
 ];
 
 /* ==========================================================
@@ -3241,7 +3241,7 @@ t2: {
 },
 
   t3: {
-    title: "3. Establishing Communist Rule 1917-1924",
+    title: "3. Establishing Communist Rule 1917-1941",
     terms:[
   {
     "term": "Sovnarkom (Council of People's Commissars)",
@@ -6138,7 +6138,7 @@ const CONNECTIONS_BANK = {
 
   // Topic 4 example
   t3: {
-    title: "3. Establishing Communist Rule 1917–1924",
+    title: "3. Establishing Communist Rule 1917–1941",
     groups: [
       { label:"October takeover", terms:["Bolsheviks","Petrograd Soviet","Trotsky","Red Guards"] },
       { label:"Decrees", terms:["Land Decree","Peace Decree","Workers’ control","Sovnarkom"] },
@@ -6151,7 +6151,7 @@ const CONNECTIONS_BANK = {
 
   // Topic 5 example
   t4: {
-    title: "4. Stalin’s Dictatorship 1924–1953",
+    title: "4. Stalinist Dictatorship and reaction 1941–1964",
     groups: [
       { label:"Power struggle", terms:["Lenin’s Testament","Trotsky","Zinoviev","Kamenev"] },
       { label:"Collectivisation", terms:["Kulaks","Kolhoz","Dekulakisation","Grain"] },
@@ -6766,7 +6766,7 @@ const MATCH_PEOPLE_DEFAULTS = {
    ========================================================== */
 (function(){
   const T4 = "t4", T5 = "t5";
-  const NEW_T4_TITLE = "4. Stalinist Dictatorship and reaction 1941-1964 ";
+  const NEW_T4_TITLE = "4. Stalinist Dictatorship and reaction 1941-1964";
   function mergeBanks(bank){
     if(!bank || !bank[T5]) return;
     if(!bank[T4]){ bank[T4] = bank[T5]; delete bank[T5]; return; }
