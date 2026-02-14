@@ -116,6 +116,19 @@ header#homeHeader::after{
 
 .brand{ display:flex; align-items:center; gap:12px; }
 
+.bannerTopRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+@media (max-width: 720px){
+  .bannerTopRow{
+    width:100%;
+  }
+}
+
 .logo{
   width:44px;height:44px;border-radius:16px;
   background:linear-gradient(135deg, rgba(242,183,166,.95), rgba(247,213,200,.95));
@@ -1809,18 +1822,13 @@ h1{
 <header id="homeHeader">
   <div class="headerInner">
     <div class="brand">
-      <div>
+      <div class="bannerTopRow">
         <div class="banner-title-pill">Russia 1855–1964</div>
-      </div>
-    </div>
-
-    <div class="row">
       <div class="pill signalPill" id="weeklyBadgePill">
         <div class="pillTop">🏅 Week signal</div>
         <div class="pillSub">Keep momentum rolling</div>
       </div>
-      
-
+      </div>
     </div>
 
     <!-- KPI pills: keep key stats visible without pushing streak off-screen on mobile -->
