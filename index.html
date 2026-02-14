@@ -1560,6 +1560,40 @@ h1{
       margin-top:12px;
       display:grid; gap:8px;
     }
+
+    #streakHeroCard{
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+      --dailyTopicBg:none;
+      background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(253,235,228,.88));
+    }
+    #streakHeroCard::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background-image:var(--dailyTopicBg);
+      background-size:cover;
+      background-position:center;
+      background-repeat:no-repeat;
+      opacity:.22;
+      filter:saturate(1.06);
+      transform:scale(1.03);
+      pointer-events:none;
+      z-index:0;
+    }
+    #streakHeroCard::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg, rgba(255,255,255,.80), rgba(253,235,228,.58));
+      pointer-events:none;
+      z-index:1;
+    }
+    #streakHeroCard > *{
+      position:relative;
+      z-index:2;
+    }
     .checkRow{
       display:flex; align-items:center; justify-content:space-between; gap:10px;
       padding:10px 12px;
@@ -7377,6 +7411,18 @@ function updateDailyUI(){
 
   const label = document.getElementById('dailyTopicLabel');
   if(label) label.textContent = topicTitle;
+
+  const streakCard = document.getElementById('streakHeroCard');
+  if(streakCard){
+    const dailyTopicBackgrounds = {
+      t1: "./topic1.png?v=1",
+      t2: "./topic2.png?v=1",
+      t3: "./header-bg.jpg?v=2",
+      t4: "./section-bg.jpg?v=2"
+    };
+    const bg = dailyTopicBackgrounds[d.topicId];
+    streakCard.style.setProperty('--dailyTopicBg', bg ? `url('${bg}')` : 'none');
+  }
 
   const timePill = document.getElementById('dailyTimePill');
   if(timePill) timePill.textContent = `📅 ${todayKey()} • 10–15 mins`;
