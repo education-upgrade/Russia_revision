@@ -114,11 +114,12 @@ header#homeHeader::after{
   flex-wrap:wrap;
 }
 
-.brand{ display:flex; align-items:center; gap:12px; }
+.brand{ display:flex; align-items:center; gap:12px; width:100%; }
 
 .bannerTopRow{
   display:flex;
   align-items:center;
+  width:100%;
   gap:10px;
   flex-wrap:nowrap;
 }
@@ -126,7 +127,6 @@ header#homeHeader::after{
 @media (max-width: 720px){
   .bannerTopRow{
     width:100%;
-    justify-content:space-between;
     align-items:center;
     gap:8px;
   }
@@ -134,11 +134,6 @@ header#homeHeader::after{
   .banner-title-pill{
     font-size:22px;
     padding:9px 14px;
-  }
-
-  #weeklyBadgePill{
-    flex-shrink:0;
-    max-width:172px;
   }
 }
 
@@ -1672,7 +1667,8 @@ h1{
     }
   
 .banner-title-pill {
-  display: inline-block;
+  display: block;
+  width: 100%;
   padding: 10px 20px;
   font-size: 30px;        /* same size as before */
   font-weight: 800;
@@ -1888,10 +1884,6 @@ h1{
     <div class="brand">
       <div class="bannerTopRow">
         <div class="banner-title-pill">Russia 1855–1964</div>
-      <div class="pill signalPill" id="weeklyBadgePill">
-        <div class="pillTop">🏅 Week signal</div>
-        <div class="pillSub">Keep momentum rolling</div>
-      </div>
       </div>
     </div>
 
