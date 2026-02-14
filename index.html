@@ -1602,15 +1602,32 @@ h1{
     .protectBtn{
       margin-top:12px;
       width:100%;
-      padding:14px 14px;
+      padding:11px 12px;
       border-radius:16px;
-      font-weight:1000;
+      font-weight:800;
       border:1px solid rgba(0,0,0,.10);
-      background:linear-gradient(180deg, rgba(242,183,166,.85), rgba(247,213,200,.85));
+      background:#fff;
       cursor:pointer;
-      box-shadow:var(--shadow);
+      box-shadow:none;
     }
     .protectBtn:hover{ filter:brightness(.98); }
+
+    .homePrimaryCta{
+      width:100%;
+      margin:0 0 12px;
+      padding:16px 18px;
+      border-radius:18px;
+      border:1px solid rgba(0,0,0,.12);
+      background:linear-gradient(180deg, rgba(242,183,166,.98), rgba(247,213,200,.98));
+      box-shadow: var(--shadow);
+      font-weight:1000;
+      font-size:18px;
+      cursor:pointer;
+      text-align:center;
+    }
+    .homePrimaryCta:hover{ filter:brightness(.98); }
+    .homePrimaryCta:active{ transform:translateY(1px); }
+    .homePrimaryCta:focus{ outline:2px solid rgba(242,183,166,.6); outline-offset:2px; }
 
     /* Confetti canvas */
     #confettiCanvas{
@@ -1863,6 +1880,8 @@ h1{
 
   <!-- HOME -->
   <section id="home" class="tabpane">
+    <button class="homePrimaryCta" id="homeContinueBtn" type="button">Continue studying</button>
+
     <div class="card" id="streakHeroCard">
   <div class="streakHeader">
     <div class="streakHeaderCopy">
@@ -8365,12 +8384,61 @@ updateDailyUI();
 
 /* Home quick buttons (legacy IDs kept for safety) */
 
+const LAST_STUDY_CONTEXT_KEY = "russia_revision_last_study_context_v1";
+
+function rememberStudyContext(){
+  try{
+    const mode = $("modeSelect")?.value;
+    const topicId = $("topicSelect")?.value;
+    if(!mode || !topicId) return;
+    localStorage.setItem(LAST_STUDY_CONTEXT_KEY, JSON.stringify({ mode, topicId }));
+  }catch(e){}
+}
+
+function getLastStudyContext(){
+  try{
+    const raw = localStorage.getItem(LAST_STUDY_CONTEXT_KEY);
+    if(!raw) return null;
+    const parsed = JSON.parse(raw);
+    if(!parsed || !["focus","all"].includes(parsed.mode)) return null;
+    return parsed;
+  }catch(e){ return null; }
+}
+
+function openStudyForTopic(topicId, mode="all"){
+  const safeTopic = isTopicEnabled(topicId) ? topicId : getDailyTopicId();
+  setTab("study");
+  $("topicSelect").value = safeTopic;
+  $("modeSelect").value = ["focus","all"].includes(mode) ? mode : "all";
+  $("orderSelect").value = "random";
+  loadNextCard();
+  rememberStudyContext();
+}
+
+function nextDailyAction(d){
+  if((d.flash||0) < DAILY_FLASH_GOAL) return "flash";
+  if((d.quizBest||0) < DAILY_QUIZ_GOAL) return "quiz";
+  if(!d.planOpened) return "plan";
+  return null;
+}
+
+function routeHomeContinue(){
+  const d = ensureDaily();
+  const pending = nextDailyAction(d);
+
+  if(pending === "flash") return goDailyFocus();
+  if(pending === "quiz") return goDailyQuiz();
+  if(pending === "plan") return goDailyExam();
+
+  const recent = getLastStudyContext();
+  if(recent) return openStudyForTopic(recent.topicId, recent.mode);
+
+  return openStudyForTopic(d.topicId, "all");
+}
+
 function goDailyFocus(){
   const d = ensureDaily();
-  setTab("study");
-  $("topicSelect").value = d.topicId;
-  $("modeSelect").value = "all";
-  $("orderSelect").value = "random";
+  openStudyForTopic(d.topicId, "all");
   startDailyFlashSession(d.topicId);
 }
 function goDailyQuiz(){
@@ -8392,6 +8460,9 @@ function goDailyExam(){
 { const _b = document.getElementById('btnGoFocus'); if(_b) _b.addEventListener('click', goDailyFocus); }
 { const _b = document.getElementById('btnGoMixed'); if(_b) _b.addEventListener('click', goDailyQuiz); }
 { const _b = document.getElementById('btnGoExam'); if(_b) _b.addEventListener('click', goDailyExam); }
+
+// Home primary CTA
+$("homeContinueBtn").addEventListener("click", routeHomeContinue);
 
 // Daily Challenge navigable checklist rows (these replace the removed top action buttons)
 $("goDailyFlash").addEventListener("click", goDailyFocus);
@@ -8576,8 +8647,8 @@ function nextCard(){
   renderCard();
 }
 
-$("topicSelect").addEventListener("change", loadNextCard);
-$("modeSelect").addEventListener("change", loadNextCard);
+$("topicSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); });
+$("modeSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); });
 $("orderSelect").addEventListener("change", loadNextCard);
 $("searchInput").addEventListener("input", debounce(loadNextCard, 250));
 
