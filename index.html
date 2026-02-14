@@ -7813,6 +7813,13 @@ function renderTopicDashboard(){
   }
 
 
+  const topicBackgrounds = {
+    t1: "topic1.png",
+    t2: "topic2.png",
+    t3: "topic3.png",
+    t4: "topic4.png"
+  };
+
   el.innerHTML = topicIds.map(tid=>{
     const t = FACT_BANK[tid];
     const conf = topicConfidence(tid);
@@ -7851,7 +7858,7 @@ function renderTopicDashboard(){
       celebrateLevelUp(t.title, lvl);
     }
 
-    const topicBg = `./topic${Number(tid.replace('t',''))}.png`;
+    const topicBg = topicBackgrounds[tid] || "section-bg.jpg";
 
     return `
       <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic">
