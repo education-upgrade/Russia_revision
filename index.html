@@ -1306,8 +1306,9 @@ h1{
     .streakTopicPill{
       width:100%;
       display:flex;
-      align-items:center;
-      gap:6px;
+      flex-direction:column;
+      align-items:flex-start;
+      gap:2px;
       padding:10px 14px;
       border-radius:14px;
       border:1px solid rgba(0,0,0,.08);
@@ -1322,9 +1323,10 @@ h1{
       color:var(--text);
       font-weight:900;
       min-width:0;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
+      overflow:visible;
+      text-overflow:clip;
+      white-space:normal;
+      overflow-wrap:anywhere;
     }
     .streakMiniLabel{
       color:var(--muted);
