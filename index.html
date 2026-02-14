@@ -359,10 +359,10 @@ h1{
   transform: translateX(20px);
 }
 .topicTile.isDisabled{
-  opacity:.55;
+  opacity:1;
 }
 .topicTile.isDisabled .progressTank{
-  filter:grayscale(.35) saturate(.75);
+  filter:none;
 }
 
 /* =========================
@@ -386,41 +386,30 @@ h1{
   position:absolute;
   left:0; right:0; bottom:0;
   height: var(--fill, 0%);
-  /* Fallback first (no color-mix), then enhanced */
-  background:
-    linear-gradient(180deg,
-      rgba(255,255,255,.22),
-      rgba(255,255,255,0) 22%),
-    linear-gradient(135deg, rgba(255,255,255,.10), var(--liq, var(--bad)));
-  background:
-    linear-gradient(180deg,
-      rgba(255,255,255,.22),
-      rgba(255,255,255,0) 22%),
-    linear-gradient(135deg,
-      color-mix(in srgb, var(--liq, var(--bad)) 84%, white 16%),
-      var(--liq, var(--bad)));
+  /* Progress tint should be clear but still let the background image show through */
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,.14) 0%,
+    rgba(255,255,255,0) 20%
+  ),
+  linear-gradient(
+    135deg,
+    rgba(239,138,138,.38),
+    rgba(239,138,138,.56)
+  );
+  background: linear-gradient(
+    180deg,
+    rgba(255,255,255,.14) 0%,
+    rgba(255,255,255,0) 20%
+  ),
+  linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--liq, var(--bad)) 58%, transparent),
+    color-mix(in srgb, var(--liq, var(--bad)) 74%, transparent)
+  );
+  border-top:1px solid rgba(255,255,255,.32);
   transition: height .7s cubic-bezier(.2,.9,.2,1);
   will-change: height;
-}
-.progressLiquid::before{
-  content:"";
-  position:absolute;
-  left:-30%;
-  bottom: calc(100% - 18px);
-  width:160%;
-  height:46px;
-  background:
-    radial-gradient(20px 18px at 20px 30px, rgba(255,255,255,.55) 0 55%, transparent 58%),
-    radial-gradient(22px 18px at 60px 18px, rgba(255,255,255,.45) 0 55%, transparent 58%),
-    radial-gradient(22px 18px at 100px 30px, rgba(255,255,255,.40) 0 55%, transparent 58%);
-  opacity:.7;
-  filter: blur(.2px);
-  animation: waveSlide 4.5s linear infinite;
-  pointer-events:none;
-}
-@keyframes waveSlide{
-  from{ transform: translateX(0); }
-  to{ transform: translateX(-120px); }
 }
 
 .tankContent{
