@@ -325,11 +325,27 @@ h1{
 .topicTile:active{ transform:translateY(1px); }
 
 /* Topic on/off toggle (per tile) */
+.topicPillRow{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+}
+
 .topicToggleWrap{
-  position:absolute;
-  top:10px;
-  right:10px;
-  z-index:3;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.topicTogglePill{
+  min-height:34px;
+  padding:6px 8px;
+  border-radius:999px;
+  border:1px solid rgba(0,0,0,.10);
+  background:rgba(255,255,255,.58);
+  box-shadow:0 4px 10px rgba(0,0,0,.08);
 }
 .switch{
   position:relative;
@@ -438,7 +454,7 @@ h1{
 .tankContent .tileMain{ font-size:13px; }
 .tankContent .tileYears{ font-size:11px; }
 
-.topicTile .levelBadge{ margin-top:10px; }
+.topicTile .levelBadge{ margin-top:0; flex:1; }
 
 @media (max-width:420px){
   .progressTank{ height:124px; }
@@ -7946,19 +7962,20 @@ function renderTopicDashboard(){
     return `
       <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic" style="--topicTileBg:url('${topicBg}');">
         <div class="progressTank" style="--fill:${fill}%; --liq:${liq}; --topicBg:url('${topicBg}');">
-          
-          <div class="topicToggleWrap" title="Toggle this topic on/off">
+          <div class="progressLiquid"></div>
+          <div class="tankContent">
+            ${tileTitleHTML(t.title)}
+          </div>
+        </div>
+        <div class="topicPillRow">
+          <div class="levelBadge level-${lvl.key}">${badgeText}</div>
+          <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
             <label class="switch">
               <input type="checkbox" class="topicToggle" data-topic-toggle="${tid}" ${isTopicEnabled(tid) ? "checked" : ""} aria-label="Toggle topic ${tid}">
               <span class="slider"></span>
             </label>
           </div>
-<div class="progressLiquid"></div>
-          <div class="tankContent">
-            ${tileTitleHTML(t.title)}
-          </div>
         </div>
-        <div class="levelBadge level-${lvl.key}">${badgeText}</div>
       </button>
     `;
   }).join('');
