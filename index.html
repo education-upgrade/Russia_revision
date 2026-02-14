@@ -7819,10 +7819,12 @@ function renderTopicDashboard(){
 
 
   const topicBackgrounds = {
-    t1: "./topic1.png?v=1",
+    // NOTE: topic1.png/topic3.png/topic4.png in this repo are invalid tiny files,
+    // so point each tile at verified image assets that render consistently.
+    t1: "./section-bg.jpg?v=2",
     t2: "./topic2.png?v=1",
-    t3: "./topic3.png?v=1",
-    t4: "./topic4.png?v=1"
+    t3: "./header-bg.jpg?v=2",
+    t4: "./section-bg.jpg?v=2"
   };
 
   el.innerHTML = topicIds.map(tid=>{
