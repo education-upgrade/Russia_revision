@@ -1299,6 +1299,29 @@ h1{
       background:#fff;
       display:flex; align-items:center; gap:8px;
     }
+    .streakTopicPill{
+      margin-top:10px;
+      width:100%;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.08);
+      background:#fff;
+      font-weight:800;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.25;
+    }
+    .streakTopicPill b{
+      color:var(--text);
+      font-weight:900;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
     .streakMiniLabel{
       color:var(--muted);
       font-weight:800;
@@ -1801,12 +1824,17 @@ h1{
   <div class="streakHeader">
     <div class="streakHeaderCopy">
       <div style="font-weight:900;font-size:16px">Daily streak</div>
-      <div class="note" id="streakNote">Protect todays streak by completing the daily challenge below.<br>Today’s topic thread: <b id="dailyTopicLabel">—</b></div>
+      <div class="note" id="streakNote">Protect todays streak by completing the daily challenge below.</div>
     </div>
     <div class="pill streakCountPill" aria-label="Current streak">
       <span class="streakCountLabel">Streak</span>
       <span class="streakCountNum" id="streakBigNum">0</span>
     </div>
+  </div>
+
+  <div class="pill streakTopicPill" aria-label="Today's topic thread">
+    <span>Today’s topic thread:</span>
+    <b id="dailyTopicLabel">—</b>
   </div>
 
   <div class="row" style="gap:8px; flex-wrap:wrap; margin-top:10px">
