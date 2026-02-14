@@ -8302,12 +8302,17 @@ function checkDailyFlashSessionComplete(cardId){
   if(!session?.active || session.complete || !cardId) return;
 
   const d = ensureDaily();
+  if(d.flashCelebrated) return;
+
   const revealed = new Set(Array.isArray(d.revealedCards) ? d.revealedCards : []);
   let done = 0;
   session.cardIds.forEach(id=>{ if(revealed.has(id)) done++; });
 
-  if(done >= session.cardIds.size && session.cardIds.size > 0){
+  const reachedGoal = (d.flash||0) >= DAILY_FLASH_GOAL;
+  if(reachedGoal && done >= session.cardIds.size && session.cardIds.size > 0){
     session.complete = true;
+    d.flashCelebrated = true;
+    saveState();
     try{ confetti.fall(2600); }catch(e){}
   }
 }
