@@ -306,7 +306,12 @@ h1{
 .topicTile{
   width:100%;
   border:1px solid var(--line);
-  background:linear-gradient(180deg,#fff,var(--accent3));
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.75), rgba(253,235,228,.70)),
+    var(--topicTileBg, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border-radius:16px;
   padding:10px 10px 10px;
   box-shadow:var(--shadow);
@@ -7814,10 +7819,10 @@ function renderTopicDashboard(){
 
 
   const topicBackgrounds = {
-    t1: "topic1.png",
-    t2: "topic2.png",
-    t3: "topic3.png",
-    t4: "topic4.png"
+    t1: "./topic1.png?v=1",
+    t2: "./topic2.png?v=1",
+    t3: "./topic3.png?v=1",
+    t4: "./topic4.png?v=1"
   };
 
   el.innerHTML = topicIds.map(tid=>{
@@ -7861,7 +7866,7 @@ function renderTopicDashboard(){
     const topicBg = topicBackgrounds[tid] || "section-bg.jpg";
 
     return `
-      <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic">
+      <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic" style="--topicTileBg:url('${topicBg}');">
         <div class="progressTank" style="--fill:${fill}%; --liq:${liq}; --topicBg:url('${topicBg}');">
           
           <div class="topicToggleWrap" title="Toggle this topic on/off">
