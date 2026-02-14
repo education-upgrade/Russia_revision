@@ -1,7 +1,7 @@
 /* service-worker.js
    Minimal PWA cache with explicit precache list (includes header-bg.jpg)
 */
-const CACHE_NAME = "russia-1855-1964-v8";
+const CACHE_NAME = "russia-1855-1964-v9";
 
 const PRECACHE_URLS = [
   "./",
@@ -13,6 +13,9 @@ const PRECACHE_URLS = [
   "./icon-512.png",
   "./icon-512-maskable.png",
   "./header-bg.jpg",
+  "./section-bg.jpg",
+  "./topic1.png",
+  "./topic2.png",
   "./README_PWA.txt"
 ];
 
