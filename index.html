@@ -7439,8 +7439,8 @@ function updateDailyUI(){
     const dailyTopicBackgrounds = {
       t1: "./topic1.png?v=1",
       t2: "./topic2.png?v=1",
-      t3: "./topic3.png?v=1",
-      t4: "./topic4.png?v=1"
+      t3: "./section-bg.jpg?v=8",
+      t4: "./section-bg.jpg?v=8"
     };
     const bg = dailyTopicBackgrounds[d.topicId];
     streakCard.style.setProperty('--dailyTopicBg', bg ? `url('${bg}')` : 'none');
@@ -8023,8 +8023,8 @@ function renderTopicDashboard(){
   const topicBackgrounds = {
     t1: "./topic1.png?v=1",
     t2: "./topic2.png?v=1",
-    t3: "./topic3.png?v=1",
-    t4: "./topic4.png?v=1"
+    t3: "./section-bg.jpg?v=8",
+    t4: "./section-bg.jpg?v=8"
   };
 
   el.innerHTML = topicIds.map(tid=>{
