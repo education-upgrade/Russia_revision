@@ -1861,18 +1861,6 @@ h1{
       </div>
     </div>
 
-    <!-- KPI pills: keep key stats visible without pushing streak off-screen on mobile -->
-    <div class="bannerKpis" aria-label="Quick stats">
-      <div class="kpiPill kpiPillLong" title="Overall progress">
-        <div class="kpiLong" aria-label="Progress indicators">
-          <div class="kpiItem"><span class="kpiMiniLabel">Studied</span><span class="kpiMiniVal" id="kpiStudied">0</span></div>
-          <span class="kpiSep" aria-hidden="true">•</span>
-          <div class="kpiItem"><span class="kpiMiniLabel">Focus</span><span class="kpiMiniVal" id="kpiFocus">0</span></div>
-          <span class="kpiSep" aria-hidden="true">•</span>
-          <div class="kpiItem"><span class="kpiMiniLabel">Quiz</span><span class="kpiMiniVal" id="kpiQuiz">0%</span></div>
-        </div>
-      </div>
-    </div>
   </div>
 </header>
 
@@ -1885,7 +1873,7 @@ h1{
     <div class="card" id="streakHeroCard">
   <div class="streakHeader">
     <div class="streakHeaderCopy">
-      <div style="font-weight:900;font-size:16px">Daily streak</div>
+      <div style="font-weight:900;font-size:16px">Daily challenge status</div>
       <div class="note" id="streakNote">Protect todays streak by completing the daily challenge below.</div>
       <div class="pill streakTopicPill" aria-label="Today's topic">
         <span>Today’s topic:</span>
@@ -1895,17 +1883,6 @@ h1{
     <div class="pill streakCountPill" aria-label="Current streak">
       <span class="streakCountLabel">Streak</span>
       <span class="streakCountNum" id="streakBigNum">0</span>
-    </div>
-  </div>
-
-  <div class="row" style="gap:8px; flex-wrap:wrap; margin-top:10px">
-    <div class="pill streakMiniPill" aria-label="Best streak">
-      <span class="streakMiniLabel">Best</span>
-      <span class="streakMiniNum" id="streakBestNum">0</span>
-    </div>
-    <div class="pill streakMiniPill" aria-label="Reset timer">
-      <span class="streakMiniLabel">Resets in</span>
-      <span class="streakMiniNum countdown" id="streakCountdown">--:--:--</span>
     </div>
   </div>
 
@@ -1933,11 +1910,6 @@ h1{
   </div>
 
   <button class="protectBtn" id="protectStreakBtn" type="button">Protect today’s streak (Daily Challenge)</button>
-
-  <div class="row" style="justify-content:space-between; align-items:center; margin-top:12px">
-    <div class="note" style="margin:0">Last 7 days</div>
-    <div class="weekStrip" id="weekStrip"></div>
-  </div>
 </div>
 
 
@@ -1945,13 +1917,48 @@ h1{
     <div class="card">
       <div class="row" style="justify-content:space-between">
         <div>
-          <div style="font-weight:900;font-size:16px">📚 Topic tiles</div>
-          <div class="note">Toggle topics to match what you’ve covered in class.</div>
+          <div style="font-weight:900;font-size:16px">✅ Next steps</div>
+          <div class="note">Pick your next study focus with one tap.</div>
         </div>
-        <div class="pill">Start where you are in class</div>
+        <div class="pill">Stay in flow</div>
       </div>
       <div class="divider"></div>
       <div id="topicDash" class="topicDash"></div>
+    </div>
+
+    <div class="card">
+      <details id="homeDetailsAccordion">
+        <summary style="font-weight:900;cursor:pointer;list-style:none">Details</summary>
+        <div class="divider" style="margin-top:10px"></div>
+
+        <div class="row" style="gap:8px; flex-wrap:wrap; margin-top:10px">
+          <div class="pill streakMiniPill" aria-label="Best streak">
+            <span class="streakMiniLabel">Best</span>
+            <span class="streakMiniNum" id="streakBestNum">0</span>
+          </div>
+          <div class="pill streakMiniPill" aria-label="Reset timer">
+            <span class="streakMiniLabel">Resets in</span>
+            <span class="streakMiniNum countdown" id="streakCountdown">--:--:--</span>
+          </div>
+        </div>
+
+        <div class="row" style="justify-content:space-between; align-items:center; margin-top:12px">
+          <div class="note" style="margin:0">Last 7 days</div>
+          <div class="weekStrip" id="weekStrip"></div>
+        </div>
+
+        <div class="bannerKpis" aria-label="Quick stats" style="margin-top:12px">
+          <div class="kpiPill kpiPillLong" title="Overall progress">
+            <div class="kpiLong" aria-label="Progress indicators">
+              <div class="kpiItem"><span class="kpiMiniLabel">Studied</span><span class="kpiMiniVal" id="kpiStudied">0</span></div>
+              <span class="kpiSep" aria-hidden="true">•</span>
+              <div class="kpiItem"><span class="kpiMiniLabel">Focus</span><span class="kpiMiniVal" id="kpiFocus">0</span></div>
+              <span class="kpiSep" aria-hidden="true">•</span>
+              <div class="kpiItem"><span class="kpiMiniLabel">Quiz</span><span class="kpiMiniVal" id="kpiQuiz">0%</span></div>
+            </div>
+          </div>
+        </div>
+      </details>
     </div>
   </section>
 
