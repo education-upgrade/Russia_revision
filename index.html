@@ -373,7 +373,11 @@ h1{
   height:132px;
   border-radius:16px;
   border:1px solid rgba(0,0,0,.08);
-  background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(253,235,228,.70));
+  background-image:
+    linear-gradient(180deg, rgba(255,255,255,.24), rgba(0,0,0,.28)),
+    var(--topicBg, linear-gradient(180deg, rgba(255,255,255,.95), rgba(253,235,228,.70)));
+  background-size: cover;
+  background-position: center;
   box-shadow: 0 8px 14px rgba(0,0,0,.06);
   position:relative;
   overflow:hidden;
@@ -428,6 +432,13 @@ h1{
   text-align:center;
   padding:14px 12px;
   z-index:2;
+}
+.tileTitlePanel{
+  background:rgba(255,255,255,.76);
+  border:1px solid rgba(255,255,255,.5);
+  border-radius:12px;
+  padding:8px 10px;
+  box-shadow:0 4px 10px rgba(0,0,0,.12);
 }
 .tankContent .tileNum{ font-size:18px; }
 .tankContent .tileMain{ font-size:13px; }
@@ -7802,14 +7813,14 @@ function renderTopicDashboard(){
     const m = String(title).match(/^(\d+)\.\s*(.*)\s(\d{4}-\d{4})$/);
     if(m){
       return `
-        <div>
+        <div class="tileTitlePanel">
           <div class="tileNum">${escapeHtml(m[1])}</div>
           <div class="tileMain">${escapeHtml(m[2])}</div>
           <div class="tileYears">${escapeHtml(m[3])}</div>
         </div>
       `;
     }
-    return `<div class="tileMain">${escapeHtml(title)}</div>`;
+    return `<div class="tileTitlePanel"><div class="tileMain">${escapeHtml(title)}</div></div>`;
   }
 
 
@@ -7851,9 +7862,11 @@ function renderTopicDashboard(){
       celebrateLevelUp(t.title, lvl);
     }
 
+    const topicBg = `./topic${Number(tid.replace('t',''))}.png`;
+
     return `
       <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic">
-        <div class="progressTank" style="--fill:${fill}%; --liq:${liq};">
+        <div class="progressTank" style="--fill:${fill}%; --liq:${liq}; --topicBg:url('${topicBg}');">
           
           <div class="topicToggleWrap" title="Toggle this topic on/off">
             <label class="switch">
