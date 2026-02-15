@@ -2313,7 +2313,7 @@ h1{
   <section id="progress" class="tabpane hidden">
     <div class="card">
       <div style="font-weight:900;font-size:18px">Progress report</div>
-      <div class="note">A clean view of growth, readiness, and what to focus next.</div>
+      <div class="note">A clean view of growth and readiness.</div>
 
       <div style="margin-top:12px;font-weight:900">Overall readiness <span id="overallReadinessVal">0%</span></div>
       <div class="progressHeadlineBar">
@@ -2332,15 +2332,6 @@ h1{
       <div id="topicXpList" class="topicXpList"></div>
     </div>
 
-    <div class="card">
-      <div style="font-weight:900">Focus next</div>
-      <div id="focusNextList" class="focusList"></div>
-    </div>
-
-    <div class="card">
-      <div style="font-weight:900">Momentum + consistency</div>
-      <div id="habitPills" class="habitPills"></div>
-    </div>
   </section>
 
   <!-- STUDY -->
@@ -8485,14 +8476,6 @@ function renderProgressReport(){
     Object.keys(improved).forEach(tid=>set.add(tid));
     return set;
   }, new Set()).size;
-  const weekActive = weekKeys.filter(k=>Number(daily[k]?.dailyTasksCompleted||0) > 0).length;
-  const fortnightActive = fortnightKeys.filter(k=>Number(daily[k]?.dailyTasksCompleted||0) > 0).length;
-
-  const sessionTaskSamples = weekKeys.flatMap(k=>Array.isArray(daily[k]?.sessionTaskCounts) ? daily[k].sessionTaskCounts : []);
-  const tasksPerSession = sessionTaskSamples.length ? (sessionTaskSamples.reduce((a,b)=>a+Number(b||0),0) / sessionTaskSamples.length).toFixed(1) : "0.0";
-
-  const challengeRate = weekKeys.length ? Math.round((weekKeys.filter(k=>STATE.daily?.[k]?.completed).length / 7) * 100) : 0;
-
   const weekMetricsEl = $("thisWeekMetrics");
   if(weekMetricsEl){
     const metrics = [
@@ -8519,26 +8502,6 @@ function renderProgressReport(){
     `).join("");
   }
 
-  const focus = [...topicRows].sort((a,b)=>a.xp.totalXp-b.xp.totalXp).slice(0,3);
-  const focusEl = $("focusNextList");
-  if(focusEl){
-    focusEl.innerHTML = focus.map(({topic,xp})=>{
-      let reason = `Lowest quiz score (${xp.quizBest}%).`;
-      if(xp.daysSince !== null && xp.daysSince >= 5) reason = `Due for review: last studied ${xp.daysSince} days ago.`;
-      else if(!xp.planStarted) reason = "Exam plan not started yet.";
-      return `<div class="focusItem"><div style="font-weight:900">${escapeHtml(topic?.title || xp.topicId)} — ${xp.totalXp}/100 XP</div><div class="focusReason">Reason: ${reason}</div></div>`;
-    }).join("");
-  }
-
-  const habitsEl = $("habitPills");
-  if(habitsEl){
-    habitsEl.innerHTML = [
-      `Days active (7): <b>${weekActive}</b>`,
-      `Days active (14): <b>${fortnightActive}</b>`,
-      `Tasks/session: <b>${tasksPerSession}</b>`,
-      `Challenge completion: <b>${challengeRate}%</b>`
-    ].map(x=>`<div class="habitPill">${x}</div>`).join("");
-  }
 }
 
 function renderTopicDashboard(){
