@@ -2133,6 +2133,19 @@ h1{
 .tlWinTitle{ font-weight:1000; }
 .tlWinSub{ color:var(--muted); font-weight:900; font-size:12px; margin-top:2px; }
 
+.segToggle{display:flex;gap:8px;flex-wrap:wrap}
+.segBtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer}
+.segBtn.active{background:var(--accent3);border-color:rgba(242,183,166,.7)}
+.trendRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.trendPill{padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.75);font-weight:800;font-size:12px}
+.trendGood{color:#1f7c56}
+.trendWarn{color:#8a6a1f}
+.reportGrid{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));margin-top:10px}
+.reportMetric{border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(255,255,255,.75)}
+.reportMetric .v{font-size:24px;font-weight:1000;line-height:1.1}
+.topicList{margin:10px 0 0 18px;padding:0}
+.topicList li{margin-bottom:6px}
+
 </style>
 </head>
 
@@ -2762,6 +2775,41 @@ h1{
   </section>
 
   <!-- SETTINGS (includes Progress) -->
+
+  <section id="progress" class="tabpane hidden">
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:900;font-size:18px">Progress</div>
+          <div class="note" id="progressStory">Build your streak and accuracy story.</div>
+        </div>
+        <div class="segToggle" role="tablist" aria-label="Progress mode">
+          <button class="segBtn active" id="progressStudentBtn" type="button" aria-pressed="true">Student view</button>
+          <button class="segBtn" id="progressReportBtn" type="button" aria-pressed="false">Report mode</button>
+        </div>
+      </div>
+
+      <div id="progressStudentView">
+        <div class="reportGrid">
+          <div class="reportMetric"><div class="note">Study minutes (7 days)</div><div class="v" id="progressMinutes7">0m</div></div>
+          <div class="reportMetric"><div class="note">Accuracy now</div><div class="v" id="progressAccuracyNow">0%</div></div>
+          <div class="reportMetric"><div class="note">Accuracy change</div><div class="v" id="progressAccuracyDelta">+0 pts</div></div>
+        </div>
+        <div class="trendRow" id="progressTrendRow"></div>
+      </div>
+
+      <div id="progressReportView" class="hidden">
+        <div class="reportGrid">
+          <div class="reportMetric"><div class="note">Total study minutes (30 days)</div><div class="v" id="reportMinutes30">0m</div></div>
+          <div class="reportMetric"><div class="note">Accuracy trend (30 days)</div><div class="v" id="reportAccuracyTrend">0 pts</div></div>
+          <div class="reportMetric"><div class="note">Tasks completed (30 days)</div><div class="v" id="reportTasks30">0</div></div>
+        </div>
+        <div style="margin-top:10px;font-weight:900">Weak topics to target next</div>
+        <ol class="topicList" id="reportWeakTopics"></ol>
+      </div>
+    </div>
+  </section>
+
   <section id="settings" class="tabpane hidden">
     <div class="card">
       <div style="font-weight:900;font-size:16px">⚙️ Settings</div>
@@ -2803,6 +2851,7 @@ h1{
   <div class="navBtn" data-tab="quiz"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg><div class="navLabel">Quiz</div></div>
   <div class="navBtn" data-tab="games"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg><div class="navLabel">Games</div></div>
   <div class="navBtn" data-tab="exam"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg><div class="navLabel">Exam</div></div>
+  <div class="navBtn" data-tab="progress"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16"></path><path d="M7 14v4"></path><path d="M12 10v8"></path><path d="M17 6v12"></path></svg><div class="navLabel">Progress</div></div>
   <div class="navBtn" data-tab="settings"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.05.05a2 2 0 1 1-2.83 2.83l-.05-.05a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.08a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.08a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.05-.05a2 2 0 0 1 2.83-2.83l.05.05A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.08a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.05-.05a2 2 0 1 1 2.83 2.83l-.05.05A1.7 1.7 0 0 0 19.4 9c.24.64.86 1.05 1.55 1.05H21a2 2 0 1 1 0 4h-.08c-.69 0-1.31.41-1.55 1.05z"></path></svg><div class="navLabel">Settings</div></div>
 </nav>
 
@@ -8207,6 +8256,9 @@ function setTab(tabId){
   if(tabId === "home"){
     renderHomeRecommendation();
   }
+  if(tabId === "progress"){
+    renderProgressScreen();
+  }
 }
 document.querySelectorAll(".navBtn").forEach(btn=>{
   btn.addEventListener("click", ()=>setTab(btn.dataset.tab));
@@ -8798,6 +8850,7 @@ function computeKpis(){
   try{ renderStreakSignal(); }catch(e){}
   // Update topic confidence dashboard
   try{ renderTopicDashboard(); }catch(e){}
+  try{ renderProgressScreen(); }catch(e){}
 }
 computeKpis();
 updateDailyUI();
@@ -8809,6 +8862,9 @@ const EVENT_LOG_KEY = "russia_revision_event_log_v1";
 const ONBOARDED_KEY = "onboarded";
 const USER_GOAL_KEY = "userGoal";
 const SESSION_MAGIC_SHOWN_KEY = "russia_revision_magic_shown_session_v1";
+const PROGRESS_VIEW_KEY = "russia_revision_progress_view_v1";
+const DAILY_AGG_CACHE_KEY = "russia_revision_daily_agg_cache_v1";
+
 
 const RECO_WEIGHTS = {
   // Tunable ranking constants for deterministic recommendation engine.
@@ -8839,6 +8895,80 @@ function loadEventLog(){
 function saveEventLog(items){
   localStorage.setItem(EVENT_LOG_KEY, JSON.stringify(items.slice(-500)));
 }
+function dayKeyFromTs(ts){
+  const d = new Date(Number(ts||Date.now()));
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+}
+function sumMinutes(msList=[]){
+  const totalMs = (msList||[]).reduce((n,v)=>n+Number(v||0),0);
+  return Math.max(0, Math.round(totalMs / 60000));
+}
+function rebuildDailyAnalyticsFromEvents(force=false){
+  const events = loadEventLog();
+  const lastTs = Number(events.length ? events[events.length-1].ts : 0);
+  const fingerprint = `${events.length}:${lastTs}`;
+  let cache = null;
+  try{ cache = JSON.parse(localStorage.getItem(DAILY_AGG_CACHE_KEY) || "null"); }catch(e){ cache = null; }
+
+  if(!force && cache?.fingerprint === fingerprint && STATE.analytics?.daily && Object.keys(STATE.analytics.daily).length){
+    return;
+  }
+
+  const daily = {};
+  const get = (day)=>{
+    daily[day] ||= {
+      recoShown:0,
+      recoClicked:0,
+      dailyTasksCompleted:0,
+      sessionDurations:[],
+      sessionTaskCounts:[],
+      tasksPerSession:0,
+      nextTapRate:0,
+      streakSavedToday:false,
+      minutesSpent:0,
+      quizTasks:0,
+      accuracyPercent:0
+    };
+    return daily[day];
+  };
+
+  events.forEach(ev=>{
+    const day = dayKeyFromTs(ev?.ts);
+    const b = get(day);
+    if(ev?.name === "home_reco_shown") b.recoShown += 1;
+    if(ev?.name === "home_reco_clicked") b.recoClicked += 1;
+    if(ev?.name === "task_completed"){
+      b.dailyTasksCompleted += 1;
+      if(ev?.payload?.taskType === "QUIZ") b.quizTasks += 1;
+    }
+    if(ev?.name === "daily_challenge_completed") b.streakSavedToday = true;
+    if(ev?.name === "session_end"){
+      b.sessionDurations.push(Number(ev?.payload?.durationMs || 0));
+      b.sessionTaskCounts.push(Number(ev?.payload?.tasksCompleted || 0));
+    }
+  });
+
+  Object.keys(STATE.daily||{}).forEach(day=>{
+    const b = get(day);
+    b.streakSavedToday = b.streakSavedToday || !!STATE.daily?.[day]?.completed;
+    b.accuracyPercent = Math.max(Number(b.accuracyPercent||0), Number(STATE.daily?.[day]?.quizBest||0));
+  });
+
+  Object.values(daily).forEach(b=>{
+    const sessions = Math.max(1, b.sessionTaskCounts.length);
+    const totalTasks = b.sessionTaskCounts.reduce((n,v)=>n+Number(v||0),0);
+    b.tasksPerSession = Number((totalTasks / sessions).toFixed(2));
+    b.nextTapRate = b.recoShown ? Number((b.recoClicked / b.recoShown).toFixed(3)) : 0;
+    b.sessionDurations = b.sessionDurations.slice(-20);
+    b.sessionTaskCounts = b.sessionTaskCounts.slice(-20);
+    b.minutesSpent = sumMinutes(b.sessionDurations);
+  });
+
+  STATE.analytics ||= { daily:{} };
+  STATE.analytics.daily = daily;
+  saveState();
+  localStorage.setItem(DAILY_AGG_CACHE_KEY, JSON.stringify({ fingerprint, rebuiltAt: Date.now() }));
+}
 function analyticsDayBucket(day=todayKey()){
   STATE.analytics ||= { daily:{} };
   STATE.analytics.daily ||= {};
@@ -8850,7 +8980,10 @@ function analyticsDayBucket(day=todayKey()){
     sessionTaskCounts:[],
     tasksPerSession:0,
     nextTapRate:0,
-    streakSavedToday:false
+    streakSavedToday:false,
+    minutesSpent:0,
+    quizTasks:0,
+    accuracyPercent:0
   };
   return STATE.analytics.daily[day];
 }
@@ -8861,7 +8994,11 @@ function refreshDailyAggregates(day=todayKey()){
   b.tasksPerSession = Number((totalTasks / sessions).toFixed(2));
   b.nextTapRate = b.recoShown ? Number((b.recoClicked / b.recoShown).toFixed(3)) : 0;
   b.streakSavedToday = !!STATE.daily?.[day]?.completed;
+  b.minutesSpent = sumMinutes(b.sessionDurations);
+  b.accuracyPercent = Math.max(Number(b.accuracyPercent||0), Number(STATE.daily?.[day]?.quizBest||0));
   saveState();
+  try{ renderProgressScreen(); }catch(e){}
+
 }
 function logEvent(name, payload={}, ts=Date.now()){
   const list = loadEventLog();
@@ -8871,7 +9008,10 @@ function logEvent(name, payload={}, ts=Date.now()){
   const b = analyticsDayBucket(todayKey());
   if(name === "home_reco_shown") b.recoShown += 1;
   if(name === "home_reco_clicked") b.recoClicked += 1;
-  if(name === "task_completed") b.dailyTasksCompleted += 1;
+  if(name === "task_completed"){
+    b.dailyTasksCompleted += 1;
+    if(payload.taskType === "QUIZ") b.quizTasks += 1;
+  }
   if(name === "daily_challenge_completed") b.streakSavedToday = true;
   if(name === "session_end"){
     b.sessionDurations.push(Number(payload.durationMs||0));
@@ -9218,6 +9358,92 @@ function renderHomeRecommendation(){
   logEvent("home_reco_shown", { taskType: reco.taskType, topicId: reco.topicId });
   renderDebugPanel();
 }
+function sortedAnalyticsDays(){
+  const daily = STATE.analytics?.daily || {};
+  return Object.keys(daily).sort();
+}
+function calcAccuracyDelta(days=30){
+  const list = sortedAnalyticsDays().slice(-days).map(day=>Number(STATE.analytics.daily?.[day]?.accuracyPercent||0)).filter(v=>v>0);
+  if(list.length < 2) return 0;
+  return list[list.length-1] - list[0];
+}
+function topWeakTopics(limit=3){
+  return enabledTopicIds().map(topicId=>{
+    const t = touchTopicStats(topicId);
+    const weakScore = (100 - Number(t.quizBestPercent||0)) + (Number(t.failedCards||0) * 4);
+    return { topicId, weakScore, quizBestPercent:Number(t.quizBestPercent||0), failedCards:Number(t.failedCards||0) };
+  }).sort((a,b)=>b.weakScore-a.weakScore).slice(0, limit);
+}
+function renderProgressScreen(){
+  const daily = STATE.analytics?.daily || {};
+  const days = Object.keys(daily).sort();
+  const last7 = days.slice(-7);
+  const last30 = days.slice(-30);
+
+  const minutes7 = last7.reduce((n,d)=>n+Number(daily[d]?.minutesSpent||0),0);
+  const minutes30 = last30.reduce((n,d)=>n+Number(daily[d]?.minutesSpent||0),0);
+  const tasks30 = last30.reduce((n,d)=>n+Number(daily[d]?.dailyTasksCompleted||0),0);
+
+  const accNow = last7.map(d=>Number(daily[d]?.accuracyPercent||0)).filter(v=>v>0).slice(-1)[0] || 0;
+  const accDelta7 = calcAccuracyDelta(7);
+  const accDelta30 = calcAccuracyDelta(30);
+
+  if($("progressMinutes7")) $("progressMinutes7").textContent = `${minutes7}m`;
+  if($("progressAccuracyNow")) $("progressAccuracyNow").textContent = `${accNow}%`;
+  if($("progressAccuracyDelta")) $("progressAccuracyDelta").textContent = `${accDelta7>=0?'+':''}${accDelta7} pts`;
+  if($("reportMinutes30")) $("reportMinutes30").textContent = `${minutes30}m`;
+  if($("reportAccuracyTrend")) $("reportAccuracyTrend").textContent = `${accDelta30>=0?'+':''}${accDelta30} pts`;
+  if($("reportTasks30")) $("reportTasks30").textContent = String(tasks30);
+
+  const trend = $("progressTrendRow");
+  if(trend){
+    const streak = Number(STATE.dailyStreak?.count || 0);
+    trend.innerHTML = `
+      <div class="trendPill ${minutes7>=45?'trendGood':'trendWarn'}">${minutes7>=45?'On track':'Build momentum'}: ${minutes7} minutes this week</div>
+      <div class="trendPill ${accDelta7>=0?'trendGood':'trendWarn'}">Accuracy ${accDelta7>=0?'up':'down'} ${Math.abs(accDelta7)} pts this week</div>
+      <div class="trendPill ${streak>=3?'trendGood':'trendWarn'}">Current streak: ${streak} day${streak===1?'':'s'}</div>
+    `;
+  }
+
+  const weakEl = $("reportWeakTopics");
+  if(weakEl){
+    const items = topWeakTopics(3);
+    weakEl.innerHTML = items.map(item=>{
+      const t = TOPICS.find(x=>x.id===item.topicId);
+      return `<li><b>${escapeHtml(t?.title || item.topicId)}</b> — accuracy ${item.quizBestPercent}% · focus cards ${item.failedCards}</li>`;
+    }).join("") || "<li>No weak topics detected yet.</li>";
+  }
+
+  if($("progressStory")){
+    const msg = accDelta7 >= 0
+      ? `You are improving: accuracy ${accDelta7>=0?'+':''}${accDelta7} points over the last 7 days.`
+      : `Keep going: accuracy dipped ${Math.abs(accDelta7)} points; target weak topics for a rebound.`;
+    $("progressStory").textContent = msg;
+  }
+}
+function setProgressMode(mode){
+  const report = mode === "report";
+  if($("progressStudentView")) $("progressStudentView").classList.toggle("hidden", report);
+  if($("progressReportView")) $("progressReportView").classList.toggle("hidden", !report);
+  if($("progressStudentBtn")){
+    $("progressStudentBtn").classList.toggle("active", !report);
+    $("progressStudentBtn").setAttribute("aria-pressed", String(!report));
+  }
+  if($("progressReportBtn")){
+    $("progressReportBtn").classList.toggle("active", report);
+    $("progressReportBtn").setAttribute("aria-pressed", String(report));
+  }
+  localStorage.setItem(PROGRESS_VIEW_KEY, report ? "report" : "student");
+}
+function initProgressUi(){
+  const studentBtn = $("progressStudentBtn");
+  const reportBtn = $("progressReportBtn");
+  if(studentBtn) studentBtn.addEventListener("click", ()=>setProgressMode("student"));
+  if(reportBtn) reportBtn.addEventListener("click", ()=>setProgressMode("report"));
+  setProgressMode(localStorage.getItem(PROGRESS_VIEW_KEY) || "student");
+  renderProgressScreen();
+}
+
 function showNextUpSheet(){
   const reco = getNextBestAction(Date.now());
   const sheet = $("nextUpSheet");
@@ -10379,6 +10605,8 @@ $("btnReset").addEventListener("click", ()=>{
    ========================================================== */
 function init(){
   populateTopics();
+  rebuildDailyAnalyticsFromEvents();
+  initProgressUi();
   startSession("app_open");
   attachHomeDebugLongPress();
   initOnboarding();
