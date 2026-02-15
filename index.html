@@ -1294,10 +1294,10 @@ h1{
 
     /* Clean, controlled streak card (match Daily Challenge card styling) */
     .streakCountPill{
-      width:102px;
-      min-height:102px;
-      padding:10px;
-      border-radius:20px;
+      width:84px;
+      min-height:84px;
+      padding:8px;
+      border-radius:18px;
       background:linear-gradient(180deg,#fff,var(--accent3));
       border:1px solid rgba(242,183,166,.65);
       box-shadow:0 12px 24px rgba(0,0,0,.1);
@@ -1305,7 +1305,7 @@ h1{
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:6px;
+      gap:4px;
       flex-shrink:0;
     }
     .streakCountLabel{
@@ -1317,24 +1317,23 @@ h1{
     }
     .streakCountNum{
       font-weight:1000;
-      font-size:38px;
+      font-size:30px;
       line-height:1;
       font-variant-numeric: tabular-nums;
       color:var(--text);
     }
     .streakHeader{
-      display:flex;
-      justify-content:space-between;
-      align-items:stretch;
-      gap:14px;
-      flex-wrap:nowrap;
+      display:block;
     }
     .streakHeaderCopy{
-      flex:1 1 auto;
       min-width:0;
-      min-height:102px;
       display:flex;
       flex-direction:column;
+      gap:10px;
+    }
+    .streakTopicRow{
+      display:flex;
+      align-items:stretch;
       gap:10px;
     }
     .streakMiniPill{
@@ -1361,6 +1360,13 @@ h1{
       font-size:13px;
       line-height:1.25;
       flex:1;
+    }
+    @media (max-width: 560px){
+      .streakCountPill{
+        width:76px;
+        min-height:76px;
+      }
+      .streakCountNum{ font-size:26px; }
     }
     .streakTopicPill::before{
       content:"";
@@ -1922,14 +1928,16 @@ h1{
     <div class="streakHeaderCopy">
       <div style="font-weight:900;font-size:16px">Daily challenge status</div>
       <div class="note" id="streakNote">Protect todays streak by completing the daily challenge below.</div>
-      <div class="pill streakTopicPill" aria-label="Today's topic">
-        <span>Today’s topic:</span>
-        <b id="dailyTopicLabel">—</b>
+      <div class="streakTopicRow">
+        <div class="pill streakTopicPill" aria-label="Today's topic">
+          <span>Today’s topic:</span>
+          <b id="dailyTopicLabel">—</b>
+        </div>
+        <div class="pill streakCountPill" aria-label="Current streak">
+          <span class="streakCountLabel">Streak</span>
+          <span class="streakCountNum" id="streakBigNum">0</span>
+        </div>
       </div>
-    </div>
-    <div class="pill streakCountPill" aria-label="Current streak">
-      <span class="streakCountLabel">Streak</span>
-      <span class="streakCountNum" id="streakBigNum">0</span>
     </div>
   </div>
 
