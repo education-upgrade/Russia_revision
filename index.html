@@ -1676,24 +1676,6 @@ h1{
       font-size:18px;
       cursor:pointer;
       text-align:center;
-      line-height:1.2;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-    }
-    .homePrimaryCtaPrefix{ flex:0 0 auto; }
-    .homePrimaryCtaTopic{
-      min-width:0;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      white-space:nowrap;
-      flex:1 1 auto;
-      text-align:left;
-    }
-    .homePrimaryCtaTime{ flex:0 0 auto; white-space:nowrap; }
-    @media (max-width:520px){
-      .homePrimaryCta{ font-size:clamp(14px, 3.8vw, 18px); }
     }
     .homePrimaryCta:hover{ filter:brightness(.98); }
     .homePrimaryCta:active{ transform:translateY(1px); }
@@ -7492,7 +7474,6 @@ function updateDailyUI(){
     else trophy.classList.add('hidden');
   }
   try{ renderStreakHero(); }catch(e){}
-  try{ renderHomePrimaryCTA(); }catch(e){}
 }
 
 
@@ -8503,125 +8484,53 @@ function openStudyForTopic(topicId, mode="all"){
 }
 
 function nextDailyAction(d){
-  const remainingCards = Math.max(0, DAILY_FLASH_GOAL - (d.flash||0));
-  if(remainingCards > 0) return { key:"flash", topicId:d.topicId, topicTitle:getTopicTitle(d.topicId), minutes:Math.max(1, Math.ceil(remainingCards * 0.25)) };
-  if((d.quizBest||0) < DAILY_QUIZ_GOAL) return { key:"quiz", topicId:d.topicId, topicTitle:getTopicTitle(d.topicId), minutes:4 };
-  if(!d.planOpened) return { key:"plan", topicId:d.topicId, topicTitle:getTopicTitle(d.topicId), minutes:8 };
+  if((d.flash||0) < DAILY_FLASH_GOAL) return "flash";
+  if((d.quizBest||0) < DAILY_QUIZ_GOAL) return "quiz";
+  if(!d.planOpened) return "plan";
   return null;
 }
 
-function getTopicTitle(topicId){
-  return (TOPICS.find(t=>t.id===topicId)||{}).title || topicId;
-}
-
-function getRecommendedNextAction(){
-  const now = Date.now();
-  const dueByTopic = {};
-  for(const c of ALL_CARDS){
-    if(!isTopicEnabled(c.topicId)) continue;
-    const r = getReview(c.id);
-    if(!r || !r.dueTs || r.dueTs > now) continue;
-    dueByTopic[c.topicId] = (dueByTopic[c.topicId]||0) + 1;
-  }
-  const dueEntries = Object.entries(dueByTopic).sort((a,b)=>b[1]-a[1]);
-  if(dueEntries.length){
-    const [topicId, dueCount] = dueEntries[0];
-    return {
-      key:"flash",
-      topicId,
-      topicTitle:getTopicTitle(topicId),
-      minutes:Math.max(1, Math.ceil(dueCount * 0.25))
-    };
-  }
-
-  const weakest = TOPICS
-    .filter(t=>isTopicEnabled(t.id))
-    .map(t=>({ topicId:t.id, topicTitle:t.title, avg:topicConfidence(t.id).avg }))
-    .sort((a,b)=>a.avg-b.avg)[0];
-
-  if(weakest){
-    return { key:"quiz", topicId:weakest.topicId, topicTitle:weakest.topicTitle, minutes:4 };
-  }
-
-  const d = ensureDaily();
-  return { key:"flash", topicId:d.topicId, topicTitle:getTopicTitle(d.topicId), minutes:3 };
-}
-
-function getHomePrimaryCtaState(){
-  const d = ensureDaily();
-  const nextAction = d.completed ? getRecommendedNextAction() : nextDailyAction(d);
-  if(!nextAction) return null;
-
-  const prefix = d.completed ? "Keep going:" : "Continue:";
-  const modeLabel = d.completed ? "keep going" : "continue";
-  return {
-    ...nextAction,
-    prefix,
-    label: `${prefix} ${nextAction.topicTitle} (${nextAction.minutes} mins)`,
-    ariaLabel: `${modeLabel} ${nextAction.topicTitle}, ${nextAction.minutes} minutes`
-  };
-}
-
-function renderHomePrimaryCTA(){
-  const btn = $("homeContinueBtn");
-  if(!btn) return;
-  const cta = getHomePrimaryCtaState();
-  if(!cta){
-    btn.textContent = "Continue studying";
-    btn.setAttribute("aria-label", "Continue studying");
-    return;
-  }
-  btn.innerHTML = `
-    <span class="homePrimaryCtaPrefix">${escapeHtml(cta.prefix)}</span>
-    <span class="homePrimaryCtaTopic">${escapeHtml(cta.topicTitle)}</span>
-    <span class="homePrimaryCtaTime">(${cta.minutes} mins)</span>
-  `;
-  btn.setAttribute("aria-label", cta.ariaLabel);
-}
-
 function routeHomeContinue(){
-  const cta = getHomePrimaryCtaState();
-  if(!cta){
-    const d = ensureDaily();
-    return openStudyForTopic(d.topicId, "all");
-  }
-  if(cta.key === "flash") return goDailyFocus(cta.topicId);
-  if(cta.key === "quiz") return goDailyQuiz(cta.topicId);
-  if(cta.key === "plan") return goDailyExam(cta.topicId);
-  return openStudyForTopic(cta.topicId, "all");
+  const d = ensureDaily();
+  const pending = nextDailyAction(d);
+
+  if(pending === "flash") return goDailyFocus();
+  if(pending === "quiz") return goDailyQuiz();
+  if(pending === "plan") return goDailyExam();
+
+  const recent = getLastStudyContext();
+  if(recent) return openStudyForTopic(recent.topicId, recent.mode);
+
+  return openStudyForTopic(d.topicId, "all");
 }
 
-function goDailyFocus(topicId){
+function goDailyFocus(){
   const d = ensureDaily();
-  const targetTopic = topicId || d.topicId;
-  openStudyForTopic(targetTopic, "all");
-  startDailyFlashSession(targetTopic);
+  openStudyForTopic(d.topicId, "all");
+  startDailyFlashSession(d.topicId);
 }
-function goDailyQuiz(topicId){
+function goDailyQuiz(){
   const d = ensureDaily();
-  const targetTopic = topicId || d.topicId;
   setTab("quiz");
-  $("mcqTopicSelect").value = targetTopic;
+  $("mcqTopicSelect").value = d.topicId;
   $("mcqCount").value = "10";
   startQuiz();
 }
-function goDailyExam(topicId){
+function goDailyExam(){
   const d = ensureDaily();
-  const targetTopic = topicId || d.topicId;
   setTab("exam");
   const exFilter = $("examTopicSelect");
-  if(exFilter){ exFilter.value = targetTopic; exFilter.dispatchEvent(new Event("change")); }
-  const exId = getDailyExamId(targetTopic);
+  if(exFilter){ exFilter.value = d.topicId; exFilter.dispatchEvent(new Event("change")); }
+  const exId = getDailyExamId(d.topicId);
   if(exId){ $("examSelect").value = exId; renderExamQuestion(); }
 }
 
-{ const _b = document.getElementById('btnGoFocus'); if(_b) _b.addEventListener('click', ()=>goDailyFocus()); }
-{ const _b = document.getElementById('btnGoMixed'); if(_b) _b.addEventListener('click', ()=>goDailyQuiz()); }
-{ const _b = document.getElementById('btnGoExam'); if(_b) _b.addEventListener('click', ()=>goDailyExam()); }
+{ const _b = document.getElementById('btnGoFocus'); if(_b) _b.addEventListener('click', goDailyFocus); }
+{ const _b = document.getElementById('btnGoMixed'); if(_b) _b.addEventListener('click', goDailyQuiz); }
+{ const _b = document.getElementById('btnGoExam'); if(_b) _b.addEventListener('click', goDailyExam); }
 
 // Home primary CTA
 $("homeContinueBtn").addEventListener("click", routeHomeContinue);
-renderHomePrimaryCTA();
 
 // Daily Challenge navigable checklist rows (these replace the removed top action buttons)
 $("goDailyFlash").addEventListener("click", goDailyFocus);
