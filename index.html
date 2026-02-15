@@ -862,6 +862,14 @@ h1{
     .choiceBtn.correct{border-color: rgba(119,207,163,.9); background: rgba(119,207,163,.12)}
     .choiceBtn.wrong{border-color: rgba(239,138,138,.9); background: rgba(239,138,138,.10)}
 
+    .masteryWrap{margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.92)}
+    .masteryTrack{height:10px;border-radius:999px;background:rgba(0,0,0,.08);overflow:hidden}
+    .masteryFill{height:100%;width:0%;background:linear-gradient(90deg,var(--warn),var(--good));transition:width .25s ease}
+    .reviewList{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+    .reviewItem{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
+    .reviewQ{font-weight:700;font-size:14px}
+    .reviewMeta{font-size:12px;color:var(--muted);margin-top:4px}
+
     /* =========================
        MATCH GAME (two panels)
        ========================= */
@@ -2342,6 +2350,13 @@ h1{
             <option>10</option><option>15</option><option selected>20</option><option>30</option><option>40</option><option>50</option><option>60</option>
           </select>
         </div>
+        <div class="grow" style="min-width:190px">
+          <label>Style</label>
+          <select id="quizModeSelect">
+            <option value="standard" selected>Standard</option>
+            <option value="exam">Exam mode</option>
+          </select>
+        </div>
         <div>
           <label>&nbsp;</label>
           <button class="btn primary" id="btnStartQuiz">⚡ Go quiz</button>
@@ -2365,6 +2380,14 @@ h1{
           <div class="pill" id="quizBestStreakPill">🏆 Best: 0</div>
         </div>
 
+        <div class="masteryWrap" id="quizMasteryWrap" aria-live="polite">
+          <div class="row" style="justify-content:space-between;gap:6px">
+            <div class="note" id="quizMasteryLabel">Mastery: 0% (target 80%)</div>
+            <div class="note" id="quizTopicMastery">Topic: 0%</div>
+          </div>
+          <div class="masteryTrack"><div class="masteryFill" id="quizMasteryFill"></div></div>
+        </div>
+
         <div class="divider"></div>
 
         <p class="qText" id="quizQ"></p>
@@ -2372,10 +2395,19 @@ h1{
 
         <div class="divider"></div>
 
-        <div class="row" style="justify-content:space-between">
+        <div class="row" style="justify-content:space-between;gap:8px">
           <div class="note" id="quizExplainer">Tap your answer.</div>
-          <button class="btn small" id="btnNextQ">➡️ Next</button>
+          <div class="row" style="gap:8px;justify-content:flex-end">
+            <button class="btn small hidden" id="btnFixIt">🔁 Fix-it</button>
+            <button class="btn small" id="btnReviewMisses">📝 Review</button>
+            <button class="btn small" id="btnNextQ">➡️ Next</button>
+          </div>
         </div>
+      </div>
+
+      <div id="quizReviewBox" class="hidden" style="margin-top:10px">
+        <div class="note" style="font-weight:800">Review wrong answers</div>
+        <div id="quizReviewList" class="reviewList"></div>
       </div>
     </div>
   </section>
@@ -8367,6 +8399,8 @@ function renderTopicDashboard(){
 
     const lvl = conf.levelObj || getXpLevel(conf.avg||0);
     const badgeText = lvl.label;
+    const topicQuiz = Number(touchTopicStats(tid).quizBestPercent||0);
+    const topicMastery = Math.max(fill, topicQuiz);
 
     // Level-up detection per topic (stored in localStorage)
     STATE.topicLevels ||= {};
@@ -8392,6 +8426,7 @@ function renderTopicDashboard(){
         </div>
         <div class="topicPillRow">
           <div class="levelBadge level-${lvl.key}">${badgeText}</div>
+          <div class="note" style="font-size:11px;font-weight:800">Mastery ${topicMastery}% / 80%</div>
           <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
             <label class="switch">
               <input type="checkbox" class="topicToggle" data-topic-toggle="${tid}" ${isTopicEnabled(tid) ? "checked" : ""} aria-label="Toggle topic ${tid}">
@@ -9767,32 +9802,109 @@ function getQuizPool(topicId){
 }
 
 /* QUIZ state + streaks */
-let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0 };
+let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED" };
 
-function startQuiz(){
+function quizTopicMasteryPercent(topicId){
+  if(topicId === "MIXED"){
+    const vals = enabledTopicIds().map(tid=>Number(touchTopicStats(tid).quizBestPercent||0));
+    if(!vals.length) return 0;
+    return Math.round(vals.reduce((a,b)=>a+b,0) / vals.length);
+  }
+  return Number(touchTopicStats(topicId).quizBestPercent||0);
+}
+
+function inferChoiceType(answer){
+  const a = String(answer||"").trim();
+  if(/^\d{4}$/.test(a)) return "year";
+  if(/^[A-Z][a-z]+(?:\s[A-Z][a-z]+){0,2}$/.test(a)) return "person";
+  if(a.split(" ").length >= 4) return "statement";
+  return "term";
+}
+
+function buildExamisedQuestion(q){
+  const type = inferChoiceType(q.answer);
+  const pool = MCQ_BANK
+    .map(x=>x.answer)
+    .filter(a=>a !== q.answer && inferChoiceType(a) === type);
+  const harderDistractors = shuffle(unique(pool)).slice(0, 3);
+  const fallback = q.choices.filter(c=>c !== q.answer);
+  const distractors = harderDistractors.length === 3 ? harderDistractors : shuffle(unique([...harderDistractors, ...fallback])).slice(0,3);
+  return {
+    ...q,
+    q: q.q.endsWith("?") ? q.q : `${q.q}?`,
+    choices: shuffle([q.answer, ...distractors])
+  };
+}
+
+function updateQuizMasteryUi(){
+  const target = 80;
+  const runPercent = QUIZ.list.length ? Math.round((QUIZ.score / QUIZ.list.length) * 100) : 0;
+  const topicPercent = quizTopicMasteryPercent(QUIZ.topicId);
+  $("quizMasteryLabel").textContent = `Mastery: ${runPercent}% (target ${target}%)`;
+  $("quizTopicMastery").textContent = `Topic: ${topicPercent}%`;
+  $("quizMasteryFill").style.width = `${Math.min(100, runPercent)}%`;
+}
+
+function renderQuizReview(){
+  const box = $("quizReviewBox");
+  const list = $("quizReviewList");
+  if(!box || !list) return;
+
+  if(!QUIZ.errorBank.length){
+    list.innerHTML = `<div class="note">No misses to review yet.</div>`;
+  }else{
+    list.innerHTML = QUIZ.errorBank.map(item=>`
+      <div class="reviewItem">
+        <div class="reviewQ">${escapeHtml(item.q)}</div>
+        <div class="reviewMeta">Your answer: ${escapeHtml(item.picked)} · Correct: ${escapeHtml(item.answer)}</div>
+        <div class="note" style="margin-top:6px">${escapeHtml(item.explain)}</div>
+      </div>
+    `).join("");
+  }
+  box.classList.remove("hidden");
+}
+
+function startQuiz(useErrorBank=false){
   const topicId = $("mcqTopicSelect").value;
   const count = Number($("mcqCount").value);
+  const mode = $("quizModeSelect")?.value || "standard";
   if(topicId !== "MIXED") trackTaskStarted("QUIZ", topicId);
 
-  const pool = getQuizPool(topicId);
-  QUIZ.list = shuffle(pool).slice(0, Math.min(count, pool.length));
+  const pool = useErrorBank ? QUIZ.errorBank.map(x=>x.sourceQ) : getQuizPool(topicId);
+  let list = shuffle(pool).slice(0, Math.min(count, pool.length));
+  if(mode === "exam") list = list.map(buildExamisedQuestion);
+
+  QUIZ.list = list;
   QUIZ.idx = 0;
   QUIZ.score = 0;
   QUIZ.locked = false;
   QUIZ.streak = 0;
   QUIZ.best = 0;
   QUIZ.topicId = topicId;
+  QUIZ.mode = mode;
+  if(!useErrorBank) QUIZ.errorBank = [];
 
+  $("quizReviewBox").classList.add("hidden");
+  $("btnFixIt").classList.toggle("hidden", QUIZ.errorBank.length === 0);
   $("quizStreakPill").textContent = `🔥 Streak: ${QUIZ.streak}`;
   $("quizBestStreakPill").textContent = `🏆 Best: ${QUIZ.best}`;
 
   $("quizEmpty").classList.add("hidden");
   $("quizBox").classList.remove("hidden");
-  $("quizExplainer").textContent = "Tap your answer.";
+  $("quizExplainer").textContent = mode === "exam" ? "Exam mode: one answer only." : "Tap your answer.";
+  updateQuizMasteryUi();
+
+  if(!QUIZ.list.length){
+    $("quizQ").textContent = "No questions available for this selection.";
+    $("quizChoices").innerHTML = "";
+    return;
+  }
   renderQuizQ();
 }
 
-$("btnStartQuiz").addEventListener("click", startQuiz);
+$("btnStartQuiz").addEventListener("click", ()=>startQuiz(false));
+$("btnFixIt").addEventListener("click", ()=>startQuiz(true));
+$("btnReviewMisses").addEventListener("click", renderQuizReview);
 
 $("btnNextQ").addEventListener("click", ()=>{
   if(!QUIZ.list.length) return;
@@ -9800,20 +9912,23 @@ $("btnNextQ").addEventListener("click", ()=>{
   QUIZ.locked=false;
 
   if(QUIZ.idx >= QUIZ.list.length){
-    $("quizQ").textContent = `Finished! Final score: ${QUIZ.score}/${QUIZ.list.length}`;
+    const action = QUIZ.errorBank.length ? "Use Fix-it to retry misses." : "No misses. Keep the pace.";
+    $("quizQ").textContent = `Finished. Final score: ${QUIZ.score}/${QUIZ.list.length}`;
     $("quizChoices").innerHTML = "";
     $("quizMeta").textContent = "Done";
-    $("quizExplainer").textContent = `Progress score: ${computeProgressScore()}% • Weekly: ${weeklyPercent()}%`;
+    $("quizExplainer").textContent = `${action} Progress ${computeProgressScore()}% · Weekly ${weeklyPercent()}%`;
 
     const percent = QUIZ.list.length ? Math.round((QUIZ.score / QUIZ.list.length) * 100) : 0;
     recordDailyQuiz(QUIZ.topicId, percent);
     if(QUIZ.topicId && QUIZ.topicId !== "MIXED") trackTaskCompleted("QUIZ", QUIZ.topicId, { percent });
 
+    $("btnFixIt").classList.toggle("hidden", QUIZ.errorBank.length === 0);
+    updateQuizMasteryUi();
     confetti.burst(140);
     computeKpis();
     return;
   }
-  $("quizExplainer").textContent = "Tap your answer.";
+  $("quizExplainer").textContent = QUIZ.mode === "exam" ? "Exam mode: one answer only." : "Tap your answer.";
   renderQuizQ();
 });
 
@@ -9865,20 +9980,24 @@ function renderQuizQ(){
       }else{
         QUIZ.streak = 0;
         b.classList.add("wrong");
+        QUIZ.errorBank.push({ q:q.q, picked:choice, answer:q.answer, explain:q.explain, sourceQ:q });
       }
 
       $("quizStreakPill").textContent = `🔥 Streak: ${QUIZ.streak}`;
       $("quizBestStreakPill").textContent = `🏆 Best: ${QUIZ.best}`;
+      $("btnFixIt").classList.toggle("hidden", QUIZ.errorBank.length === 0);
 
       saveState();
 
       const expl = document.createElement("div");
       expl.className = "note";
       expl.style.marginTop = "10px";
-      expl.textContent = q.explain;
+      const nextStep = correct ? "Next step: keep moving and protect the streak." : `Next step: add this to Fix-it and re-answer it once.`;
+      expl.textContent = `${q.explain} ${nextStep}`;
       $("quizChoices").appendChild(expl);
 
-      $("quizExplainer").textContent = `Progress score: ${computeProgressScore()}% • Weekly: ${weeklyPercent()}%`;
+      $("quizExplainer").textContent = `Error bank: ${QUIZ.errorBank.length} · Progress ${computeProgressScore()}% · Weekly ${weeklyPercent()}%`;
+      updateQuizMasteryUi();
       computeKpis();
     });
 
