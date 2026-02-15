@@ -1664,34 +1664,6 @@ h1{
     }
     .protectBtn:hover{ filter:brightness(.98); }
 
-    .streakCompleteBanner{
-      border:1px solid rgba(119,207,163,.55);
-      background:rgba(119,207,163,.14);
-      border-radius:18px;
-      padding:12px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      margin-top:12px;
-    }
-    .streakCompleteTop{
-      display:flex;
-      gap:10px;
-      align-items:center;
-    }
-    .streakCompleteReturnBtn{
-      width:100%;
-      border:1px solid rgba(119,207,163,.55);
-      background:#fff;
-      border-radius:999px;
-      padding:9px 12px;
-      font-weight:900;
-      color:#0b4b2a;
-      cursor:pointer;
-      text-align:center;
-    }
-    .streakCompleteReturnBtn:hover{ filter:brightness(.98); }
-
     .homePrimaryCta{
       width:100%;
       margin:0 0 12px;
@@ -1961,15 +1933,12 @@ h1{
     </div>
   </div>
 
-  <div id="streakCompleteBanner" class="streakCompleteBanner hidden">
-    <div class="streakCompleteTop">
-      <div style="font-size:26px">🏆</div>
-      <div>
-        <div style="font-weight:900">Daily Challenge Complete!</div>
-        <div class="note" style="margin-top:4px">Nice. Come back tomorrow for a new topic.</div>
-      </div>
+  <div id="streakCompleteBanner" class="hidden" style="border:1px solid rgba(119,207,163,.55);background:rgba(119,207,163,.14);border-radius:18px;padding:12px;display:flex;gap:10px;align-items:center;margin-top:12px">
+    <div style="font-size:26px">🏆</div>
+    <div>
+      <div style="font-weight:900">Daily Challenge Complete!</div>
+      <div class="note" style="margin-top:4px">Nice. Come back tomorrow for a new topic.</div>
     </div>
-    <button id="returnHomeDashboardBtn" class="streakCompleteReturnBtn hidden" type="button">Return to home dashboard</button>
   </div>
 
   <div class="streakChecklist" aria-label="Daily Challenge checklist">
@@ -7620,16 +7589,10 @@ function renderStreakHero(){
 
   const btn = $("protectStreakBtn");
   if(btn){
-    const completedSteps = [doneFlash, doneQuiz, donePlan].filter(Boolean).length;
-    btn.classList.toggle("hidden", doneToday);
-    btn.textContent = completedSteps >= 1 ? "Continue challenge" : "Start challenge";
+    const hasStarted = (d.flash||0) > 0 || (d.quizBest||0) > 0 || !!d.planOpened;
+    btn.classList.remove("hidden");
+    btn.textContent = hasStarted ? "Continue challenge" : "Start challenge";
     btn.onclick = routeHomeContinue;
-  }
-
-  const returnHomeBtn = $("returnHomeDashboardBtn");
-  if(returnHomeBtn){
-    returnHomeBtn.classList.toggle("hidden", !doneToday);
-    returnHomeBtn.onclick = ()=> setTab("home");
   }
 
 
