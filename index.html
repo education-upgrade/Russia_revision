@@ -1893,7 +1893,25 @@ h1{
       .recommendedCardTitle{
         font-size:clamp(20px, 6.2vw, 24px);
       }
-      .homePrimaryCard{ min-height:220px; }
+      /* Keep both Home cards visible on first load on shorter mobile viewports */
+      .headerInner{ padding:12px 12px 8px; }
+      main{ padding:10px 12px calc(var(--navH) + env(safe-area-inset-bottom) + 12px); }
+      .card{ padding:12px; margin-bottom:10px; }
+      .homePrimaryCard{ min-height:156px; }
+      .recommendedLabel{ margin-top:4px; font-size:14px; }
+      .recommendedReason,
+      .recommendedMeta{ margin-top:4px; }
+
+      .streakTopicRow{ gap:8px; }
+      .streakTopicPill,
+      .streakCountPill{ padding:8px 10px; }
+      .streakCountNum{ font-size:44px; }
+
+      .streakChecklist{ gap:8px; }
+      .checkRow{ padding:8px 10px; border-radius:12px; }
+      .checkLeft{ gap:8px; font-size:16px; }
+      .checkDot{ width:20px; height:20px; font-size:12px; }
+      .protectBtn{ margin-top:10px; padding:10px 12px; }
     }
 
     .nextUpSheet{
