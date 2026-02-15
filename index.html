@@ -724,10 +724,75 @@ h1{
     .studyControls{ order:1; }
     .studyCard{ order:2; }
 
+    .studyLaunch{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .studyLaunchMeta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .studyLaunchTitle{
+      margin:0;
+      font-size:17px;
+      font-weight:900;
+      letter-spacing:-.2px;
+    }
+    .studyLaunchHint{
+      margin:4px 0 0;
+      font-size:12px;
+      color:var(--muted);
+    }
+    .studyLaunchBtn{
+      width:100%;
+      min-height:50px;
+      font-size:17px;
+      font-weight:900;
+    }
+
+    .studyAdjustPanel{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background:rgba(255,255,255,.76);
+      margin-top:2px;
+      overflow:hidden;
+    }
+    .studyAdjustPanel summary{
+      list-style:none;
+      cursor:pointer;
+      padding:12px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-weight:800;
+      font-size:14px;
+      color:#303030;
+      gap:8px;
+    }
+    .studyAdjustPanel summary::-webkit-details-marker{ display:none; }
+    .studyAdjustPanel summary::after{
+      content:"▾";
+      font-size:16px;
+      line-height:1;
+      color:var(--muted);
+      transition:transform .2s ease;
+    }
+    .studyAdjustPanel[open] summary::after{ transform:rotate(180deg); }
+    .studyAdjustBody{
+      border-top:1px solid var(--line);
+      padding:12px;
+    }
+
     /* On phones: card first, menus second */
     @media(max-width:700px){
       .studyControls{ order:2; }
       .studyCard{ order:1; }
+      .studyAdjustBody .row{ gap:8px; }
+      .studyAdjustBody .grow{ width:100%; }
     }
 
     /* Fixed-height card frame so buttons stay visible when Reveal expands */
@@ -2216,32 +2281,48 @@ h1{
         </div>
       </div>
 
-      <!-- MENUS / FILTERS (shown second on mobile) -->
+      <!-- START + OPTIONAL ADJUST PANEL -->
       <div class="card studyControls">
-        <div class="row">
-          <div class="grow">
-            <label>Topic</label>
-            <select id="topicSelect"></select>
+        <div class="studyLaunch">
+          <div class="studyLaunchMeta">
+            <div>
+              <p class="studyLaunchTitle" id="studyLaunchTitle">Recommended: Mixed topics</p>
+              <p class="studyLaunchHint" id="studyLaunchHint">Use Adjust only if you want to fine-tune filters.</p>
+            </div>
+            <div class="pill" id="studyLaunchStatus">Ready</div>
           </div>
-          <div class="grow" style="min-width:170px">
-            <label>Mode</label>
-            <select id="modeSelect">
-              <option value="all" selected>🎲 All</option>
-              <option value="focus">🎯 Focus</option>
-            </select>
-          </div>
-          <div class="grow" style="min-width:160px">
-            <label>Order</label>
-            <select id="orderSelect">
-              <option value="ordered" selected>📌 In order</option>
-              <option value="random">🎲 Random</option>
-            </select>
-          </div>
-          <div class="grow">
-          <label>Search</label>
-            <input id="searchInput" placeholder="e.g. October Manifesto / War Communism / Russification" />
-          </div>
+          <button class="btn primary studyLaunchBtn" id="studyLaunchBtn" type="button">▶️ Start flashcards</button>
         </div>
+
+        <details class="studyAdjustPanel" id="studyAdjustPanel">
+          <summary>⚙️ Adjust filters</summary>
+          <div class="studyAdjustBody">
+            <div class="row">
+              <div class="grow">
+                <label>Topic</label>
+                <select id="topicSelect"></select>
+              </div>
+              <div class="grow" style="min-width:170px">
+                <label>Mode</label>
+                <select id="modeSelect">
+                  <option value="all" selected>🎲 All</option>
+                  <option value="focus">🎯 Focus</option>
+                </select>
+              </div>
+              <div class="grow" style="min-width:160px">
+                <label>Order</label>
+                <select id="orderSelect">
+                  <option value="ordered" selected>📌 In order</option>
+                  <option value="random">🎲 Random</option>
+                </select>
+              </div>
+              <div class="grow">
+              <label>Search</label>
+                <input id="searchInput" placeholder="e.g. October Manifesto / War Communism / Russification" />
+              </div>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
   </section>
@@ -9363,6 +9444,34 @@ function getTopicIndex(topicId){
   const idx = TOPICS.findIndex(t=>t.id===topicId);
   return idx < 0 ? 999 : idx;
 }
+function studyTopicLabel(topicId){
+  if(topicId === "ALL") return "Mixed topics";
+  return TOPICS.find(t=>t.id===topicId)?.title || "Mixed topics";
+}
+function updateStudyLaunchCta(){
+  const topicSel = document.getElementById("topicSelect");
+  const modeSel = document.getElementById("modeSelect");
+  const orderSel = document.getElementById("orderSelect");
+  const searchEl = document.getElementById("searchInput");
+  const titleEl = document.getElementById("studyLaunchTitle");
+  const hintEl = document.getElementById("studyLaunchHint");
+  const statusEl = document.getElementById("studyLaunchStatus");
+  const launchBtn = document.getElementById("studyLaunchBtn");
+
+  if(!topicSel || !modeSel || !orderSel || !searchEl || !titleEl || !hintEl || !statusEl || !launchBtn) return;
+
+  const hasCurrent = !!CURRENT.card;
+  const topicLabel = studyTopicLabel(topicSel.value);
+  const modeLabel = modeSel.value === "focus" ? "Focus" : "All cards";
+  const searchActive = searchEl.value.trim().length > 0;
+
+  titleEl.textContent = `Recommended: ${topicLabel}`;
+  hintEl.textContent = searchActive
+    ? `Search filter active. ${modeLabel} • ${orderSel.value === "random" ? "Random" : "In order"}.`
+    : `Ready in ${modeLabel.toLowerCase()} mode • ${orderSel.value === "random" ? "Random" : "In order"}.`;
+  statusEl.textContent = hasCurrent ? `Card ${CURRENT.idx+1}/${CURRENT.list.length || 0}` : "Ready";
+  launchBtn.textContent = hasCurrent ? "▶️ Continue flashcards" : "▶️ Start flashcards";
+}
 function getFilteredCards(){
   const topic = $("topicSelect").value;
   const mode = $("modeSelect").value;     // focus | all
@@ -9427,9 +9536,11 @@ function loadNextCard(){
     const rb = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
     if(rb) rb.textContent = "👀 Reveal answer";
     $("cardMeta").textContent = "🃏 Card 0/0";
+    updateStudyLaunchCta();
     return;
   }
   renderCard();
+  updateStudyLaunchCta();
 }
 function renderCard(){
   const c = CURRENT.card;
@@ -9450,6 +9561,7 @@ function renderCard(){
     ? "🎯 DAILY 12"
     : (mode === "focus" ? "🎯 FOCUS" : "📚 STUDY");
   $("cardMeta").textContent = `🃏 ${CURRENT.idx+1}/${CURRENT.list.length} • ${badge}`;
+  updateStudyLaunchCta();
 }
 function nextCard(){
   if(!CURRENT.list.length){ loadNextCard(); return; }
@@ -9458,10 +9570,20 @@ function nextCard(){
   renderCard();
 }
 
-$("topicSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); });
-$("modeSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); });
-$("orderSelect").addEventListener("change", loadNextCard);
-$("searchInput").addEventListener("input", debounce(loadNextCard, 250));
+$("topicSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); updateStudyLaunchCta(); });
+$("modeSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); updateStudyLaunchCta(); });
+$("orderSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); updateStudyLaunchCta(); });
+$("searchInput").addEventListener("input", debounce(()=>{ loadNextCard(); updateStudyLaunchCta(); }, 250));
+
+const studyLaunchBtn = document.getElementById("studyLaunchBtn");
+if(studyLaunchBtn){
+  studyLaunchBtn.addEventListener("click", ()=>{
+    if(!CURRENT.card) loadNextCard();
+    const frame = document.getElementById("flashcardFrame");
+    if(frame) frame.scrollIntoView({ behavior:"smooth", block:"center" });
+    updateStudyLaunchCta();
+  });
+}
 
 (function(){
   const revealBtn = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
@@ -10151,7 +10273,7 @@ function init(){
   $("examTopicSelect").value = "ALL";
 
   renderExamSelect();
-  loadNextCard();
+  updateStudyLaunchCta();
   computeKpis();
 
   // pre-load games
