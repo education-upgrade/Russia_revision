@@ -7589,10 +7589,11 @@ function renderStreakHero(){
 
   const btn = $("protectStreakBtn");
   if(btn){
-    const hasStarted = (d.flash||0) > 0 || (d.quizBest||0) > 0 || !!d.planOpened;
+    const cta = getChallengeCtaConfig(d);
     btn.classList.remove("hidden");
-    btn.textContent = hasStarted ? "Continue challenge" : "Start challenge";
-    btn.onclick = routeHomeContinue;
+    btn.textContent = cta.label;
+    btn.disabled = cta.disabled;
+    btn.onclick = cta.onClick;
   }
 
 
@@ -8478,49 +8479,30 @@ function nextDailyAction(d){
   return null;
 }
 
-function isDailyStepComplete(step, d){
-  if(step === "flash") return (d.flash||0) >= DAILY_FLASH_GOAL;
-  if(step === "quiz") return (d.quizBest||0) >= DAILY_QUIZ_GOAL;
-  if(step === "plan") return !!d.planOpened;
-  return false;
+function challengeStepName(step){
+  if(step === "flash") return "Flashcards";
+  if(step === "quiz") return "Topic Quiz";
+  if(step === "plan") return "25-mark plan";
+  return "";
 }
 
-function inferLastDailyStep(d){
-  if(d.lastStep && ["flash","quiz","plan"].includes(d.lastStep)) return d.lastStep;
-  if(d.planOpened) return "plan";
-  if((d.quizBest||0) > 0) return "quiz";
-  if((d.flash||0) > 0) return "flash";
-  return "flash";
-}
-
-function getChallengeResumeStep(d){
-  const steps = ["flash","quiz","plan"];
-  const last = inferLastDailyStep(d);
-  if(!isDailyStepComplete(last, d)) return last;
-
-  const startIdx = steps.indexOf(last);
-  for(let i=startIdx+1; i<steps.length; i++){
-    if(!isDailyStepComplete(steps[i], d)) return steps[i];
+function getChallengeCtaConfig(d){
+  const step = nextDailyAction(d);
+  if(!step){
+    return {
+      label: "Challenge complete",
+      disabled: true,
+      onClick: null
+    };
   }
-  for(let i=0; i<startIdx; i++){
-    if(!isDailyStepComplete(steps[i], d)) return steps[i];
-  }
-  return last;
-}
 
-function routeHomeContinue(){
-  const d = ensureDaily();
-  const hasStarted = (d.flash||0) > 0 || (d.quizBest||0) > 0 || !!d.planOpened;
-  const pending = hasStarted ? getChallengeResumeStep(d) : "flash";
-
-  if(pending === "flash") return goDailyFocus();
-  if(pending === "quiz") return goDailyQuiz();
-  if(pending === "plan") return goDailyExam();
-
-  const recent = getLastStudyContext();
-  if(recent) return openStudyForTopic(recent.topicId, recent.mode);
-
-  return openStudyForTopic(d.topicId, "all");
+  return {
+    label: `Continue challenge: ${challengeStepName(step)}`,
+    disabled: false,
+    onClick: step === "flash"
+      ? goDailyFocus
+      : (step === "quiz" ? goDailyQuiz : goDailyExam)
+  };
 }
 
 function goDailyFocus(){
