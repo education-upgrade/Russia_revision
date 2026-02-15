@@ -1707,6 +1707,16 @@ h1{
     .recommendedReason{ color:var(--muted); font-size:13px; margin-top:6px; }
     .recommendedMeta{ margin-top:10px; }
 
+    .valuePropCard{ padding:12px 14px; }
+    .valueHeadline{ font-weight:1000; font-size:18px; line-height:1.2; }
+    .valueSubline{ margin-top:4px; color:var(--muted); font-size:13px; line-height:1.3; }
+
+    .homeSecondaryCard .recommendedCardTitle{
+      font-size:15px;
+      color:var(--muted);
+    }
+    .homeSecondaryCard{ opacity:.95; }
+
     .nextUpSheet{
       position:fixed;
       left:0; right:0; bottom:0;
@@ -1718,7 +1728,48 @@ h1{
       border:1px solid var(--line);
       box-shadow:0 -14px 24px rgba(0,0,0,.16);
     }
+    .magicMetric{
+      margin-top:8px;
+      font-weight:900;
+      font-size:14px;
+    }
     .nextUpActions{ display:flex; gap:8px; margin-top:10px; }
+
+    .modalBackdrop{
+      position:fixed;
+      inset:0;
+      z-index:10040;
+      background:rgba(0,0,0,.34);
+      display:grid;
+      place-items:center;
+      padding:16px;
+    }
+    .onboardingModal{
+      width:min(460px, 100%);
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:0 24px 44px rgba(0,0,0,.2);
+      padding:16px;
+    }
+    .onboardingTitle{ margin:0; font-size:22px; line-height:1.15; }
+    .onboardingBullets{ margin:10px 0 0; padding-left:18px; color:var(--text); }
+    .onboardingBullets li{ margin-bottom:8px; font-size:14px; }
+    .goalOptions{ display:flex; flex-direction:column; gap:8px; margin-top:12px; }
+    .goalBtn{
+      width:100%;
+      text-align:left;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:11px 12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .goalBtn.active{
+      border-color:rgba(242,183,166,.95);
+      background:rgba(253,235,228,.78);
+    }
 
     .debugPanel{
       position:fixed;
@@ -1972,62 +2023,65 @@ h1{
 
   <!-- HOME -->
   <section id="home" class="tabpane">
-    <div class="card" id="streakHeroCard">
-  <div class="streakHeader">
-    <div class="streakHeaderCopy">
-      <div style="font-weight:900;font-size:16px">Daily streak</div>
-      <div class="note" id="streakNote">Lock in your streak with today’s quick run.</div>
-      <div class="streakTopicRow">
-        <div class="pill streakTopicPill" aria-label="Today's topic">
-          <span>Today’s topic:</span>
-          <b id="dailyTopicLabel">—</b>
-        </div>
-        <div class="pill streakCountPill" aria-label="Current streak">
-          <span class="streakCountLabel">Streak</span>
-          <span class="streakCountNum" id="streakBigNum">0</span>
-        </div>
-      </div>
+    <div class="card valuePropCard">
+      <div class="valueHeadline">10 minutes a day. Better marks.</div>
+      <div class="valueSubline">Your next task is picked for you — track your progress as you go.</div>
     </div>
-  </div>
-
-  <div id="streakCompleteBanner" class="hidden" style="border:1px solid rgba(119,207,163,.55);background:rgba(119,207,163,.14);border-radius:18px;padding:12px;display:flex;gap:10px;align-items:center;margin-top:12px">
-    <div style="font-size:26px">🏆</div>
-    <div>
-      <div style="font-weight:900">Daily streak locked</div>
-      <div class="note" style="margin-top:4px">Great push — your streak is safe today.</div>
-    </div>
-  </div>
-
-  <div class="streakChecklist" aria-label="Daily Challenge checklist">
-    <button class="checkRow checkRowBtn" id="goDailyFlash" type="button" aria-label="Open flashcards for today's Daily Challenge topic">
-      <div class="checkLeft"><span class="checkDot" id="chkFlashDot">📚</span> Flashcards</div>
-      <div class="checkVal" id="chkFlashVal">0/12</div>
-    </button>
-    <button class="checkRow checkRowBtn" id="goDailyQuiz" type="button" aria-label="Open topic quiz for today's Daily Challenge topic">
-      <div class="checkLeft"><span class="checkDot" id="chkQuizDot">🧠</span> Topic Quiz</div>
-      <div class="checkVal" id="chkQuizVal">0% / 70%</div>
-    </button>
-    <button class="checkRow checkRowBtn" id="goDailyPlan" type="button" aria-label="Open the 25-mark plan for today's Daily Challenge topic">
-      <div class="checkLeft"><span class="checkDot" id="chkPlanDot">🧱</span> 25-mark plan</div>
-      <div class="checkVal" id="chkPlanVal">Not started</div>
-    </button>
-  </div>
-
-  <button class="protectBtn" id="protectStreakBtn" type="button">Lock streak</button>
-</div>
-
-
 
     <div class="card">
       <div class="row" style="justify-content:space-between;align-items:flex-start">
         <div>
-          <h3 class="recommendedCardTitle">Your next move</h3>
+          <h3 class="recommendedCardTitle">Your next 10-minute task</h3>
           <div class="recommendedLabel" id="homeRecoLabel">Pick what keeps you moving.</div>
           <div class="recommendedReason" id="homeRecoReason">Short, focused, and momentum-first.</div>
           <div class="recommendedMeta note" id="homeRecoMeta"></div>
         </div>
       </div>
-      <button class="btn primary" id="homeRecoStartBtn" type="button" style="margin-top:12px">Start</button>
+      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button" style="margin-top:12px">Start my next task</button>
+    </div>
+
+    <div class="card homeSecondaryCard" id="streakHeroCard">
+      <div class="streakHeader">
+        <div class="streakHeaderCopy">
+          <div style="font-weight:900;font-size:14px">Daily challenge</div>
+          <div class="note" id="streakNote">Lock in your streak with today’s quick run.</div>
+          <div class="streakTopicRow">
+            <div class="pill streakTopicPill" aria-label="Today's topic">
+              <span>Today’s topic:</span>
+              <b id="dailyTopicLabel">—</b>
+            </div>
+            <div class="pill streakCountPill" aria-label="Current streak">
+              <span class="streakCountLabel">Streak</span>
+              <span class="streakCountNum" id="streakBigNum">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="streakCompleteBanner" class="hidden" style="border:1px solid rgba(119,207,163,.55);background:rgba(119,207,163,.14);border-radius:18px;padding:12px;display:flex;gap:10px;align-items:center;margin-top:12px">
+        <div style="font-size:26px">🏆</div>
+        <div>
+          <div style="font-weight:900">Daily streak locked</div>
+          <div class="note" style="margin-top:4px">Great push — your streak is safe today.</div>
+        </div>
+      </div>
+
+      <div class="streakChecklist" aria-label="Daily Challenge checklist">
+        <button class="checkRow checkRowBtn" id="goDailyFlash" type="button" aria-label="Open flashcards for today's Daily Challenge topic">
+          <div class="checkLeft"><span class="checkDot" id="chkFlashDot">📚</span> Flashcards</div>
+          <div class="checkVal" id="chkFlashVal">0/12</div>
+        </button>
+        <button class="checkRow checkRowBtn" id="goDailyQuiz" type="button" aria-label="Open topic quiz for today's Daily Challenge topic">
+          <div class="checkLeft"><span class="checkDot" id="chkQuizDot">🧠</span> Topic Quiz</div>
+          <div class="checkVal" id="chkQuizVal">0% / 70%</div>
+        </button>
+        <button class="checkRow checkRowBtn" id="goDailyPlan" type="button" aria-label="Open the 25-mark plan for today's Daily Challenge topic">
+          <div class="checkLeft"><span class="checkDot" id="chkPlanDot">🧱</span> 25-mark plan</div>
+          <div class="checkVal" id="chkPlanVal">Not started</div>
+        </button>
+      </div>
+
+      <button class="protectBtn" id="protectStreakBtn" type="button">Lock streak</button>
     </div>
 
     <div class="card">
@@ -2196,7 +2250,7 @@ h1{
       <div class="row" style="justify-content:space-between">
         <div>
           <div style="font-weight:900;font-size:16px">🎮 Games</div>
-          <div class="note">Use these to stop “mix-ups” between similar terms/people.</div>
+          <div class="note">Games boost recall fast — they count toward your progress.</div>
         </div>
         <div class="pill" id="gamesTip">Dual coding + discrimination</div>
       </div>
@@ -2588,6 +2642,39 @@ h1{
   <div class="nextUpActions">
     <button class="btn primary" id="nextUpPrimaryBtn" type="button">Let's go</button>
     <button class="btn" id="nextUpDismissBtn" type="button">Later</button>
+  </div>
+</div>
+
+<div id="magicMomentSheet" class="nextUpSheet hidden" role="dialog" aria-live="polite" aria-label="Progress moment">
+  <div style="font-weight:900">Nice — that counted.</div>
+  <div class="note" style="margin-top:4px">You're building momentum for exam day.</div>
+  <div id="magicMomentMetric" class="magicMetric">Tasks today: 1</div>
+  <div class="nextUpActions">
+    <button class="btn primary" id="magicMomentNextBtn" type="button">Next task</button>
+    <button class="btn" id="magicMomentDismissBtn" type="button">Not now</button>
+  </div>
+</div>
+
+<div id="onboardingOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Welcome">
+  <div class="onboardingModal">
+    <div id="onboardingStep1">
+      <h3 class="onboardingTitle">How this helps your grades</h3>
+      <ul class="onboardingBullets">
+        <li>Daily tasks matched to what you need most</li>
+        <li>Quick quiz + flashcards + exam practice</li>
+        <li>Track streak + mastery by topic</li>
+      </ul>
+      <button class="btn primary" id="onboardingNextBtn" type="button" style="margin-top:10px;width:100%">Start my 10 minutes</button>
+    </div>
+    <div id="onboardingStep2" class="hidden">
+      <h3 class="onboardingTitle">Pick your goal</h3>
+      <div class="goalOptions">
+        <button class="goalBtn" data-goal="pass" type="button">Just pass</button>
+        <button class="goalBtn" data-goal="aim_high" type="button">Aim high</button>
+        <button class="goalBtn" data-goal="top" type="button">Top grades</button>
+      </div>
+      <button class="btn primary" id="onboardingDoneBtn" type="button" style="margin-top:12px;width:100%">Let's go</button>
+    </div>
   </div>
 </div>
 
@@ -6336,6 +6423,7 @@ function tlCheck(){
       setTimeout(()=>win.classList.add("hidden"), 1600);
     }
     confetti.burst(160);
+    markGameSessionCompleted("timeline", TL_STATE.topicId);
   }else{
     // mark wrong slots
     TL_STATE.placed.forEach((ev, i)=>{
@@ -6681,6 +6769,7 @@ safeBurst(90);
 
 if(state.solved.length === 4){
   setMsg("✅ Solved! New board tomorrow.");
+  markGameSessionCompleted("connections", state.topicKey);
   // Big win celebration: trophy + more confetti
   safeBurst(220);
   showConnWinOverlay();
@@ -7973,11 +8062,11 @@ function openGamePane(paneId){
 window.addEventListener("DOMContentLoaded", ()=>{
   const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn");
   const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock");
-  if(openConn) openConn.addEventListener("click", ()=>openGamePane("gamesConnPane"));
-  if(openEmoji) openEmoji.addEventListener("click", ()=>openGamePane("gamesEmojiPane"));
-  if(openMatch) openMatch.addEventListener("click", ()=>openGamePane("gamesMatchPane"));
-  if(openTimeline) openTimeline.addEventListener("click", ()=>openGamePane("gamesTimelinePane"));
-  if(openBeatClock) openBeatClock.addEventListener("click", ()=>openGamePane("gamesBeatClockPane"));
+  if(openConn) openConn.addEventListener("click", ()=>{ markGameSessionCompleted("connections", getDailyTopicId()); openGamePane("gamesConnPane"); });
+  if(openEmoji) openEmoji.addEventListener("click", ()=>{ markGameSessionCompleted("emoji", $("emojiTopicSelect").value === "MIXED" ? getDailyTopicId() : $("emojiTopicSelect").value); openGamePane("gamesEmojiPane"); });
+  if(openMatch) openMatch.addEventListener("click", ()=>{ markGameSessionCompleted("match", $("matchTopicSelect").value === "MIXED" ? getDailyTopicId() : $("matchTopicSelect").value); openGamePane("gamesMatchPane"); });
+  if(openTimeline) openTimeline.addEventListener("click", ()=>{ markGameSessionCompleted("timeline", $("timelineTopicSelect")?.value || getDailyTopicId()); openGamePane("gamesTimelinePane"); });
+  if(openBeatClock) openBeatClock.addEventListener("click", ()=>{ markGameSessionCompleted("beat_clock", getDailyTopicId()); openGamePane("gamesBeatClockPane"); });
   if(backConn) backConn.addEventListener("click", gamesShowHub);
   if(backEmoji) backEmoji.addEventListener("click", gamesShowHub);
   if(backMatch) backMatch.addEventListener("click", gamesShowHub);
@@ -8544,6 +8633,9 @@ updateDailyUI();
 
 const LAST_STUDY_CONTEXT_KEY = "russia_revision_last_study_context_v1";
 const EVENT_LOG_KEY = "russia_revision_event_log_v1";
+const ONBOARDED_KEY = "onboarded";
+const USER_GOAL_KEY = "userGoal";
+const SESSION_MAGIC_SHOWN_KEY = "russia_revision_magic_shown_session_v1";
 
 const RECO_WEIGHTS = {
   // Tunable ranking constants for deterministic recommendation engine.
@@ -8562,7 +8654,7 @@ const RECO_WEIGHTS = {
 };
 
 let LAST_RECO_DEBUG = { recommendation:null, candidates:[] };
-let APP_SESSION = { source:"app_open", startTs:Date.now(), tasksCompleted:0, active:true };
+let APP_SESSION = { source:"app_open", startTs:Date.now(), tasksCompleted:0, active:true, gameSessions:{} };
 
 function loadEventLog(){
   try{
@@ -8630,7 +8722,8 @@ function startSession(source="app_open"){
   }
   us.sessionsToday = Number(us.sessionsToday||0) + 1;
   us.lastActiveAt = Date.now();
-  APP_SESSION = { source, startTs:Date.now(), tasksCompleted:0, active:true };
+  APP_SESSION = { source, startTs:Date.now(), tasksCompleted:0, active:true, gameSessions:{} };
+  localStorage.removeItem(SESSION_MAGIC_SHOWN_KEY);
   logEvent("session_start", { source });
   saveState();
 }
@@ -8660,6 +8753,58 @@ function touchTopicStats(topicId){
   };
   return STATE.topicStats[topicId];
 }
+function getMagicMomentMetric(topicId){
+  const streak = Number(STATE.dailyStreak?.count || 0);
+  if(streak > 0) return `Streak: ${streak} day${streak===1?"":"s"}`;
+
+  const topic = topicId ? touchTopicStats(topicId) : null;
+  if(topic){
+    const quiz = Number(topic.quizBestPercent || 0);
+    const flashDone = Number(topic.flashcardsDone || 0);
+    const flashTotal = Math.max(1, Number(topic.flashcardsTotal || 0));
+    const flashPct = Math.round((flashDone / flashTotal) * 100);
+    const mastery = Math.max(quiz, flashPct);
+    if(mastery > 0) return `Topic mastery: ${mastery}%`;
+  }
+
+  const today = analyticsDayBucket(todayKey());
+  return `Tasks today: ${Math.max(1, Number(today.dailyTasksCompleted || 0))}`;
+}
+
+function showMagicMomentSheet(){
+  const sheet = $("magicMomentSheet");
+  if(!sheet) return;
+  const reco = getNextBestAction(Date.now());
+  $("magicMomentMetric").textContent = getMagicMomentMetric(reco.topicId);
+
+  const nextBtn = $("magicMomentNextBtn");
+  nextBtn.onclick = ()=>{
+    logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId, source:"magic_moment" });
+    trackTaskStarted(reco.taskType, reco.topicId);
+    sheet.classList.add("hidden");
+    navigateToRoute(reco.route);
+  };
+  $("magicMomentDismissBtn").onclick = ()=>sheet.classList.add("hidden");
+  sheet.classList.remove("hidden");
+}
+
+function maybeShowMagicMoment(taskType){
+  const eligible = new Set(["FLASHCARDS","QUIZ","PLAN_25"]);
+  if(!eligible.has(taskType)) return false;
+  if(localStorage.getItem(SESSION_MAGIC_SHOWN_KEY) === "1") return false;
+  localStorage.setItem(SESSION_MAGIC_SHOWN_KEY, "1");
+  showMagicMomentSheet();
+  return true;
+}
+
+function markGameSessionCompleted(gameType, topicId){
+  if(!APP_SESSION?.gameSessions) APP_SESSION.gameSessions = {};
+  if(APP_SESSION.gameSessions[gameType]) return;
+  APP_SESSION.gameSessions[gameType] = 1;
+  const safeTopic = topicId && isTopicEnabled(topicId) ? topicId : (getDailyTopicId() || "t1");
+  trackTaskCompleted("GAME", safeTopic, { scoreDelta:1, gameType });
+}
+
 function trackTaskCompleted(taskType, topicId, extra={}){
   markActiveNow();
   const ts = Date.now();
@@ -8681,9 +8826,9 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   STATE.userStats.lastActionType = taskType;
   saveState();
   APP_SESSION.tasksCompleted = Number(APP_SESSION.tasksCompleted||0) + 1;
-  logEvent("task_completed", { taskType, topicId, scoreDelta: extra.scoreDelta });
+  logEvent("task_completed", { taskType, topicId, scoreDelta: extra.scoreDelta, gameType: extra.gameType });
   renderHomeRecommendation();
-  showNextUpSheet();
+  if(!maybeShowMagicMoment(taskType)) showNextUpSheet();
 }
 function topicFlashcardStats(topicId){
   const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
@@ -8916,6 +9061,46 @@ function showNextUpSheet(){
   $("nextUpDismissBtn").onclick = ()=>sheet.classList.add("hidden");
   sheet.classList.remove("hidden");
 }
+function initOnboarding(){
+  const overlay = $("onboardingOverlay");
+  const step1 = $("onboardingStep1");
+  const step2 = $("onboardingStep2");
+  const nextBtn = $("onboardingNextBtn");
+  const doneBtn = $("onboardingDoneBtn");
+  if(!overlay || !step1 || !step2 || !nextBtn || !doneBtn) return;
+
+  let selectedGoal = localStorage.getItem(USER_GOAL_KEY) || "";
+  const syncGoals = ()=>{
+    overlay.querySelectorAll(".goalBtn").forEach(btn=>{
+      btn.classList.toggle("active", btn.dataset.goal === selectedGoal);
+    });
+  };
+
+  nextBtn.onclick = ()=>{
+    step1.classList.add("hidden");
+    step2.classList.remove("hidden");
+  };
+
+  overlay.querySelectorAll(".goalBtn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      selectedGoal = btn.dataset.goal || "pass";
+      syncGoals();
+    });
+  });
+
+  doneBtn.onclick = ()=>{
+    const goal = selectedGoal || "pass";
+    localStorage.setItem(USER_GOAL_KEY, goal);
+    localStorage.setItem(ONBOARDED_KEY, "1");
+    overlay.classList.add("hidden");
+  };
+
+  syncGoals();
+  if(localStorage.getItem(ONBOARDED_KEY) !== "1"){
+    overlay.classList.remove("hidden");
+  }
+}
+
 function renderDebugPanel(){
   const panel = $("debugPanel");
   if(!panel || panel.classList.contains("hidden")) return;
@@ -9898,6 +10083,7 @@ function init(){
   populateTopics();
   startSession("app_open");
   attachHomeDebugLongPress();
+  initOnboarding();
   try{ bumpHeaderSessions(); }catch(e){}
   updateDailyUI();
   // sensible defaults
