@@ -1975,8 +1975,8 @@ h1{
     <div class="card" id="streakHeroCard">
   <div class="streakHeader">
     <div class="streakHeaderCopy">
-      <div style="font-weight:900;font-size:16px">Daily challenge status</div>
-      <div class="note" id="streakNote">Protect todays streak by completing the daily challenge below.</div>
+      <div style="font-weight:900;font-size:16px">Daily streak</div>
+      <div class="note" id="streakNote">Lock in your streak with today’s quick run.</div>
       <div class="streakTopicRow">
         <div class="pill streakTopicPill" aria-label="Today's topic">
           <span>Today’s topic:</span>
@@ -1993,8 +1993,8 @@ h1{
   <div id="streakCompleteBanner" class="hidden" style="border:1px solid rgba(119,207,163,.55);background:rgba(119,207,163,.14);border-radius:18px;padding:12px;display:flex;gap:10px;align-items:center;margin-top:12px">
     <div style="font-size:26px">🏆</div>
     <div>
-      <div style="font-weight:900">Daily Challenge Complete!</div>
-      <div class="note" style="margin-top:4px">Nice work — your streak is protected for today.</div>
+      <div style="font-weight:900">Daily streak locked</div>
+      <div class="note" style="margin-top:4px">Great push — your streak is safe today.</div>
     </div>
   </div>
 
@@ -2009,11 +2009,11 @@ h1{
     </button>
     <button class="checkRow checkRowBtn" id="goDailyPlan" type="button" aria-label="Open the 25-mark plan for today's Daily Challenge topic">
       <div class="checkLeft"><span class="checkDot" id="chkPlanDot">🧱</span> 25-mark plan</div>
-      <div class="checkVal" id="chkPlanVal">Not opened</div>
+      <div class="checkVal" id="chkPlanVal">Not started</div>
     </button>
   </div>
 
-  <button class="protectBtn" id="protectStreakBtn" type="button">Start challenge</button>
+  <button class="protectBtn" id="protectStreakBtn" type="button">Lock streak</button>
 </div>
 
 
@@ -2021,9 +2021,9 @@ h1{
     <div class="card">
       <div class="row" style="justify-content:space-between;align-items:flex-start">
         <div>
-          <h3 class="recommendedCardTitle">Recommended next</h3>
-          <div class="recommendedLabel" id="homeRecoLabel">Choose your next study move.</div>
-          <div class="recommendedReason" id="homeRecoReason">We’ll keep this focused and quick.</div>
+          <h3 class="recommendedCardTitle">Your next move</h3>
+          <div class="recommendedLabel" id="homeRecoLabel">Pick what keeps you moving.</div>
+          <div class="recommendedReason" id="homeRecoReason">Short, focused, and momentum-first.</div>
           <div class="recommendedMeta note" id="homeRecoMeta"></div>
         </div>
       </div>
@@ -2033,8 +2033,8 @@ h1{
     <div class="card">
       <div class="row" style="justify-content:space-between">
         <div>
-          <div style="font-weight:900;font-size:16px">✅ Next steps</div>
-          <div class="note">Pick your next study focus with one tap.</div>
+          <div style="font-weight:900;font-size:16px">✅ Quick wins</div>
+          <div class="note">Jump into your next focus in one tap.</div>
         </div>
         <div class="pill">Stay in flow</div>
       </div>
@@ -2044,7 +2044,7 @@ h1{
 
     <div class="card">
       <details id="homeDetailsAccordion">
-        <summary style="font-weight:900;cursor:pointer;list-style:none">Details</summary>
+        <summary style="font-weight:900;cursor:pointer;list-style:none">Stats</summary>
         <div class="divider" style="margin-top:10px"></div>
 
         <div class="row" style="gap:8px; flex-wrap:wrap; margin-top:10px">
@@ -2090,14 +2090,14 @@ h1{
         <div class="divider"></div>
 
         <div class="flashcardFrame fixedCard" id="flashcardFrame">
-<p class="qText" id="qText" aria-live="polite">Choose a topic and press “Reveal”.</p>
+<p class="qText" id="qText" aria-live="polite">Pick a topic, then tap “Reveal”.</p>
 
           <div id="aBox" class="aBox hidden">
             <div id="aText"></div>
           </div>
         </div>
 
-        <button class="btn primary revealBand" id="btnRevealBand" aria-label="Reveal or hide answer">👀 Reveal answer</button>
+        <button class="btn primary revealBand" id="btnRevealBand" aria-label="Reveal or hide answer">👀 Show answer</button>
 
         <div class="divider"></div>
 <div class="emojiRow" style="margin-top:10px">
@@ -2129,7 +2129,7 @@ h1{
             </select>
           </div>
           <div class="grow">
-            <label>Search (optional)</label>
+          <label>Search</label>
             <input id="searchInput" placeholder="e.g. October Manifesto / War Communism / Russification" />
           </div>
         </div>
@@ -2147,21 +2147,21 @@ h1{
           <select id="mcqTopicSelect"></select>
         </div>
         <div class="grow" style="min-width:200px">
-          <label>Number of questions</label>
+          <label>Questions</label>
           <select id="mcqCount">
             <option>10</option><option>15</option><option selected>20</option><option>30</option><option>40</option><option>50</option><option>60</option>
           </select>
         </div>
         <div>
           <label>&nbsp;</label>
-          <button class="btn primary" id="btnStartQuiz">⚡ Start quiz</button>
+          <button class="btn primary" id="btnStartQuiz">⚡ Go quiz</button>
         </div>
       </div>
 
       <div class="divider"></div>
 
       <div id="quizEmpty" class="note">
-        Your quiz score feeds the Home “Progress score”.
+        Quiz points boost your Home progress score.
       </div>
 
       <div id="quizBox" class="hidden">
@@ -2183,7 +2183,7 @@ h1{
         <div class="divider"></div>
 
         <div class="row" style="justify-content:space-between">
-          <div class="note" id="quizExplainer">Pick an answer.</div>
+          <div class="note" id="quizExplainer">Tap your answer.</div>
           <button class="btn small" id="btnNextQ">➡️ Next</button>
         </div>
       </div>
@@ -2395,7 +2395,7 @@ h1{
         <div class="bcHeader">
           <div>
             <div style="font-weight:1000;font-size:16px">⏱️ Beat the Clock</div>
-            <div class="note">Select the 4 key terms that match the topic before time runs out.</div>
+            <div class="note">Find the 4 key terms before the timer hits zero.</div>
           </div>
           <button class="btn primary" id="btnStartBeatClock" type="button">🚀 Start run</button>
         </div>
@@ -2411,7 +2411,7 @@ h1{
 
         <div class="divider"></div>
 
-        <div class="bcTopic" id="bcPrompt">Press Start run to begin.</div>
+        <div class="bcTopic" id="bcPrompt">Tap Start run when you’re ready.</div>
         <div class="bcGrid" id="bcGrid"></div>
 
         <div class="connectionsActions" style="justify-content:flex-start">
@@ -2452,7 +2452,7 @@ h1{
         <div class="divider"></div>
 
         <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap">
-          <div class="pill" id="timelineHelp">Place events in chronological order. Dates reveal only after a perfect timeline.</div>
+          <div class="pill" id="timelineHelp">Build the timeline in order. Unlock dates with a perfect run.</div>
           <button class="btn" id="btnCheckTimeline" type="button" disabled>✅ Check timeline</button>
         </div>
 
@@ -2489,14 +2489,14 @@ h1{
     <div class="card">
       <div style="font-weight:900;font-size:16px">📝 Exam (25-mark) practice</div>
       <div class="note" style="margin-top:6px">
-        Exactly <b>3 questions per topic</b>. Select a question → follow the plan → only open Help if you’re really stuck.
+        Exactly <b>3 questions per topic</b>. Pick one, map your argument, then check hints if you need a boost.
       </div>
 
       <div class="divider"></div>
 
       <div class="row">
         <div class="grow">
-          <label>Filter by topic</label>
+          <label>Topic filter</label>
           <select id="examTopicSelect"></select>
         </div>
         <div class="grow">
@@ -2509,18 +2509,18 @@ h1{
 
       <div style="border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff">
         <div class="note">25-mark question</div>
-        <div class="qText" id="examQText">Pick a question to begin.</div>
+        <div class="qText" id="examQText">Pick a question to get started.</div>
         <div class="note" id="examTag" style="margin-top:6px"></div>
       </div>
 
       <div class="divider"></div>
-      <div class="note">Suggested plan (use 3–4 factors)</div>
+      <div class="note">Game plan (3–4 factors)</div>
       <div id="examPlan" style="margin-top:10px"></div>
 
       <div class="divider"></div>
 
       <details id="examHelp" style="border:1px solid var(--line);border-radius:16px;padding:10px;background:#fff">
-        <summary style="cursor:pointer;font-weight:900;list-style:none">🧰 Help box (tap to reveal key knowledge)</summary>
+        <summary style="cursor:pointer;font-weight:900;list-style:none">🧰 Hints (tap to reveal key knowledge)</summary>
         <div class="divider"></div>
         <div id="examHelpBody" class="note"></div>
       </details>
@@ -2551,7 +2551,7 @@ h1{
       <div class="divider"></div>
 
       <label>Export / Import box</label>
-      <textarea id="dataBox" rows="8" placeholder="Exported JSON will appear here. Paste JSON here to import."></textarea>
+      <textarea id="dataBox" rows="8" placeholder="Your export appears here. Drop JSON here to import."></textarea>
 
       <div class="divider"></div>
 
@@ -2559,7 +2559,7 @@ h1{
     </div>
 
     <div class="card">
-      <div style="font-weight:900">Teacher notes</div>
+      <div style="font-weight:900">How this app works</div>
       <div class="note" style="margin-top:10px">
         <ul style="margin:0 0 0 18px">
           <li>Quiz auto-generates 30+ questions per topic from FACT_BANK.</li>
@@ -2586,8 +2586,8 @@ h1{
   <div style="font-weight:900">Next up</div>
   <div id="nextUpReason" class="note" style="margin-top:4px"></div>
   <div class="nextUpActions">
-    <button class="btn primary" id="nextUpPrimaryBtn" type="button">Continue</button>
-    <button class="btn" id="nextUpDismissBtn" type="button">Not now</button>
+    <button class="btn primary" id="nextUpPrimaryBtn" type="button">Let's go</button>
+    <button class="btn" id="nextUpDismissBtn" type="button">Later</button>
   </div>
 </div>
 
@@ -6846,7 +6846,7 @@ function bcStartRound(){
   const prompt = document.getElementById("bcPrompt");
   const title = t ? t.title : round.topicId;
   if(topicPill) topicPill.textContent = `Topic: ${title}`;
-  if(prompt) prompt.textContent = `Choose the 4 terms that match: ${title}`;
+  if(prompt) prompt.textContent = `Find the 4 matching terms: ${title}`;
 
   bcUpdatePills();
   bcSetMsg("Go! Pick 4 and lock them in before the timer ends.");
@@ -7625,7 +7625,7 @@ function renderStreakHero(){
 
   const flashVal = $("chkFlashVal"); if(flashVal) flashVal.textContent = `${Math.min(d.flash, DAILY_FLASH_GOAL)}/${DAILY_FLASH_GOAL}`;
   const quizVal  = $("chkQuizVal");  if(quizVal)  quizVal.textContent = `${Math.min(100, d.quizBest)}% / ${DAILY_QUIZ_GOAL}%`;
-  const planVal  = $("chkPlanVal");  if(planVal)  planVal.textContent = donePlan ? "Opened" : "Not opened";
+  const planVal  = $("chkPlanVal");  if(planVal)  planVal.textContent = donePlan ? "Started" : "Not started";
 
   if(box){
     box.classList.toggle("safe", doneToday);
@@ -8820,9 +8820,9 @@ function scoreCandidate(candidate, now=Date.now(), weakestTopicId=getWeakestTopi
 }
 function recommendationCopy(taskType, isChallenge){
   if(isChallenge){
-    if(taskType === "FLASHCARDS") return { label:"Continue challenge: Flashcards", reason:"Finish today’s challenge to protect your streak." };
-    if(taskType === "QUIZ") return { label:"Continue challenge: Topic Quiz", reason:"Finish today’s challenge to protect your streak." };
-    return { label:"Continue challenge: 25-mark plan", reason:"Finish today’s challenge to protect your streak." };
+    if(taskType === "FLASHCARDS") return { label:"Keep streak going: Flashcards", reason:"Finish today’s run to lock your streak." };
+    if(taskType === "QUIZ") return { label:"Keep streak going: Topic Quiz", reason:"Finish today’s run to lock your streak." };
+    return { label:"Keep streak going: 25-mark plan", reason:"Finish today’s run to lock your streak." };
   }
   if(taskType === "QUIZ") return { label:"Boost score: Topic Quiz", reason:"This topic is your lowest score right now." };
   if(taskType === "FLASHCARDS") return { label:"Due for review: Flashcards", reason:"This topic is due for a quick review." };
@@ -8981,14 +8981,14 @@ function getChallengeCtaConfig(d){
   const step = nextDailyAction(d);
   if(!step){
     return {
-      label: "Challenge complete",
+      label: "Daily run done",
       disabled: true,
       onClick: null
     };
   }
 
   return {
-    label: `Continue challenge: ${challengeStepName(step)}`,
+    label: `Keep streak going: ${challengeStepName(step)}`,
     disabled: false,
     onClick: step === "flash"
       ? goDailyFocus
@@ -9426,7 +9426,7 @@ function startQuiz(){
 
   $("quizEmpty").classList.add("hidden");
   $("quizBox").classList.remove("hidden");
-  $("quizExplainer").textContent = "Pick an answer.";
+  $("quizExplainer").textContent = "Tap your answer.";
   renderQuizQ();
 }
 
@@ -9451,7 +9451,7 @@ $("btnNextQ").addEventListener("click", ()=>{
     computeKpis();
     return;
   }
-  $("quizExplainer").textContent = "Pick an answer.";
+  $("quizExplainer").textContent = "Tap your answer.";
   renderQuizQ();
 });
 
@@ -9824,7 +9824,7 @@ function renderExamSelect(){
     $("examSelect").value=list[0].id;
     renderExamQuestion();
   }else{
-    $("examQText").textContent="No questions in this filter.";
+    $("examQText").textContent="No questions here yet. Try another topic.";
     $("examPlan").innerHTML="";
     $("examHelpBody").innerHTML="";
   }
@@ -9869,26 +9869,26 @@ $("btnExport").addEventListener("click", ()=>{ $("dataBox").value = JSON.stringi
 
 $("btnImport").addEventListener("click", ()=>{
   const raw = $("dataBox").value.trim();
-  if(!raw) return alert("Paste JSON into the box first.");
+  if(!raw) return alert("Drop JSON into the box first.");
   try{
     const obj = JSON.parse(raw);
     if(!obj || typeof obj !== "object") throw new Error("Invalid data");
     STATE = obj;
     saveState();
     computeKpis();
-    alert("Imported successfully.");
+    alert("Import complete.");
   }catch(e){
-    alert("Import failed: invalid JSON.");
+    alert("Import failed — JSON format is invalid.");
   }
 });
 
 $("btnReset").addEventListener("click", ()=>{
-  const ok = confirm("Reset ALL progress on this device?");
+  const ok = confirm("Reset all progress on this device?");
   if(!ok) return;
   STATE = baseState();
   saveState();
   computeKpis();
-  alert("Progress reset.");
+  alert("Progress reset done.");
 });
 
 /* ==========================================================
