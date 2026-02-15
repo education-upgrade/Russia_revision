@@ -973,6 +973,7 @@ h1{
     .quizResultStatus.bad{ color:#8f5f73; }
     .quizResultExplain{ margin-top:10px; }
     .quizResultActions{ display:flex; justify-content:flex-end; margin-top:12px; }
+    .quizCompleteActions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:12px; }
 
     /* =========================
        MATCH GAME (two panels)
@@ -2555,6 +2556,20 @@ h1{
       <div class="note quizResultExplain" id="quizResultExplain"></div>
       <div class="quizResultActions">
         <button class="btn small" id="btnQuizModalNext" type="button">➡️ Next question</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="quizCompleteOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Quiz complete options">
+    <div class="onboardingModal quizResultModal">
+      <h3 class="onboardingTitle" id="quizCompleteTitle">Quiz complete</h3>
+      <div class="quizResultStatus" id="quizCompleteStatus"></div>
+      <div class="note quizResultExplain" id="quizCompleteExplain"></div>
+      <div class="quizCompleteActions">
+        <button class="btn small hidden" id="btnQuizCompleteFix" type="button">🛠️ Fix incorrect answers</button>
+        <button class="btn small hidden" id="btnQuizCompleteFlashcards" type="button">🗂️ Go to flashcards</button>
+        <button class="btn small" id="btnQuizCompleteHome" type="button">🏠 Return to Home Screen</button>
+        <button class="btn small" id="btnQuizCompleteClose" type="button">Close</button>
       </div>
     </div>
   </div>
@@ -10103,6 +10118,45 @@ function closeQuizResultModal(){
   $("quizResultOverlay")?.classList.add("hidden");
 }
 
+function closeQuizCompleteModal(){
+  $("quizCompleteOverlay")?.classList.add("hidden");
+}
+
+function showQuizCompleteModal(){
+  const overlay = $("quizCompleteOverlay");
+  if(!overlay) return;
+
+  const percent = QUIZ.list.length ? Math.round((QUIZ.score / QUIZ.list.length) * 100) : 0;
+  const perfect = percent === 100;
+  const misses = QUIZ.errorBank.length;
+
+  const title = $("quizCompleteTitle");
+  const status = $("quizCompleteStatus");
+  const explainNode = $("quizCompleteExplain");
+  const fixBtn = $("btnQuizCompleteFix");
+  const flashBtn = $("btnQuizCompleteFlashcards");
+
+  if(title) title.textContent = perfect ? "🎉 Perfect score!" : "Quiz complete";
+  if(status){
+    status.classList.toggle("good", perfect);
+    status.classList.toggle("bad", !perfect);
+    status.textContent = perfect
+      ? "You scored 100%. Great time to move on to the next activity."
+      : `You scored ${percent}%. Review ${misses} incorrect ${misses === 1 ? "answer" : "answers"} with Fix.`;
+  }
+
+  if(explainNode){
+    explainNode.textContent = perfect
+      ? "Suggestion: continue to flashcards for the next activity."
+      : "Choose Fix to go over your incorrect answers and improve your score.";
+  }
+
+  if(fixBtn) fixBtn.classList.toggle("hidden", misses === 0);
+  if(flashBtn) flashBtn.classList.toggle("hidden", !perfect);
+
+  overlay.classList.remove("hidden");
+}
+
 function showQuizResultModal({ correct, picked, answer, explain }){
   const overlay = $("quizResultOverlay");
   if(!overlay) return;
@@ -10130,6 +10184,7 @@ function startRandomQuiz(){
 }
 
 function startQuiz(useErrorBank=false){
+  closeQuizCompleteModal();
   const topicId = $("mcqTopicSelect").value;
   const count = Number($("mcqCount").value);
   const mode = $("quizModeSelect")?.value || "standard";
@@ -10182,6 +10237,20 @@ $("btnQuizModalNext").addEventListener("click", ()=>{
   $("btnNextQ").click();
 });
 
+$("btnQuizCompleteClose")?.addEventListener("click", closeQuizCompleteModal);
+$("btnQuizCompleteHome")?.addEventListener("click", ()=>{
+  closeQuizCompleteModal();
+  setTab("home");
+});
+$("btnQuizCompleteFix")?.addEventListener("click", ()=>{
+  closeQuizCompleteModal();
+  startQuiz(true);
+});
+$("btnQuizCompleteFlashcards")?.addEventListener("click", ()=>{
+  closeQuizCompleteModal();
+  setTab("study");
+});
+
 $("btnNextQ").addEventListener("click", ()=>{
   if(!QUIZ.list.length) return;
   QUIZ.idx++;
@@ -10202,6 +10271,7 @@ $("btnNextQ").addEventListener("click", ()=>{
     updateQuizMasteryUi();
     confetti.burst(140);
     computeKpis();
+    showQuizCompleteModal();
     return;
   }
   $("quizExplainer").textContent = QUIZ.mode === "exam" ? "Exam mode: one answer only." : "Tap your answer.";
