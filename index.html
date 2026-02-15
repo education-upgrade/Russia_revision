@@ -351,9 +351,19 @@ h1{
   width:100%;
   display:flex;
   align-items:center;
-  justify-content:center;
+  justify-content:space-between;
   gap:8px;
 }
+
+.topicStatusDot{
+  width:10px;
+  height:10px;
+  border-radius:50%;
+  box-shadow:0 0 0 2px rgba(255,255,255,.75);
+}
+.topicStatusDot.new{ background:#b7b7b7; }
+.topicStatusDot.inprogress{ background:var(--warn); }
+.topicStatusDot.attarget{ background:var(--good); }
 
 .topicToggleWrap{
   display:flex;
@@ -553,6 +563,33 @@ h1{
 .level-developing{ background:rgba(241,201,122,.22); }
 .level-secure{ background:rgba(119,207,163,.20); }
 .level-master{ background:rgba(119,207,163,.28); border-color: rgba(119,207,163,.55); }
+
+.progressHeadlineBar{margin-top:10px}
+.progressTrack{height:12px;border-radius:999px;background:rgba(0,0,0,.08);overflow:hidden}
+.progressFill{height:100%;background:linear-gradient(90deg,var(--warn),var(--good));width:0}
+
+.metricGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+.metricCard{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(255,255,255,.72)}
+.metricLabel{font-size:11px;color:var(--muted);font-weight:800}
+.metricVal{font-size:18px;font-weight:1000;margin-top:3px}
+
+.topicXpList{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.topicXpItem{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(255,255,255,.8)}
+.topicXpTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.topicXpTitle{font-weight:900;font-size:13px}
+.statusTag{font-size:11px;font-weight:900;padding:4px 8px;border-radius:999px;border:1px solid rgba(0,0,0,.08)}
+.status-new{background:rgba(183,183,183,.18)}
+.status-focus{background:rgba(239,138,138,.16)}
+.status-track{background:rgba(241,201,122,.2)}
+.status-target{background:rgba(119,207,163,.2)}
+.topicXpSub{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;font-weight:800;margin-top:4px}
+
+.focusList{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.focusItem{border:1px solid var(--line);border-radius:12px;padding:10px;background:rgba(255,255,255,.72)}
+.focusReason{font-size:12px;color:var(--muted);margin-top:3px}
+
+.habitPills{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.habitPill{border:1px solid var(--line);border-radius:999px;padding:8px 10px;background:#fff;font-size:12px;font-weight:800;color:var(--muted)}
 
 .levelUpBanner{
   position:fixed;
@@ -2260,6 +2297,40 @@ h1{
     </div>
   </section>
 
+  <!-- PROGRESS -->
+  <section id="progress" class="tabpane hidden">
+    <div class="card">
+      <div style="font-weight:900;font-size:18px">Progress report</div>
+      <div class="note">A clean view of growth, readiness, and what to focus next.</div>
+
+      <div style="margin-top:12px;font-weight:900">Overall readiness <span id="overallReadinessVal">0%</span></div>
+      <div class="progressHeadlineBar">
+        <div class="progressTrack"><div id="overallReadinessFill" class="progressFill"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:900">This week</div>
+      <div id="thisWeekMetrics" class="metricGrid"></div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:900">Topic XP bars</div>
+      <div class="note">XP combines flashcards, quiz best, and exam planning for each topic.</div>
+      <div id="topicXpList" class="topicXpList"></div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:900">Focus next</div>
+      <div id="focusNextList" class="focusList"></div>
+    </div>
+
+    <div class="card">
+      <div style="font-weight:900">Momentum + consistency</div>
+      <div id="habitPills" class="habitPills"></div>
+    </div>
+  </section>
+
   <!-- STUDY -->
   <section id="study" class="tabpane hidden">
     <div class="studyWrap">
@@ -2799,6 +2870,7 @@ h1{
 <!-- Bottom nav -->
 <nav>
   <div class="navBtn active" data-tab="home"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg><div class="navLabel">Home</div></div>
+  <div class="navBtn" data-tab="progress"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"></path><path d="M7 16V9"></path><path d="M12 16V5"></path><path d="M17 16v-4"></path></svg><div class="navLabel">Progress</div></div>
   <div class="navBtn" data-tab="study"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5h7a3 3 0 0 1 3 3V20H7a3 3 0 0 0-3 3"></path><path d="M20 5.5h-7a3 3 0 0 0-3 3V20h7a3 3 0 0 1 3 3"></path></svg><div class="navLabel">Study</div></div>
   <div class="navBtn" data-tab="quiz"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg><div class="navLabel">Quiz</div></div>
   <div class="navBtn" data-tab="games"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg><div class="navLabel">Games</div></div>
@@ -7998,6 +8070,10 @@ function recordDailyQuiz(topicId, percent){
   if(topicId !== d.topicId) return;
   const p = Math.max(0, Math.min(100, Math.round(percent)));
   d.quizBest = Math.max(d.quizBest||0, p);
+  const bucket = analyticsDayBucket(todayKey());
+  bucket.quizAttempts = Number(bucket.quizAttempts || 0) + 1;
+  bucket.quizTotal = Number(bucket.quizTotal || 0) + p;
+  bucket.quizAvg = Math.round(bucket.quizTotal / Math.max(1, bucket.quizAttempts));
   saveState();
   updateDailyUI();
   checkDailyComplete();
@@ -8207,6 +8283,9 @@ function setTab(tabId){
   if(tabId === "home"){
     renderHomeRecommendation();
   }
+  if(tabId === "progress"){
+    renderProgressReport();
+  }
 }
 document.querySelectorAll(".navBtn").forEach(btn=>{
   btn.addEventListener("click", ()=>setTab(btn.dataset.tab));
@@ -8347,6 +8426,109 @@ function topicConfidence(topicId){
 }
 
 
+function topicXpBreakdown(topicId){
+  const stats = touchTopicStats(topicId);
+  const flashTotal = Math.max(1, Number(stats.flashcardsTotal || 0));
+  const flashDone = Math.max(0, Number(stats.flashcardsDone || 0));
+  const flashXp = Math.max(0, Math.min(30, Math.round((flashDone / flashTotal) * 30)));
+  const quizBest = Math.max(0, Math.min(100, Number(stats.quizBestPercent || 0)));
+  const quizXp = Math.round(quizBest * 0.5);
+  const planXp = stats.planStarted ? 20 : 0;
+  const totalXp = Math.max(0, Math.min(100, flashXp + quizXp + planXp));
+
+  const lastStudiedAt = Number(stats.lastStudiedAt || 0);
+  const daysSince = lastStudiedAt ? Math.floor((Date.now() - lastStudiedAt) / 86400000) : null;
+
+  let status = { label:"New", cls:"status-new" };
+  if(totalXp >= 80) status = { label:"At target", cls:"status-target" };
+  else if(totalXp >= 50) status = { label:"On track", cls:"status-track" };
+  else if(totalXp > 0) status = { label:"Needs focus", cls:"status-focus" };
+
+  return { topicId, flashXp, quizXp, planXp, totalXp, quizBest, flashDone, flashTotal, planStarted:!!stats.planStarted, lastStudiedAt, daysSince, status };
+}
+
+function renderProgressReport(){
+  const topicIds = enabledTopicIds();
+  const topicRows = topicIds.map(tid=>({ topic: TOPICS.find(t=>t.id===tid), xp: topicXpBreakdown(tid) }));
+  const avgReadiness = topicRows.length ? Math.round(topicRows.reduce((n,row)=>n + row.xp.totalXp,0) / topicRows.length) : 0;
+
+  const readinessVal = $("overallReadinessVal");
+  const readinessFill = $("overallReadinessFill");
+  if(readinessVal) readinessVal.textContent = `${avgReadiness}%`;
+  if(readinessFill) readinessFill.style.width = `${avgReadiness}%`;
+
+  const today = todayKey();
+  const daily = STATE.analytics?.daily || {};
+  const weekKeys = Array.from({length:7}, (_,i)=>addDaysKey(today, -i));
+  const fortnightKeys = Array.from({length:14}, (_,i)=>addDaysKey(today, -i));
+
+  const minutesWeek = Math.round(weekKeys.reduce((n,k)=> n + Number((daily[k]?.sessionDurations||[]).reduce((a,b)=>a+Number(b||0),0) || 0), 0) / 60000);
+  const tasksWeek = weekKeys.reduce((n,k)=> n + Number(daily[k]?.dailyTasksCompleted || 0), 0);
+  const quizEntriesWeek = weekKeys.map(k=>Number(daily[k]?.quizAvg || 0)).filter(v=>v>0);
+  const quizAvgWeek = quizEntriesWeek.length ? Math.round(quizEntriesWeek.reduce((a,b)=>a+b,0) / quizEntriesWeek.length) : 0;
+  const streak = Number(STATE.dailyStreak?.count || 0);
+
+  const improvedTopics = weekKeys.reduce((set,k)=>{
+    const improved = daily[k]?.topicsImproved || {};
+    Object.keys(improved).forEach(tid=>set.add(tid));
+    return set;
+  }, new Set()).size;
+  const weekActive = weekKeys.filter(k=>Number(daily[k]?.dailyTasksCompleted||0) > 0).length;
+  const fortnightActive = fortnightKeys.filter(k=>Number(daily[k]?.dailyTasksCompleted||0) > 0).length;
+
+  const sessionTaskSamples = weekKeys.flatMap(k=>Array.isArray(daily[k]?.sessionTaskCounts) ? daily[k].sessionTaskCounts : []);
+  const tasksPerSession = sessionTaskSamples.length ? (sessionTaskSamples.reduce((a,b)=>a+Number(b||0),0) / sessionTaskSamples.length).toFixed(1) : "0.0";
+
+  const challengeRate = weekKeys.length ? Math.round((weekKeys.filter(k=>STATE.daily?.[k]?.completed).length / 7) * 100) : 0;
+
+  const weekMetricsEl = $("thisWeekMetrics");
+  if(weekMetricsEl){
+    const metrics = [
+      ["Minutes this week", `${minutesWeek}m`],
+      ["Tasks completed", String(tasksWeek)],
+      ["Quiz average", `${quizAvgWeek}%`],
+      ["Streak", `${streak} day${streak===1?"":"s"}`],
+      ["Topics improved", String(improvedTopics)]
+    ];
+    weekMetricsEl.innerHTML = metrics.map(([label,val])=>`<div class="metricCard"><div class="metricLabel">${label}</div><div class="metricVal">${val}</div></div>`).join("");
+  }
+
+  const topicXpEl = $("topicXpList");
+  if(topicXpEl){
+    topicXpEl.innerHTML = topicRows.map(({topic,xp})=>`
+      <div class="topicXpItem">
+        <div class="topicXpTop">
+          <div class="topicXpTitle">${escapeHtml(topic?.title || xp.topicId)}</div>
+          <span class="statusTag ${xp.status.cls}">${xp.status.label}</span>
+        </div>
+        <div class="topicXpSub"><span>${xp.totalXp}/100 XP</span><span>Mastery</span></div>
+        <div class="progressTrack" style="margin-top:6px"><div class="progressFill" style="width:${xp.totalXp}%"></div></div>
+      </div>
+    `).join("");
+  }
+
+  const focus = [...topicRows].sort((a,b)=>a.xp.totalXp-b.xp.totalXp).slice(0,3);
+  const focusEl = $("focusNextList");
+  if(focusEl){
+    focusEl.innerHTML = focus.map(({topic,xp})=>{
+      let reason = `Lowest quiz score (${xp.quizBest}%).`;
+      if(xp.daysSince !== null && xp.daysSince >= 5) reason = `Due for review: last studied ${xp.daysSince} days ago.`;
+      else if(!xp.planStarted) reason = "Exam plan not started yet.";
+      return `<div class="focusItem"><div style="font-weight:900">${escapeHtml(topic?.title || xp.topicId)} — ${xp.totalXp}/100 XP</div><div class="focusReason">Reason: ${reason}</div></div>`;
+    }).join("");
+  }
+
+  const habitsEl = $("habitPills");
+  if(habitsEl){
+    habitsEl.innerHTML = [
+      `Days active (7): <b>${weekActive}</b>`,
+      `Days active (14): <b>${fortnightActive}</b>`,
+      `Tasks/session: <b>${tasksPerSession}</b>`,
+      `Challenge completion: <b>${challengeRate}%</b>`
+    ].map(x=>`<div class="habitPill">${x}</div>`).join("");
+  }
+}
+
 function renderTopicDashboard(){
   const el = document.getElementById('topicDash');
   if(!el) return;
@@ -8428,7 +8610,7 @@ function renderTopicDashboard(){
         </div>
         <div class="topicPillRow">
           <div class="levelBadge level-${lvl.key}">${badgeText}</div>
-          <div class="note" style="font-size:11px;font-weight:800">Mastery ${topicMastery}% / 80%</div>
+          <div class="topicStatusDot ${topicMastery >= 80 ? "attarget" : topicMastery > 0 ? "inprogress" : "new"}" title="${topicMastery >= 80 ? "At target" : topicMastery > 0 ? "In progress" : "New"}"></div>
           <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
             <label class="switch">
               <input type="checkbox" class="topicToggle" data-topic-toggle="${tid}" ${isTopicEnabled(tid) ? "checked" : ""} aria-label="Toggle topic ${tid}">
@@ -8798,6 +8980,7 @@ function computeKpis(){
   try{ renderStreakSignal(); }catch(e){}
   // Update topic confidence dashboard
   try{ renderTopicDashboard(); }catch(e){}
+  try{ renderProgressReport(); }catch(e){}
 }
 computeKpis();
 updateDailyUI();
@@ -8985,7 +9168,14 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   s.lastStudiedAt = ts;
   if(taskType === "QUIZ"){
     s.quizAttempts = Number(s.quizAttempts||0) + 1;
-    s.quizBestPercent = Math.max(Number(s.quizBestPercent||0), Number(extra.percent||0));
+    const prevBest = Number(s.quizBestPercent||0);
+    const nextBest = Math.max(prevBest, Number(extra.percent||0));
+    s.quizBestPercent = nextBest;
+    if(nextBest > prevBest){
+      const b = analyticsDayBucket(todayKey());
+      b.topicsImproved ||= {};
+      b.topicsImproved[topicId] = true;
+    }
   }
   if(taskType === "FLASHCARDS"){
     s.flashcardsDone = Math.max(Number(s.flashcardsDone||0), Number(extra.flashcardsDone||s.flashcardsDone||0));
