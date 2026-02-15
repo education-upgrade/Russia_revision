@@ -22,6 +22,8 @@
       --homeHeaderBg: url("./header-bg.jpg?v6");
       /* Background image used inside cards on all non-Home tabs */
       --sectionCardBg: url("./section-bg.jpg");
+      --paleBlueBgFilter: saturate(.78) brightness(1.08) contrast(.95) hue-rotate(168deg);
+      --paleBlueBgMask: linear-gradient(180deg, rgba(214,231,247,.42), rgba(233,243,252,.60));
 
       --bg:#edf4f8;
       --surface:#ffffff;
@@ -85,6 +87,7 @@ header#homeHeader::before{
   background-position: center;
   background-repeat: no-repeat;
   opacity: .38;
+  filter: var(--paleBlueBgFilter);
   pointer-events:none;
   z-index:0;
 }
@@ -94,11 +97,7 @@ header#homeHeader::after{
   content:"";
   position:absolute;
   inset:0;
-  background: linear-gradient(
-    180deg,
-    rgba(230,239,248,.22),
-    rgba(237,244,248,.38)
-  );
+  background: var(--paleBlueBgMask);
   pointer-events:none;
   z-index:1;
 }
@@ -196,14 +195,22 @@ h1{
       background-position: center;
       background-repeat:no-repeat;
       opacity:.17;
-      filter: saturate(1.14) contrast(1.03) hue-rotate(-8deg);
+      filter: var(--paleBlueBgFilter);
       transform: scale(1.05);
       z-index:0;
       pointer-events:none;
     }
+    section.tabpane:not(#home) .card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:var(--paleBlueBgMask);
+      pointer-events:none;
+      z-index:1;
+    }
     section.tabpane:not(#home) .card > *{
       position:relative;
-      z-index:1;
+      z-index:2;
     }
 
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -331,12 +338,7 @@ h1{
 .topicTile{
   width:100%;
   border:1px solid var(--line);
-  background-image:
-    linear-gradient(168deg, color-mix(in srgb, var(--accent3) 68%, #ffffff 32%), color-mix(in srgb, var(--accent2) 40%, #ffffff 60%)),
-    var(--topicTileBg, none);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+  background-image:linear-gradient(168deg, color-mix(in srgb, var(--accent3) 68%, #ffffff 32%), color-mix(in srgb, var(--accent2) 40%, #ffffff 60%));
   border-radius:16px;
   padding:10px 10px 10px;
   box-shadow:var(--shadow);
@@ -346,7 +348,32 @@ h1{
   align-items:center;
   gap:8px;
   transition: opacity .22s ease, filter .22s ease;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
 }
+.topicTile::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:var(--topicTileBg, none);
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  filter:var(--paleBlueBgFilter);
+  opacity:.28;
+  pointer-events:none;
+  z-index:0;
+}
+.topicTile::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--paleBlueBgMask);
+  pointer-events:none;
+  z-index:1;
+}
+.topicTile > *{ position:relative; z-index:2; }
 .topicTile:hover{ filter:brightness(0.99); }
 .topicTile:active{ transform:translateY(1px); }
 
@@ -432,15 +459,32 @@ h1{
   height:132px;
   border-radius:16px;
   border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
-  background-image:
-    linear-gradient(182deg, rgba(255,255,255,.22), color-mix(in srgb, var(--accent) 30%, transparent)),
-    var(--topicBg, linear-gradient(180deg, color-mix(in srgb, var(--accent3) 36%, #ffffff 64%), color-mix(in srgb, var(--accent2) 45%, #ffffff 55%)));
-  background-size: cover;
-  background-position: center;
+  background-image:linear-gradient(182deg, rgba(255,255,255,.22), color-mix(in srgb, var(--accent) 30%, transparent));
   box-shadow: 0 8px 14px rgba(0,0,0,.06);
   position:relative;
   overflow:hidden;
   transition: filter .22s ease;
+}
+.progressTank::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:var(--topicBg, linear-gradient(180deg, color-mix(in srgb, var(--accent3) 36%, #ffffff 64%), color-mix(in srgb, var(--accent2) 45%, #ffffff 55%)));
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  filter:var(--paleBlueBgFilter);
+  opacity:.36;
+  pointer-events:none;
+  z-index:0;
+}
+.progressTank::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--paleBlueBgMask);
+  pointer-events:none;
+  z-index:1;
 }
 .progressLiquid{
   position:absolute;
@@ -470,6 +514,7 @@ h1{
   border-top:1px solid rgba(255,255,255,.32);
   transition: height .7s cubic-bezier(.2,.9,.2,1), opacity .22s ease;
   will-change: height;
+  z-index:2;
 }
 .topicTile.isDisabled .progressLiquid{ opacity:.48; }
 
@@ -481,7 +526,7 @@ h1{
   justify-content:center;
   text-align:center;
   padding:14px 12px;
-  z-index:2;
+  z-index:3;
 }
 .tileTitlePanel{
   background:linear-gradient(180deg, rgba(255,255,255,.78), color-mix(in srgb, var(--accent3) 56%, #ffffff 44%));
@@ -1567,13 +1612,21 @@ h1{
       background-position:center;
       background-repeat:no-repeat;
       opacity:.16;
-      filter:saturate(1.08) contrast(1.02);
+      filter:var(--paleBlueBgFilter);
       pointer-events:none;
       z-index:0;
     }
+    .streakTopicPill::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:var(--paleBlueBgMask);
+      pointer-events:none;
+      z-index:1;
+    }
     .streakTopicPill > *{
       position:relative;
-      z-index:1;
+      z-index:2;
     }
     .streakTopicPill b{
       color:var(--text);
@@ -1796,7 +1849,7 @@ h1{
       background-position:center;
       background-repeat:no-repeat;
       opacity:.22;
-      filter:saturate(1.06);
+      filter:var(--paleBlueBgFilter);
       transform:scale(1.03);
       pointer-events:none;
       z-index:0;
@@ -1805,7 +1858,7 @@ h1{
       content:"";
       position:absolute;
       inset:0;
-      background:linear-gradient(180deg, rgba(255,255,255,.80), rgba(230,239,248,.58));
+      background:var(--paleBlueBgMask);
       pointer-events:none;
       z-index:1;
     }
