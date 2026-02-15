@@ -135,7 +135,7 @@ header#homeHeader::after{
 
   .banner-title-pill{
     font-size:22px;
-    padding:9px 14px;
+    padding:4px 0;
   }
 }
 
@@ -1485,30 +1485,27 @@ h1{
 
     /* Clean, controlled streak card (match Daily Challenge card styling) */
     .streakCountPill{
-      width:80px;
-      height:80px;
-      padding:8px;
-      border-radius:16px;
-      background:linear-gradient(180deg,#fff,var(--accent3));
-      border:1px solid rgba(110,144,202,.65);
-      box-shadow:0 12px 24px rgba(0,0,0,.1);
+      padding:0;
+      border:none;
+      background:none;
+      box-shadow:none;
       display:flex;
       flex-direction:column;
-      align-items:center;
+      align-items:flex-end;
       justify-content:center;
-      gap:6px;
+      gap:2px;
       flex-shrink:0;
     }
     .streakCountLabel{
       color:var(--muted);
-      font-weight:900;
+      font-weight:800;
       font-size:10px;
-      letter-spacing:.5px;
+      letter-spacing:.3px;
       text-transform:uppercase;
     }
     .streakCountNum{
-      font-weight:1000;
-      font-size:30px;
+      font-weight:900;
+      font-size:20px;
       line-height:1;
       font-variant-numeric: tabular-nums;
       color:var(--text);
@@ -1540,43 +1537,24 @@ h1{
       display:flex; align-items:center; gap:8px;
     }
     .streakTopicPill{
-      position:relative;
-      overflow:hidden;
       width:100%;
       display:flex;
       flex-direction:column;
       align-items:flex-start;
-      gap:2px;
-      padding:10px 14px;
-      border-radius:14px;
-      border:1px solid #b9d7d2;
-      background:linear-gradient(180deg, #edf8f5 0%, #deefeb 100%);
-      font-weight:800;
+      gap:1px;
+      padding:0;
+      border:none;
+      background:none;
+      font-weight:700;
       color:var(--muted);
-      font-size:13px;
+      font-size:12px;
       line-height:1.25;
       flex:1 1 auto;
     }
-    .streakTopicPill::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background-image:var(--dailyTopicBg);
-      background-size:cover;
-      background-position:center;
-      background-repeat:no-repeat;
-      opacity:.16;
-      filter:saturate(1.08) contrast(1.02);
-      pointer-events:none;
-      z-index:0;
-    }
-    .streakTopicPill > *{
-      position:relative;
-      z-index:1;
-    }
     .streakTopicPill b{
       color:var(--text);
-      font-weight:900;
+      font-weight:800;
+      font-size:13px;
       min-width:0;
       overflow:visible;
       text-overflow:clip;
@@ -1601,8 +1579,7 @@ h1{
     }
 
     @media (max-width: 420px){
-      .streakCountPill{ width:72px; height:72px; }
-      .streakCountNum{ font-size:26px; }
+      .streakCountNum{ font-size:18px; }
     }
 
     .streakPillBtn{
@@ -1878,6 +1855,26 @@ h1{
       margin-bottom:10px;
     }
 
+    .homeRecoText{
+      flex:1 1 auto;
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+
+    .homeRecoAction{
+      flex:0 0 auto;
+      border:1px solid rgba(110,144,202,.4);
+      border-radius:10px;
+      padding:4px 10px;
+      background:rgba(255,255,255,.9);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.2px;
+      text-transform:uppercase;
+    }
+
     .recommendedCardTitle{
       font-weight:1000;
       font-size:clamp(17px, 2.3vw, 21px);
@@ -1894,17 +1891,21 @@ h1{
     .homePrimaryCta{
       width:100%;
       margin-top:0;
-      min-height:42px;
-      padding:10px 14px;
+      min-height:38px;
+      padding:8px 10px;
       border-radius:12px;
-      border:1px solid rgba(132,177,190,.72);
-      background:linear-gradient(180deg, #cfeef0 0%, #a9d8df 100%);
+      border:1px solid rgba(168,186,208,.5);
+      background:rgba(255,255,255,.55);
       color:#1f4f5d;
-      box-shadow:0 6px 14px rgba(103,156,170,.26);
+      box-shadow:none;
       font-weight:1000;
-      font-size:17px;
+      font-size:13px;
       cursor:pointer;
-      text-align:center;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
     }
     .homePrimaryCta:hover{ filter:brightness(1.05); }
     .homePrimaryCta:active{ transform:translateY(1px); }
@@ -1922,12 +1923,6 @@ h1{
       color:#5f5f5f;
       letter-spacing:.2px;
     }
-    .homeSecondaryCard .streakCountPill{
-      background:#fff;
-      border:1px solid rgba(0,0,0,.12);
-      box-shadow:none;
-    }
-
     .valuePropCard{ padding:12px 14px; }
     .valueHeadline{ font-weight:1000; font-size:18px; line-height:1.2; }
     .valueSubline{ margin-top:4px; color:var(--muted); font-size:13px; line-height:1.3; }
@@ -1964,11 +1959,11 @@ h1{
       .recommendedLabel{ margin-top:4px; font-size:14px; }
       .recommendedReason,
       .recommendedMeta{ margin-top:4px; }
+      .homePrimaryCta{ font-size:12px; min-height:36px; }
+      .homeRecoAction{ font-size:11px; padding:4px 8px; }
 
       .streakTopicRow{ gap:8px; }
-      .streakTopicPill,
-      .streakCountPill{ padding:8px 10px; }
-      .streakCountNum{ font-size:44px; }
+      .streakCountNum{ font-size:18px; }
 
       .streakChecklist{ gap:8px; }
       .checkRow{ padding:8px 10px; border-radius:12px; }
@@ -2059,18 +2054,12 @@ h1{
 .banner-title-pill {
   display: block;
   width: 100%;
-  padding: 10px 20px;
-  font-size: 30px;        /* same size as before */
+  padding: 6px 0;
+  font-size: 30px;
   font-weight: 800;
   letter-spacing: -0.4px;
   line-height: 1;
-  border-radius: 999px;
-
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+  text-align:center;
   animation: bannerFadeUp 180ms ease-out both;
 }
 
@@ -2285,20 +2274,23 @@ h1{
   <!-- HOME -->
   <section id="home" class="tabpane">
     <div class="homePrimaryWrap">
-      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button">Due for review: Flashcards • Topic: —</button>
+      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button">
+        <span class="homeRecoText" id="homeRecoText">Due for review: Flashcards • Topic: —</span>
+        <span class="homeRecoAction" id="homeRecoAction">Start now</span>
+      </button>
     </div>
 
     <div class="card homeSecondaryCard" id="streakHeroCard">
       <div class="streakHeader">
         <div class="streakHeaderCopy">
-          <div class="dailyChallengeTitle" style="font-weight:900;font-size:14px">Daily challenge</div>
+          <div class="dailyChallengeTitle" style="font-weight:800;font-size:12px">Daily challenge</div>
           <div class="note" id="streakNote">Lock in your streak with today’s quick run.</div>
           <div class="streakTopicRow">
-            <div class="pill streakTopicPill" aria-label="Today's topic">
+            <div class="streakTopicPill" aria-label="Today's topic">
               <span>Today’s topic:</span>
               <b id="dailyTopicLabel">—</b>
             </div>
-            <div class="pill streakCountPill" aria-label="Current streak">
+            <div class="streakCountPill" aria-label="Current streak">
               <span class="streakCountLabel">Streak</span>
               <span class="streakCountNum" id="streakBigNum">0</span>
             </div>
@@ -9469,7 +9461,15 @@ function renderHomeRecommendation(){
   const topic = TOPICS.find(t=>t.id===reco.topicId);
 
   const btn = $("homeRecoStartBtn");
-  btn.textContent = topic ? `${reco.label} • ${topic.title}` : reco.label;
+  const textEl = $("homeRecoText");
+  const actionEl = $("homeRecoAction");
+  const label = topic ? `${reco.label} • ${topic.title}` : reco.label;
+  if(textEl) textEl.textContent = label;
+  else btn.textContent = label;
+
+  const continueNeeded = /^keep streak going/i.test(String(reco.label||""));
+  if(actionEl) actionEl.textContent = continueNeeded ? "Continue" : "Start now";
+
   btn.onclick = ()=>{
     logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
     trackTaskStarted(reco.taskType, reco.topicId);
