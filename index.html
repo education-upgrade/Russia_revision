@@ -122,6 +122,7 @@ header#homeHeader::after{
   display:flex;
   align-items:center;
   width:100%;
+  justify-content:center;
   gap:10px;
   flex-wrap:nowrap;
 }
@@ -1898,10 +1899,10 @@ h1{
       min-height:42px;
       padding:10px 14px;
       border-radius:12px;
-      border:1px solid color-mix(in srgb, var(--accent) 38%, var(--line) 62%);
-      background:linear-gradient(180deg, color-mix(in srgb, var(--accent3) 74%, #fff 26%) 0%, color-mix(in srgb, var(--accent2) 50%, #fff 50%) 100%);
+      border:1px solid color-mix(in srgb, var(--accent2) 28%, #ffffff 72%);
+      background:linear-gradient(180deg, color-mix(in srgb, var(--accent3) 38%, #fff 62%) 0%, color-mix(in srgb, var(--accent2) 26%, #fff 74%) 100%);
       color:#16344f;
-      box-shadow:0 8px 16px rgba(110,144,202,.18);
+      box-shadow:0 6px 14px rgba(110,144,202,.10);
       font-weight:1000;
       font-size:17px;
       cursor:pointer;
@@ -2086,6 +2087,7 @@ h1{
   letter-spacing: -0.4px;
   line-height: 1;
   color: #17191c;
+  text-align:center;
   text-shadow: 0 8px 20px rgba(255, 255, 255, 0.22);
   animation: bannerFadeUp 180ms ease-out both;
 }
@@ -2299,7 +2301,7 @@ h1{
   <!-- HOME -->
   <section id="home" class="tabpane">
     <div class="homePrimaryWrap">
-      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button">Due for review: Flashcards • Topic: —</button>
+      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button">Keep going. Time to review: —</button>
     </div>
 
     <div class="card homeSecondaryCard" id="streakHeroCard">
@@ -9420,7 +9422,7 @@ function recommendationCopy(taskType, isChallenge){
     return { label:"Keep streak going: 25-mark plan", reason:"Finish today’s run to lock your streak." };
   }
   if(taskType === "QUIZ") return { label:"Boost score: Topic Quiz", reason:"This topic is your lowest score right now." };
-  if(taskType === "FLASHCARDS") return { label:"Due for review: Flashcards", reason:"This topic is due for a quick review." };
+  if(taskType === "FLASHCARDS") return { label:"Keep going. Time to review:", reason:"This topic is due for a quick review." };
   return { label:"Exam skill: 25-mark plan", reason:"A short plan now keeps exam structure fresh." };
 }
 function getNextBestAction(now=Date.now()){
@@ -9451,7 +9453,7 @@ function getNextBestAction(now=Date.now()){
     LAST_RECO_DEBUG = { recommendation:best, candidates:scored.slice(0,5) };
   }
 
-  if(!best) return { taskType:"FLASHCARDS", topicId:getDailyTopicId(), label:"Due for review: Flashcards", reason:"This topic is due for a quick review.", route:candidateRoute("FLASHCARDS", getDailyTopicId()) };
+  if(!best) return { taskType:"FLASHCARDS", topicId:getDailyTopicId(), label:"Keep going. Time to review:", reason:"This topic is due for a quick review.", route:candidateRoute("FLASHCARDS", getDailyTopicId()) };
   LAST_RECO_DEBUG.recommendation = best;
   return best;
 }
@@ -9483,7 +9485,9 @@ function renderHomeRecommendation(){
   const topic = TOPICS.find(t=>t.id===reco.topicId);
 
   const btn = $("homeRecoStartBtn");
-  btn.textContent = topic ? `${reco.label} • ${topic.title}` : reco.label;
+  btn.textContent = topic
+    ? (String(reco.label).trim().endsWith(":") ? `${reco.label} ${topic.title}` : `${reco.label} • ${topic.title}`)
+    : reco.label;
   btn.onclick = ()=>{
     logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
     trackTaskStarted(reco.taskType, reco.topicId);
