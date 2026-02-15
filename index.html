@@ -23,36 +23,24 @@
       /* Background image used inside cards on all non-Home tabs */
       --sectionCardBg: url("./section-bg.jpg");
 
-      --bg:#f8f6f4;
+      --bg:#fbf8f6;
       --surface:#ffffff;
       --card:#ffffff;
-      --line:#e7dfd8;
+      --line:#eadfd8;
 
       --text:#262626;
       --muted:#6c6c6c;
 
-      --accent:#e99780;
-      --accent2:#f0c4b4;
-      --accent3:#f7ece7;
+      --accent:#f2b7a6;    /* peach */
+      --accent2:#f7d5c8;   /* soft peach */
+      --accent3:#fdebe4;   /* very light peach */
 
       --good:#77cfa3;
       --warn:#f1c97a;
       --bad:#ef8a8a;
 
       --radius:18px;
-      --shadow:0 4px 12px rgba(25,20,16,.05);
-
-      --space-1:4px;
-      --space-2:8px;
-      --space-3:12px;
-      --space-4:16px;
-      --space-5:20px;
-      --space-6:24px;
-
-      --header-height:56px;
-      --header-radius:16px;
-      --header-max-width:720px;
-      --header-padding-x:var(--space-4);
+      --shadow:0 8px 18px rgba(0,0,0,.06);
 
       --navH: 72px;
     }
@@ -61,16 +49,18 @@
     body{
       margin:0;
       font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: linear-gradient(180deg, #fbf9f7 0%, var(--bg) 56%, #ffffff 100%);
+      background:
+        radial-gradient(900px 520px at 12% 8%, rgba(242,183,166,.22), transparent 60%),
+        radial-gradient(900px 520px at 90% 12%, rgba(247,213,200,.22), transparent 60%),
+        linear-gradient(180deg, var(--bg), #ffffff);
       color:var(--text);
-      line-height:1.45;
       overflow-x:hidden;
     }
 
     main{
       max-width:1100px;
       margin:0 auto;
-      padding:var(--space-4) var(--space-4) calc(var(--navH) + env(safe-area-inset-bottom) + var(--space-4));
+      padding:16px 16px calc(var(--navH) + env(safe-area-inset-bottom) + 16px);
     }
 
 /* =========================
@@ -78,8 +68,9 @@
    ========================= */
 header{
   position:relative;
-  background: transparent;
-  border-bottom:none;
+  overflow:hidden;
+  background: linear-gradient(180deg, var(--accent3), var(--bg));
+  border-bottom:1px solid var(--line);
 }
 
 /* Image layer (behind everything) */
@@ -91,7 +82,7 @@ header#homeHeader::before{
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  opacity: .12;
+  opacity: .38;
   pointer-events:none;
   z-index:0;
 }
@@ -101,7 +92,11 @@ header#homeHeader::after{
   content:"";
   position:absolute;
   inset:0;
-  background: linear-gradient(180deg, rgba(255,255,255,.68), rgba(248,246,244,.82));
+  background: linear-gradient(
+    180deg,
+    rgba(253,235,228,.22),
+    rgba(251,248,246,.38)
+  );
   pointer-events:none;
   z-index:1;
 }
@@ -111,30 +106,34 @@ header#homeHeader::after{
   z-index:2;
   max-width:1100px;
   margin:0 auto;
-  padding:var(--space-3) var(--header-padding-x) var(--space-2);
+  padding:18px 16px 12px;
   display:flex;
   align-items:center;
-  justify-content:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
 }
 
-.brand{ display:flex; align-items:center; width:100%; justify-content:center; }
+.brand{ display:flex; align-items:center; gap:12px; width:100%; }
 
 .bannerTopRow{
   display:flex;
   align-items:center;
   width:100%;
-  justify-content:center;
+  gap:10px;
+  flex-wrap:nowrap;
 }
 
 @media (max-width: 720px){
   .bannerTopRow{
     width:100%;
     align-items:center;
+    gap:8px;
   }
 
   .banner-title-pill{
-    font-size:20px;
-    min-height:52px;
+    font-size:22px;
+    padding:9px 14px;
   }
 }
 
@@ -169,9 +168,9 @@ h1{
       background:var(--card);
       border:1px solid var(--line);
       border-radius:var(--radius);
-      padding:var(--space-4);
-      box-shadow:none;
-      margin-bottom:var(--space-4);
+      padding:16px;
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
     }
 
     /* =========================
@@ -182,17 +181,17 @@ h1{
       position:relative;
       overflow:hidden;
       isolation:isolate;
-      background: var(--surface);
+      background: rgba(255,255,255,.92);
     }
     section.tabpane:not(#home) .card::before{
-      content:none;
+      content:"";
       position:absolute;
       inset:0;
       background-image: var(--sectionCardBg);
       background-size: cover;
       background-position: center;
       background-repeat:no-repeat;
-      opacity:0;
+      opacity:.14;
       filter: saturate(1.12) contrast(1.05);
       transform: scale(1.05);
       z-index:0;
@@ -203,7 +202,7 @@ h1{
       z-index:1;
     }
 
-    .row{display:flex;gap:var(--space-3);flex-wrap:wrap;align-items:center}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
     /* =========================
    Banner KPI pills (Home)
@@ -211,10 +210,10 @@ h1{
 .bannerKpis{
   width:100%;
   display:flex;
-  gap:var(--space-3);
+  gap:10px;
   flex-wrap:wrap;
   align-items:stretch;
-  margin-top:var(--space-3);
+  margin-top:10px;
 }
 
 .kpiPill{
@@ -320,9 +319,10 @@ h1{
 
 .topicDash{
   display:grid;
+  /* Smaller, more navigable dashboard tiles */
   grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
-  gap:var(--space-3);
-  margin:var(--space-3) 0 var(--space-2);
+  gap:10px;
+  margin:10px 0 6px;
 }
 .topicTile{
   width:100%;
@@ -1271,12 +1271,12 @@ h1{
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:var(--space-1);
+      gap:4px;
       font-size:11px;
       color:var(--muted);
       cursor:pointer;
       user-select:none;
-      padding:var(--space-2) var(--space-1);
+      padding:8px 4px;
       line-height:1.2;
     }
     .navIcon{
@@ -1745,18 +1745,20 @@ h1{
     }
   
 .banner-title-pill {
-  display:flex;
-  align-items:center;
-  width:min(100%, var(--header-max-width));
-  min-height:var(--header-height);
-  padding:0 var(--space-4);
-  font-size:22px;
-  font-weight:850;
-  letter-spacing:-0.2px;
-  line-height:1.2;
-  border-radius:var(--header-radius);
-  border:1px solid rgba(0,0,0,.08);
-  background: rgba(255, 255, 255, 0.82);
+  display: block;
+  width: 100%;
+  padding: 10px 20px;
+  font-size: 30px;        /* same size as before */
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  line-height: 1;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
   animation: bannerFadeUp 180ms ease-out both;
 }
 
@@ -1774,9 +1776,9 @@ h1{
 }
 
 @keyframes pillPulse {
-  0%   { transform: translateY(0) scale(1); }
-  35%  { transform: translateY(-1px) scale(1.01); }
-  100% { transform: translateY(0) scale(1); }
+  0%   { transform: translateY(0) scale(1); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
+  35%  { transform: translateY(-1px) scale(1.02); box-shadow: 0 10px 24px rgba(0,0,0,0.14); }
+  100% { transform: translateY(0) scale(1); box-shadow: 0 6px 16px rgba(0,0,0,0.08); }
 }
 
 /* Diamond week shimmer (subtle) */
