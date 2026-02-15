@@ -1804,14 +1804,8 @@ h1{
     }
     .protectBtn:hover{ filter:brightness(.98); }
 
-    .homePrimaryCard{
-      background:linear-gradient(160deg, #ffffff 0%, #fff6f1 100%);
-      border:1px solid rgba(203,109,83,.25);
-      box-shadow:0 8px 18px rgba(149,74,52,.12);
-      padding:12px;
-      display:flex;
-      flex-direction:column;
-      min-height:164px;
+    .homePrimaryWrap{
+      margin-bottom:10px;
     }
 
     .recommendedCardTitle{
@@ -1829,14 +1823,14 @@ h1{
 
     .homePrimaryCta{
       width:100%;
-      margin-top:auto;
+      margin-top:0;
       min-height:42px;
       padding:10px 14px;
       border-radius:12px;
-      border:1px solid rgba(105,45,31,.28);
-      background:linear-gradient(180deg, #bb6047 0%, #a64f3a 100%);
+      border:1px solid rgba(0,120,160,.35);
+      background:linear-gradient(180deg, #00b7eb 0%, #009fd4 100%);
       color:#fff;
-      box-shadow:0 6px 14px rgba(122,58,42,.22);
+      box-shadow:0 6px 14px rgba(0,120,160,.25);
       font-weight:1000;
       font-size:17px;
       cursor:pointer;
@@ -1844,7 +1838,7 @@ h1{
     }
     .homePrimaryCta:hover{ filter:brightness(1.05); }
     .homePrimaryCta:active{ transform:translateY(1px); }
-    .homePrimaryCta:focus{ outline:2px solid rgba(86,36,24,.44); outline-offset:2px; }
+    .homePrimaryCta:focus{ outline:2px solid rgba(0,120,160,.5); outline-offset:2px; }
 
     .homeSecondaryCard{
       background:rgba(255,255,255,.78);
@@ -1897,7 +1891,6 @@ h1{
       .headerInner{ padding:12px 12px 8px; }
       main{ padding:10px 12px calc(var(--navH) + env(safe-area-inset-bottom) + 12px); }
       .card{ padding:12px; margin-bottom:10px; }
-      .homePrimaryCard{ min-height:156px; }
       .recommendedLabel{ margin-top:4px; font-size:14px; }
       .recommendedReason,
       .recommendedMeta{ margin-top:4px; }
@@ -2220,16 +2213,8 @@ h1{
 
   <!-- HOME -->
   <section id="home" class="tabpane">
-    <div class="card homePrimaryCard">
-      <div class="row" style="justify-content:space-between;align-items:flex-start">
-        <div>
-          <h3 class="recommendedCardTitle">Your next 10-minute task</h3>
-          <div class="recommendedLabel" id="homeRecoLabel">Pick what keeps you moving.</div>
-          <div class="recommendedReason" id="homeRecoReason">Short, focused, and momentum-first.</div>
-          <div class="recommendedMeta note" id="homeRecoMeta"></div>
-        </div>
-      </div>
-      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button">Start my next task</button>
+    <div class="homePrimaryWrap">
+      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button">Due for review: Flashcards • Topic: —</button>
     </div>
 
     <div class="card homeSecondaryCard" id="streakHeroCard">
@@ -9420,13 +9405,10 @@ function navigateToRoute(route){
 }
 function renderHomeRecommendation(){
   const reco = getNextBestAction(Date.now());
-  $("homeRecoLabel").textContent = reco.label;
-  $("homeRecoReason").textContent = reco.reason;
   const topic = TOPICS.find(t=>t.id===reco.topicId);
-  $("homeRecoMeta").textContent = topic ? `Topic: ${topic.title}` : "";
 
   const btn = $("homeRecoStartBtn");
-  btn.textContent = reco.label;
+  btn.textContent = topic ? `${reco.label} • ${topic.title}` : reco.label;
   btn.onclick = ()=>{
     logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
     trackTaskStarted(reco.taskType, reco.topicId);
