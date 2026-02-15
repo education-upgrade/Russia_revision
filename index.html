@@ -1681,6 +1681,40 @@ h1{
     .homePrimaryCta:active{ transform:translateY(1px); }
     .homePrimaryCta:focus{ outline:2px solid rgba(242,183,166,.6); outline-offset:2px; }
 
+    .recommendedCardTitle{ font-weight:1000; font-size:18px; margin:0; }
+    .recommendedLabel{ font-weight:900; font-size:16px; }
+    .recommendedReason{ color:var(--muted); font-size:13px; margin-top:6px; }
+    .recommendedMeta{ margin-top:10px; }
+
+    .nextUpSheet{
+      position:fixed;
+      left:0; right:0; bottom:0;
+      z-index:10020;
+      padding:14px 14px calc(14px + env(safe-area-inset-bottom));
+      background:rgba(255,255,255,.98);
+      border-top-left-radius:18px;
+      border-top-right-radius:18px;
+      border:1px solid var(--line);
+      box-shadow:0 -14px 24px rgba(0,0,0,.16);
+    }
+    .nextUpActions{ display:flex; gap:8px; margin-top:10px; }
+
+    .debugPanel{
+      position:fixed;
+      inset:auto 12px calc(var(--navH) + env(safe-area-inset-bottom) + 12px) 12px;
+      z-index:10030;
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow:var(--shadow);
+      padding:12px;
+      max-height:52vh;
+      overflow:auto;
+      font-size:12px;
+    }
+    .debugPanel h4{ margin:0 0 8px; font-size:13px; }
+    .debugPanel pre{ margin:6px 0 0; white-space:pre-wrap; }
+
     /* Confetti canvas */
     #confettiCanvas{
       position:fixed;
@@ -1937,7 +1971,7 @@ h1{
     <div style="font-size:26px">🏆</div>
     <div>
       <div style="font-weight:900">Daily Challenge Complete!</div>
-      <div class="note" style="margin-top:4px">Nice. Come back tomorrow for a new topic.</div>
+      <div class="note" style="margin-top:4px">Nice work — your streak is protected for today.</div>
     </div>
   </div>
 
@@ -1960,6 +1994,18 @@ h1{
 </div>
 
 
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between;align-items:flex-start">
+        <div>
+          <h3 class="recommendedCardTitle">Recommended next</h3>
+          <div class="recommendedLabel" id="homeRecoLabel">Choose your next study move.</div>
+          <div class="recommendedReason" id="homeRecoReason">We’ll keep this focused and quick.</div>
+          <div class="recommendedMeta note" id="homeRecoMeta"></div>
+        </div>
+      </div>
+      <button class="btn primary" id="homeRecoStartBtn" type="button" style="margin-top:12px">Start</button>
+    </div>
 
     <div class="card">
       <div class="row" style="justify-content:space-between">
@@ -2512,6 +2558,22 @@ h1{
   <div class="navBtn" data-tab="exam">📝<div>Exam</div></div>
   <div class="navBtn" data-tab="settings">⚙️<div>Settings</div></div>
 </nav>
+
+<div id="nextUpSheet" class="nextUpSheet hidden" role="dialog" aria-live="polite" aria-label="Next up recommendation">
+  <div style="font-weight:900">Next up</div>
+  <div id="nextUpReason" class="note" style="margin-top:4px"></div>
+  <div class="nextUpActions">
+    <button class="btn primary" id="nextUpPrimaryBtn" type="button">Continue</button>
+    <button class="btn" id="nextUpDismissBtn" type="button">Not now</button>
+  </div>
+</div>
+
+<div id="debugPanel" class="debugPanel hidden" role="region" aria-label="Recommendation debug panel">
+  <h4>Recommendation debug</h4>
+  <div id="debugReco"></div>
+  <pre id="debugCandidates"></pre>
+  <div id="debugMetrics" style="margin-top:8px"></div>
+</div>
 
 <script>
 /* ==========================================================
@@ -7264,6 +7326,9 @@ function baseState(){
     daily:{},
     // Duolingo-style: consecutive days completing the Daily Challenge
     dailyStreak:{ count:0, best:0, lastDate:null },
+    topicStats:{},
+    userStats:{ lastActionType:null, lastActiveAt:0, sessionsToday:0 },
+    analytics:{ daily:{} },
     // topics toggled off are excluded from flashcards/quizzes/daily challenge
     disabledTopics:{},
   };
@@ -7280,6 +7345,9 @@ function loadState(){
     s.topicLevels ||= {};
     s.daily ||= {};
     s.dailyStreak ||= { count:0, best:0, lastDate:null };
+    s.topicStats ||= {};
+    s.userStats ||= { lastActionType:null, lastActiveAt:0, sessionsToday:0 };
+    s.analytics ||= { daily:{} };
     s.disabledTopics ||= {};
     return s;
   }catch{
@@ -7326,6 +7394,9 @@ function keyToDate(k){
   // k = YYYY-MM-DD
   const [y,m,dd] = String(k).split('-').map(n=>parseInt(n,10));
   return new Date(y, (m||1)-1, dd||1);
+}
+function isSameDay(a,b){
+  return a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
 }
 function addDaysKey(k, delta){
   const d = keyToDate(k);
@@ -7540,7 +7611,7 @@ function renderStreakHero(){
   if(icon) icon.textContent = doneToday ? "✅" : "⚠️";
   if(textEl){
     textEl.textContent = doneToday
-      ? "Streak protected for today — come back tomorrow to level it up."
+      ? "Streak protected for today — keep momentum with your next step."
       : "Streak at risk — complete today’s Daily Challenge to protect it.";
   }
   if(cd) cd.textContent = formatHMS(msUntilReset());
@@ -7615,6 +7686,7 @@ function checkDailyComplete(){
     // Update Duolingo-style streak when a Daily Challenge is completed
     updateDailyStreakOnComplete();
     saveState();
+    logEvent("daily_challenge_completed", { topicId: d.topicId });
     updateDailyUI();
     try{ computeKpis(); }catch(e){}
     showLevelUpBanner(`🏆 Daily Challenge Complete • ${escapeHtml((TOPICS.find(t=>t.id===d.topicId)||{}).title || d.topicId)}`);
@@ -7652,10 +7724,12 @@ function recordDailyQuiz(topicId, percent){
 function recordDailyPlanOpened(topicId){
   const d = ensureDaily();
   if(topicId !== d.topicId) return;
+  const wasOpened = !!d.planOpened;
   d.planOpened = true;
   saveState();
   updateDailyUI();
   checkDailyComplete();
+  if(!wasOpened) trackTaskCompleted("PLAN_25", topicId);
 }
 
 /* ==========================================================
@@ -7847,6 +7921,10 @@ function setTab(tabId){
 
   // Games: default to hub list when entering the tab
   if(tabId==="games") gamesShowHub();
+
+  if(tabId === "home"){
+    renderHomeRecommendation();
+  }
 }
 document.querySelectorAll(".navBtn").forEach(btn=>{
   btn.addEventListener("click", ()=>setTab(btn.dataset.tab));
@@ -8442,6 +8520,396 @@ updateDailyUI();
 /* Home quick buttons (legacy IDs kept for safety) */
 
 const LAST_STUDY_CONTEXT_KEY = "russia_revision_last_study_context_v1";
+const EVENT_LOG_KEY = "russia_revision_event_log_v1";
+
+const RECO_WEIGHTS = {
+  // Tunable ranking constants for deterministic recommendation engine.
+  QUIZ_WEAKNESS_MULTIPLIER: 1.2,
+  FLASH_REMAINING_MULTIPLIER: 2,
+  PLAN_NOT_STARTED: 25,
+  PLAN_STALE: 10,
+  DUE_FOR_REVIEW_BONUS: 30,
+  STUDIED_WITHIN_30_MIN_PENALTY: -40,
+  STUDIED_TODAY_PENALTY: -10,
+  MOMENTUM_FLASH_BONUS: 15,
+  MOMENTUM_QUIZ_BONUS: 10,
+  MOMENTUM_PLAN_PENALTY: -10,
+  SAME_ACTION_TYPE_PENALTY: -8,
+  PLAN_FREQUENCY_PENALTY: -12
+};
+
+let LAST_RECO_DEBUG = { recommendation:null, candidates:[] };
+let APP_SESSION = { source:"app_open", startTs:Date.now(), tasksCompleted:0, active:true };
+
+function loadEventLog(){
+  try{
+    const raw = localStorage.getItem(EVENT_LOG_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  }catch(e){ return []; }
+}
+function saveEventLog(items){
+  localStorage.setItem(EVENT_LOG_KEY, JSON.stringify(items.slice(-500)));
+}
+function analyticsDayBucket(day=todayKey()){
+  STATE.analytics ||= { daily:{} };
+  STATE.analytics.daily ||= {};
+  STATE.analytics.daily[day] ||= {
+    recoShown:0,
+    recoClicked:0,
+    dailyTasksCompleted:0,
+    sessionDurations:[],
+    sessionTaskCounts:[],
+    tasksPerSession:0,
+    nextTapRate:0,
+    streakSavedToday:false
+  };
+  return STATE.analytics.daily[day];
+}
+function refreshDailyAggregates(day=todayKey()){
+  const b = analyticsDayBucket(day);
+  const sessions = Math.max(1, b.sessionTaskCounts.length);
+  const totalTasks = b.sessionTaskCounts.reduce((n,v)=>n+Number(v||0),0);
+  b.tasksPerSession = Number((totalTasks / sessions).toFixed(2));
+  b.nextTapRate = b.recoShown ? Number((b.recoClicked / b.recoShown).toFixed(3)) : 0;
+  b.streakSavedToday = !!STATE.daily?.[day]?.completed;
+  saveState();
+}
+function logEvent(name, payload={}, ts=Date.now()){
+  const list = loadEventLog();
+  list.push({ name, payload, ts });
+  saveEventLog(list);
+
+  const b = analyticsDayBucket(todayKey());
+  if(name === "home_reco_shown") b.recoShown += 1;
+  if(name === "home_reco_clicked") b.recoClicked += 1;
+  if(name === "task_completed") b.dailyTasksCompleted += 1;
+  if(name === "daily_challenge_completed") b.streakSavedToday = true;
+  if(name === "session_end"){
+    b.sessionDurations.push(Number(payload.durationMs||0));
+    b.sessionTaskCounts.push(Number(payload.tasksCompleted||0));
+    b.sessionDurations = b.sessionDurations.slice(-20);
+    b.sessionTaskCounts = b.sessionTaskCounts.slice(-20);
+  }
+  refreshDailyAggregates(todayKey());
+}
+function markActiveNow(){
+  STATE.userStats ||= { lastActionType:null, lastActiveAt:0, sessionsToday:0 };
+  STATE.userStats.lastActiveAt = Date.now();
+  saveState();
+}
+function startSession(source="app_open"){
+  const day = todayKey();
+  const us = STATE.userStats ||= { lastActionType:null, lastActiveAt:0, sessionsToday:0 };
+  if(us.sessionsDay !== day){
+    us.sessionsDay = day;
+    us.sessionsToday = 0;
+  }
+  us.sessionsToday = Number(us.sessionsToday||0) + 1;
+  us.lastActiveAt = Date.now();
+  APP_SESSION = { source, startTs:Date.now(), tasksCompleted:0, active:true };
+  logEvent("session_start", { source });
+  saveState();
+}
+function endSession(){
+  if(!APP_SESSION?.active) return;
+  APP_SESSION.active = false;
+  const durationMs = Math.max(0, Date.now() - Number(APP_SESSION.startTs||Date.now()));
+  logEvent("session_end", { durationMs, tasksCompleted: APP_SESSION.tasksCompleted||0 });
+}
+function trackTaskStarted(taskType, topicId){
+  markActiveNow();
+  STATE.userStats.lastActionType = taskType;
+  saveState();
+  logEvent("task_started", { taskType, topicId });
+}
+function touchTopicStats(topicId){
+  STATE.topicStats ||= {};
+  STATE.topicStats[topicId] ||= {
+    quizAttempts:0,
+    quizBestPercent:0,
+    flashcardsDone:0,
+    flashcardsTotal:0,
+    planStarted:false,
+    lastStudiedAt:0,
+    planLastSavedAt:0,
+    failedCards:0
+  };
+  return STATE.topicStats[topicId];
+}
+function trackTaskCompleted(taskType, topicId, extra={}){
+  markActiveNow();
+  const ts = Date.now();
+  const s = touchTopicStats(topicId);
+  s.lastStudiedAt = ts;
+  if(taskType === "QUIZ"){
+    s.quizAttempts = Number(s.quizAttempts||0) + 1;
+    s.quizBestPercent = Math.max(Number(s.quizBestPercent||0), Number(extra.percent||0));
+  }
+  if(taskType === "FLASHCARDS"){
+    s.flashcardsDone = Math.max(Number(s.flashcardsDone||0), Number(extra.flashcardsDone||s.flashcardsDone||0));
+    s.flashcardsTotal = Math.max(Number(s.flashcardsTotal||0), Number(extra.flashcardsTotal||0));
+    s.failedCards = Number(extra.failedCards ?? s.failedCards ?? 0);
+  }
+  if(taskType === "PLAN_25"){
+    s.planStarted = true;
+    s.planLastSavedAt = ts;
+  }
+  STATE.userStats.lastActionType = taskType;
+  saveState();
+  APP_SESSION.tasksCompleted = Number(APP_SESSION.tasksCompleted||0) + 1;
+  logEvent("task_completed", { taskType, topicId, scoreDelta: extra.scoreDelta });
+  renderHomeRecommendation();
+  showNextUpSheet();
+}
+function topicFlashcardStats(topicId){
+  const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
+  let weak = 0;
+  pool.forEach(c=>{ if((getReview(c.id)?.score ?? 2) <= 1) weak++; });
+  const daily = ensureDaily();
+  const doneToday = (daily.topicId === topicId) ? Number(daily.flash||0) : 0;
+  return {
+    total: pool.length,
+    done: doneToday,
+    remaining: Math.max(0, pool.length - doneToday),
+    failedCards: weak
+  };
+}
+function topicQuizStats(topicId){
+  const s = touchTopicStats(topicId);
+  if(topicId === ensureDaily().topicId){
+    s.quizBestPercent = Math.max(Number(s.quizBestPercent||0), Number(ensureDaily().quizBest||0));
+  }
+  return {
+    quizAttempts: Number(s.quizAttempts||0),
+    quizBestPercent: Number(s.quizBestPercent||0)
+  };
+}
+function topicPlanStats(topicId){
+  const s = touchTopicStats(topicId);
+  if(topicId === ensureDaily().topicId && ensureDaily().planOpened) s.planStarted = true;
+  return { planStarted: !!s.planStarted, planLastSavedAt: Number(s.planLastSavedAt||0) };
+}
+function dueForReview(topicId, now=Date.now()){
+  const s = touchTopicStats(topicId);
+  const last = Number(s.lastStudiedAt||0);
+  const quizBestPercent = Number(s.quizBestPercent||0);
+  if(!last) return true;
+  const daysSince = (now - last) / 86400000;
+  return (daysSince >= 2 && quizBestPercent < 80) || (daysSince >= 5 && quizBestPercent >= 80);
+}
+function candidateRoute(taskType, topicId){
+  if(taskType === "FLASHCARDS") return `study?topic=${encodeURIComponent(topicId)}&mode=all`;
+  if(taskType === "QUIZ") return `quiz?topic=${encodeURIComponent(topicId)}&count=10`;
+  return `exam?topic=${encodeURIComponent(topicId)}`;
+}
+function buildCandidate(taskType, topicId){
+  const flash = topicFlashcardStats(topicId);
+  const quiz = topicQuizStats(topicId);
+  const plan = topicPlanStats(topicId);
+  const topic = touchTopicStats(topicId);
+  return {
+    taskType,
+    topicId,
+    route: candidateRoute(taskType, topicId),
+    flashcardsRemaining: flash.remaining,
+    flashcardsTotal: flash.total,
+    flashcardsDone: flash.done,
+    failedCards: flash.failedCards,
+    quizAttempts: quiz.quizAttempts,
+    quizBestPercent: quiz.quizBestPercent,
+    planStarted: plan.planStarted,
+    planLastSavedAt: plan.planLastSavedAt,
+    lastStudiedAt: Number(topic.lastStudiedAt||0)
+  };
+}
+function generateCandidates(now=Date.now()){
+  const d = ensureDaily();
+  const enabled = enabledTopicIds();
+  const step = nextDailyAction(d);
+  if(step){
+    const map = { flash:"FLASHCARDS", quiz:"QUIZ", plan:"PLAN_25" };
+    return [buildCandidate(map[step], d.topicId)];
+  }
+
+  const out = [];
+  enabled.forEach(topicId=>{
+    const quiz = topicQuizStats(topicId);
+    const flash = topicFlashcardStats(topicId);
+    const plan = topicPlanStats(topicId);
+
+    if(quiz.quizAttempts === 0 || quiz.quizBestPercent < 80){
+      out.push(buildCandidate("QUIZ", topicId));
+    }
+    if(flash.remaining > 0 || dueForReview(topicId, now)){
+      out.push(buildCandidate("FLASHCARDS", topicId));
+    }
+    if(!plan.planStarted){
+      out.push(buildCandidate("PLAN_25", topicId));
+    }
+  });
+  return out;
+}
+function getWeakestTopicId(){
+  const enabled = enabledTopicIds();
+  let weakest = null;
+  let weakestScore = Infinity;
+  enabled.forEach(topicId=>{
+    const c = buildCandidate("QUIZ", topicId);
+    const score = Number(c.quizBestPercent||0) + Number(c.failedCards||0);
+    if(score < weakestScore){ weakestScore = score; weakest = topicId; }
+  });
+  return weakest;
+}
+function scoreCandidate(candidate, now=Date.now(), weakestTopicId=getWeakestTopicId()){
+  let score = 0;
+  const why = [];
+
+  if(candidate.taskType === "QUIZ") score += (100 - candidate.quizBestPercent) * RECO_WEIGHTS.QUIZ_WEAKNESS_MULTIPLIER;
+  if(candidate.taskType === "FLASHCARDS") score += (candidate.flashcardsRemaining + candidate.failedCards) * RECO_WEIGHTS.FLASH_REMAINING_MULTIPLIER;
+  if(candidate.taskType === "PLAN_25"){
+    const stale = candidate.planStarted && ((now - Number(candidate.planLastSavedAt||0)) >= 7*86400000);
+    score += !candidate.planStarted ? RECO_WEIGHTS.PLAN_NOT_STARTED : (stale ? RECO_WEIGHTS.PLAN_STALE : 0);
+  }
+
+  if(dueForReview(candidate.topicId, now)){ score += RECO_WEIGHTS.DUE_FOR_REVIEW_BONUS; why.push("due"); }
+
+  const last = Number(candidate.lastStudiedAt||0);
+  if(last && (now - last) <= 30*60*1000) score += RECO_WEIGHTS.STUDIED_WITHIN_30_MIN_PENALTY;
+  if(last && isSameDay(new Date(last), new Date(now)) && candidate.topicId !== weakestTopicId){
+    score += RECO_WEIGHTS.STUDIED_TODAY_PENALTY;
+  }
+
+  const lastActiveAt = Number(STATE.userStats?.lastActiveAt||0);
+  const likelyDrop = Number(STATE.userStats?.sessionsToday||0) === 0 || (lastActiveAt && (now - lastActiveAt) > 24*60*60*1000);
+  if(likelyDrop){
+    if(candidate.taskType === "FLASHCARDS") score += RECO_WEIGHTS.MOMENTUM_FLASH_BONUS;
+    if(candidate.taskType === "QUIZ") score += RECO_WEIGHTS.MOMENTUM_QUIZ_BONUS;
+    if(candidate.taskType === "PLAN_25") score += RECO_WEIGHTS.MOMENTUM_PLAN_PENALTY;
+  }
+
+  if(STATE.userStats?.lastActionType === candidate.taskType){
+    score += RECO_WEIGHTS.SAME_ACTION_TYPE_PENALTY;
+  }
+  if(candidate.taskType === "PLAN_25") score += RECO_WEIGHTS.PLAN_FREQUENCY_PENALTY;
+
+  return { score, why };
+}
+function recommendationCopy(taskType, isChallenge){
+  if(isChallenge){
+    if(taskType === "FLASHCARDS") return { label:"Continue challenge: Flashcards", reason:"Finish today’s challenge to protect your streak." };
+    if(taskType === "QUIZ") return { label:"Continue challenge: Topic Quiz", reason:"Finish today’s challenge to protect your streak." };
+    return { label:"Continue challenge: 25-mark plan", reason:"Finish today’s challenge to protect your streak." };
+  }
+  if(taskType === "QUIZ") return { label:"Boost score: Topic Quiz", reason:"This topic is your lowest score right now." };
+  if(taskType === "FLASHCARDS") return { label:"Due for review: Flashcards", reason:"This topic is due for a quick review." };
+  return { label:"Exam skill: 25-mark plan", reason:"A short plan now keeps exam structure fresh." };
+}
+function getNextBestAction(now=Date.now()){
+  const daily = ensureDaily();
+  const candidates = generateCandidates(now);
+  const step = nextDailyAction(daily);
+  const isChallenge = !!step;
+
+  let best = null;
+  if(isChallenge){
+    best = candidates[0] || null;
+    if(best){
+      const c = recommendationCopy(best.taskType, true);
+      best = { ...best, label:c.label, reason:c.reason, score:9999, route: best.route };
+    }
+  }else{
+    const weakestTopicId = getWeakestTopicId();
+    const scored = candidates.map(c=>{
+      const r = scoreCandidate(c, now, weakestTopicId);
+      return { ...c, score:r.score, why:r.why };
+    }).sort((a,b)=>b.score - a.score);
+
+    const winner = scored[0] || null;
+    if(winner){
+      const c = recommendationCopy(winner.taskType, false);
+      best = { ...winner, label:c.label, reason:c.reason };
+    }
+    LAST_RECO_DEBUG = { recommendation:best, candidates:scored.slice(0,5) };
+  }
+
+  if(!best) return { taskType:"FLASHCARDS", topicId:getDailyTopicId(), label:"Due for review: Flashcards", reason:"This topic is due for a quick review.", route:candidateRoute("FLASHCARDS", getDailyTopicId()) };
+  LAST_RECO_DEBUG.recommendation = best;
+  return best;
+}
+function navigateToRoute(route){
+  const [tab, query] = String(route||"").split("?");
+  const params = new URLSearchParams(query||"");
+  const topicId = params.get("topic") || getDailyTopicId();
+  if(tab === "study"){
+    setTab("study");
+    $("topicSelect").value = isTopicEnabled(topicId) ? topicId : "ALL";
+    $("modeSelect").value = params.get("mode") || "all";
+    $("orderSelect").value = "random";
+    loadNextCard();
+  }else if(tab === "quiz"){
+    setTab("quiz");
+    $("mcqTopicSelect").value = isTopicEnabled(topicId) ? topicId : "MIXED";
+    $("mcqCount").value = params.get("count") || "10";
+    startQuiz();
+  }else if(tab === "exam"){
+    setTab("exam");
+    const filter = $("examTopicSelect");
+    if(filter){ filter.value = topicId; filter.dispatchEvent(new Event("change")); }
+    const exId = getDailyExamId(topicId);
+    if(exId){ $("examSelect").value = exId; renderExamQuestion(); }
+  }
+}
+function renderHomeRecommendation(){
+  const reco = getNextBestAction(Date.now());
+  $("homeRecoLabel").textContent = reco.label;
+  $("homeRecoReason").textContent = reco.reason;
+  const topic = TOPICS.find(t=>t.id===reco.topicId);
+  $("homeRecoMeta").textContent = topic ? `Topic: ${topic.title}` : "";
+
+  const btn = $("homeRecoStartBtn");
+  btn.textContent = reco.label;
+  btn.onclick = ()=>{
+    logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
+    trackTaskStarted(reco.taskType, reco.topicId);
+    navigateToRoute(reco.route);
+  };
+  logEvent("home_reco_shown", { taskType: reco.taskType, topicId: reco.topicId });
+  renderDebugPanel();
+}
+function showNextUpSheet(){
+  const reco = getNextBestAction(Date.now());
+  const sheet = $("nextUpSheet");
+  if(!sheet) return;
+  $("nextUpReason").textContent = reco.reason;
+  const p = $("nextUpPrimaryBtn");
+  p.textContent = reco.label;
+  p.onclick = ()=>{
+    logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
+    trackTaskStarted(reco.taskType, reco.topicId);
+    sheet.classList.add("hidden");
+    navigateToRoute(reco.route);
+  };
+  $("nextUpDismissBtn").onclick = ()=>sheet.classList.add("hidden");
+  sheet.classList.remove("hidden");
+}
+function renderDebugPanel(){
+  const panel = $("debugPanel");
+  if(!panel || panel.classList.contains("hidden")) return;
+  const today = analyticsDayBucket(todayKey());
+  $("debugReco").textContent = `Current: ${LAST_RECO_DEBUG.recommendation?.label || "—"}`;
+  $("debugCandidates").textContent = (LAST_RECO_DEBUG.candidates||[]).map((c,i)=>`${i+1}. ${c.taskType} ${c.topicId} → ${c.score.toFixed(1)}`).join("\n") || "No candidates";
+  $("debugMetrics").textContent = `tasks_per_session: ${today.tasksPerSession} • next_tap_rate: ${today.nextTapRate} • daily_tasks_completed: ${today.dailyTasksCompleted} • streak_saved_today: ${today.streakSavedToday}`;
+}
+function attachHomeDebugLongPress(){
+  const title = document.querySelector(".banner-title-pill");
+  if(!title) return;
+  let timer = null;
+  const start = ()=>{ timer = setTimeout(()=>{ $("debugPanel").classList.toggle("hidden"); renderDebugPanel(); }, 700); };
+  const clear = ()=>{ if(timer){ clearTimeout(timer); timer = null; } };
+  ["mousedown","touchstart","pointerdown"].forEach(evt=>title.addEventListener(evt, start));
+  ["mouseup","mouseleave","touchend","touchcancel","pointerup"].forEach(evt=>title.addEventListener(evt, clear));
+}
 
 function rememberStudyContext(){
   try{
@@ -8509,6 +8977,7 @@ function goDailyFocus(){
   const d = ensureDaily();
   d.lastStep = "flash";
   saveState();
+  trackTaskStarted("FLASHCARDS", d.topicId);
   openStudyForTopic(d.topicId, "all");
   startDailyFlashSession(d.topicId);
 }
@@ -8516,6 +8985,7 @@ function goDailyQuiz(){
   const d = ensureDaily();
   d.lastStep = "quiz";
   saveState();
+  trackTaskStarted("QUIZ", d.topicId);
   setTab("quiz");
   $("mcqTopicSelect").value = d.topicId;
   $("mcqCount").value = "10";
@@ -8525,6 +8995,7 @@ function goDailyExam(){
   const d = ensureDaily();
   d.lastStep = "plan";
   saveState();
+  trackTaskStarted("PLAN_25", d.topicId);
   setTab("exam");
   const exFilter = $("examTopicSelect");
   if(exFilter){ exFilter.value = d.topicId; exFilter.dispatchEvent(new Event("change")); }
@@ -8586,6 +9057,11 @@ function checkDailyFlashSessionComplete(cardId){
     session.complete = true;
     d.flashCelebrated = true;
     saveState();
+    trackTaskCompleted("FLASHCARDS", session.topicId, {
+      flashcardsDone: d.flash||0,
+      flashcardsTotal: session.cardIds.size,
+      failedCards: topicFlashcardStats(session.topicId).failedCards
+    });
     try{ confetti.fall(2600); }catch(e){}
   }
 }
@@ -8911,6 +9387,7 @@ let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0 };
 function startQuiz(){
   const topicId = $("mcqTopicSelect").value;
   const count = Number($("mcqCount").value);
+  if(topicId !== "MIXED") trackTaskStarted("QUIZ", topicId);
 
   const pool = getQuizPool(topicId);
   QUIZ.list = shuffle(pool).slice(0, Math.min(count, pool.length));
@@ -8945,6 +9422,7 @@ $("btnNextQ").addEventListener("click", ()=>{
 
     const percent = QUIZ.list.length ? Math.round((QUIZ.score / QUIZ.list.length) * 100) : 0;
     recordDailyQuiz(QUIZ.topicId, percent);
+    if(QUIZ.topicId && QUIZ.topicId !== "MIXED") trackTaskCompleted("QUIZ", QUIZ.topicId, { percent });
 
     confetti.burst(140);
     computeKpis();
@@ -9395,6 +9873,8 @@ $("btnReset").addEventListener("click", ()=>{
    ========================================================== */
 function init(){
   populateTopics();
+  startSession("app_open");
+  attachHomeDebugLongPress();
   try{ bumpHeaderSessions(); }catch(e){}
   updateDailyUI();
   // sensible defaults
@@ -9416,6 +9896,13 @@ function init(){
 
   // start on Home
   setTab("home");
+  renderHomeRecommendation();
+
+  document.addEventListener("visibilitychange", ()=>{
+    if(document.visibilityState === "hidden") endSession();
+    if(document.visibilityState === "visible") startSession("tab_switch");
+  });
+  window.addEventListener("beforeunload", endSession);
 }
 init();
 </script>
