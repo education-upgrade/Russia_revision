@@ -1876,10 +1876,6 @@ h1{
     }
     .protectBtn:hover{ filter:brightness(.98); }
 
-    .homePrimaryWrap{
-      margin-bottom:10px;
-    }
-
     .recommendedCardTitle{
       font-weight:1000;
       font-size:clamp(17px, 2.3vw, 21px);
@@ -1892,25 +1888,6 @@ h1{
     .recommendedLabel{ font-weight:900; font-size:15px; margin-top:6px; }
     .recommendedReason{ color:#4a4a4a; font-size:12px; margin-top:5px; }
     .recommendedMeta{ margin-top:6px; }
-
-    .homePrimaryCta{
-      width:100%;
-      margin-top:0;
-      min-height:42px;
-      padding:10px 14px;
-      border-radius:12px;
-      border:1px solid color-mix(in srgb, var(--accent2) 28%, #ffffff 72%);
-      background:linear-gradient(180deg, color-mix(in srgb, var(--accent3) 38%, #fff 62%) 0%, color-mix(in srgb, var(--accent2) 26%, #fff 74%) 100%);
-      color:#16344f;
-      box-shadow:0 6px 14px rgba(110,144,202,.10);
-      font-weight:1000;
-      font-size:17px;
-      cursor:pointer;
-      text-align:center;
-    }
-    .homePrimaryCta:hover{ filter:brightness(1.05); }
-    .homePrimaryCta:active{ transform:translateY(1px); }
-    .homePrimaryCta:focus{ outline:2px solid rgba(110,144,202,.55); outline-offset:2px; }
 
     .homeSecondaryCard{
       background:rgba(255,255,255,.78);
@@ -2300,10 +2277,6 @@ h1{
 
   <!-- HOME -->
   <section id="home" class="tabpane">
-    <div class="homePrimaryWrap">
-      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button">Keep going. Time to review: —</button>
-    </div>
-
     <div class="card homeSecondaryCard" id="streakHeroCard">
       <div class="streakHeader">
         <div class="streakHeaderCopy">
@@ -9482,17 +9455,6 @@ function navigateToRoute(route){
 }
 function renderHomeRecommendation(){
   const reco = getNextBestAction(Date.now());
-  const topic = TOPICS.find(t=>t.id===reco.topicId);
-
-  const btn = $("homeRecoStartBtn");
-  btn.textContent = topic
-    ? (String(reco.label).trim().endsWith(":") ? `${reco.label} ${topic.title}` : `${reco.label} • ${topic.title}`)
-    : reco.label;
-  btn.onclick = ()=>{
-    logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
-    trackTaskStarted(reco.taskType, reco.topicId);
-    navigateToRoute(reco.route);
-  };
   logEvent("home_reco_shown", { taskType: reco.taskType, topicId: reco.topicId });
   renderDebugPanel();
 }
@@ -9615,20 +9577,30 @@ function challengeStepName(step){
 
 function getChallengeCtaConfig(d){
   const step = nextDailyAction(d);
-  if(!step){
+  if(step){
     return {
-      label: "Daily run done",
-      disabled: true,
-      onClick: null
+      label: `Keep streak going: ${challengeStepName(step)}`,
+      disabled: false,
+      onClick: step === "flash"
+        ? goDailyFocus
+        : (step === "quiz" ? goDailyQuiz : goDailyExam)
     };
   }
 
+  const reco = getNextBestAction(Date.now());
+  const topic = TOPICS.find(t=>t.id===reco.topicId);
+  const label = topic
+    ? (String(reco.label).trim().endsWith(":") ? `${reco.label} ${topic.title}` : `${reco.label} • ${topic.title}`)
+    : reco.label;
+
   return {
-    label: `Keep streak going: ${challengeStepName(step)}`,
+    label,
     disabled: false,
-    onClick: step === "flash"
-      ? goDailyFocus
-      : (step === "quiz" ? goDailyQuiz : goDailyExam)
+    onClick: ()=>{
+      logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
+      trackTaskStarted(reco.taskType, reco.topicId);
+      navigateToRoute(reco.route);
+    }
   };
 }
 
