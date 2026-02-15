@@ -900,8 +900,9 @@ h1{
     .choiceGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
     @media(max-width:520px){.choiceGrid{grid-template-columns:1fr}}
     .choiceBtn{
-      width:100%;
-      text-align:left;
+      width:min(100%, 640px);
+      margin-inline:auto;
+      text-align:center;
       padding:12px;
       border-radius:16px;
       border:1px solid var(--line);
