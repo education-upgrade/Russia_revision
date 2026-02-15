@@ -2339,32 +2339,6 @@ h1{
   <!-- QUIZ -->
   <section id="quiz" class="tabpane hidden">
     <div class="card">
-      <div class="row">
-        <div class="grow">
-          <label>Topic</label>
-          <select id="mcqTopicSelect"></select>
-        </div>
-        <div class="grow" style="min-width:200px">
-          <label>Questions</label>
-          <select id="mcqCount">
-            <option>10</option><option>15</option><option selected>20</option><option>30</option><option>40</option><option>50</option><option>60</option>
-          </select>
-        </div>
-        <div class="grow" style="min-width:190px">
-          <label>Style</label>
-          <select id="quizModeSelect">
-            <option value="standard" selected>Standard</option>
-            <option value="exam">Exam mode</option>
-          </select>
-        </div>
-        <div>
-          <label>&nbsp;</label>
-          <button class="btn primary" id="btnStartQuiz">⚡ Go quiz</button>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
       <div id="quizEmpty" class="note">
         Quiz points boost your Home progress score.
       </div>
@@ -2409,6 +2383,34 @@ h1{
         <div class="note" style="font-weight:800">Review wrong answers</div>
         <div id="quizReviewList" class="reviewList"></div>
       </div>
+
+
+      <details style="margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(255,255,255,.9)">
+        <summary style="cursor:pointer;font-weight:900">Quiz filters</summary>
+        <div class="row" style="margin-top:10px">
+          <div class="grow">
+            <label>Topic</label>
+            <select id="mcqTopicSelect"></select>
+          </div>
+          <div class="grow" style="min-width:200px">
+            <label>Questions</label>
+            <select id="mcqCount">
+              <option>10</option><option>15</option><option selected>20</option><option>30</option><option>40</option><option>50</option><option>60</option>
+            </select>
+          </div>
+          <div class="grow" style="min-width:190px">
+            <label>Style</label>
+            <select id="quizModeSelect">
+              <option value="standard" selected>Standard</option>
+              <option value="exam">Exam mode</option>
+            </select>
+          </div>
+          <div>
+            <label>&nbsp;</label>
+            <button class="btn primary" id="btnStartQuiz">⚡ Go quiz</button>
+          </div>
+        </div>
+      </details>
     </div>
   </section>
 
