@@ -1685,37 +1685,97 @@ h1{
     }
     .protectBtn:hover{ filter:brightness(.98); }
 
+    .homePrimaryCard{
+      background:linear-gradient(160deg, #ffffff 0%, #fff6f1 100%);
+      border:1px solid rgba(203,109,83,.35);
+      box-shadow:0 14px 28px rgba(149,74,52,.18);
+      padding:18px;
+      display:flex;
+      flex-direction:column;
+      min-height:236px;
+    }
+
+    .recommendedCardTitle{
+      font-weight:1000;
+      font-size:clamp(22px, 3.2vw, 28px);
+      line-height:1.15;
+      margin:0;
+      white-space:nowrap;
+      word-break:normal;
+      overflow-wrap:normal;
+    }
+    .recommendedLabel{ font-weight:900; font-size:18px; margin-top:10px; }
+    .recommendedReason{ color:#4a4a4a; font-size:14px; margin-top:8px; }
+    .recommendedMeta{ margin-top:12px; }
+
     .homePrimaryCta{
       width:100%;
-      margin:0 0 12px;
+      margin-top:auto;
+      min-height:52px;
       padding:16px 18px;
       border-radius:18px;
-      border:1px solid rgba(0,0,0,.12);
-      background:linear-gradient(180deg, rgba(242,183,166,.98), rgba(247,213,200,.98));
-      box-shadow: var(--shadow);
+      border:1px solid rgba(86,36,24,.18);
+      background:#a14b35;
+      color:#fff;
+      box-shadow:0 10px 22px rgba(122,58,42,.3);
       font-weight:1000;
-      font-size:18px;
+      font-size:19px;
       cursor:pointer;
       text-align:center;
     }
-    .homePrimaryCta:hover{ filter:brightness(.98); }
+    .homePrimaryCta:hover{ filter:brightness(1.05); }
     .homePrimaryCta:active{ transform:translateY(1px); }
-    .homePrimaryCta:focus{ outline:2px solid rgba(242,183,166,.6); outline-offset:2px; }
+    .homePrimaryCta:focus{ outline:2px solid rgba(86,36,24,.44); outline-offset:2px; }
 
-    .recommendedCardTitle{ font-weight:1000; font-size:18px; margin:0; }
-    .recommendedLabel{ font-weight:900; font-size:16px; }
-    .recommendedReason{ color:var(--muted); font-size:13px; margin-top:6px; }
-    .recommendedMeta{ margin-top:10px; }
+    .homeSecondaryCard{
+      background:rgba(255,255,255,.78);
+      border:1px solid rgba(0,0,0,.1);
+      box-shadow:0 6px 14px rgba(0,0,0,.05);
+      opacity:1;
+    }
+    .homeSecondaryCard .recommendedCardTitle,
+    .homeSecondaryCard .dailyChallengeTitle{
+      font-size:14px;
+      color:#5f5f5f;
+      letter-spacing:.2px;
+    }
+    .homeSecondaryCard .streakCountPill{
+      background:#fff;
+      border:1px solid rgba(0,0,0,.12);
+      box-shadow:none;
+    }
 
     .valuePropCard{ padding:12px 14px; }
     .valueHeadline{ font-weight:1000; font-size:18px; line-height:1.2; }
     .valueSubline{ margin-top:4px; color:var(--muted); font-size:13px; line-height:1.3; }
 
-    .homeSecondaryCard .recommendedCardTitle{
-      font-size:15px;
-      color:var(--muted);
+    .homeTertiaryCard{
+      background:rgba(255,255,255,.72);
+      border:1px solid rgba(0,0,0,.08);
+      box-shadow:none;
     }
-    .homeSecondaryCard{ opacity:.95; }
+    .homeTertiaryCard .pill,
+    .homeTertiaryCard .note,
+    .homeTertiaryCard summary,
+    .homeTertiaryCard .kpiMiniLabel,
+    .homeTertiaryCard .kpiSep,
+    .homeTertiaryCard .streakMiniLabel{
+      color:#7a7a7a;
+    }
+
+    #home nav,
+    nav{
+      background: rgba(255,255,255,.9);
+    }
+    .navBtn{ color:#7f7f7f; }
+    .navBtn.active{ color:#4e4e4e; }
+
+    @media (max-width:520px){
+      .recommendedCardTitle{
+        font-size:clamp(20px, 6.2vw, 24px);
+      }
+      .homePrimaryCard{ min-height:220px; }
+    }
 
     .nextUpSheet{
       position:fixed;
@@ -2023,12 +2083,7 @@ h1{
 
   <!-- HOME -->
   <section id="home" class="tabpane">
-    <div class="card valuePropCard">
-      <div class="valueHeadline">10 minutes a day. Better marks.</div>
-      <div class="valueSubline">Your next task is picked for you — track your progress as you go.</div>
-    </div>
-
-    <div class="card">
+    <div class="card homePrimaryCard">
       <div class="row" style="justify-content:space-between;align-items:flex-start">
         <div>
           <h3 class="recommendedCardTitle">Your next 10-minute task</h3>
@@ -2037,13 +2092,13 @@ h1{
           <div class="recommendedMeta note" id="homeRecoMeta"></div>
         </div>
       </div>
-      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button" style="margin-top:12px">Start my next task</button>
+      <button class="homePrimaryCta" id="homeRecoStartBtn" type="button">Start my next task</button>
     </div>
 
     <div class="card homeSecondaryCard" id="streakHeroCard">
       <div class="streakHeader">
         <div class="streakHeaderCopy">
-          <div style="font-weight:900;font-size:14px">Daily challenge</div>
+          <div class="dailyChallengeTitle" style="font-weight:900;font-size:14px">Daily challenge</div>
           <div class="note" id="streakNote">Lock in your streak with today’s quick run.</div>
           <div class="streakTopicRow">
             <div class="pill streakTopicPill" aria-label="Today's topic">
@@ -2084,7 +2139,7 @@ h1{
       <button class="protectBtn" id="protectStreakBtn" type="button">Lock streak</button>
     </div>
 
-    <div class="card">
+    <div class="card valuePropCard homeTertiaryCard">
       <div class="row" style="justify-content:space-between">
         <div>
           <div style="font-weight:900;font-size:16px">✅ Quick wins</div>
@@ -2096,7 +2151,7 @@ h1{
       <div id="topicDash" class="topicDash"></div>
     </div>
 
-    <div class="card">
+    <div class="card homeTertiaryCard">
       <details id="homeDetailsAccordion">
         <summary style="font-weight:900;cursor:pointer;list-style:none">Stats</summary>
         <div class="divider" style="margin-top:10px"></div>
