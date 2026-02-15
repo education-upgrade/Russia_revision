@@ -1917,8 +1917,6 @@ h1{
 
   <!-- HOME -->
   <section id="home" class="tabpane">
-    <button class="homePrimaryCta" id="homeContinueBtn" type="button">Continue studying</button>
-
     <div class="card" id="streakHeroCard">
   <div class="streakHeader">
     <div class="streakHeaderCopy">
@@ -1958,7 +1956,7 @@ h1{
     </button>
   </div>
 
-  <button class="protectBtn" id="protectStreakBtn" type="button">Protect today’s streak (Daily Challenge)</button>
+  <button class="protectBtn" id="protectStreakBtn" type="button">Start challenge</button>
 </div>
 
 
@@ -7591,20 +7589,10 @@ function renderStreakHero(){
 
   const btn = $("protectStreakBtn");
   if(btn){
-    btn.classList.toggle("hidden", doneToday);
-    btn.textContent = "Protect today’s streak — complete today’s challenge";
-    btn.onclick = ()=>{
-      // Daily Challenge action buttons were removed; checklist rows are now the navigable controls.
-      const row = $("streakHeroCard");
-      if(row){
-        row.scrollIntoView({ behavior:"smooth", block:"center" });
-        row.animate([
-          { boxShadow:"0 0 0 rgba(0,0,0,0)" },
-          { boxShadow:"0 0 0 6px rgba(242,183,166,.35)" },
-          { boxShadow:"0 0 0 rgba(0,0,0,0)" }
-        ], { duration:1100, easing:"ease-out" });
-      }
-    };
+    const hasStarted = (d.flash||0) > 0 || (d.quizBest||0) > 0 || !!d.planOpened;
+    btn.classList.remove("hidden");
+    btn.textContent = hasStarted ? "Continue challenge" : "Start challenge";
+    btn.onclick = routeHomeContinue;
   }
 
 
@@ -8490,9 +8478,40 @@ function nextDailyAction(d){
   return null;
 }
 
+function isDailyStepComplete(step, d){
+  if(step === "flash") return (d.flash||0) >= DAILY_FLASH_GOAL;
+  if(step === "quiz") return (d.quizBest||0) >= DAILY_QUIZ_GOAL;
+  if(step === "plan") return !!d.planOpened;
+  return false;
+}
+
+function inferLastDailyStep(d){
+  if(d.lastStep && ["flash","quiz","plan"].includes(d.lastStep)) return d.lastStep;
+  if(d.planOpened) return "plan";
+  if((d.quizBest||0) > 0) return "quiz";
+  if((d.flash||0) > 0) return "flash";
+  return "flash";
+}
+
+function getChallengeResumeStep(d){
+  const steps = ["flash","quiz","plan"];
+  const last = inferLastDailyStep(d);
+  if(!isDailyStepComplete(last, d)) return last;
+
+  const startIdx = steps.indexOf(last);
+  for(let i=startIdx+1; i<steps.length; i++){
+    if(!isDailyStepComplete(steps[i], d)) return steps[i];
+  }
+  for(let i=0; i<startIdx; i++){
+    if(!isDailyStepComplete(steps[i], d)) return steps[i];
+  }
+  return last;
+}
+
 function routeHomeContinue(){
   const d = ensureDaily();
-  const pending = nextDailyAction(d);
+  const hasStarted = (d.flash||0) > 0 || (d.quizBest||0) > 0 || !!d.planOpened;
+  const pending = hasStarted ? getChallengeResumeStep(d) : "flash";
 
   if(pending === "flash") return goDailyFocus();
   if(pending === "quiz") return goDailyQuiz();
@@ -8506,11 +8525,15 @@ function routeHomeContinue(){
 
 function goDailyFocus(){
   const d = ensureDaily();
+  d.lastStep = "flash";
+  saveState();
   openStudyForTopic(d.topicId, "all");
   startDailyFlashSession(d.topicId);
 }
 function goDailyQuiz(){
   const d = ensureDaily();
+  d.lastStep = "quiz";
+  saveState();
   setTab("quiz");
   $("mcqTopicSelect").value = d.topicId;
   $("mcqCount").value = "10";
@@ -8518,6 +8541,8 @@ function goDailyQuiz(){
 }
 function goDailyExam(){
   const d = ensureDaily();
+  d.lastStep = "plan";
+  saveState();
   setTab("exam");
   const exFilter = $("examTopicSelect");
   if(exFilter){ exFilter.value = d.topicId; exFilter.dispatchEvent(new Event("change")); }
@@ -8528,9 +8553,6 @@ function goDailyExam(){
 { const _b = document.getElementById('btnGoFocus'); if(_b) _b.addEventListener('click', goDailyFocus); }
 { const _b = document.getElementById('btnGoMixed'); if(_b) _b.addEventListener('click', goDailyQuiz); }
 { const _b = document.getElementById('btnGoExam'); if(_b) _b.addEventListener('click', goDailyExam); }
-
-// Home primary CTA
-$("homeContinueBtn").addEventListener("click", routeHomeContinue);
 
 // Daily Challenge navigable checklist rows (these replace the removed top action buttons)
 $("goDailyFlash").addEventListener("click", goDailyFocus);
