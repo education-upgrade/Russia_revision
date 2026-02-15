@@ -361,7 +361,7 @@ h1{
   border-radius:50%;
   box-shadow:0 0 0 2px rgba(242,248,255,.75);
 }
-.topicStatusDot.new{ background:#b7b7b7; }
+.topicStatusDot.new{ background:color-mix(in srgb, var(--line) 82%, #9fb0bf 18%); }
 .topicStatusDot.inprogress{ background:var(--warn); }
 .topicStatusDot.attarget{ background:var(--good); }
 
@@ -1661,11 +1661,11 @@ h1{
       letter-spacing:-1px;
 
       /* flaming number */
-      color:#ff7a18;
+      color:var(--accent);
       text-shadow:
-        0 0 6px rgba(255,122,24,.8),
-        0 0 12px rgba(255,94,0,.6),
-        0 0 18px rgba(255,60,0,.4);
+        0 0 6px rgba(110,144,202,.45),
+        0 0 12px rgba(110,144,202,.32),
+        0 0 18px rgba(163,194,223,.28);
       animation: flamePulse 1.6s ease-in-out infinite;
     }
     .streakMeta{
@@ -1682,7 +1682,7 @@ h1{
       border-radius:999px;
       background: rgba(110,144,202,.18);
       border:1px solid rgba(110,144,202,.45);
-      color:#3b2a25;
+      color:var(--text);
       font-weight:900;
       letter-spacing:.2px;
     }
@@ -1741,13 +1741,13 @@ h1{
     .dayBlock.done{
       background: rgba(126,185,170,.18);
       border-color: rgba(126,185,170,.55);
-      color:#0b4b2a;
+      color:color-mix(in srgb, var(--good) 70%, #1d4038 30%);
       font-weight:900;
     }
     .dayBlock.missed{
       background: rgba(183,142,161,.12);
       border-color: rgba(183,142,161,.45);
-      color:#6b1a1a;
+      color:color-mix(in srgb, var(--bad) 72%, #4d3741 28%);
       font-weight:800;
     }
     .milestone{
@@ -1882,10 +1882,10 @@ h1{
       min-height:42px;
       padding:10px 14px;
       border-radius:12px;
-      border:1px solid rgba(0,120,160,.35);
-      background:linear-gradient(180deg, #00b7eb 0%, #009fd4 100%);
+      border:1px solid rgba(110,144,202,.5);
+      background:linear-gradient(180deg, var(--accent2) 0%, var(--accent) 100%);
       color:#fff;
-      box-shadow:0 6px 14px rgba(0,120,160,.25);
+      box-shadow:0 6px 14px rgba(110,144,202,.30);
       font-weight:1000;
       font-size:17px;
       cursor:pointer;
@@ -1893,7 +1893,7 @@ h1{
     }
     .homePrimaryCta:hover{ filter:brightness(1.05); }
     .homePrimaryCta:active{ transform:translateY(1px); }
-    .homePrimaryCta:focus{ outline:2px solid rgba(0,120,160,.5); outline-offset:2px; }
+    .homePrimaryCta:focus{ outline:2px solid rgba(110,144,202,.55); outline-offset:2px; }
 
     .homeSecondaryCard{
       background:rgba(255,255,255,.78);
@@ -1935,8 +1935,8 @@ h1{
     nav{
       background: rgba(247,251,255,.9);
     }
-    .navBtn{ color:#7f7f7f; }
-    .navBtn.active{ color:#4e4e4e; }
+    .navBtn{ color:color-mix(in srgb, var(--muted) 86%, var(--accent) 14%); }
+    .navBtn.active{ color:var(--accent); }
 
     @media (max-width:520px){
       .recommendedCardTitle{
@@ -2104,11 +2104,11 @@ h1{
 .streak-number{
   font-size:2.6rem;
   font-weight:800;
-  color:#ff7a18;
+  color:var(--accent);
   text-shadow:
-    0 0 6px rgba(255,122,24,.8),
-    0 0 12px rgba(255,94,0,.6),
-    0 0 18px rgba(255,60,0,.4);
+    0 0 6px rgba(110,144,202,.45),
+    0 0 12px rgba(110,144,202,.32),
+    0 0 18px rgba(163,194,223,.28);
   animation:flamePulse 1.6s ease-in-out infinite;
 }
 .streak-flame{
@@ -10602,7 +10602,7 @@ function renderExamQuestion(){
     div.style.padding="12px";
     div.style.background="#fff";
     div.style.marginBottom="10px";
-    div.innerHTML = `<b>${i+1}. ${p.title}</b><div class="note" style="margin-top:6px;color:#333">${p.body}</div>`;
+    div.innerHTML = `<b>${i+1}. ${p.title}</b><div class="note" style="margin-top:6px;color:var(--muted)">${p.body}</div>`;
     plan.appendChild(div);
   });
 
