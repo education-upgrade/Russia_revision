@@ -1549,8 +1549,8 @@ h1{
       gap:2px;
       padding:10px 14px;
       border-radius:14px;
-      border:1px solid #b9d7d2;
-      background:linear-gradient(180deg, #edf8f5 0%, #deefeb 100%);
+      border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);
+      background:linear-gradient(180deg, color-mix(in srgb, var(--accent3) 56%, #fff 44%) 0%, color-mix(in srgb, var(--accent2) 26%, #fff 74%) 100%);
       font-weight:800;
       color:var(--muted);
       font-size:13px;
@@ -1853,8 +1853,9 @@ h1{
       flex-shrink:0;
     }
     .checkDot.done{
-      background: rgba(126,185,170,.18);
-      border-color: rgba(126,185,170,.55);
+      background: color-mix(in srgb, var(--accent3) 72%, #fff 28%);
+      border-color: color-mix(in srgb, var(--accent) 48%, var(--line) 52%);
+      color: color-mix(in srgb, var(--accent) 86%, var(--text) 14%);
     }
     .checkVal{
       color:var(--muted);
@@ -1867,10 +1868,11 @@ h1{
       padding:11px 12px;
       border-radius:16px;
       font-weight:800;
-      border:1px solid rgba(0,0,0,.10);
-      background:#fff;
+      border:1px solid color-mix(in srgb, var(--accent) 42%, var(--line) 58%);
+      background:linear-gradient(180deg, color-mix(in srgb, var(--accent2) 64%, #fff 36%), color-mix(in srgb, var(--accent) 58%, #fff 42%));
+      color:#16344f;
       cursor:pointer;
-      box-shadow:none;
+      box-shadow:0 8px 16px rgba(110,144,202,.2);
     }
     .protectBtn:hover{ filter:brightness(.98); }
 
@@ -1897,10 +1899,10 @@ h1{
       min-height:42px;
       padding:10px 14px;
       border-radius:12px;
-      border:1px solid rgba(132,177,190,.72);
-      background:linear-gradient(180deg, #cfeef0 0%, #a9d8df 100%);
-      color:#1f4f5d;
-      box-shadow:0 6px 14px rgba(103,156,170,.26);
+      border:1px solid color-mix(in srgb, var(--accent) 38%, var(--line) 62%);
+      background:linear-gradient(180deg, color-mix(in srgb, var(--accent3) 74%, #fff 26%) 0%, color-mix(in srgb, var(--accent2) 50%, #fff 50%) 100%);
+      color:#16344f;
+      box-shadow:0 8px 16px rgba(110,144,202,.18);
       font-weight:1000;
       font-size:17px;
       cursor:pointer;
@@ -1922,6 +1924,26 @@ h1{
       color:#5f5f5f;
       letter-spacing:.2px;
     }
+
+    .dailyChallengeTitle{
+      font-weight:900;
+      font-size:14px;
+      color:color-mix(in srgb, var(--muted) 82%, var(--accent) 18%);
+    }
+
+    .streakCompleteBanner{
+      border:1px solid color-mix(in srgb, var(--accent) 40%, var(--line) 60%);
+      background:linear-gradient(180deg, color-mix(in srgb, var(--accent3) 78%, #fff 22%), color-mix(in srgb, var(--accent2) 38%, #fff 62%));
+      border-radius:18px;
+      padding:12px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-top:12px;
+    }
+    .streakCompleteEmoji{ font-size:24px; }
+    .streakCompleteTitle{ font-weight:900; }
+    .streakCompleteSub{ margin-top:4px; }
     .homeSecondaryCard .streakCountPill{
       background:#fff;
       border:1px solid rgba(0,0,0,.12);
@@ -2291,7 +2313,7 @@ h1{
     <div class="card homeSecondaryCard" id="streakHeroCard">
       <div class="streakHeader">
         <div class="streakHeaderCopy">
-          <div class="dailyChallengeTitle" style="font-weight:900;font-size:14px">Daily challenge</div>
+          <div class="dailyChallengeTitle">Daily challenge</div>
           <div class="note" id="streakNote">Lock in your streak with today’s quick run.</div>
           <div class="streakTopicRow">
             <div class="pill streakTopicPill" aria-label="Today's topic">
@@ -2306,11 +2328,11 @@ h1{
         </div>
       </div>
 
-      <div id="streakCompleteBanner" class="hidden" style="border:1px solid rgba(126,185,170,.55);background:rgba(126,185,170,.14);border-radius:18px;padding:12px;display:flex;gap:10px;align-items:center;margin-top:12px">
-        <div style="font-size:26px">🏆</div>
+      <div id="streakCompleteBanner" class="streakCompleteBanner hidden">
+        <div class="streakCompleteEmoji">🏆</div>
         <div>
-          <div style="font-weight:900">Daily streak locked</div>
-          <div class="note" style="margin-top:4px">Great push — your streak is safe today.</div>
+          <div class="streakCompleteTitle">Daily streak locked</div>
+          <div class="note streakCompleteSub">Great push — your streak is safe today.</div>
         </div>
       </div>
 
