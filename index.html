@@ -938,6 +938,38 @@ h1{
       border-radius:18px;
       box-shadow:0 12px 20px rgba(242,183,166,.26);
     }
+    .quizMetaGrid{
+      display:grid;
+      grid-template-columns:1fr auto 1fr;
+      gap:10px;
+      align-items:center;
+    }
+    .quizMetaGrid .pill:nth-child(3),
+    .quizMetaGrid .pill:nth-child(5){
+      justify-self:end;
+    }
+    .quizDiceBtn{
+      grid-column:2;
+      grid-row:1 / span 2;
+      width:38px;
+      height:38px;
+      min-height:38px;
+      border-radius:999px;
+      padding:0;
+      display:grid;
+      place-items:center;
+      font-size:18px;
+    }
+    .quizResultModal{ width:min(460px, 100%); }
+    .quizResultStatus{
+      margin-top:8px;
+      font-weight:900;
+      font-size:15px;
+    }
+    .quizResultStatus.good{ color:#1f8f63; }
+    .quizResultStatus.bad{ color:#ba4a4a; }
+    .quizResultExplain{ margin-top:10px; }
+    .quizResultActions{ display:flex; justify-content:flex-end; margin-top:12px; }
 
     /* =========================
        MATCH GAME (two panels)
@@ -2445,12 +2477,10 @@ h1{
       </div>
 
       <div id="quizBox" class="hidden">
-        <div class="row" style="justify-content:space-between">
+        <div class="quizMetaGrid">
           <div class="pill" id="quizMeta">Q 1/20</div>
+          <button class="btn small quizDiceBtn hidden" id="btnRandomQuizMini" type="button" aria-label="Start another random quiz">🎲</button>
           <div class="pill" id="quizScore">Score: 0</div>
-        </div>
-
-        <div class="row" style="justify-content:space-between;margin-top:10px">
           <div class="pill" id="quizStreakPill">🔥 Streak: 0</div>
           <div class="pill" id="quizBestStreakPill">🏆 Best: 0</div>
         </div>
@@ -2514,6 +2544,17 @@ h1{
       </details>
     </div>
   </section>
+
+  <div id="quizResultOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Quiz answer result">
+    <div class="onboardingModal quizResultModal">
+      <h3 class="onboardingTitle" id="quizResultTitle">Result</h3>
+      <div class="quizResultStatus" id="quizResultStatus"></div>
+      <div class="note quizResultExplain" id="quizResultExplain"></div>
+      <div class="quizResultActions">
+        <button class="btn small" id="btnQuizModalNext" type="button">➡️ Next question</button>
+      </div>
+    </div>
+  </div>
 
   <!-- GAMES -->
   <section id="games" class="tabpane hidden">
@@ -10055,6 +10096,36 @@ function renderQuizReview(){
   box.classList.remove("hidden");
 }
 
+function closeQuizResultModal(){
+  $("quizResultOverlay")?.classList.add("hidden");
+}
+
+function showQuizResultModal({ correct, picked, answer, explain }){
+  const overlay = $("quizResultOverlay");
+  if(!overlay) return;
+  const title = $("quizResultTitle");
+  const status = $("quizResultStatus");
+  const explainNode = $("quizResultExplain");
+  if(title) title.textContent = correct ? "✅ Correct" : "❌ Incorrect";
+  if(status){
+    status.classList.toggle("good", correct);
+    status.classList.toggle("bad", !correct);
+    status.textContent = correct
+      ? "Great answer — keep the streak alive."
+      : `You chose “${picked}”. Correct answer: “${answer}”.`;
+  }
+  if(explainNode) explainNode.textContent = explain;
+  overlay.classList.remove("hidden");
+}
+
+function startRandomQuiz(){
+  const topics = enabledTopicIds();
+  const chosen = topics.length ? topics[Math.floor(Math.random() * topics.length)] : "MIXED";
+  const topicSelect = $("mcqTopicSelect");
+  if(topicSelect) topicSelect.value = chosen;
+  startQuiz(false);
+}
+
 function startQuiz(useErrorBank=false){
   const topicId = $("mcqTopicSelect").value;
   const count = Number($("mcqCount").value);
@@ -10082,27 +10153,31 @@ function startQuiz(useErrorBank=false){
 
   $("quizEmpty").classList.add("hidden");
   $("quizBox").classList.remove("hidden");
+  $("btnStartRandomQuiz").classList.add("hidden");
+  $("btnRandomQuizMini").classList.remove("hidden");
   $("quizExplainer").textContent = mode === "exam" ? "Exam mode: one answer only." : "Tap your answer.";
+  closeQuizResultModal();
   updateQuizMasteryUi();
 
   if(!QUIZ.list.length){
     $("quizQ").textContent = "No questions available for this selection.";
     $("quizChoices").innerHTML = "";
+    $("btnRandomQuizMini").classList.add("hidden");
+    $("btnStartRandomQuiz").classList.remove("hidden");
     return;
   }
   renderQuizQ();
 }
 
 $("btnStartQuiz").addEventListener("click", ()=>startQuiz(false));
-$("btnStartRandomQuiz").addEventListener("click", ()=>{
-  const topics = enabledTopicIds();
-  const chosen = topics.length ? topics[Math.floor(Math.random() * topics.length)] : "MIXED";
-  const topicSelect = $("mcqTopicSelect");
-  if(topicSelect) topicSelect.value = chosen;
-  startQuiz(false);
-});
+$("btnStartRandomQuiz").addEventListener("click", startRandomQuiz);
+$("btnRandomQuizMini").addEventListener("click", startRandomQuiz);
 $("btnFixIt").addEventListener("click", ()=>startQuiz(true));
 $("btnReviewMisses").addEventListener("click", renderQuizReview);
+$("btnQuizModalNext").addEventListener("click", ()=>{
+  closeQuizResultModal();
+  $("btnNextQ").click();
+});
 
 $("btnNextQ").addEventListener("click", ()=>{
   if(!QUIZ.list.length) return;
@@ -10187,12 +10262,12 @@ function renderQuizQ(){
 
       saveState();
 
-      const expl = document.createElement("div");
-      expl.className = "note";
-      expl.style.marginTop = "10px";
-      const nextStep = correct ? "Next step: keep moving and protect the streak." : `Next step: add this to Fix-it and re-answer it once.`;
-      expl.textContent = `${q.explain} ${nextStep}`;
-      $("quizChoices").appendChild(expl);
+      showQuizResultModal({
+        correct,
+        picked: choice,
+        answer: q.answer,
+        explain: q.explain
+      });
 
       $("quizExplainer").textContent = `Error bank: ${QUIZ.errorBank.length} · Progress ${computeProgressScore()}% · Weekly ${weeklyPercent()}%`;
       updateQuizMasteryUi();
