@@ -2003,13 +2003,18 @@ h1{
       border-radius:16px;
       font-weight:900;
       border:1px solid var(--ctaBorder);
-      background:linear-gradient(180deg, #7f9fce 0%, #5d80b6 100%);
+      background:linear-gradient(180deg, #8eaee0 0%, #5b7fb8 58%, #496ca8 100%);
       color:#f8fbff;
       cursor:pointer;
-      box-shadow:var(--ctaShadow);
+      box-shadow:
+        0 3px 0 rgba(44,70,110,.5),
+        0 11px 22px rgba(40,64,103,.38),
+        inset 0 1px 0 rgba(255,255,255,.34);
       letter-spacing:.15px;
+      text-shadow:0 1px 0 rgba(34,52,84,.45);
     }
-    .protectBtn:hover{ filter:brightness(1.04); }
+    .protectBtn:hover{ filter:brightness(1.06); }
+    .protectBtn:active{ transform:translateY(1px); }
 
     .recommendedCardTitle{
       font-weight:1000;
