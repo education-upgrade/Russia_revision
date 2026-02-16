@@ -1401,9 +1401,9 @@ h1{
 .gamePillBtn{
   width:100%;
   text-align:left;
-  border:1px solid var(--line);
+  border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
   border-radius: var(--radius);
-  background: var(--card);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--accent3) 42%, #ffffff 58%), color-mix(in srgb, var(--accent2) 20%, #ffffff 80%));
   box-shadow: var(--shadow);
   padding:14px 14px;
   cursor:pointer;
@@ -1419,13 +1419,21 @@ h1{
   background-size: cover;
   background-position:center;
   background-repeat:no-repeat;
-  opacity:.12;
-  filter:saturate(1.1) contrast(1.05);
+  opacity:.17;
+  filter:var(--paleBlueBgFilter);
   transform:scale(1.05);
   z-index:0;
   pointer-events:none;
 }
-.gamePillBtn > *{ position:relative; z-index:1; }
+.gamePillBtn::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--paleBlueBgMask);
+  pointer-events:none;
+  z-index:1;
+}
+.gamePillBtn > *{ position:relative; z-index:2; }
 .gamePillBtn:hover{ filter:brightness(.99); }
 .gamePillBtn:active{ transform:translateY(1px); }
 
@@ -1444,8 +1452,8 @@ h1{
   position:relative;
   overflow:hidden;
   isolation:isolate;
-  background: rgba(246,250,255,.92);
-  border:1px solid var(--line);
+  background: linear-gradient(165deg, color-mix(in srgb, var(--accent3) 42%, #ffffff 58%), color-mix(in srgb, var(--accent2) 20%, #ffffff 80%));
+  border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding:14px;
@@ -1458,13 +1466,21 @@ h1{
   background-size: cover;
   background-position: center;
   background-repeat:no-repeat;
-  opacity:.13;
-  filter:saturate(1.1) contrast(1.04);
+  opacity:.17;
+  filter:var(--paleBlueBgFilter);
   transform:scale(1.05);
   z-index:0;
   pointer-events:none;
 }
-.beatClockCard > *{ position:relative; z-index:1; }
+.beatClockCard::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--paleBlueBgMask);
+  pointer-events:none;
+  z-index:1;
+}
+.beatClockCard > *{ position:relative; z-index:2; }
 
 .bcHeader{
   display:flex;
