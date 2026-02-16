@@ -546,10 +546,10 @@
   .topicStatusDot{ display:none; }
 }
 
-.level-starting{ background:rgba(183,142,161,.18); }
-.level-developing{ background:rgba(158,183,212,.22); }
-.level-secure{ background:rgba(126,185,170,.20); }
-.level-master{ background:rgba(126,185,170,.28); border-color: rgba(126,185,170,.55); }
+.level-xp-0{ background:rgba(183,142,161,.18); }
+.level-xp-1{ background:rgba(158,183,212,.22); }
+.level-xp-2{ background:rgba(126,185,170,.20); }
+.level-xp-3{ background:rgba(126,185,170,.28); border-color: rgba(126,185,170,.55); }
 
 .progressHeadlineBar{margin-top:10px}
 .progressTrack{height:12px;border-radius:999px;background:color-mix(in srgb, var(--accent2) 34%, #ffffff 66%);border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);overflow:hidden}
@@ -2331,11 +2331,11 @@
         <div class="bannerKpis" aria-label="Quick stats" style="margin-top:12px">
           <div class="kpiPill kpiPillLong" title="Overall progress">
             <div class="kpiLong" aria-label="Progress indicators">
-              <div class="kpiItem"><span class="kpiMiniLabel">Studied</span><span class="kpiMiniVal" id="kpiStudied">0</span></div>
+              <div class="kpiItem"><span class="kpiMiniLabel">Minutes this week</span><span class="kpiMiniVal" id="kpiMinutesWeek">0m</span></div>
               <span class="kpiSep" aria-hidden="true">•</span>
-              <div class="kpiItem"><span class="kpiMiniLabel">Focus</span><span class="kpiMiniVal" id="kpiFocus">0</span></div>
+              <div class="kpiItem"><span class="kpiMiniLabel">Tasks completed</span><span class="kpiMiniVal" id="kpiTasksWeek">0</span></div>
               <span class="kpiSep" aria-hidden="true">•</span>
-              <div class="kpiItem"><span class="kpiMiniLabel">Quiz</span><span class="kpiMiniVal" id="kpiQuiz">0%</span></div>
+              <div class="kpiItem"><span class="kpiMiniLabel">Quiz average</span><span class="kpiMiniVal" id="kpiQuizWeek">0%</span></div>
             </div>
           </div>
         </div>
@@ -8542,6 +8542,25 @@ function getTopicXpLevel(totalEarnedXp){
   return { label: level, tierIndex, progressInTier };
 }
 
+function computeThisWeekMetrics(){
+  const today = todayKey();
+  const daily = STATE.analytics?.daily || {};
+  const weekKeys = Array.from({length:7}, (_,i)=>addDaysKey(today, -i));
+
+  const minutesWeek = Math.round(weekKeys.reduce((n,k)=> n + Number((daily[k]?.sessionDurations||[]).reduce((a,b)=>a+Number(b||0),0) || 0), 0) / 60000);
+  const tasksWeek = weekKeys.reduce((n,k)=> n + Number(daily[k]?.dailyTasksCompleted || 0), 0);
+  const quizEntriesWeek = weekKeys.map(k=>Number(daily[k]?.quizAvg || 0)).filter(v=>v>0);
+  const quizAvgWeek = quizEntriesWeek.length ? Math.round(quizEntriesWeek.reduce((a,b)=>a+b,0) / quizEntriesWeek.length) : 0;
+  const streak = Number(STATE.dailyStreak?.count || 0);
+  const improvedTopics = weekKeys.reduce((set,k)=>{
+    const improved = daily[k]?.topicsImproved || {};
+    Object.keys(improved).forEach(tid=>set.add(tid));
+    return set;
+  }, new Set()).size;
+
+  return { minutesWeek, tasksWeek, quizAvgWeek, streak, improvedTopics };
+}
+
 function renderProgressReport(){
   const topicIds = enabledTopicIds();
   const topicRows = topicIds.map(tid=>({ topic: TOPICS.find(t=>t.id===tid), xp: topicXpBreakdown(tid) }));
@@ -8552,22 +8571,7 @@ function renderProgressReport(){
   if(readinessVal) readinessVal.textContent = `${avgReadiness}%`;
   if(readinessFill) readinessFill.style.width = `${avgReadiness}%`;
 
-  const today = todayKey();
-  const daily = STATE.analytics?.daily || {};
-  const weekKeys = Array.from({length:7}, (_,i)=>addDaysKey(today, -i));
-  const fortnightKeys = Array.from({length:14}, (_,i)=>addDaysKey(today, -i));
-
-  const minutesWeek = Math.round(weekKeys.reduce((n,k)=> n + Number((daily[k]?.sessionDurations||[]).reduce((a,b)=>a+Number(b||0),0) || 0), 0) / 60000);
-  const tasksWeek = weekKeys.reduce((n,k)=> n + Number(daily[k]?.dailyTasksCompleted || 0), 0);
-  const quizEntriesWeek = weekKeys.map(k=>Number(daily[k]?.quizAvg || 0)).filter(v=>v>0);
-  const quizAvgWeek = quizEntriesWeek.length ? Math.round(quizEntriesWeek.reduce((a,b)=>a+b,0) / quizEntriesWeek.length) : 0;
-  const streak = Number(STATE.dailyStreak?.count || 0);
-
-  const improvedTopics = weekKeys.reduce((set,k)=>{
-    const improved = daily[k]?.topicsImproved || {};
-    Object.keys(improved).forEach(tid=>set.add(tid));
-    return set;
-  }, new Set()).size;
+  const { minutesWeek, tasksWeek, quizAvgWeek, streak, improvedTopics } = computeThisWeekMetrics();
   const weekMetricsEl = $("thisWeekMetrics");
   if(weekMetricsEl){
     const metrics = [
@@ -8628,6 +8632,7 @@ function renderTopicDashboard(){
   el.innerHTML = topicIds.map(tid=>{
     const t = FACT_BANK[tid];
     const conf = topicConfidence(tid);
+    const xp = topicXpBreakdown(tid);
 
     const total = Math.max(1, conf.total || 0);
     const gRaw = (conf.counts.secure/total)*100;
@@ -8646,12 +8651,18 @@ function renderTopicDashboard(){
     const fill = Math.max(0, Math.min(100, Math.round(((conf.counts.secure + (conf.counts.developing*0.5)) / total) * 100)));
 
     // Liquid colour shifts with progress (same traffic-light scheme)
-    const liq = (fill >= 70) ? "var(--good)" : (fill >= 35) ? "var(--warn)" : "var(--bad)";
+    const liq = (xp.totalXp >= 70) ? "var(--good)" : (xp.totalXp >= 35) ? "var(--warn)" : "var(--bad)";
 
-    const lvl = conf.levelObj || getXpLevel(conf.avg||0);
+    const legacyLvl = conf.levelObj || getXpLevel(conf.avg||0);
+    const lvl = {
+      key: `xp-${xp.xpLevel.tierIndex}`,
+      label: xp.xpLevel.label,
+      rank: xp.xpLevel.tierIndex,
+      icon: legacyLvl.icon
+    };
     const badgeText = lvl.label;
     const topicQuiz = Number(touchTopicStats(tid).quizBestPercent||0);
-    const topicMastery = Math.max(fill, topicQuiz);
+    const topicMastery = Math.max(xp.totalXp, topicQuiz);
 
     // Level-up detection per topic (stored in localStorage)
     STATE.topicLevels ||= {};
@@ -8669,7 +8680,7 @@ function renderTopicDashboard(){
 
     return `
       <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic" style="--topicTileBg:url('${topicBg}');">
-        <div class="progressTank" style="--fill:${fill}%; --liq:${liq}; --topicBg:url('${topicBg}');">
+        <div class="progressTank" style="--fill:${xp.totalXp}%; --liq:${liq}; --topicBg:url('${topicBg}');">
           <div class="progressLiquid"></div>
           <div class="tankContent">
             ${tileTitleHTML(t.title)}
@@ -8890,6 +8901,23 @@ function bumpHeaderSessions(){
   return n;
 }
 
+function computeProgressScore(){
+  const attempted = STATE.quiz?.attempted || 0;
+  const correct = STATE.quiz?.correct || 0;
+  if(attempted <= 0) return 0;
+  return Math.round((correct / attempted) * 100);
+}
+
+function computeFocusCount(){
+  let n = 0;
+  for(const c of ALL_CARDS){
+    if(!isTopicEnabled(c.topicId)) continue;
+    const r = getReview(c.id);
+    if(r && Number(r.score) <= 1) n++;
+  }
+  return n;
+}
+
 function computeStatusLine(){
   const completed = STATE.stats?.studied || 0;
   return `Exam revision in progress · ${completed} cards completed`;
@@ -8973,36 +9001,17 @@ function renderStreakSignal(){
 }
 
 
-function computeProgressScore(){
-  const attempted = STATE.quiz?.attempted || 0;
-  const correct = STATE.quiz?.correct || 0;
-  if(attempted <= 0) return 0;
-  return Math.round((correct / attempted) * 100);
-}
-function computeFocusCount(){
-  // Focus count = backlog of cards flagged as needing focus (😐 or ☹️).
-  // This means: 0 for new users, increases when they rate 😐/☹️, and drops again when they later rate 🙂.
-  let n = 0;
-  for(const c of ALL_CARDS){
-    if(!isTopicEnabled(c.topicId)) continue;
-    const r = getReview(c.id);
-    if(r && Number(r.score) <= 1) n++;
-  }
-  return n;
-}
-function setRing(percent){
-  const p = Math.max(0, Math.min(100, percent));
-  // UI moved to a simple banner pill on mobile/desktop
-  const el = $("kpiQuiz");
-  if(el) el.textContent = `${p}%`;
-}
 function computeKpis(){
-  const focusCount = computeFocusCount();
-  const progress = computeProgressScore();
+  const weekMetrics = computeThisWeekMetrics();
 
-  $("kpiStudied").textContent = String(STATE.stats?.studied || 0);
-  $("kpiFocus").textContent = String(focusCount);
-  setRing(progress);
+  const minutesWeekEl = $("kpiMinutesWeek");
+  if(minutesWeekEl) minutesWeekEl.textContent = `${weekMetrics.minutesWeek}m`;
+
+  const tasksWeekEl = $("kpiTasksWeek");
+  if(tasksWeekEl) tasksWeekEl.textContent = String(weekMetrics.tasksWeek);
+
+  const quizWeekEl = $("kpiQuizWeek");
+  if(quizWeekEl) quizWeekEl.textContent = `${weekMetrics.quizAvgWeek}%`;
 
   const badge = getWeeklyBadge();
   // Banner microcopy (status + rotating teacher whisper)
