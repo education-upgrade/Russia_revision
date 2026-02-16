@@ -564,7 +564,9 @@
 .topicXpItem{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;padding:10px;background:linear-gradient(170deg, color-mix(in srgb, var(--accent3) 54%, #ffffff 46%), color-mix(in srgb, var(--accent2) 24%, #ffffff 76%))}
 .topicXpTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .topicXpTitle{font-weight:900;font-size:13px}
-.topicXpMeta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.topicXpMeta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.topicRetentionArrowBtn{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 6px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;background:#fff;font-size:14px;font-weight:900;line-height:1;cursor:pointer}
+.topicRetentionArrowBtn:focus-visible{outline:2px solid color-mix(in srgb, var(--accent2) 70%, #2c5aa0 30%);outline-offset:2px}
 .topicRetentionArrow{display:inline-flex;align-items:center;justify-content:center;min-width:20px;font-size:14px;font-weight:900;line-height:1}
 .topicRetentionArrow.up{color:var(--good)}
 .topicRetentionArrow.flat{color:var(--muted)}
@@ -575,6 +577,12 @@
 .status-track{background:rgba(158,183,212,.2)}
 .status-target{background:rgba(126,185,170,.2)}
 .topicXpSub{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;font-weight:800;margin-top:4px}
+.topicXpArrowKey{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;color:var(--muted);font-size:11px;font-weight:800}
+.topicXpArrowLegendItem{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;background:color-mix(in srgb, #fff 82%, var(--accent3) 18%)}
+
+.topicArrowDialogTitle{margin:0;font-size:18px;line-height:1.2}
+.topicArrowDialogBody{margin-top:8px;font-size:14px;color:var(--muted)}
+.topicArrowDialogMeta{margin-top:10px;padding:9px 10px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:12px;background:color-mix(in srgb, #fff 80%, var(--accent3) 20%);font-size:12px;color:var(--text)}
 
 .focusList{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .focusItem{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;padding:10px;background:linear-gradient(168deg, color-mix(in srgb, var(--accent3) 58%, #ffffff 42%), color-mix(in srgb, var(--accent2) 24%, #ffffff 76%))}
@@ -2368,10 +2376,26 @@
     <div class="card">
       <div style="font-weight:900">Topic XP bars</div>
       <div class="note">XP combines flashcards, quiz best, and exam planning for each topic.</div>
+      <div class="topicXpArrowKey" aria-label="Arrow legend for topic retention trend">
+        <span class="topicXpArrowLegendItem"><span class="topicRetentionArrow up" aria-hidden="true">↑</span> improving recall</span>
+        <span class="topicXpArrowLegendItem"><span class="topicRetentionArrow flat" aria-hidden="true">→</span> steady recall</span>
+        <span class="topicXpArrowLegendItem"><span class="topicRetentionArrow down" aria-hidden="true">↓</span> fading recall</span>
+      </div>
       <div id="topicXpList" class="topicXpList"></div>
     </div>
 
   </section>
+
+  <div id="topicArrowDialog" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Topic trend explanation">
+    <div class="onboardingModal" aria-labelledby="topicArrowDialogTitle" aria-describedby="topicArrowDialogBody">
+      <h3 id="topicArrowDialogTitle" class="topicArrowDialogTitle">Topic trend</h3>
+      <div id="topicArrowDialogBody" class="topicArrowDialogBody"></div>
+      <div id="topicArrowDialogMeta" class="topicArrowDialogMeta"></div>
+      <div class="nextUpActions">
+        <button type="button" id="topicArrowDialogClose" class="btn primary">Got it</button>
+      </div>
+    </div>
+  </div>
 
   <!-- STUDY -->
   <section id="study" class="tabpane hidden">
@@ -8554,9 +8578,31 @@ function topicRetentionSummary(topicId){
 }
 
 function retentionTrendMeta(delta){
-  if(delta > 0.03) return { arrow:"↑", cls:"up", label:"Retention rising" };
-  if(delta < -0.03) return { arrow:"↓", cls:"down", label:"Retention dropping" };
-  return { arrow:"→", cls:"flat", label:"Retention steady" };
+  if(delta > 0.03){
+    return {
+      arrow:"↑",
+      cls:"up",
+      label:"Retention rising",
+      reason:"Nice work — recall is improving because your recent study is sticking.",
+      keyLabel:"improving recall"
+    };
+  }
+  if(delta < -0.03){
+    return {
+      arrow:"↓",
+      cls:"down",
+      label:"Retention dropping",
+      reason:"You haven’t studied this topic recently, so memory strength is fading. A quick review will boost it back up.",
+      keyLabel:"fading recall"
+    };
+  }
+  return {
+    arrow:"→",
+    cls:"flat",
+    label:"Retention steady",
+    reason:"Your recall is holding steady. Keep regular short reviews to move it upward.",
+    keyLabel:"steady recall"
+  };
 }
 
 
@@ -8657,13 +8703,18 @@ function renderProgressReport(){
   if(topicXpEl){
     topicXpEl.innerHTML = topicRows.map(({topic,xp,retention})=>{
       const trend = retentionTrendMeta(retention.delta);
+      const topicTitle = escapeHtml(topic?.title || xp.topicId);
+      const dialogTitle = `${topicTitle} · ${escapeHtml(trend.label)}`;
+      const daysText = xp.daysSince === null ? "No study session logged yet." : `Last studied ${xp.daysSince} day${xp.daysSince===1?"":"s"} ago.`;
       return `
       <div class="topicXpItem">
         <div class="topicXpTop">
-          <div class="topicXpTitle">${escapeHtml(topic?.title || xp.topicId)}</div>
+          <div class="topicXpTitle">${topicTitle}</div>
           <div class="topicXpMeta">
-            <span class="topicRetentionArrow ${trend.cls}" title="${trend.label} (${retention.previousRetention.toFixed(2)} → ${retention.retention.toFixed(2)})" aria-label="${trend.label}">${trend.arrow}</span>
             <span class="statusTag ${xp.status.cls}">${escapeHtml(xp.xpLevel.label)}</span>
+            <button type="button" class="topicRetentionArrowBtn" title="${trend.label}" aria-label="${trend.label}: tap for explanation" data-topic-arrow="1" data-dialog-title="${dialogTitle}" data-dialog-body="${escapeHtml(trend.reason)}" data-dialog-meta="${escapeHtml(daysText)}">
+              <span class="topicRetentionArrow ${trend.cls}" aria-hidden="true">${trend.arrow}</span>
+            </button>
           </div>
         </div>
         <div class="topicXpSub"><span>${xp.xpLevel.progressInTier}/100 XP</span></div>
@@ -8673,6 +8724,45 @@ function renderProgressReport(){
     }).join("");
   }
 
+}
+
+function openTopicArrowDialog(triggerBtn){
+  if(!triggerBtn) return;
+  const overlay = $("topicArrowDialog");
+  const titleEl = $("topicArrowDialogTitle");
+  const bodyEl = $("topicArrowDialogBody");
+  const metaEl = $("topicArrowDialogMeta");
+  if(!overlay || !titleEl || !bodyEl || !metaEl) return;
+
+  titleEl.textContent = triggerBtn.dataset.dialogTitle || "Topic trend";
+  bodyEl.textContent = triggerBtn.dataset.dialogBody || "Keep reviewing this topic to maintain progress.";
+  metaEl.textContent = triggerBtn.dataset.dialogMeta || "";
+
+  overlay.classList.remove("hidden");
+}
+
+function closeTopicArrowDialog(){
+  const overlay = $("topicArrowDialog");
+  if(!overlay) return;
+  overlay.classList.add("hidden");
+}
+
+function initTopicArrowDialog(){
+  const listEl = $("topicXpList");
+  const overlay = $("topicArrowDialog");
+  const closeBtn = $("topicArrowDialogClose");
+  if(!listEl || !overlay || !closeBtn) return;
+
+  listEl.addEventListener("click", (event)=>{
+    const btn = event.target.closest("[data-topic-arrow='1']");
+    if(!btn) return;
+    openTopicArrowDialog(btn);
+  });
+
+  closeBtn.addEventListener("click", closeTopicArrowDialog);
+  overlay.addEventListener("click", (event)=>{
+    if(event.target === overlay) closeTopicArrowDialog();
+  });
 }
 
 function renderTopicDashboard(){
@@ -9108,6 +9198,7 @@ function computeKpis(){
 }
 computeKpis();
 updateDailyUI();
+initTopicArrowDialog();
 
 /* Home quick buttons (legacy IDs kept for safety) */
 
