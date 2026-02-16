@@ -8583,6 +8583,14 @@ function buildKnowledgeCards(){
     id:`c${String(n++).padStart(4,"0")}`,
     topicId, q, a, tags, kind:"knowledge"
   });
+  const significanceQuestion = (subject, { preferArticle = false } = {}) => {
+    const raw = (subject ?? "").toString().trim();
+    if(!raw) return "What was significant about it?";
+
+    const startsWithDeterminer = /^(the|a|an|this|that|these|those)\b/i.test(raw);
+    const phrase = (preferArticle && !startsWithDeterminer) ? `the ${raw}` : raw;
+    return `What was significant about ${phrase}?`;
+  };
 
   for(const topicId of Object.keys(FACT_BANK)){
     const T = FACT_BANK[topicId];
@@ -8598,7 +8606,7 @@ function buildKnowledgeCards(){
 
   const sig = (t.significance ?? "").toString().trim();
   if(sig){
-    push(topicId, `Why was ${t.term} significant?`, sig, [t.term,"significance"]);
+    push(topicId, significanceQuestion(t.term, { preferArticle:true }), sig, [t.term,"significance"]);
   }
 });
 
@@ -8606,7 +8614,7 @@ function buildKnowledgeCards(){
       push(topicId, `Who was ${p.name}?`, p.role, [p.name,"people"]);
       const psig = (p.significance ?? "").toString().trim();
       if(psig){
-        push(topicId, `Why does ${p.name} matter?`, psig, [p.name,"significance"]);
+        push(topicId, significanceQuestion(p.name), psig, [p.name,"significance"]);
       }
       // (Removed) "Link to ONE policy/event" cards removed per request
 });
@@ -8618,7 +8626,7 @@ function buildKnowledgeCards(){
     push(topicId, `Date check: ${e.name} — when?`, `${e.date}.`, [e.name,"date"]);
   }
 
-  push(topicId, `Why did ${e.name} matter?`, e.whyMatters, [e.name,"significance"]);
+  push(topicId, significanceQuestion(e.name, { preferArticle:true }), e.whyMatters, [e.name,"significance"]);
   push(topicId, `Give two consequences of ${e.name}.`, `1) …  2) … (be specific)`, [e.name,"consequences"]);
 });
   }
