@@ -8504,6 +8504,8 @@ function topicXpBreakdown(topicId){
   const quizXp = Math.round(quizBest * 0.5);
   const planXp = stats.planStarted ? 20 : 0;
   const totalXp = Math.max(0, Math.min(100, flashXp + quizXp + planXp));
+  const totalEarnedXp = Math.max(totalXp, Number(stats.totalEarnedXp || 0));
+  const xpLevel = getTopicXpLevel(totalEarnedXp);
 
   const lastStudiedAt = Number(stats.lastStudiedAt || 0);
   const daysSince = lastStudiedAt ? Math.floor((Date.now() - lastStudiedAt) / 86400000) : null;
@@ -8513,7 +8515,31 @@ function topicXpBreakdown(topicId){
   else if(totalXp >= 50) status = { label:"On track", cls:"status-track" };
   else if(totalXp > 0) status = { label:"Needs focus", cls:"status-focus" };
 
-  return { topicId, flashXp, quizXp, planXp, totalXp, quizBest, flashDone, flashTotal, planStarted:!!stats.planStarted, lastStudiedAt, daysSince, status };
+  return {
+    topicId,
+    flashXp,
+    quizXp,
+    planXp,
+    totalXp,
+    totalEarnedXp,
+    xpLevel,
+    quizBest,
+    flashDone,
+    flashTotal,
+    planStarted:!!stats.planStarted,
+    lastStudiedAt,
+    daysSince,
+    status
+  };
+}
+
+function getTopicXpLevel(totalEarnedXp){
+  const levelOrder = ["building", "strong foundations", "ambition", "mastery"];
+  const safeXp = Math.max(0, Number(totalEarnedXp || 0));
+  const tierIndex = Math.min(levelOrder.length - 1, Math.floor(safeXp / 100));
+  const level = levelOrder[tierIndex];
+  const progressInTier = tierIndex >= levelOrder.length - 1 ? 100 : (safeXp % 100);
+  return { label: level, tierIndex, progressInTier };
 }
 
 function renderProgressReport(){
@@ -8562,8 +8588,8 @@ function renderProgressReport(){
           <div class="topicXpTitle">${escapeHtml(topic?.title || xp.topicId)}</div>
           <span class="statusTag ${xp.status.cls}">${xp.status.label}</span>
         </div>
-        <div class="topicXpSub"><span>${xp.totalXp}/100 XP</span><span>Mastery</span></div>
-        <div class="progressTrack" style="margin-top:6px"><div class="progressFill" style="width:${xp.totalXp}%"></div></div>
+        <div class="topicXpSub"><span>${xp.xpLevel.progressInTier}/100 XP</span><span>${escapeHtml(xp.xpLevel.label)}</span></div>
+        <div class="progressTrack" style="margin-top:6px"><div class="progressFill" style="width:${xp.xpLevel.progressInTier}%"></div></div>
       </div>
     `).join("");
   }
@@ -9115,6 +9141,7 @@ function touchTopicStats(topicId){
     quizBestPercent:0,
     flashcardsDone:0,
     flashcardsTotal:0,
+    totalEarnedXp:0,
     planStarted:false,
     lastStudiedAt:0,
     planLastSavedAt:0,
@@ -9199,6 +9226,11 @@ function trackTaskCompleted(taskType, topicId, extra={}){
     s.planStarted = true;
     s.planLastSavedAt = ts;
   }
+  const defaultXpByTask = { FLASHCARDS:10, QUIZ:10, PLAN_25:20, GAME:5 };
+  const gainedXp = Number.isFinite(Number(extra.scoreDelta))
+    ? Math.max(0, Number(extra.scoreDelta))
+    : Number(defaultXpByTask[taskType] || 0);
+  s.totalEarnedXp = Math.max(0, Number(s.totalEarnedXp || 0)) + gainedXp;
   STATE.userStats.lastActionType = taskType;
   saveState();
   APP_SESSION.tasksCompleted = Number(APP_SESSION.tasksCompleted||0) + 1;
