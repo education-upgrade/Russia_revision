@@ -560,10 +560,10 @@
 .metricLabel{font-size:11px;color:var(--muted);font-weight:800}
 .metricVal{font-size:18px;font-weight:1000;margin-top:3px}
 
-.topicXpList{display:flex;flex-direction:column;gap:8px;margin-top:10px}
-.topicXpItem{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;padding:10px;background:linear-gradient(170deg, color-mix(in srgb, var(--accent3) 54%, #ffffff 46%), color-mix(in srgb, var(--accent2) 24%, #ffffff 76%))}
+.topicXpList{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.topicXpItem{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:14px;padding:12px;background:linear-gradient(170deg, color-mix(in srgb, var(--accent3) 54%, #ffffff 46%), color-mix(in srgb, var(--accent2) 24%, #ffffff 76%))}
 .topicXpTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
-.topicXpTitle{font-weight:900;font-size:13px}
+.topicXpTitle{font-weight:900;font-size:clamp(17px, 3.2vw, 20px);line-height:1.2;text-wrap:balance}
 .topicXpMeta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;padding-top:3px}
 .topicRetentionArrowBtn{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 6px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;background:#fff;font-size:14px;font-weight:900;line-height:1;cursor:pointer}
 .topicRetentionArrowBtn:focus-visible{outline:2px solid color-mix(in srgb, var(--accent2) 70%, #2c5aa0 30%);outline-offset:2px}
@@ -576,13 +576,21 @@
 .status-focus{background:rgba(183,142,161,.16)}
 .status-track{background:rgba(158,183,212,.2)}
 .status-target{background:rgba(126,185,170,.2)}
-.topicXpSub{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;font-weight:800;margin-top:4px}
+.topicXpSub{display:flex;justify-content:space-between;color:var(--muted);font-size:clamp(13px, 2.8vw, 16px);font-weight:900;margin-top:8px}
 .topicXpArrowKey{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px;margin-top:8px}
-.topicXpArrowLegendItem{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 10px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;background:color-mix(in srgb, #fff 82%, var(--accent3) 18%);font-size:12px;font-weight:800;color:var(--text);line-height:1;white-space:nowrap;min-width:0}
+.topicXpArrowLegendItem{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 10px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;background:color-mix(in srgb, #fff 82%, var(--accent3) 18%);font-size:12px;font-weight:800;color:var(--text);line-height:1.1;white-space:normal;text-align:center;min-width:0}
 .topicXpArrowLegendItem:last-child{grid-column:1 / -1}
 @media(min-width:420px){
   .topicXpArrowKey{grid-template-columns:repeat(3, minmax(0, 1fr))}
   .topicXpArrowLegendItem:last-child{grid-column:auto}
+}
+
+@media (max-width:560px){
+  #progress .card{padding:14px 12px}
+  .topicXpTop{flex-direction:column;align-items:stretch;gap:8px}
+  .topicXpMeta{flex-direction:row;align-items:center;justify-content:space-between;width:100%;padding-top:0}
+  .statusTag{font-size:12px;padding:5px 10px}
+  .topicRetentionArrowBtn{height:30px;min-width:42px;padding:0 10px;font-size:15px}
 }
 
 .topicArrowDialogTitle{margin:0;font-size:18px;line-height:1.2}
