@@ -8586,7 +8586,7 @@ function renderProgressReport(){
       <div class="topicXpItem">
         <div class="topicXpTop">
           <div class="topicXpTitle">${escapeHtml(topic?.title || xp.topicId)}</div>
-          <span class="statusTag ${xp.status.cls}">${xp.status.label}</span>
+          <span class="statusTag ${xp.status.cls}">${escapeHtml(xp.xpLevel.label)}</span>
         </div>
         <div class="topicXpSub"><span>${xp.xpLevel.progressInTier}/100 XP</span><span>${escapeHtml(xp.xpLevel.label)}</span></div>
         <div class="progressTrack" style="margin-top:6px"><div class="progressFill" style="width:${xp.xpLevel.progressInTier}%"></div></div>
