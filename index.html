@@ -564,6 +564,11 @@
 .topicXpItem{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;padding:10px;background:linear-gradient(170deg, color-mix(in srgb, var(--accent3) 54%, #ffffff 46%), color-mix(in srgb, var(--accent2) 24%, #ffffff 76%))}
 .topicXpTop{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .topicXpTitle{font-weight:900;font-size:13px}
+.topicXpMeta{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.topicRetentionArrow{display:inline-flex;align-items:center;justify-content:center;min-width:20px;font-size:14px;font-weight:900;line-height:1}
+.topicRetentionArrow.up{color:var(--good)}
+.topicRetentionArrow.flat{color:var(--muted)}
+.topicRetentionArrow.down{color:#b78655}
 .statusTag{font-size:11px;font-weight:900;padding:4px 8px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 65%, var(--accent2) 35%)}
 .status-new{background:rgba(183,183,183,.18)}
 .status-focus{background:rgba(183,142,161,.16)}
@@ -8513,8 +8518,13 @@ function cardSuccessfulRecalls(review){
 
 function topicRetentionSummary(topicId){
   const cards = ALL_CARDS.filter(c=>c.topicId===topicId);
+  const stats = touchTopicStats(topicId);
+  const previousRetention = Number.isFinite(Number(stats.previousRetention)) ? Number(stats.previousRetention) : 0;
   if(!cards.length){
-    return { topicId, retention:0, categoryLabel:"Building" };
+    const retention = 0;
+    const delta = retention - previousRetention;
+    stats.previousRetention = retention;
+    return { topicId, retention, previousRetention, delta, categoryLabel:"Building" };
   }
 
   let retentionTotal = 0;
@@ -8527,6 +8537,8 @@ function topicRetentionSummary(topicId){
   }
 
   const retention = Number((retentionTotal / cards.length).toFixed(2));
+  const delta = Number((retention - previousRetention).toFixed(2));
+  stats.previousRetention = retention;
   const twoPlusSuccessRate = cardsWithTwoPlusSuccesses / cards.length;
 
   let categoryLabel = "Building";
@@ -8538,7 +8550,13 @@ function topicRetentionSummary(topicId){
     categoryLabel = "Strong Foundations";
   }
 
-  return { topicId, retention, categoryLabel };
+  return { topicId, retention, previousRetention, delta, categoryLabel };
+}
+
+function retentionTrendMeta(delta){
+  if(delta > 0.03) return { arrow:"↑", cls:"up", label:"Retention rising" };
+  if(delta < -0.03) return { arrow:"↓", cls:"down", label:"Retention dropping" };
+  return { arrow:"→", cls:"flat", label:"Retention steady" };
 }
 
 
@@ -8610,7 +8628,11 @@ function computeThisWeekMetrics(){
 
 function renderProgressReport(){
   const topicIds = enabledTopicIds();
-  const topicRows = topicIds.map(tid=>({ topic: TOPICS.find(t=>t.id===tid), xp: topicXpBreakdown(tid) }));
+  const topicRows = topicIds.map(tid=>({
+    topic: TOPICS.find(t=>t.id===tid),
+    xp: topicXpBreakdown(tid),
+    retention: topicRetentionSummary(tid)
+  }));
   const avgReadiness = topicRows.length ? Math.round(topicRows.reduce((n,row)=>n + row.xp.totalXp,0) / topicRows.length) : 0;
 
   const readinessVal = $("overallReadinessVal");
@@ -8633,16 +8655,22 @@ function renderProgressReport(){
 
   const topicXpEl = $("topicXpList");
   if(topicXpEl){
-    topicXpEl.innerHTML = topicRows.map(({topic,xp})=>`
+    topicXpEl.innerHTML = topicRows.map(({topic,xp,retention})=>{
+      const trend = retentionTrendMeta(retention.delta);
+      return `
       <div class="topicXpItem">
         <div class="topicXpTop">
           <div class="topicXpTitle">${escapeHtml(topic?.title || xp.topicId)}</div>
-          <span class="statusTag ${xp.status.cls}">${escapeHtml(xp.xpLevel.label)}</span>
+          <div class="topicXpMeta">
+            <span class="topicRetentionArrow ${trend.cls}" title="${trend.label} (${retention.previousRetention.toFixed(2)} → ${retention.retention.toFixed(2)})" aria-label="${trend.label}">${trend.arrow}</span>
+            <span class="statusTag ${xp.status.cls}">${escapeHtml(xp.xpLevel.label)}</span>
+          </div>
         </div>
         <div class="topicXpSub"><span>${xp.xpLevel.progressInTier}/100 XP</span></div>
         <div class="progressTrack" style="margin-top:6px"><div class="progressFill" style="width:${xp.xpLevel.progressInTier}%"></div></div>
       </div>
-    `).join("");
+    `;
+    }).join("");
   }
 
 }
@@ -9202,7 +9230,8 @@ function touchTopicStats(topicId){
     planStarted:false,
     lastStudiedAt:0,
     planLastSavedAt:0,
-    failedCards:0
+    failedCards:0,
+    previousRetention:0
   };
   return STATE.topicStats[topicId];
 }
