@@ -577,9 +577,13 @@
 .status-track{background:rgba(158,183,212,.2)}
 .status-target{background:rgba(126,185,170,.2)}
 .topicXpSub{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;font-weight:800;margin-top:4px}
-.topicXpArrowLegendTop{display:grid;grid-template-columns:16px auto;align-items:center;justify-content:center;column-gap:4px;white-space:nowrap}
-.topicXpArrowLegendWord{display:inline-block;min-width:56px;text-align:left}
-.topicXpArrowLegendItem{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;background:color-mix(in srgb, #fff 82%, var(--accent3) 18%);white-space:normal;flex:1 1 106px;min-width:0;line-height:1.15}
+.topicXpArrowKey{display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:8px;margin-top:8px}
+.topicXpArrowLegendItem{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:6px 10px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;background:color-mix(in srgb, #fff 82%, var(--accent3) 18%);font-size:12px;font-weight:800;color:var(--text);line-height:1;white-space:nowrap;min-width:0}
+.topicXpArrowLegendItem:last-child{grid-column:1 / -1}
+@media(min-width:420px){
+  .topicXpArrowKey{grid-template-columns:repeat(3, minmax(0, 1fr))}
+  .topicXpArrowLegendItem:last-child{grid-column:auto}
+}
 
 .topicArrowDialogTitle{margin:0;font-size:18px;line-height:1.2}
 .topicArrowDialogBody{margin-top:8px;font-size:14px;color:var(--muted)}
@@ -2378,9 +2382,9 @@
       <div style="font-weight:900">Topic XP bars</div>
       <div class="note">XP combines flashcards, quiz best, and exam planning.</div>
       <div class="topicXpArrowKey" aria-label="Arrow legend for topic retention trend">
-        <span class="topicXpArrowLegendItem"><span class="topicXpArrowLegendTop"><span class="topicRetentionArrow up" aria-hidden="true">↑</span><span class="topicXpArrowLegendWord">improving</span></span><span class="topicXpArrowLegendBottom">recall</span></span>
-        <span class="topicXpArrowLegendItem"><span class="topicXpArrowLegendTop"><span class="topicRetentionArrow flat" aria-hidden="true">→</span><span class="topicXpArrowLegendWord">steady</span></span><span class="topicXpArrowLegendBottom">recall</span></span>
-        <span class="topicXpArrowLegendItem"><span class="topicXpArrowLegendTop"><span class="topicRetentionArrow down" aria-hidden="true">↓</span><span class="topicXpArrowLegendWord">fading</span></span><span class="topicXpArrowLegendBottom">recall</span></span>
+        <span class="topicXpArrowLegendItem"><span class="topicRetentionArrow up" aria-hidden="true">↑</span><span>improving recall</span></span>
+        <span class="topicXpArrowLegendItem"><span class="topicRetentionArrow flat" aria-hidden="true">→</span><span>steady recall</span></span>
+        <span class="topicXpArrowLegendItem"><span class="topicRetentionArrow down" aria-hidden="true">↓</span><span>fading recall</span></span>
       </div>
       <div id="topicXpList" class="topicXpList"></div>
     </div>
