@@ -1561,8 +1561,27 @@
     }
     .streakTopicRow{
       display:flex;
-      align-items:stretch;
+      align-items:flex-start;
       gap:10px;
+      justify-content:space-between;
+    }
+    .dailyTopicInline{
+      flex:1 1 auto;
+      min-width:0;
+      color:var(--text);
+      font-size:13px;
+      line-height:1.35;
+      font-weight:500;
+      overflow-wrap:anywhere;
+    }
+    .dailyTopicInline span{
+      font-weight:900;
+      color:var(--muted);
+      margin-right:4px;
+    }
+    .dailyTopicInline b{
+      font-weight:500;
+      color:var(--text);
     }
     .streakMiniPill{
       padding:8px 12px;
@@ -1570,61 +1589,6 @@
       border:1px solid rgba(0,0,0,.08);
       background:#fff;
       display:flex; align-items:center; gap:8px;
-    }
-    .streakTopicPill{
-      position:relative;
-      overflow:hidden;
-      width:100%;
-      display:flex;
-      flex-direction:column;
-      align-items:flex-start;
-      gap:2px;
-      padding:10px 14px;
-      border-radius:14px;
-      border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);
-      background:linear-gradient(180deg, color-mix(in srgb, var(--accent3) 56%, #fff 44%) 0%, color-mix(in srgb, var(--accent2) 26%, #fff 74%) 100%);
-      font-weight:600;
-      color:var(--muted);
-      font-size:13px;
-      line-height:1.25;
-      flex:1 1 auto;
-    }
-    .streakTopicPill span{
-      font-weight:900;
-    }
-    .streakTopicPill::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      background-image:var(--dailyTopicBg);
-      background-size:cover;
-      background-position:center;
-      background-repeat:no-repeat;
-      opacity:.16;
-      filter:var(--paleBlueBgFilter);
-      pointer-events:none;
-      z-index:0;
-    }
-    .streakTopicPill::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:var(--paleBlueBgMask);
-      pointer-events:none;
-      z-index:1;
-    }
-    .streakTopicPill > *{
-      position:relative;
-      z-index:2;
-    }
-    .streakTopicPill b{
-      color:var(--text);
-      font-weight:500;
-      min-width:0;
-      overflow:visible;
-      text-overflow:clip;
-      white-space:normal;
-      overflow-wrap:anywhere;
     }
     .streakMiniLabel{
       color:var(--muted);
@@ -2014,8 +1978,8 @@
       .recommendedMeta{ margin-top:4px; }
 
       .streakTopicRow{ gap:8px; }
-      .streakTopicPill,
       .streakCountPill{ padding:8px 10px; }
+      .dailyTopicInline{ font-size:12px; }
       .streakCountNum{ font-size:44px; }
 
       .streakChecklist{ gap:8px; }
@@ -2277,7 +2241,7 @@
           <div class="dailyChallengeTitle">Daily challenge</div>
           <div class="note" id="streakNote">Complete today’s task to keep your streak</div>
           <div class="streakTopicRow">
-            <div class="pill streakTopicPill" aria-label="Today's topic">
+            <div class="dailyTopicInline" aria-label="Today's topic">
               <span>Today’s topic:</span>
               <b id="dailyTopicLabel">—</b>
             </div>
