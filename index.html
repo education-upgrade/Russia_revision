@@ -2285,7 +2285,7 @@
         </button>
         <button class="checkRow checkRowBtn" id="goDailyQuiz" type="button" aria-label="Open topic quiz for today's Daily Challenge topic">
           <div class="checkLeft"><span class="checkDot" id="chkQuizDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg></span> Topic Quiz</div>
-          <div class="checkVal" id="chkQuizVal">0% / 70%</div>
+          <div class="checkVal" id="chkQuizVal">0% / 100%</div>
         </button>
         <button class="checkRow checkRowBtn" id="goDailyPlan" type="button" aria-label="Open the 25-mark plan for today's Daily Challenge topic">
           <div class="checkLeft"><span class="checkDot" id="chkPlanDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg></span> 25-mark plan</div>
@@ -7801,7 +7801,9 @@ function escapeHtml(v){
    DAILY CHALLENGE (purposeful + rotating)
    ========================================================== */
 const DAILY_FLASH_GOAL = 12;
-const DAILY_QUIZ_GOAL = 70;
+const DAILY_QUIZ_GOAL = 100;
+
+let NEXT_QUIZ_FROM_DAILY_CHALLENGE = false;
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 function todayKey(){
@@ -9617,6 +9619,7 @@ function goDailyQuiz(){
   d.lastStep = "quiz";
   saveState();
   trackTaskStarted("QUIZ", d.topicId);
+  NEXT_QUIZ_FROM_DAILY_CHALLENGE = true;
   setTab("quiz");
   $("mcqTopicSelect").value = d.topicId;
   $("mcqCount").value = "10";
@@ -10054,7 +10057,7 @@ function getQuizPool(topicId){
 }
 
 /* QUIZ state + streaks */
-let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED" };
+let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED", fromDailyChallenge:false };
 
 function quizTopicMasteryPercent(topicId){
   if(topicId === "MIXED"){
@@ -10131,6 +10134,8 @@ function showQuizCompleteModal(){
   const percent = QUIZ.list.length ? Math.round((QUIZ.score / QUIZ.list.length) * 100) : 0;
   const perfect = percent === 100;
   const misses = QUIZ.errorBank.length;
+  const d = ensureDaily();
+  const fromDailyChallenge = !!(QUIZ.fromDailyChallenge && QUIZ.topicId === d.topicId);
 
   const title = $("quizCompleteTitle");
   const status = $("quizCompleteStatus");
@@ -10138,19 +10143,27 @@ function showQuizCompleteModal(){
   const fixBtn = $("btnQuizCompleteFix");
   const flashBtn = $("btnQuizCompleteFlashcards");
 
-  if(title) title.textContent = perfect ? "🎉 Perfect score!" : "Quiz complete";
+  if(title) title.textContent = perfect ? "🎉 Perfect score!" : (fromDailyChallenge ? "Daily Challenge quiz check" : "Quiz complete");
   if(status){
     status.classList.toggle("good", perfect);
     status.classList.toggle("bad", !perfect);
-    status.textContent = perfect
-      ? "You scored 100%. Great time to move on to the next activity."
-      : `You scored ${percent}%. Review ${misses} incorrect ${misses === 1 ? "answer" : "answers"} with Fix.`;
+    if(perfect){
+      status.textContent = "You scored 100%. Great time to move on to the next activity.";
+    }else if(fromDailyChallenge){
+      status.textContent = `Daily Challenge requires 100%. You scored ${percent}% — use Fix to correct ${misses} ${misses === 1 ? "answer" : "answers"}.`;
+    }else{
+      status.textContent = `You scored ${percent}%. Review ${misses} incorrect ${misses === 1 ? "answer" : "answers"} with Fix.`;
+    }
   }
 
   if(explainNode){
-    explainNode.textContent = perfect
-      ? "Suggestion: continue to flashcards for the next activity."
-      : "Choose Fix to go over your incorrect answers and improve your score.";
+    if(perfect){
+      explainNode.textContent = "Suggestion: continue to flashcards for the next activity.";
+    }else if(fromDailyChallenge){
+      explainNode.textContent = "To complete the quiz part of today’s Daily Challenge, choose Fix and correct every incorrect answer.";
+    }else{
+      explainNode.textContent = "Choose Fix to go over your incorrect answers and improve your score.";
+    }
   }
 
   if(fixBtn) fixBtn.classList.toggle("hidden", misses === 0);
@@ -10178,6 +10191,7 @@ function showQuizResultModal({ correct, picked, answer, explain }){
 }
 
 function startRandomQuiz(){
+  NEXT_QUIZ_FROM_DAILY_CHALLENGE = false;
   const topics = enabledTopicIds();
   const chosen = topics.length ? topics[Math.floor(Math.random() * topics.length)] : "MIXED";
   const topicSelect = $("mcqTopicSelect");
@@ -10204,6 +10218,8 @@ function startQuiz(useErrorBank=false){
   QUIZ.best = 0;
   QUIZ.topicId = topicId;
   QUIZ.mode = mode;
+  QUIZ.fromDailyChallenge = !!(NEXT_QUIZ_FROM_DAILY_CHALLENGE || (useErrorBank && QUIZ.fromDailyChallenge));
+  NEXT_QUIZ_FROM_DAILY_CHALLENGE = false;
   if(!useErrorBank) QUIZ.errorBank = [];
 
   $("quizReviewBox").classList.add("hidden");
@@ -10259,7 +10275,9 @@ $("btnNextQ").addEventListener("click", ()=>{
   QUIZ.locked=false;
 
   if(QUIZ.idx >= QUIZ.list.length){
-    const action = QUIZ.errorBank.length ? "Use Fix-it to retry misses." : "No misses. Keep the pace.";
+    const action = (QUIZ.fromDailyChallenge && QUIZ.errorBank.length)
+      ? "Daily Challenge quiz needs 100%: use Fix-it to correct misses."
+      : (QUIZ.errorBank.length ? "Use Fix-it to retry misses." : "No misses. Keep the pace.");
     $("quizQ").textContent = `Finished. Final score: ${QUIZ.score}/${QUIZ.list.length}`;
     $("quizChoices").innerHTML = "";
     $("quizMeta").textContent = "Done";
