@@ -1548,7 +1548,7 @@
     .streakHeader{
       display:flex;
       justify-content:space-between;
-      align-items:stretch;
+      align-items:flex-start;
       gap:14px;
       flex-wrap:nowrap;
     }
@@ -2246,12 +2246,12 @@
               <span>Today’s topic:</span>
               <b id="dailyTopicLabel">—</b>
             </div>
-            <button class="pill streakCountPill" id="streakProgressBtn" type="button" aria-label="Open progress tab from current streak" title="View progress">
-              <span class="streakCountLabel">Streak</span>
-              <span class="streakCountNum" id="streakBigNum">0</span>
-            </button>
           </div>
         </div>
+        <button class="pill streakCountPill" id="streakProgressBtn" type="button" aria-label="Open progress tab from current streak" title="View progress">
+          <span class="streakCountLabel">Streak</span>
+          <span class="streakCountNum" id="streakBigNum">0</span>
+        </button>
       </div>
 
       <div id="streakCompleteBanner" class="streakCompleteBanner hidden">
