@@ -577,8 +577,9 @@
 .status-track{background:rgba(158,183,212,.2)}
 .status-target{background:rgba(126,185,170,.2)}
 .topicXpSub{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;font-weight:800;margin-top:4px}
-.topicXpArrowKey{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;color:var(--muted);font-size:11px;font-weight:800}
-.topicXpArrowLegendItem{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;background:color-mix(in srgb, #fff 82%, var(--accent3) 18%)}
+.topicXpArrowKey{display:flex;flex-wrap:nowrap;gap:6px;margin-top:6px;color:var(--muted);font-size:11px;font-weight:800;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.topicXpArrowKey::-webkit-scrollbar{display:none}
+.topicXpArrowLegendItem{display:inline-flex;align-items:center;gap:4px;padding:3px 7px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;background:color-mix(in srgb, #fff 82%, var(--accent3) 18%);white-space:nowrap;flex:0 0 auto}
 
 .topicArrowDialogTitle{margin:0;font-size:18px;line-height:1.2}
 .topicArrowDialogBody{margin-top:8px;font-size:14px;color:var(--muted)}
