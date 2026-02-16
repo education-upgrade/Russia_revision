@@ -460,7 +460,7 @@
 
 .topicTile .levelBadge{
   margin-top:0;
-  width:auto;
+  width:100%;
   min-width:0;
   max-width:100%;
 }
@@ -520,20 +520,29 @@
 }
 
 .levelBadge{
-  width:86%;
+  width:100%;
   text-align:center;
   border:1px solid rgba(0,0,0,.10);
   border-radius:12px;
-  padding:8px 8px;
+  padding:8px 10px;
   font-weight:900;
-  letter-spacing:.6px;
+  letter-spacing:.4px;
   font-size:11px;
+  line-height:1.1;
+  overflow-wrap:anywhere;
+  word-break:break-word;
 }
 
 /* Tighten on very small screens */
 @media (max-width:420px){
   .topicDash{ grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:9px; }
   .xpRing{ width:112px; height:112px; }
+}
+
+/* Preserve readability of long level labels when card width is constrained */
+@media (max-width:720px){
+  .topicPillRow{ grid-template-columns:minmax(0,1fr) auto; }
+  .topicStatusDot{ display:none; }
 }
 
 .level-starting{ background:rgba(183,142,161,.18); }
