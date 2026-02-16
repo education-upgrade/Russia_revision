@@ -8496,6 +8496,51 @@ function topicConfidence(topicId){
   return { level: lvl.key, levelObj:lvl, avg, counts, total };
 }
 
+function cardRetentionScore(cardId){
+  const review = getReview(cardId);
+  if(!review) return 0;
+  const score = Math.max(0, Math.min(3, Number(review.score || 0)));
+  return score / 3;
+}
+
+function cardSuccessfulRecalls(review){
+  if(!review) return 0;
+  if(Number.isFinite(review.successfulRecalls)){
+    return Math.max(0, Math.floor(review.successfulRecalls));
+  }
+  return Number(review.score) >= 2 ? 1 : 0;
+}
+
+function topicRetentionSummary(topicId){
+  const cards = ALL_CARDS.filter(c=>c.topicId===topicId);
+  if(!cards.length){
+    return { topicId, retention:0, categoryLabel:"Building" };
+  }
+
+  let retentionTotal = 0;
+  let cardsWithTwoPlusSuccesses = 0;
+
+  for(const card of cards){
+    const review = getReview(card.id);
+    retentionTotal += cardRetentionScore(card.id);
+    if(cardSuccessfulRecalls(review) >= 2) cardsWithTwoPlusSuccesses++;
+  }
+
+  const retention = Number((retentionTotal / cards.length).toFixed(2));
+  const twoPlusSuccessRate = cardsWithTwoPlusSuccesses / cards.length;
+
+  let categoryLabel = "Building";
+  if(retention >= 0.85){
+    categoryLabel = twoPlusSuccessRate >= 0.6 ? "Mastery" : "Ambition";
+  }else if(retention >= 0.65){
+    categoryLabel = "Ambition";
+  }else if(retention >= 0.4){
+    categoryLabel = "Strong Foundations";
+  }
+
+  return { topicId, retention, categoryLabel };
+}
+
 
 function topicXpBreakdown(topicId){
   const stats = touchTopicStats(topicId);
@@ -8635,6 +8680,7 @@ function renderTopicDashboard(){
     const t = FACT_BANK[tid];
     const conf = topicConfidence(tid);
     const xp = topicXpBreakdown(tid);
+    const retentionSummary = topicRetentionSummary(tid);
 
     const total = Math.max(1, conf.total || 0);
     const gRaw = (conf.counts.secure/total)*100;
@@ -8662,7 +8708,7 @@ function renderTopicDashboard(){
       rank: xp.xpLevel.tierIndex,
       icon: legacyLvl.icon
     };
-    const badgeText = lvl.label;
+    const badgeText = retentionSummary.categoryLabel;
     const topicQuiz = Number(touchTopicStats(tid).quizBestPercent||0);
     const topicMastery = Math.max(xp.totalXp, topicQuiz);
 
@@ -9923,6 +9969,7 @@ document.querySelectorAll('#study [data-score]').forEach(btn=>{
       score,
       // Preserve the most recent successful recall timestamp for traffic-lights/confidence
       lastSuccessTs: (score >= 2) ? todayTs : (prev?.lastSuccessTs || 0),
+      successfulRecalls: (prev?.successfulRecalls || 0) + (score >= 2 ? 1 : 0),
       times: (prev?.times||0)+1
     });
 
