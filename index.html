@@ -1604,7 +1604,11 @@
       width:100%;
     }
     .protectBtn{
-      background:linear-gradient(180deg, rgba(110,144,202,.65), rgba(163,194,223,.65));
+      background:#ffffff;
+      color:#2A6CFF;
+      border:1px solid rgba(0,0,0,.10);
+      border-radius:14px;
+      box-shadow:var(--shadow);
     }
 
     @media (max-width: 420px){
@@ -1872,24 +1876,18 @@
     .protectBtn{
       margin-top:12px;
       width:100%;
-      padding:11px 12px;
+      padding:10px 12px;
       min-height:44px;
-      border-radius:16px;
       font-weight:900;
-      border:1px solid var(--ctaBorder);
-      background:linear-gradient(180deg, #b8cff0 0%, #9dbce5 56%, #89addc 100%);
-      color:#ffffff;
       cursor:pointer;
-      box-shadow:0 7px 14px rgba(111,139,180,.22);
       letter-spacing:.15px;
-      text-shadow:
-        -0.5px 0 #000,
-        0.5px 0 #000,
-        0 -0.5px #000,
-        0 0.5px #000;
+      transition:none;
     }
-    .protectBtn:hover{ filter:brightness(1.06); }
-    .protectBtn:active{ transform:translateY(1px); }
+    .protectBtn:hover{ border-color: rgba(0,0,0,.16); }
+    .protectBtn:active{
+      transform:translateY(1px);
+      background: color-mix(in srgb, #2A6CFF 10%, #ffffff 90%);
+    }
 
     .recommendedCardTitle{
       font-weight:1000;
