@@ -9,8 +9,6 @@
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="theme-color" content="#f3f7fb">
-  <link rel="preload" as="image" href="./header-bg.jpg?v6">
-
     <link rel="preload" as="image" href="section-bg.jpg?v8">
 <style>
     /* ======================================================
@@ -18,8 +16,6 @@
        ====================================================== */
 
     :root{
-      /* Home header background image (hosted in this repo) */
-      --homeHeaderBg: url("./header-bg.jpg?v6");
       /* Background image used inside cards on all non-Home tabs */
       --sectionCardBg: url("./section-bg.jpg");
       --paleBlueBgFilter: saturate(.39) brightness(1.08) contrast(.95) hue-rotate(168deg);
@@ -89,102 +85,6 @@
       margin:0 auto;
       padding:16px 16px calc(var(--navH) + env(safe-area-inset-bottom) + 16px);
     }
-
-/* =========================
-   HOME HEADER (HOME ONLY)
-   ========================= */
-header{
-  position:relative;
-  overflow:hidden;
-  background: linear-gradient(180deg, var(--accent3), var(--bg));
-  border-bottom:1px solid var(--line);
-}
-
-/* Image layer (behind everything) */
-header#homeHeader::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background-image: var(--homeHeaderBg);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: .26;
-  filter: var(--paleBlueBgFilter);
-  pointer-events:none;
-  z-index:0;
-}
-
-/* Tint overlay (above image, below content) */
-header#homeHeader::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg, rgba(255,255,255,.72), rgba(240,247,255,.56));
-  pointer-events:none;
-  z-index:1;
-}
-
-.headerInner{
-  position:relative;
-  z-index:2;
-  max-width:1100px;
-  margin:0 auto;
-  padding:18px 16px 12px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
-}
-
-.brand{ display:flex; align-items:center; gap:12px; width:100%; }
-
-.bannerTopRow{
-  display:flex;
-  align-items:center;
-  width:100%;
-  justify-content:center;
-  gap:10px;
-  flex-wrap:nowrap;
-}
-
-@media (max-width: 720px){
-  .bannerTopRow{
-    width:100%;
-    align-items:center;
-    gap:8px;
-  }
-
-  .banner-title-pill{
-    font-size:22px;
-  }
-}
-
-.logo{
-  width:44px;height:44px;border-radius:16px;
-  background:linear-gradient(135deg, rgba(110,144,202,.95), rgba(163,194,223,.95));
-  border:1px solid rgba(0,0,0,.06);
-  display:grid;place-items:center;
-  box-shadow: var(--shadow);
-  font-size:20px;
-}
-
-h1{
-  margin:0;
-  font-size:28px;
-  letter-spacing:.4px;
-  font-weight:1000;
-  line-height:1.05;
-  color:var(--textStrong);
-  text-shadow:0 8px 14px rgba(0,0,0,.06);
-}
-
-.sub{
-  margin-top:4px;
-  color:var(--muted);
-  font-size:13px;
-}
 
     /* =========================
        CARDS (flat, no overlap)
@@ -340,17 +240,6 @@ h1{
     }
     .iconBtn:active{ transform:translateY(1px); }
 
-    /* Mobile: keep header compact so streak card is first thing visible */
-    @media (max-width: 520px){
-      .headerInner{ padding:12px 14px 10px; }
-      h1{ font-size:24px; }
-      .sub{ font-size:12px; }
-      .bannerKpis{ margin-top:8px; gap:8px; }
-      .kpiPill{ min-width: 0; flex:1 1 30%; padding:10px 10px; }
-      .kpiPill .kpiVal{ font-size:16px; }
-      main{ padding-top:12px; }
-    }
-    
 
 .topicDash{
   display:grid;
@@ -2113,7 +2002,6 @@ h1{
         font-size:clamp(20px, 6.2vw, 24px);
       }
       /* Keep both Home cards visible on first load on shorter mobile viewports */
-      .headerInner{ padding:12px 12px 8px; }
       main{ padding:10px 12px calc(var(--navH) + env(safe-area-inset-bottom) + 12px); }
       .card{ padding:12px; margin-bottom:10px; }
       .recommendedLabel{ margin-top:4px; font-size:14px; }
@@ -2214,53 +2102,6 @@ h1{
       z-index:9999;
     }
   
-.banner-title-pill {
-  display: block;
-  width: 100%;
-  padding: 0;
-  font-size: 30px;        /* same size as before */
-  font-weight: 800;
-  letter-spacing: -0.4px;
-  line-height: 1;
-  color: #17191c;
-  text-align:center;
-  text-shadow: 0 8px 20px rgba(255, 255, 255, 0.22);
-  animation: bannerFadeUp 180ms ease-out both;
-}
-
-
-
-@keyframes bannerFadeUp {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes pillShimmer {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-@keyframes pillPulse {
-  0%   { transform: translateY(0) scale(1); }
-  35%  { transform: translateY(-1px) scale(1.02); }
-  100% { transform: translateY(0) scale(1); }
-}
-
-/* Diamond week shimmer (subtle) */
-.banner-title-pill.pill-diamond {
-  background: none;
-  color: color-mix(in srgb, var(--text) 78%, var(--accent) 22%);
-  text-shadow: 0 8px 20px rgba(163,194,223,.42);
-  background-size: 200% 100%;
-  animation: bannerFadeUp 180ms ease-out both, pillShimmer 2.8s ease-in-out infinite;
-}
-
-/* Streak milestone pulse (one-off) */
-.banner-title-pill.pill-pulse {
-  animation: bannerFadeUp 180ms ease-out both, pillPulse 900ms ease-out 1;
-}
-
 
 /* ===== Flaming streak number ===== */
 .streak-display{
@@ -2420,17 +2261,6 @@ h1{
 
 <canvas id="confettiCanvas"></canvas>
 <div id="levelUpBanner" class="levelUpBanner" aria-live="polite"></div>
-
-<header id="homeHeader">
-  <div class="headerInner">
-    <div class="brand">
-      <div class="bannerTopRow">
-        <div class="banner-title-pill">Russia 1855–1964</div>
-      </div>
-    </div>
-
-  </div>
-</header>
 
 <main>
 
@@ -8511,9 +8341,7 @@ const confetti = (() => {
 })();
 
 /* ==========================================================
-   NAV + HEADER RULE
-   - Home header only shows on Home
-   - Settings button only shown on Home header
+   NAV RULE
    ========================================================== */
 function setTab(tabId){
   document.querySelectorAll(".navBtn").forEach(b=>b.classList.toggle("active", b.dataset.tab===tabId));
@@ -8521,9 +8349,6 @@ function setTab(tabId){
 
   // Reset viewport position whenever changing tabs
   window.scrollTo({ top: 0, left: 0, behavior: "auto" });
-
-  // Home header only
-  $("homeHeader").style.display = (tabId==="home") ? "block" : "none";
 
   // Games: default to hub list when entering the tab
   if(tabId==="games") gamesShowHub();
@@ -9083,35 +8908,7 @@ function updateHeaderCopy(){
 }
 
 
-// Banner title pill effects (subtle)
-function bannerTitleEl(){
-  return document.querySelector(".banner-title-pill");
-}
-function isStreakMilestone(n){
-  return [3, 7, 14, 30, 50, 100].includes(Number(n||0));
-}
-function updateBannerTitlePill(){
-  const el = bannerTitleEl();
-  if(!el) return;
-
-  const badge = getWeeklyBadge ? getWeeklyBadge() : null;
-  const isDiamond = badge && String(badge.name) === "Diamond";
-
-  const streak = STATE.dailyStreak?.count || 0;
-
-  el.classList.toggle("pill-diamond", !!isDiamond);
-
-  // one-off pulse on milestones (only once per day per milestone)
-  const token = `${streak}-${todayKey()}`;
-  const storageKey = "ru_banner_pill_milestone_token";
-  const lastShown = localStorage.getItem(storageKey);
-
-  if(isStreakMilestone(streak) && lastShown !== token){
-    localStorage.setItem(storageKey, token);
-    el.classList.add("pill-pulse");
-    window.setTimeout(()=> el.classList.remove("pill-pulse"), 1100);
-  }
-}
+function updateBannerTitlePill(){}
 
 
 function weeklySignalSubtext(name){
