@@ -274,7 +274,7 @@
   background-position:center;
   background-repeat:no-repeat;
   filter:var(--paleBlueBgFilter);
-  opacity:.42;
+  opacity:.24;
   pointer-events:none;
   z-index:0;
 }
@@ -282,7 +282,7 @@
   content:"";
   position:absolute;
   inset:0;
-  background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.16));
+  background:linear-gradient(180deg, rgba(255,255,255,.44), rgba(255,255,255,.58));
   pointer-events:none;
   z-index:1;
 }
@@ -320,9 +320,9 @@
   min-height:34px;
   padding:6px 8px;
   border-radius:999px;
-  border:1px solid color-mix(in srgb, var(--line) 65%, var(--accent2) 35%);
-  background:linear-gradient(180deg, color-mix(in srgb, var(--accent3) 55%, #ffffff 45%), color-mix(in srgb, var(--accent4) 48%, #ffffff 52%));
-  box-shadow:0 4px 10px color-mix(in srgb, var(--accent) 16%, transparent);
+  border:1px solid color-mix(in srgb, var(--accent) 42%, #ffffff 58%);
+  background:linear-gradient(180deg, #f6f9ff, #e8f0fa);
+  box-shadow:0 4px 10px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .switch{
   position:relative;
@@ -334,11 +334,11 @@
 .slider{
   position:absolute; cursor:pointer;
   inset:0;
-  background:color-mix(in srgb, var(--accent2) 52%, #ffffff 48%);
-  border:1px solid color-mix(in srgb, var(--accent) 22%, #ffffff 78%);
+  background:color-mix(in srgb, var(--accent2) 30%, #ffffff 70%);
+  border:1px solid color-mix(in srgb, var(--accent) 45%, #ffffff 55%);
   border-radius:999px;
   transition: all .18s ease;
-  box-shadow: 0 6px 10px rgba(0,0,0,.08);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.45), 0 5px 10px rgba(0,0,0,.12);
 }
 .slider:before{
   content:"";
@@ -346,15 +346,21 @@
   height:18px; width:18px;
   left:3px; top:2px;
   background:white;
+  border:1px solid rgba(21, 51, 80, .28);
   border-radius:50%;
   transition: all .18s ease;
-  box-shadow: 0 4px 8px rgba(0,0,0,.18);
+  box-shadow: 0 4px 9px rgba(0,0,0,.24);
 }
 .switch input:checked + .slider{
-  background:color-mix(in srgb, var(--good) 54%, #ffffff 46%);
+  background:color-mix(in srgb, var(--good) 82%, #ffffff 18%);
+  border-color:color-mix(in srgb, var(--good) 88%, #154b3e 12%);
 }
 .switch input:checked + .slider:before{
   transform: translateX(20px);
+}
+.switch input:focus-visible + .slider{
+  outline:2px solid color-mix(in srgb, var(--accent) 70%, #214673 30%);
+  outline-offset:2px;
 }
 .topicTile.isDisabled{
   opacity:.56;
