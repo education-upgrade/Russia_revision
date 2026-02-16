@@ -8383,11 +8383,8 @@ function buildKnowledgeCards(){
   });
   const significanceQuestion = (subject, { preferArticle = false } = {}) => {
     const raw = (subject ?? "").toString().trim();
-    if(!raw) return "What was significant about it?";
-
-    const startsWithDeterminer = /^(the|a|an|this|that|these|those)\b/i.test(raw);
-    const phrase = (preferArticle && !startsWithDeterminer) ? `the ${raw}` : raw;
-    return `What was significant about ${phrase}?`;
+    if(!raw) return "what was significant about: it";
+    return `what was significant about: ${raw}`;
   };
 
   for(const topicId of Object.keys(FACT_BANK)){
