@@ -9368,7 +9368,7 @@ function recommendationCopy(taskType, isChallenge){
     return { label:"Keep streak going: 25-mark plan", reason:"Finish today’s run to lock your streak." };
   }
   if(taskType === "QUIZ") return { label:"Boost score: Topic Quiz", reason:"This topic is your lowest score right now." };
-  if(taskType === "FLASHCARDS") return { label:"Keep going. Time to review:", reason:"This topic is due for a quick review." };
+  if(taskType === "FLASHCARDS") return { label:"Continue:", reason:"This topic is due for a quick review." };
   return { label:"Exam skill: 25-mark plan", reason:"A short plan now keeps exam structure fresh." };
 }
 function getNextBestAction(now=Date.now()){
@@ -9399,9 +9399,16 @@ function getNextBestAction(now=Date.now()){
     LAST_RECO_DEBUG = { recommendation:best, candidates:scored.slice(0,5) };
   }
 
-  if(!best) return { taskType:"FLASHCARDS", topicId:getDailyTopicId(), label:"Keep going. Time to review:", reason:"This topic is due for a quick review.", route:candidateRoute("FLASHCARDS", getDailyTopicId()) };
+  if(!best) return { taskType:"FLASHCARDS", topicId:getDailyTopicId(), label:"Continue:", reason:"This topic is due for a quick review.", route:candidateRoute("FLASHCARDS", getDailyTopicId()) };
   LAST_RECO_DEBUG.recommendation = best;
   return best;
+}
+
+function compactTopicTitle(title){
+  return String(title||"")
+    .replace(/^\s*\d+\.\s*/, "")
+    .replace(/\s+\d{4}[\-–]\d{4}\s*$/, "")
+    .trim();
 }
 function navigateToRoute(route){
   const [tab, query] = String(route||"").split("?");
@@ -9562,8 +9569,9 @@ function getChallengeCtaConfig(d){
 
   const reco = getNextBestAction(Date.now());
   const topic = TOPICS.find(t=>t.id===reco.topicId);
+  const compactTitle = compactTopicTitle(topic?.title || "");
   const label = topic
-    ? (String(reco.label).trim().endsWith(":") ? `${reco.label} ${topic.title}` : `${reco.label} • ${topic.title}`)
+    ? (String(reco.label).trim().endsWith(":") ? `${reco.label} ${compactTitle || topic.title}` : `${reco.label} • ${compactTitle || topic.title}`)
     : reco.label;
 
   return {
