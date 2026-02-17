@@ -8511,6 +8511,9 @@ function renderStreakHero(){
     btn.textContent = cta.label;
     btn.disabled = cta.disabled;
     btn.onclick = cta.onClick;
+    btn.style.background = cta.accentColor
+      ? cta.accentColor
+      : "linear-gradient(180deg, #2f73ff, #2059db)";
   }
 
 
@@ -10144,11 +10147,22 @@ function challengeStepName(step){
   return "";
 }
 
+function challengeStepColor(step){
+  const rowId = step === "flash"
+    ? "goDailyFlash"
+    : (step === "quiz" ? "goDailyQuiz" : "goDailyPlan");
+  const rowLabel = document.querySelector(`#${rowId} .checkLeft`);
+  if(!rowLabel) return null;
+  const textColor = getComputedStyle(rowLabel).color;
+  return textColor || null;
+}
+
 function getChallengeCtaConfig(d){
   const step = nextDailyAction(d);
   if(step){
     return {
       label: `Keep streak going: ${challengeStepName(step)}`,
+      accentColor: challengeStepColor(step),
       disabled: false,
       onClick: step === "flash"
         ? goDailyFocus
@@ -10165,6 +10179,7 @@ function getChallengeCtaConfig(d){
 
   return {
     label,
+    accentColor: null,
     disabled: false,
     onClick: ()=>{
       logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
