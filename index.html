@@ -10644,7 +10644,7 @@ function showQuizCompleteModal(){
     }
   }
 
-  if(fixBtn) fixBtn.classList.toggle("hidden", misses === 0);
+  if(fixBtn) fixBtn.classList.toggle("hidden", perfect || misses === 0);
   if(flashBtn) flashBtn.classList.toggle("hidden", !perfect);
 
   overlay.classList.remove("hidden");
