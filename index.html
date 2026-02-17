@@ -1708,7 +1708,9 @@
       letter-spacing:.1px;
     }
     .educationUpgradeLogo{
-      position:static;
+      position:absolute;
+      top:0;
+      right:0;
       flex:0 0 auto;
       text-align:right;
       line-height:.95;
@@ -1716,7 +1718,8 @@
       font-weight:500;
       font-family:"Comic Sans MS", "Segoe Script", "Bradley Hand", cursive;
       user-select:none;
-      margin:0 0 0 auto;
+      margin:0;
+      z-index:1;
     }
     .educationUpgradeLine{
       font-size:clamp(20px, 4.7vw, 30px);
