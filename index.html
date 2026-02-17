@@ -951,6 +951,8 @@
     section#quiz:has(#quizBox.hidden){
       min-height:calc(100dvh - var(--navH) - env(safe-area-inset-bottom) - 32px);
       display:flex;
+      flex-direction:column;
+      gap:22px;
       align-items:center;
       justify-content:center;
     }
@@ -960,6 +962,30 @@
     }
     section#quiz .card::before{display:none}
     section#quiz .card > *{position:relative;z-index:1}
+
+    .quizBackgroundTitle{
+      display:none;
+      align-items:center;
+      gap:10px;
+      color:rgba(22,45,91,.32);
+      text-shadow:0 8px 20px rgba(124,155,206,.16);
+      user-select:none;
+      pointer-events:none;
+    }
+    section#quiz:has(#quizBox.hidden) .quizBackgroundTitle{
+      display:flex;
+    }
+    .quizBackgroundTitle .quizPanelTitleIcon{
+      width:34px;
+      height:34px;
+      stroke-width:2.2;
+      color:currentColor;
+    }
+    .quizBackgroundTitle .quizPanelTitleText{
+      font-size:45px;
+      letter-spacing:.4px;
+      font-weight:1000;
+    }
 
     .quizLaunch{
       margin:10px 0 12px;
@@ -1041,6 +1067,17 @@
     .quizCompleteActions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:12px; }
 
     @media (max-width:700px){
+      .quizBackgroundTitle{
+        gap:8px;
+      }
+      .quizBackgroundTitle .quizPanelTitleIcon{
+        width:28px;
+        height:28px;
+      }
+      .quizBackgroundTitle .quizPanelTitleText{
+        font-size:36px;
+      }
+
       section#quiz .card{
         padding:10px;
       }
@@ -2540,6 +2577,10 @@
 
   <!-- QUIZ -->
   <section id="quiz" class="tabpane hidden">
+    <div class="quizBackgroundTitle" aria-hidden="true">
+      <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg>
+      <span class="quizPanelTitleText">Quiz</span>
+    </div>
     <div class="card">
       <div id="quizEmpty" class="note">
         Quiz points boost your Home progress score.
