@@ -1058,16 +1058,30 @@
       place-items:center;
       font-size:18px;
     }
-    .quizResultModal{ width:min(460px, 100%); }
+    .quizResultModal{
+      width:min(460px, 100%);
+      color:var(--text);
+    }
+    .quizResultModal .onboardingTitle{ color:var(--textStrong); }
     .quizResultStatus{
       margin-top:8px;
       font-weight:900;
       font-size:15px;
+      color:var(--text);
     }
-    .quizResultStatus.good{ color:#4f8f80; }
-    .quizResultStatus.bad{ color:#8f5f73; }
+    .quizResultStatus.good{ color:var(--accent); }
+    .quizResultStatus.bad{ color:var(--bad); }
     .quizResultExplain{ margin-top:10px; }
     .quizResultActions{ display:flex; justify-content:flex-end; margin-top:12px; }
+    .inlineIconLabel{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .inlineIconLabel .navIcon{
+      width:22px;
+      height:22px;
+    }
     .quizCompleteActions{
       display:grid;
       grid-template-columns:repeat(3, minmax(0, 1fr));
@@ -2870,7 +2884,7 @@
       <div class="quizResultStatus" id="quizResultStatus"></div>
       <div class="note quizResultExplain" id="quizResultExplain"></div>
       <div class="quizResultActions">
-        <button class="btn small" id="btnQuizModalNext" type="button">➡️ Next question</button>
+        <button class="btn small" id="btnQuizModalNext" type="button"><span class="inlineIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg><span>Next question</span></span></button>
       </div>
     </div>
   </div>
@@ -10642,12 +10656,14 @@ function showQuizResultModal({ correct, picked, answer, explain }){
   const title = $("quizResultTitle");
   const status = $("quizResultStatus");
   const explainNode = $("quizResultExplain");
-  if(title) title.textContent = correct ? "✅ Correct" : "❌ Incorrect";
+  if(title) title.innerHTML = correct
+    ? '<span class="inlineIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 13 4 4L19 7"></path></svg><span>Correct</span></span>'
+    : '<span class="inlineIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 7 10 10"></path><path d="m17 7-10 10"></path></svg><span>Incorrect</span></span>';
   if(status){
     status.classList.toggle("good", correct);
     status.classList.toggle("bad", !correct);
     status.textContent = correct
-      ? "Great answer — keep the streak alive."
+      ? "Great answer"
       : `You chose “${picked}”. Correct answer: “${answer}”.`;
   }
   if(explainNode) explainNode.textContent = explain;
