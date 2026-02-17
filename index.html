@@ -2932,6 +2932,24 @@
     </div>
   </div>
 
+  <div id="dailyChallengeCompleteOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily Challenge complete options">
+    <div class="onboardingModal quizResultModal">
+      <h3 class="onboardingTitle">🏆 Daily Challenge complete!</h3>
+      <div class="quizResultStatus good">Streak protected. Keep the momentum going.</div>
+      <div class="note quizResultExplain" id="dailyCompleteExplain">Choose your next step.</div>
+      <div class="quizCompleteActions">
+        <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteFocus" type="button">
+          <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M8 9h8"></path><path d="M8 13h5"></path><path d="M8 17h8"></path></svg>
+          <span class="quizCompleteActionLabel">Review focus cards</span>
+        </button>
+        <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteHome" type="button">
+          <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
+          <span class="quizCompleteActionLabel">Return to Home</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- GAMES -->
   <section id="games" class="tabpane hidden">
     <div class="card gamesHeroCard">
@@ -8491,7 +8509,9 @@ function checkDailyComplete(){
     logEvent("daily_challenge_completed", { topicId: d.topicId });
     updateDailyUI();
     try{ computeKpis(); }catch(e){}
-    showLevelUpBanner(`🏆 Daily Challenge Complete • ${escapeHtml((TOPICS.find(t=>t.id===d.topicId)||{}).title || d.topicId)}`);
+    closeQuizCompleteModal();
+    showDailyChallengeCompleteModal(d.topicId);
+    try{ confetti.fall(3200); }catch(e){}
     try{ confetti.burst(200); }catch(e){}
   }
 }
@@ -10645,6 +10665,33 @@ function closeQuizCompleteModal(){
   $("quizCompleteOverlay")?.classList.add("hidden");
 }
 
+function closeDailyChallengeCompleteModal(){
+  $("dailyChallengeCompleteOverlay")?.classList.add("hidden");
+}
+
+function showDailyChallengeCompleteModal(topicId){
+  const overlay = $("dailyChallengeCompleteOverlay");
+  if(!overlay) return;
+
+  const focusCount = computeFocusCount();
+  const focusBtn = $("btnDailyCompleteFocus");
+  const explain = $("dailyCompleteExplain");
+  const topicTitle = TOPICS.find(t=>t.id===topicId)?.title || "this topic";
+
+  if(focusBtn){
+    const hasFocus = focusCount > 0;
+    focusBtn.disabled = !hasFocus;
+    focusBtn.classList.toggle("hidden", !hasFocus);
+  }
+  if(explain){
+    explain.textContent = focusCount > 0
+      ? `You have ${focusCount} focus ${focusCount === 1 ? "card" : "cards"} ready to review.`
+      : `No focus cards yet for ${topicTitle}. You can return home and choose your next task.`;
+  }
+
+  overlay.classList.remove("hidden");
+}
+
 function showQuizCompleteModal(){
   const overlay = $("quizCompleteOverlay");
   if(!overlay) return;
@@ -10785,6 +10832,17 @@ $("btnQuizCompleteFix")?.addEventListener("click", ()=>{
 $("btnQuizCompleteFlashcards")?.addEventListener("click", ()=>{
   closeQuizCompleteModal();
   setTab("study");
+});
+
+$("btnDailyCompleteHome")?.addEventListener("click", ()=>{
+  closeDailyChallengeCompleteModal();
+  setTab("home");
+});
+
+$("btnDailyCompleteFocus")?.addEventListener("click", ()=>{
+  closeDailyChallengeCompleteModal();
+  const d = ensureDaily();
+  openStudyForTopic(d.topicId, "focus");
 });
 
 $("btnNextQ").addEventListener("click", ()=>{
