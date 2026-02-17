@@ -23,16 +23,16 @@
 
       --bg:#f8fbff;
       --surface:#f2f6fb;
-      --card:#f4f8fd;
-      --line:rgba(30,60,100,.12);
+      --card:#f6f9fe;
+      --line:rgba(30,60,100,.24);
 
-      --text:#1f334d;
-      --muted:#5e6f82;
-      --textStrong:#182b45;
+      --text:#162840;
+      --muted:#42566d;
+      --textStrong:#11233a;
       --keyMetric:#16314f;
-      --bgWash:rgba(255,255,255,.65);
-      --cardShadow:0 8px 18px rgba(33, 62, 97, .08);
-      --ctaBorder:rgba(32,73,122,.56);
+      --bgWash:rgba(255,255,255,.78);
+      --cardShadow:0 8px 18px rgba(24, 48, 76, .14);
+      --ctaBorder:rgba(32,73,122,.72);
       --ctaShadow:0 12px 24px rgba(32,73,122,.32);
 
       --accent:#6e90ca;    /* slate blue */
@@ -118,7 +118,7 @@
       background-size: cover;
       background-position: center;
       background-repeat:no-repeat;
-      opacity:.17;
+      opacity:.12;
       filter: var(--paleBlueBgFilter);
       transform: scale(1.05);
       z-index:0;
@@ -162,9 +162,9 @@
   -webkit-backdrop-filter: blur(16px) saturate(140%);
   -webkit-mask-image: -webkit-radial-gradient(white, black);
 
-  border: 1px solid rgba(255,255,255,.50);
+  border: 1px solid rgba(40,78,122,.34);
   box-shadow:
-    0 8px 18px rgba(0,0,0,.06),
+    0 8px 18px rgba(0,0,0,.1),
     inset 0 1px 0 rgba(232,241,250,.40);
 
   display:flex;
@@ -320,8 +320,8 @@
   min-height:34px;
   padding:6px 8px;
   border-radius:999px;
-  border:1px solid color-mix(in srgb, var(--accent) 42%, #ffffff 58%);
-  background:linear-gradient(180deg, #f6f9ff, #e8f0fa);
+  border:1px solid color-mix(in srgb, var(--accent) 62%, #ffffff 38%);
+  background:linear-gradient(180deg, #f8fbff, #eaf2fc);
   box-shadow:0 4px 10px color-mix(in srgb, var(--accent) 22%, transparent);
 }
 .switch{
@@ -377,7 +377,7 @@
   width:100%;
   height:132px;
   border-radius:16px;
-  border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
+  border:1px solid color-mix(in srgb, var(--line) 82%, var(--accent2) 18%);
   background:transparent;
   box-shadow: 0 8px 14px rgba(0,0,0,.06);
   position:relative;
@@ -449,10 +449,10 @@
 }
 .tileTitlePanel{
   background:linear-gradient(180deg, rgba(255,255,255,.78), color-mix(in srgb, var(--accent3) 56%, #ffffff 44%));
-  border:1px solid color-mix(in srgb, var(--accent2) 38%, #ffffff 62%);
+  border:1px solid color-mix(in srgb, var(--accent) 36%, #ffffff 64%);
   border-radius:12px;
   padding:8px 10px;
-  box-shadow:0 4px 10px rgba(0,0,0,.12);
+  box-shadow:0 4px 10px rgba(0,0,0,.16);
 }
 .tankContent .tileNum{ font-size:18px; }
 .tankContent .tileMain{ font-size:13px; }
