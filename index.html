@@ -2507,10 +2507,7 @@
         </div>
 
         <div class="masteryWrap" id="quizMasteryWrap" aria-live="polite">
-          <div class="row" style="justify-content:space-between;gap:6px">
-            <div class="note" id="quizMasteryLabel">Mastery: 0% (target 80%)</div>
-            <div class="note" id="quizTopicMastery">Topic: 0%</div>
-          </div>
+          <div class="note" id="quizMasteryLabel">Progress: 0%</div>
           <div class="masteryTrack"><div class="masteryFill" id="quizMasteryFill"></div></div>
         </div>
 
@@ -10226,15 +10223,6 @@ function getQuizPool(topicId){
 /* QUIZ state + streaks */
 let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED", fromDailyChallenge:false };
 
-function quizTopicMasteryPercent(topicId){
-  if(topicId === "MIXED"){
-    const vals = enabledTopicIds().map(tid=>Number(touchTopicStats(tid).quizBestPercent||0));
-    if(!vals.length) return 0;
-    return Math.round(vals.reduce((a,b)=>a+b,0) / vals.length);
-  }
-  return Number(touchTopicStats(topicId).quizBestPercent||0);
-}
-
 function inferChoiceType(answer){
   const a = String(answer||"").trim();
   if(/^\d{4}$/.test(a)) return "year";
@@ -10259,11 +10247,8 @@ function buildExamisedQuestion(q){
 }
 
 function updateQuizMasteryUi(){
-  const target = 80;
   const runPercent = QUIZ.list.length ? Math.round((QUIZ.score / QUIZ.list.length) * 100) : 0;
-  const topicPercent = quizTopicMasteryPercent(QUIZ.topicId);
-  $("quizMasteryLabel").textContent = `Mastery: ${runPercent}% (target ${target}%)`;
-  $("quizTopicMastery").textContent = `Topic: ${topicPercent}%`;
+  $("quizMasteryLabel").textContent = `Progress: ${runPercent}%`;
   $("quizMasteryFill").style.width = `${Math.min(100, runPercent)}%`;
 }
 
