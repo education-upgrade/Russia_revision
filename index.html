@@ -1902,11 +1902,13 @@
       width:100%;
     }
     .protectBtn{
-      background:#ffffff;
-      color:#2A6CFF;
-      border:1px solid rgba(0,0,0,.10);
+      background:linear-gradient(180deg, #2f73ff, #2059db);
+      color:#ffffff;
+      border:1px solid rgba(19,48,112,.45);
       border-radius:14px;
-      box-shadow:var(--shadow);
+      box-shadow:
+        0 16px 26px rgba(23, 58, 138, .34),
+        0 4px 10px rgba(19, 48, 112, .22);
     }
 
     @media (max-width: 420px){
@@ -2176,19 +2178,35 @@
     .protectBtn{
       margin-top:12px;
       width:100%;
-      padding:10px 12px;
-      min-height:44px;
+      padding:14px 16px;
+      min-height:56px;
       font:inherit;
-      font-weight:900;
-      color:var(--text);
+      font-size:17px;
+      font-weight:1000;
+      color:#fff;
       cursor:pointer;
-      letter-spacing:.15px;
-      transition:none;
+      letter-spacing:.25px;
+      text-shadow:0 1px 0 rgba(0,0,0,.16);
+      transition:transform .14s ease, box-shadow .14s ease, filter .14s ease;
     }
-    .protectBtn:hover{ border-color: rgba(0,0,0,.16); }
+    .protectBtn:hover{
+      border-color: rgba(17,41,93,.58);
+      box-shadow:
+        0 20px 30px rgba(23, 58, 138, .38),
+        0 6px 12px rgba(19, 48, 112, .26);
+      transform:translateY(-1px);
+      filter:saturate(1.08);
+    }
     .protectBtn:active{
       transform:translateY(1px);
-      background: color-mix(in srgb, #2A6CFF 10%, #ffffff 90%);
+      box-shadow:
+        0 10px 16px rgba(23, 58, 138, .28),
+        0 3px 6px rgba(19, 48, 112, .2);
+      filter:saturate(1);
+    }
+    .protectBtn:focus-visible{
+      outline:3px solid rgba(47,115,255,.36);
+      outline-offset:2px;
     }
 
     .recommendedCardTitle{
