@@ -973,6 +973,46 @@
       gap:8px;
       align-items:center;
     }
+    .quizTopPanel{
+      position:relative;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:12px;
+      margin-bottom:10px;
+      overflow:hidden;
+      isolation:isolate;
+      background:linear-gradient(180deg, rgba(250,253,255,.96), rgba(242,248,253,.95));
+    }
+    .quizTopPanel::before{
+      content:"";
+      position:absolute;
+      top:-8px;
+      right:12px;
+      width:96px;
+      height:96px;
+      background-repeat:no-repeat;
+      background-size:100% 100%;
+      opacity:.07;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='m13 2-8 12h6l-1 8 8-12h-6z' fill='none' stroke='%231f334d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      pointer-events:none;
+      z-index:0;
+    }
+    .quizTopPanel::after{
+      content:"Quiz";
+      position:absolute;
+      top:8px;
+      right:24px;
+      font-size:32px;
+      font-weight:900;
+      letter-spacing:.02em;
+      color:rgba(31,51,77,.08);
+      pointer-events:none;
+      z-index:0;
+    }
+    .quizTopPanel > *{
+      position:relative;
+      z-index:1;
+    }
     .quizDiceBtn{
       grid-column:2;
       width:38px;
@@ -2495,14 +2535,16 @@
       </div>
 
       <div id="quizBox" class="hidden">
-        <div class="quizMetaGrid">
-          <div class="pill" id="quizMeta">Q 1/20</div>
-          <button class="btn small quizDiceBtn hidden" id="btnRandomQuizMini" type="button" aria-label="Start another random quiz">🎲</button>
-        </div>
+        <div class="quizTopPanel">
+          <div class="quizMetaGrid">
+            <div class="pill" id="quizMeta">Q 1/20</div>
+            <button class="btn small quizDiceBtn hidden" id="btnRandomQuizMini" type="button" aria-label="Start another random quiz">🎲</button>
+          </div>
 
-        <div class="masteryWrap" id="quizMasteryWrap" aria-live="polite">
-          <div class="note" id="quizMasteryLabel">Progress: 0%</div>
-          <div class="masteryTrack"><div class="masteryFill" id="quizMasteryFill"></div></div>
+          <div class="masteryWrap" id="quizMasteryWrap" aria-live="polite">
+            <div class="note" id="quizMasteryLabel">Progress: 0%</div>
+            <div class="masteryTrack"><div class="masteryFill" id="quizMasteryFill"></div></div>
+          </div>
         </div>
 
         <div class="divider"></div>
