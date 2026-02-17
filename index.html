@@ -8511,9 +8511,10 @@ function renderStreakHero(){
     btn.textContent = cta.label;
     btn.disabled = cta.disabled;
     btn.onclick = cta.onClick;
-    btn.style.background = cta.accentColor
-      ? cta.accentColor
-      : "linear-gradient(180deg, #2f73ff, #2059db)";
+    const homeTitleColor = getComputedStyle(document.documentElement)
+      .getPropertyValue("--accent")
+      .trim() || "#2f73ff";
+    btn.style.background = cta.accentColor || homeTitleColor;
   }
 
 
