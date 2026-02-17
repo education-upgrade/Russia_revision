@@ -1691,7 +1691,7 @@
     .homeTopBrandRow{
       display:flex;
       align-items:flex-start;
-      justify-content:flex-start;
+      justify-content:space-between;
       gap:12px;
       margin-bottom:8px;
     }
@@ -1705,9 +1705,9 @@
       letter-spacing:.1px;
     }
     .educationUpgradeLogo{
-      position:absolute;
-      top:2px;
-      right:0;
+      position:static;
+      flex:0 0 auto;
+      max-width:44%;
       text-align:right;
       line-height:.95;
       color:#142846;
@@ -1785,6 +1785,8 @@
     @media (max-width: 420px){
       .streakCountPill{ width:72px; height:72px; }
       .streakCountNum{ font-size:26px; }
+      .educationUpgradeLogo{ max-width:48%; }
+      .educationUpgradeLine{ font-size:clamp(18px, 4.5vw, 24px); }
     }
 
     .streakPillBtn{
