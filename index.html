@@ -2469,12 +2469,22 @@
   pointer-events:none;
 }
 .splashImage{
-  width:min(70vw, 340px);
-  max-width:340px;
+  width:min(82vw, 440px);
+  max-width:440px;
   height:auto;
   mix-blend-mode:multiply;
   opacity:.76;
   filter:contrast(1.05) saturate(.9);
+}
+
+@media (max-width: 768px){
+  .splashImage{
+    width:100vw;
+    max-width:none;
+    height:100vh;
+    object-fit:cover;
+    opacity:.84;
+  }
 }
 
 @media (prefers-reduced-motion: reduce){
@@ -11171,7 +11181,7 @@ function hideSplashScreen(){
 }
 
 function startAppWithSplash(){
-  const splashMinMs = 1450;
+  const splashMinMs = 2600;
   const startAt = performance.now();
   init();
   const elapsed = performance.now() - startAt;
