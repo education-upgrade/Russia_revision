@@ -973,6 +973,22 @@
       gap:8px;
       align-items:center;
     }
+    .quizPanelTitle{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin:0 0 10px;
+      color:var(--textStrong);
+      font-size:38px;
+      font-weight:950;
+      line-height:1;
+    }
+    .quizPanelTitleText{
+      font-size:40px;
+      font-weight:950;
+      letter-spacing:.2px;
+      line-height:1;
+    }
     .quizMetaLabel{
       margin:0;
       font-size:13px;
@@ -1010,6 +1026,15 @@
 
       .quizMetaGrid{
         gap:6px;
+      }
+
+      .quizPanelTitle{
+        margin-bottom:8px;
+        font-size:32px;
+      }
+
+      .quizPanelTitleText{
+        font-size:34px;
       }
 
       .masteryWrap{
@@ -2502,6 +2527,10 @@
       </div>
 
       <div id="quizBox" class="hidden">
+        <div class="quizPanelTitle" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="1em" height="1em" focusable="false"><path fill="currentColor" d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg>
+          <span class="quizPanelTitleText">Quiz</span>
+        </div>
         <div class="quizMetaGrid">
           <p class="quizMetaLabel" id="quizMeta">Q 1/20</p>
           <button class="btn small quizDiceBtn hidden" id="btnRandomQuizMini" type="button" aria-label="Start another random quiz">🎲</button>
