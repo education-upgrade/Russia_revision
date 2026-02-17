@@ -1546,12 +1546,14 @@
   display:inline-flex;
   align-items:center;
   gap:10px;
-  border:1px solid color-mix(in srgb, var(--line) 75%, var(--accent2) 25%);
+  border:1px solid color-mix(in srgb, rgba(22,45,91,.42) 75%, var(--accent2) 25%);
   border-radius:999px;
-  padding:10px 14px;
-  background: linear-gradient(165deg, color-mix(in srgb, var(--accent3) 42%, #ffffff 58%), color-mix(in srgb, var(--accent2) 20%, #ffffff 80%));
-  box-shadow: var(--shadow);
-  color:rgba(22,45,91,.82);
+  padding:10px 16px;
+  background:rgba(255,255,255,.62);
+  backdrop-filter: blur(6px) saturate(120%);
+  box-shadow:0 10px 24px rgba(124,155,206,.24);
+  color:rgba(22,45,91,.34);
+  text-shadow:0 8px 20px rgba(124,155,206,.16);
   font-weight:1000;
   font-size:22px;
   letter-spacing:.3px;
@@ -1566,6 +1568,10 @@
 }
 
 section#games:has(.gamePane:not(.hidden)) .gamesHeroCard{
+  display:none;
+}
+
+section#games.gamePaneActive .gamesHeroCard{
   display:none;
 }
 
@@ -8834,17 +8840,21 @@ if(streakProgressBtn){
 
 /* Games hub navigation */
 function gamesShowHub(){
+  const gamesSection = $("games");
   const hub = $("gamesHub");
   const panes = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane"];
   if(!hub) return;
+  if(gamesSection) gamesSection.classList.remove("gamePaneActive");
   hub.classList.remove("hidden");
   panes.forEach(id => $(id) && $(id).classList.add("hidden"));
   if($("timelineTopicSelect")) tlPopulateSelect();
   window.scrollTo(0,0);
 }
 function openGamePane(paneId){
+  const gamesSection = $("games");
   const hub = $("gamesHub");
   const panes = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane"];
+  if(gamesSection) gamesSection.classList.add("gamePaneActive");
   if(hub) hub.classList.add("hidden");
   panes.forEach(id => $(id) && $(id).classList.toggle("hidden", id!==paneId));
   window.scrollTo(0,0);
