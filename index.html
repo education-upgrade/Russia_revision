@@ -8666,6 +8666,23 @@ function getTopicXpLevel(totalEarnedXp){
   return { label: level, tierIndex, progressInTier };
 }
 
+function getUnifiedTopicLevel(progress){
+  const safe = Math.max(0, Math.min(100, Math.round(Number(progress || 0))));
+  if(safe >= 85) return { label:"mastery", tierIndex:3, progressInTier:safe };
+  if(safe >= 65) return { label:"ambition", tierIndex:2, progressInTier:safe };
+  if(safe >= 40) return { label:"strong foundations", tierIndex:1, progressInTier:safe };
+  return { label:"building", tierIndex:0, progressInTier:safe };
+}
+
+function topicProgressModel(topicId){
+  const xp = topicXpBreakdown(topicId);
+  const retention = topicRetentionSummary(topicId);
+  const retentionPercent = Math.max(0, Math.min(100, Math.round(Number(retention.retention || 0) * 100)));
+  const blendedProgress = Math.max(0, Math.min(100, Math.round((xp.totalXp * 0.6) + (retentionPercent * 0.4))));
+  const unifiedLevel = getUnifiedTopicLevel(blendedProgress);
+  return { xp, retention, retentionPercent, blendedProgress, unifiedLevel };
+}
+
 function computeThisWeekMetrics(){
   const today = todayKey();
   const daily = STATE.analytics?.daily || {};
@@ -8689,10 +8706,9 @@ function renderProgressReport(){
   const topicIds = enabledTopicIds();
   const topicRows = topicIds.map(tid=>({
     topic: TOPICS.find(t=>t.id===tid),
-    xp: topicXpBreakdown(tid),
-    retention: topicRetentionSummary(tid)
+    model: topicProgressModel(tid)
   }));
-  const avgReadiness = topicRows.length ? Math.round(topicRows.reduce((n,row)=>n + row.xp.totalXp,0) / topicRows.length) : 0;
+  const avgReadiness = topicRows.length ? Math.round(topicRows.reduce((n,row)=>n + row.model.blendedProgress,0) / topicRows.length) : 0;
 
   const readinessVal = $("overallReadinessVal");
   const readinessFill = $("overallReadinessFill");
@@ -8714,7 +8730,8 @@ function renderProgressReport(){
 
   const topicXpEl = $("topicXpList");
   if(topicXpEl){
-    topicXpEl.innerHTML = topicRows.map(({topic,xp,retention})=>{
+    topicXpEl.innerHTML = topicRows.map(({topic,model})=>{
+      const { xp, retention, unifiedLevel, blendedProgress } = model;
       const trend = retentionTrendMeta(retention.delta);
       const topicTitle = escapeHtml(topic?.title || xp.topicId);
       const dialogTitle = `${topicTitle} · ${escapeHtml(trend.label)}`;
@@ -8724,11 +8741,11 @@ function renderProgressReport(){
         <div class="topicXpTop">
           <div class="topicXpTitle">${topicTitle}</div>
           <div class="topicXpMeta">
-            <span class="statusTag ${xp.status.cls}">${escapeHtml(xp.xpLevel.label)}</span>
+            <span class="statusTag ${xp.status.cls}">${escapeHtml(unifiedLevel.label)}</span>
           </div>
         </div>
-        <div class="topicXpSub"><span>${xp.xpLevel.progressInTier}/100 XP</span><button type="button" class="topicRetentionArrowBtn" title="${trend.label}" aria-label="${trend.label}: tap for explanation" data-topic-arrow="1" data-dialog-title="${dialogTitle}" data-dialog-body="${escapeHtml(trend.reason)}" data-dialog-meta="${escapeHtml(daysText)}"><span class="topicRetentionArrow ${trend.cls}" aria-hidden="true">${trend.arrow}</span></button></div>
-        <div class="progressTrack" style="margin-top:6px"><div class="progressFill" style="width:${xp.xpLevel.progressInTier}%"></div></div>
+        <div class="topicXpSub"><span>${blendedProgress}/100 progress</span><button type="button" class="topicRetentionArrowBtn" title="${trend.label}" aria-label="${trend.label}: tap for explanation" data-topic-arrow="1" data-dialog-title="${dialogTitle}" data-dialog-body="${escapeHtml(trend.reason)}" data-dialog-meta="${escapeHtml(daysText)}"><span class="topicRetentionArrow ${trend.cls}" aria-hidden="true">${trend.arrow}</span></button></div>
+        <div class="progressTrack" style="margin-top:6px"><div class="progressFill" style="width:${blendedProgress}%"></div></div>
       </div>
     `;
     }).join("");
@@ -8807,8 +8824,10 @@ function renderTopicDashboard(){
   el.innerHTML = topicIds.map(tid=>{
     const t = FACT_BANK[tid];
     const conf = topicConfidence(tid);
-    const xp = topicXpBreakdown(tid);
-    const retentionSummary = topicRetentionSummary(tid);
+    const model = topicProgressModel(tid);
+    const xp = model.xp;
+    const unifiedLevel = model.unifiedLevel;
+    const blendedProgress = model.blendedProgress;
 
     const total = Math.max(1, conf.total || 0);
     const gRaw = (conf.counts.secure/total)*100;
@@ -8827,18 +8846,18 @@ function renderTopicDashboard(){
     const fill = Math.max(0, Math.min(100, Math.round(((conf.counts.secure + (conf.counts.developing*0.5)) / total) * 100)));
 
     // Liquid colour shifts with progress (same traffic-light scheme)
-    const liq = (xp.totalXp >= 70) ? "var(--good)" : (xp.totalXp >= 35) ? "var(--warn)" : "var(--bad)";
+    const liq = (blendedProgress >= 70) ? "var(--good)" : (blendedProgress >= 35) ? "var(--warn)" : "var(--bad)";
 
     const legacyLvl = conf.levelObj || getXpLevel(conf.avg||0);
     const lvl = {
-      key: `xp-${xp.xpLevel.tierIndex}`,
-      label: xp.xpLevel.label,
-      rank: xp.xpLevel.tierIndex,
+      key: `xp-${unifiedLevel.tierIndex}`,
+      label: unifiedLevel.label,
+      rank: unifiedLevel.tierIndex,
       icon: legacyLvl.icon
     };
-    const badgeText = retentionSummary.categoryLabel;
+    const badgeText = unifiedLevel.label;
     const topicQuiz = Number(touchTopicStats(tid).quizBestPercent||0);
-    const topicMastery = Math.max(xp.totalXp, topicQuiz);
+    const topicMastery = Math.max(blendedProgress, topicQuiz);
 
     // Level-up detection per topic (stored in localStorage)
     STATE.topicLevels ||= {};
@@ -8856,7 +8875,7 @@ function renderTopicDashboard(){
 
     return `
       <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic" style="--topicTileBg:url('${topicBg}');">
-        <div class="progressTank" style="--fill:${xp.totalXp}%; --liq:${liq}; --topicBg:url('${topicBg}');">
+        <div class="progressTank" style="--fill:${blendedProgress}%; --liq:${liq}; --topicBg:url('${topicBg}');">
           <div class="progressLiquid"></div>
           <div class="tankContent">
             ${tileTitleHTML(t.title)}
