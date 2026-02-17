@@ -9375,27 +9375,10 @@ function getMagicMomentMetric(topicId){
 
 function showMagicMomentSheet(){
   const sheet = $("magicMomentSheet");
-  if(!sheet) return;
-  const reco = getNextBestAction(Date.now());
-  $("magicMomentMetric").textContent = getMagicMomentMetric(reco.topicId);
-
-  const nextBtn = $("magicMomentNextBtn");
-  nextBtn.onclick = ()=>{
-    logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId, source:"magic_moment" });
-    trackTaskStarted(reco.taskType, reco.topicId);
-    sheet.classList.add("hidden");
-    navigateToRoute(reco.route);
-  };
-  $("magicMomentDismissBtn").onclick = ()=>sheet.classList.add("hidden");
-  sheet.classList.remove("hidden");
+  if(sheet) sheet.classList.add("hidden");
 }
 
 function maybeShowMagicMoment(taskType){
-  const eligible = new Set(["FLASHCARDS","QUIZ","PLAN_25"]);
-  if(!eligible.has(taskType)) return false;
-  if(localStorage.getItem(SESSION_MAGIC_SHOWN_KEY) === "1") return false;
-  localStorage.setItem(SESSION_MAGIC_SHOWN_KEY, "1");
-  showMagicMomentSheet();
   return true;
 }
 
@@ -9442,7 +9425,7 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   APP_SESSION.tasksCompleted = Number(APP_SESSION.tasksCompleted||0) + 1;
   logEvent("task_completed", { taskType, topicId, scoreDelta: extra.scoreDelta, gameType: extra.gameType });
   renderHomeRecommendation();
-  if(!maybeShowMagicMoment(taskType)) showNextUpSheet();
+  maybeShowMagicMoment(taskType);
 }
 function topicFlashcardStats(topicId){
   const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
@@ -9655,20 +9638,8 @@ function renderHomeRecommendation(){
   renderDebugPanel();
 }
 function showNextUpSheet(){
-  const reco = getNextBestAction(Date.now());
   const sheet = $("nextUpSheet");
-  if(!sheet) return;
-  $("nextUpReason").textContent = reco.reason;
-  const p = $("nextUpPrimaryBtn");
-  p.textContent = reco.label;
-  p.onclick = ()=>{
-    logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
-    trackTaskStarted(reco.taskType, reco.topicId);
-    sheet.classList.add("hidden");
-    navigateToRoute(reco.route);
-  };
-  $("nextUpDismissBtn").onclick = ()=>sheet.classList.add("hidden");
-  sheet.classList.remove("hidden");
+  if(sheet) sheet.classList.add("hidden");
 }
 function initOnboarding(){
   const overlay = $("onboardingOverlay");
