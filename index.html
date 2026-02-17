@@ -781,6 +781,18 @@
     .studyWrap{ display:flex; flex-direction:column; gap:14px; }
     .studyControls{ order:1; }
     .studyCard{ order:2; }
+    .studyMetaRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:nowrap;
+    }
+    .studyMetaRow .quizPanelTitle{
+      justify-self:start;
+      flex:1;
+      min-width:0;
+    }
 
     .studyLaunch{
       display:flex;
@@ -2453,7 +2465,11 @@
     <div class="studyWrap">
       <!-- FLASHCARD (shown first on mobile) -->
       <div class="card studyCard">
-        <div class="row" style="justify-content:space-between; align-items:center">
+        <div class="studyMetaRow">
+          <div class="quizPanelTitle" aria-hidden="true">
+            <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg>
+            <span class="quizPanelTitleText">Study</span>
+          </div>
           <div class="pill" id="cardMeta">🃏 Card 0/0</div>
         </div>
 
