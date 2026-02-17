@@ -1683,6 +1683,45 @@
       flex-direction:column;
       gap:10px;
     }
+    .homeTopBrandRow{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:8px;
+    }
+    .homeTitleChip{
+      justify-self:start;
+      align-self:center;
+      gap:7px;
+    }
+    .homeTitleChip .quizPanelTitleText{
+      text-transform:lowercase;
+      letter-spacing:.1px;
+    }
+    .educationUpgradeLogo{
+      flex:0 0 auto;
+      text-align:right;
+      line-height:.95;
+      color:#142846;
+      font-weight:500;
+      font-family:"Comic Sans MS", "Segoe Script", "Bradley Hand", cursive;
+      user-select:none;
+    }
+    .educationUpgradeLine{
+      font-size:clamp(20px, 4.7vw, 30px);
+      white-space:nowrap;
+    }
+    .educationUpgradeLine + .educationUpgradeLine{ margin-top:4px; }
+    .educationUpgradeAccent{ color:#72c8ed; }
+    .educationUpgradeAsterisk{
+      color:#72c8ed;
+      font-size:.72em;
+      vertical-align:top;
+      margin-left:1px;
+      display:inline-block;
+      transform: translateY(-1px);
+    }
     .streakTopicRow{
       display:flex;
       align-items:flex-start;
@@ -2103,6 +2142,8 @@
       .recommendedMeta{ margin-top:4px; }
 
       .streakTopicRow{ gap:8px; }
+      .homeTopBrandRow{ align-items:center; }
+      .educationUpgradeLine{ font-size:clamp(18px, 6vw, 24px); }
       .streakCountPill{ padding:8px 10px; }
       .dailyTopicInline{ font-size:12px; }
       .streakCountNum{ font-size:44px; }
@@ -2363,6 +2404,16 @@
     <div class="card homeSecondaryCard" id="streakHeroCard">
       <div class="streakHeader">
         <div class="streakHeaderCopy">
+          <div class="homeTopBrandRow">
+            <div class="quizPanelTitle homeTitleChip" aria-hidden="true">
+              <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
+              <span class="quizPanelTitleText">home</span>
+            </div>
+            <div class="educationUpgradeLogo" aria-label="Education Upgrade">
+              <div class="educationUpgradeLine">Educ<span class="educationUpgradeAccent">A<span class="educationUpgradeAsterisk">*</span></span>tion</div>
+              <div class="educationUpgradeLine">Up<span class="educationUpgradeAccent">9</span>rade</div>
+            </div>
+          </div>
           <div class="dailyChallengeTitle">Daily challenge</div>
           <div class="note" id="streakNote">Complete today’s task to keep your streak</div>
           <div class="streakTopicRow">
