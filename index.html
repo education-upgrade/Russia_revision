@@ -1068,7 +1068,49 @@
     .quizResultStatus.bad{ color:#8f5f73; }
     .quizResultExplain{ margin-top:10px; }
     .quizResultActions{ display:flex; justify-content:flex-end; margin-top:12px; }
-    .quizCompleteActions{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; margin-top:12px; }
+    .quizCompleteActions{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0, 1fr));
+      gap:10px;
+      margin-top:14px;
+      width:100%;
+    }
+    .quizCompleteActionBtn{
+      width:100%;
+      aspect-ratio:1 / 1;
+      border-radius:18px;
+      padding:10px 8px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-align:center;
+      line-height:1.15;
+    }
+    .quizCompleteActionIcon{
+      width:22px;
+      height:22px;
+      stroke:currentColor;
+      stroke-width:2;
+      fill:none;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      flex-shrink:0;
+    }
+    .quizCompleteActionLabel{
+      font-size:13px;
+      font-weight:800;
+      text-wrap:balance;
+    }
+
+    @media (max-width:520px){
+      .quizCompleteActionBtn{
+        border-radius:16px;
+        padding:8px 6px;
+      }
+      .quizCompleteActionLabel{ font-size:12px; }
+    }
 
     @media (max-width:700px){
       .quizBackgroundTitle{
@@ -2839,10 +2881,22 @@
       <div class="quizResultStatus" id="quizCompleteStatus"></div>
       <div class="note quizResultExplain" id="quizCompleteExplain"></div>
       <div class="quizCompleteActions">
-        <button class="btn small hidden" id="btnQuizCompleteFix" type="button">🛠️ Fix incorrect answers</button>
-        <button class="btn small hidden" id="btnQuizCompleteFlashcards" type="button">🗂️ Go to flashcards</button>
-        <button class="btn small" id="btnQuizCompleteHome" type="button">🏠 Return to Home Screen</button>
-        <button class="btn small" id="btnQuizCompleteClose" type="button">Close</button>
+        <button class="btn small hidden quizCompleteActionBtn" id="btnQuizCompleteFix" type="button">
+          <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 5l5 5"></path><path d="M4 20l5-1 10-10a2.8 2.8 0 0 0-4-4L5 15l-1 5z"></path><path d="M3 21h7"></path></svg>
+          <span class="quizCompleteActionLabel">Fix incorrect answers</span>
+        </button>
+        <button class="btn small hidden quizCompleteActionBtn" id="btnQuizCompleteFlashcards" type="button">
+          <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="14" height="10" rx="2"></rect><path d="M8 8h6"></path><path d="M6 16h14a2 2 0 0 1 0 4H8a2 2 0 0 1-2-2V6a2 2 0 0 0-2-2"></path></svg>
+          <span class="quizCompleteActionLabel">Go to flashcards</span>
+        </button>
+        <button class="btn small quizCompleteActionBtn" id="btnQuizCompleteHome" type="button">
+          <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
+          <span class="quizCompleteActionLabel">Return to Home</span>
+        </button>
+        <button class="btn small quizCompleteActionBtn" id="btnQuizCompleteClose" type="button">
+          <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12"></path><path d="m18 6-12 12"></path></svg>
+          <span class="quizCompleteActionLabel">Close</span>
+        </button>
       </div>
     </div>
   </div>
