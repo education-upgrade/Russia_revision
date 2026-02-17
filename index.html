@@ -566,6 +566,8 @@
 
 .topicXpList{display:flex;flex-direction:column;gap:10px;margin-top:10px}
 .topicXpItem{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:14px;padding:12px;background:linear-gradient(170deg, color-mix(in srgb, var(--accent3) 54%, #ffffff 46%), color-mix(in srgb, var(--accent2) 24%, #ffffff 76%))}
+.topicXpItem[data-topic-open]{cursor:pointer}
+.topicXpItem[data-topic-open]:focus-visible{outline:2px solid color-mix(in srgb, var(--accent2) 70%, #2c5aa0 30%);outline-offset:2px}
 .topicXpTop{display:flex;align-items:flex-start;gap:10px}
 .topicXpTitle{font-weight:900;font-size:clamp(16px, 3.1vw, 20px);line-height:1.24;text-wrap:balance;flex:1}
 .topicXpMeta{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-shrink:0}
@@ -9075,7 +9077,7 @@ function renderProgressReport(){
       const dialogTitle = `${topicTitle} · ${escapeHtml(trend.label)}`;
       const daysText = xp.daysSince === null ? "No study session logged yet." : `Last studied ${xp.daysSince} day${xp.daysSince===1?"":"s"} ago.`;
       return `
-      <div class="topicXpItem">
+      <div class="topicXpItem" role="button" tabindex="0" data-topic-open="1" data-topic-id="${xp.topicId}" aria-label="Open ${topicTitle} flashcards (full random cards)">
         <div class="topicXpTop">
           <div class="topicXpTitle">${topicTitle}</div>
           <div class="topicXpMeta">
@@ -9120,8 +9122,24 @@ function initTopicArrowDialog(){
 
   listEl.addEventListener("click", (event)=>{
     const btn = event.target.closest("[data-topic-arrow='1']");
-    if(!btn) return;
-    openTopicArrowDialog(btn);
+    if(btn){
+      openTopicArrowDialog(btn);
+      return;
+    }
+
+    const panel = event.target.closest("[data-topic-open='1']");
+    if(!panel || !listEl.contains(panel)) return;
+    const topicId = panel.dataset.topicId;
+    if(topicId) openStudyForTopic(topicId, "all");
+  });
+
+  listEl.addEventListener("keydown", (event)=>{
+    if(event.key !== "Enter" && event.key !== " ") return;
+    const panel = event.target.closest("[data-topic-open='1']");
+    if(!panel || !listEl.contains(panel)) return;
+    event.preventDefault();
+    const topicId = panel.dataset.topicId;
+    if(topicId) openStudyForTopic(topicId, "all");
   });
 
   closeBtn.addEventListener("click", closeTopicArrowDialog);
