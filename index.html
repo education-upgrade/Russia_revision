@@ -920,6 +920,8 @@
       font-size:clamp(24px, 2.1vw, 28px);
       line-height:1.3;
       min-height:62px;
+      white-space:normal;
+      overflow-wrap:anywhere;
     }
     .choiceBtn.correct{border-color: rgba(126,185,170,.9); background: rgba(126,185,170,.12)}
     .choiceBtn.wrong{border-color: rgba(183,142,161,.9); background: rgba(183,142,161,.10)}
@@ -10457,16 +10459,10 @@ function renderQuizQ(){
   $("quizQ").textContent = q.q;
   $("quizChoices").innerHTML = "";
 
-  const formatChoiceLabel = (rawChoice)=>{
-    const maxVisibleChars = 42;
-    if(rawChoice.length <= maxVisibleChars) return rawChoice;
-    return `${rawChoice.slice(0, maxVisibleChars - 1).trimEnd()}…`;
-  };
-
   q.choices.forEach(choice=>{
     const b = document.createElement("button");
     b.className = "choiceBtn";
-    b.textContent = formatChoiceLabel(choice);
+    b.textContent = choice;
     b.title = choice;
     b.setAttribute("aria-label", choice);
 
