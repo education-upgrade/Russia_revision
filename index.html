@@ -705,6 +705,14 @@
     .btn.primary{
       background: linear-gradient(135deg, rgba(110,144,202,.95), rgba(163,194,223,.95));
     }
+    .studyLaunchBtn.isContinue{
+      background:linear-gradient(135deg, rgba(183,205,232,.96), rgba(214,228,244,.98));
+      border-color:rgba(123,157,198,.58);
+      box-shadow:
+        0 16px 30px rgba(64,102,149,.36),
+        0 5px 12px rgba(56,86,124,.28),
+        inset 0 1px 0 rgba(255,255,255,.78);
+    }
     .btn.small{padding:8px 10px;font-size:12px;font-weight:700}
 
     .revealBand{
@@ -10328,6 +10336,7 @@ function updateStudyLaunchCta(){
     : `Ready in ${modeLabel.toLowerCase()} mode • ${orderSel.value === "random" ? "Random" : "In order"}.`;
   statusEl.textContent = hasCurrent ? `Card ${CURRENT.idx+1}/${CURRENT.list.length || 0}` : "Ready";
   launchBtn.innerHTML = hasCurrent ? BUTTON_ICON_LABELS.continueFlashcards : BUTTON_ICON_LABELS.startFlashcards;
+  launchBtn.classList.toggle("isContinue", hasCurrent);
 }
 function getFilteredCards(){
   const topic = $("topicSelect").value;
