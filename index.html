@@ -2451,10 +2451,46 @@
 .tlWinTitle{ font-weight:1000; }
 .tlWinSub{ color:var(--muted); font-weight:900; font-size:12px; margin-top:2px; }
 
+.splashScreen{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#eaf4ff;
+  opacity:1;
+  visibility:visible;
+  transition: opacity .65s ease, visibility .65s ease;
+}
+.splashScreen.fadeOut{
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+}
+.splashImage{
+  width:min(70vw, 340px);
+  max-width:340px;
+  height:auto;
+  mix-blend-mode:multiply;
+  opacity:.76;
+  filter:contrast(1.05) saturate(.9);
+}
+
+@media (prefers-reduced-motion: reduce){
+  .splashScreen{
+    transition:none;
+  }
+}
+
 </style>
 </head>
 
 <body>
+
+<div id="splashScreen" class="splashScreen" aria-hidden="true">
+  <img class="splashImage" src="./IMG_2166.PNG" alt="" />
+</div>
 
 <canvas id="confettiCanvas"></canvas>
 <div id="levelUpBanner" class="levelUpBanner" aria-live="polite"></div>
@@ -11124,7 +11160,26 @@ function init(){
   });
   window.addEventListener("beforeunload", endSession);
 }
-init();
+
+function hideSplashScreen(){
+  const splash = $("splashScreen");
+  if(!splash) return;
+  splash.classList.add("fadeOut");
+  const done = ()=>splash.remove();
+  splash.addEventListener("transitionend", done, { once:true });
+  setTimeout(done, 900);
+}
+
+function startAppWithSplash(){
+  const splashMinMs = 1450;
+  const startAt = performance.now();
+  init();
+  const elapsed = performance.now() - startAt;
+  const wait = Math.max(0, splashMinMs - elapsed);
+  window.setTimeout(hideSplashScreen, wait);
+}
+
+startAppWithSplash();
 </script>
 
 <!-- Optional: PWA service worker registration (keeps mobile/PWA assets up to date) -->
