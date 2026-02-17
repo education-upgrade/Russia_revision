@@ -885,12 +885,18 @@
     .emojiBtn{
       width:100%;
       padding:14px 0;
-      font-size:30px;
       line-height:1;
       border-radius:16px;
+      display:grid;
+      place-items:center;
+    }
+    .emojiBtn .navIcon{
+      width:28px;
+      height:28px;
     }
     @media(max-width:700px){
-      .emojiBtn{ font-size:34px; padding:16px 0; }
+      .emojiBtn{ padding:16px 0; }
+      .emojiBtn .navIcon{ width:30px; height:30px; }
     }
 
 
@@ -1081,6 +1087,15 @@
     .inlineIconLabel .navIcon{
       width:22px;
       height:22px;
+    }
+    .btnIconLabel{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+    .btnIconLabel .navIcon{
+      width:20px;
+      height:20px;
     }
     .quizCompleteActions{
       display:grid;
@@ -2739,13 +2754,13 @@
           </div>
         </div>
 
-        <button class="btn primary revealBand" id="btnRevealBand" aria-label="Reveal or hide answer">👀 Show answer</button>
+        <button class="btn primary revealBand" id="btnRevealBand" aria-label="Reveal or hide answer"><span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"></path><circle cx="12" cy="12" r="2.8"></circle></svg><span>Reveal answer</span></span></button>
 
         <div class="divider"></div>
 <div class="emojiRow" style="margin-top:10px">
-          <button class="btn emojiBtn" data-score="2" aria-label="Smiley (confident)" style="border-color: rgba(126,185,170,.55)">😊</button>
-          <button class="btn emojiBtn" data-score="1" aria-label="Neutral (unsure)" style="border-color: rgba(158,183,212,.55)">😐</button>
-          <button class="btn emojiBtn" data-score="0" aria-label="Sad (needs focus)" style="border-color: rgba(183,142,161,.55)">☹️</button>
+          <button class="btn emojiBtn" data-score="2" aria-label="Confident" style="border-color: rgba(126,185,170,.55)"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9 10h.01"></path><path d="M15 10h.01"></path><path d="M8.5 14a5 5 0 0 0 7 0"></path></svg></button>
+          <button class="btn emojiBtn" data-score="1" aria-label="Unsure" style="border-color: rgba(158,183,212,.55)"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9 10h.01"></path><path d="M15 10h.01"></path><path d="M9 15h6"></path></svg></button>
+          <button class="btn emojiBtn" data-score="0" aria-label="Needs focus" style="border-color: rgba(183,142,161,.55)"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M9 10h.01"></path><path d="M15 10h.01"></path><path d="M8.5 16a5 5 0 0 1 7 0"></path></svg></button>
         </div>
       </div>
 
@@ -2759,11 +2774,11 @@
             </div>
             <div class="pill" id="studyLaunchStatus">Ready</div>
           </div>
-          <button class="btn primary studyLaunchBtn" id="studyLaunchBtn" type="button">▶️ Start flashcards</button>
+          <button class="btn primary studyLaunchBtn" id="studyLaunchBtn" type="button"><span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"></path></svg><span>Start flashcards</span></span></button>
         </div>
 
         <details class="studyAdjustPanel" id="studyAdjustPanel">
-          <summary>⚙️ Adjust filters</summary>
+          <summary><span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.05.05a2 2 0 1 1-2.83 2.83l-.05-.05a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.08a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.08a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.05-.05a2 2 0 0 1 2.83-2.83l.05.05A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.08a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.05-.05a2 2 0 1 1 2.83 2.83l-.05.05A1.7 1.7 0 0 0 19.4 9c.24.64.86 1.05 1.55 1.05H21a2 2 0 1 1 0 4h-.08c-.69 0-1.31.41-1.55 1.05z"></path></svg><span>Adjust filters</span></span></summary>
           <div class="studyAdjustBody">
             <div class="row">
               <div class="grow">
@@ -2773,15 +2788,15 @@
               <div class="grow" style="min-width:170px">
                 <label>Mode</label>
                 <select id="modeSelect">
-                  <option value="all" selected>🎲 All</option>
-                  <option value="focus">🎯 Focus</option>
+                  <option value="all" selected>All</option>
+                  <option value="focus">Focus</option>
                 </select>
               </div>
               <div class="grow" style="min-width:160px">
                 <label>Order</label>
                 <select id="orderSelect">
-                  <option value="ordered" selected>📌 In order</option>
-                  <option value="random">🎲 Random</option>
+                  <option value="ordered" selected>In order</option>
+                  <option value="random">Random</option>
                 </select>
               </div>
               <div class="grow">
@@ -2808,7 +2823,7 @@
       </div>
 
       <div class="quizLaunch">
-        <button class="btn primary quizLaunchBtn" id="btnStartRandomQuiz" type="button">🎲 Start random quiz</button>
+        <button class="btn primary quizLaunchBtn" id="btnStartRandomQuiz" type="button"><span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="9" cy="9" r="1"></circle><circle cx="15" cy="9" r="1"></circle><circle cx="9" cy="15" r="1"></circle><circle cx="15" cy="15" r="1"></circle></svg><span>Start random quiz</span></span></button>
       </div>
 
       <div id="quizBox" class="hidden">
@@ -2818,7 +2833,7 @@
             <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg>
             <span class="quizPanelTitleText">Quiz</span>
           </div>
-          <button class="btn small quizDiceBtn hidden" id="btnRandomQuizMini" type="button" aria-label="Start another random quiz">🎲</button>
+          <button class="btn small quizDiceBtn hidden" id="btnRandomQuizMini" type="button" aria-label="Start another random quiz"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"></rect><circle cx="9" cy="9" r="1"></circle><circle cx="15" cy="9" r="1"></circle><circle cx="9" cy="15" r="1"></circle><circle cx="15" cy="15" r="1"></circle></svg></button>
         </div>
 
         <div class="masteryWrap" id="quizMasteryWrap" aria-live="polite">
@@ -2836,9 +2851,9 @@
         <div class="row" style="justify-content:space-between;gap:8px">
           <div class="note" id="quizExplainer">Tap your answer.</div>
           <div class="row" style="gap:8px;justify-content:flex-end">
-            <button class="btn small hidden" id="btnFixIt">🔁 Fix-it</button>
-            <button class="btn small" id="btnReviewMisses">📝 Review</button>
-            <button class="btn small" id="btnNextQ">➡️ Next</button>
+            <button class="btn small hidden" id="btnFixIt"><span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 0 1 15.4-6.4"></path><path d="M18.4 2.8v4.9h-4.9"></path><path d="M21 12a9 9 0 0 1-15.4 6.4"></path><path d="M5.6 21.2v-4.9h4.9"></path></svg><span>Fix-it</span></span></button>
+            <button class="btn small" id="btnReviewMisses"><span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14 5l5 5"></path><path d="M4 20l5-1 10-10a2.8 2.8 0 0 0-4-4L5 15l-1 5z"></path><path d="M3 21h7"></path></svg><span>Review</span></span></button>
+            <button class="btn small" id="btnNextQ"><span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg><span>Next</span></span></button>
           </div>
         </div>
       </div>
@@ -2871,7 +2886,7 @@
           </div>
           <div>
             <label>&nbsp;</label>
-            <button class="btn primary" id="btnStartQuiz">⚡ Go quiz</button>
+            <button class="btn primary" id="btnStartQuiz"><span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg><span>Go quiz</span></span></button>
           </div>
         </div>
       </details>
@@ -10189,6 +10204,13 @@ function checkDailyFlashSessionComplete(cardId){
   }
 }
 
+const BUTTON_ICON_LABELS = {
+  reveal: `<span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z"></path><circle cx="12" cy="12" r="2.8"></circle></svg><span>Reveal answer</span></span>`,
+  hide: `<span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18"></path><path d="M10.6 10.6a2 2 0 0 0 2.8 2.8"></path><path d="M9.9 5.2A10.8 10.8 0 0 1 12 5c6 0 10 7 10 7a19.7 19.7 0 0 1-4.1 4.8"></path><path d="M6.1 6.1A19.7 19.7 0 0 0 2 12s4 7 10 7c1.6 0 3-.4 4.3-1.1"></path></svg><span>Hide answer</span></span>`,
+  startFlashcards: `<span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"></path></svg><span>Start flashcards</span></span>`,
+  continueFlashcards: `<span class="btnIconLabel"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"></path></svg><span>Continue flashcards</span></span>`
+};
+
 let revealCooldownToken = 0;
 function startRevealCooldown(ms=3000){
   const revealBtn = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
@@ -10208,11 +10230,11 @@ function startRevealCooldown(ms=3000){
       revealBtn.disabled = false;
       revealBtn.classList.remove("isLocked");
       const isHidden = aBox ? aBox.classList.contains("hidden") : true;
-      revealBtn.textContent = isHidden ? "👀 Reveal answer" : "🙈 Hide answer";
+      revealBtn.innerHTML = isHidden ? BUTTON_ICON_LABELS.reveal : BUTTON_ICON_LABELS.hide;
       return;
     }
     const secs = Math.ceil(remaining/1000);
-    revealBtn.textContent = `⏳ Reveal in ${secs}s`;
+    revealBtn.textContent = `Reveal in ${secs}s`;
     setTimeout(tick, 200);
   };
   tick();
@@ -10249,7 +10271,7 @@ function updateStudyLaunchCta(){
     ? `Search filter active. ${modeLabel} • ${orderSel.value === "random" ? "Random" : "In order"}.`
     : `Ready in ${modeLabel.toLowerCase()} mode • ${orderSel.value === "random" ? "Random" : "In order"}.`;
   statusEl.textContent = hasCurrent ? `Card ${CURRENT.idx+1}/${CURRENT.list.length || 0}` : "Ready";
-  launchBtn.textContent = hasCurrent ? "▶️ Continue flashcards" : "▶️ Start flashcards";
+  launchBtn.innerHTML = hasCurrent ? BUTTON_ICON_LABELS.continueFlashcards : BUTTON_ICON_LABELS.startFlashcards;
 }
 function getFilteredCards(){
   const topic = $("topicSelect").value;
@@ -10313,7 +10335,7 @@ function loadNextCard(){
     $("qText").textContent = "No cards match these filters. Try switching topic or clearing search.";
     $("aBox").classList.add("hidden");
     const rb = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
-    if(rb) rb.textContent = "👀 Reveal answer";
+    if(rb) rb.innerHTML = BUTTON_ICON_LABELS.reveal;
     $("cardMeta").textContent = "🃏 Card 0/0";
     updateStudyLaunchCta();
     return;
@@ -10329,7 +10351,7 @@ function renderCard(){
 
   // Reset reveal button label whenever a new card is rendered
   const rb = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
-  if(rb) rb.textContent = "👀 Reveal answer";
+  if(rb) rb.innerHTML = BUTTON_ICON_LABELS.reveal;
 
 
   // Disable reveal briefly to encourage retrieval effort
@@ -10370,7 +10392,7 @@ if(studyLaunchBtn){
   if(revealBtn && aBox){
     const syncLabel = ()=>{
       const isHidden = aBox.classList.contains("hidden");
-      revealBtn.textContent = isHidden ? "👀 Reveal answer" : "🙈 Hide answer";
+      revealBtn.innerHTML = isHidden ? BUTTON_ICON_LABELS.reveal : BUTTON_ICON_LABELS.hide;
     };
     revealBtn.addEventListener("click", ()=>{
       // If no card is loaded yet, load one first.
