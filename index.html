@@ -1257,12 +1257,13 @@
 /* =========================
    Connections-style game (Games tab)
    ========================= */
-/* Apply same section background image as other game cards */
 .connectionsCard{
   position:relative;
   overflow:hidden;
   isolation:isolate;
-  background: rgba(246,250,255,.92);
+  background:
+    linear-gradient(165deg, color-mix(in srgb, var(--accent3) 42%, #ffffff 58%), color-mix(in srgb, var(--accent2) 20%, #ffffff 80%));
+  border-color: color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
 }
 .connectionsCard::before{
   content:"";
@@ -1272,15 +1273,23 @@
   background-size: cover;
   background-position: center;
   background-repeat:no-repeat;
-  opacity:.14;
-  filter: saturate(1.12) contrast(1.05);
+  opacity:.12;
+  filter: var(--paleBlueBgFilter);
   transform: scale(1.05);
   z-index:0;
   pointer-events:none;
 }
+.connectionsCard::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:var(--paleBlueBgMask);
+  pointer-events:none;
+  z-index:1;
+}
 .connectionsCard > *{
   position:relative;
-  z-index:1;
+  z-index:2;
 }
 
 .connectionsCard{
@@ -1378,18 +1387,23 @@
 .connTile{
   border:1px solid var(--line);
   border-radius:16px;
-  padding:12px 10px;
+  padding:10px 8px;
   background:#fff;
   box-shadow: 0 6px 14px rgba(0,0,0,.04);
   font-weight:1000;
+  font-size:clamp(13px, 2.7vw, 18px);
   text-align:center;
   cursor:pointer;
   user-select:none;
-  min-height:56px;
+  min-height:74px;
+  height:74px;
   display:flex;
   align-items:center;
   justify-content:center;
-  line-height:1.15;
+  line-height:1.1;
+  overflow:hidden;
+  word-break:break-word;
+  overflow-wrap:anywhere;
 }
 
 .connTile.selected{
