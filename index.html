@@ -1676,6 +1676,7 @@
       align-items:flex-start;
       gap:14px;
       flex-wrap:nowrap;
+      position:relative;
     }
     .streakHeaderCopy{
       flex:1 1 auto;
@@ -1687,7 +1688,7 @@
     .homeTopBrandRow{
       display:flex;
       align-items:flex-start;
-      justify-content:space-between;
+      justify-content:flex-start;
       gap:12px;
       margin-bottom:8px;
     }
@@ -1701,14 +1702,16 @@
       letter-spacing:.1px;
     }
     .educationUpgradeLogo{
-      flex:0 0 auto;
+      position:absolute;
+      top:2px;
+      right:0;
       text-align:right;
       line-height:.95;
       color:#142846;
       font-weight:500;
       font-family:"Comic Sans MS", "Segoe Script", "Bradley Hand", cursive;
       user-select:none;
-      margin-right:-34px;
+      margin:0;
     }
     .educationUpgradeLine{
       font-size:clamp(20px, 4.7vw, 30px);
