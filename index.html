@@ -2407,6 +2407,25 @@ section#games.gamePaneActive .gamesHeroCard{
       box-shadow:0 24px 44px rgba(0,0,0,.2);
       padding:16px;
     }
+    .coachModal{
+      width:min(520px, 100%);
+      border-radius:20px;
+      border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
+      background:linear-gradient(180deg, color-mix(in srgb, #ffffff 90%, var(--accent3) 10%), color-mix(in srgb, #ffffff 80%, var(--accent2) 20%));
+      box-shadow:var(--shadow);
+    }
+    .coachTitleRow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .coachTitle{margin:0;font-size:20px;line-height:1.2}
+    .coachTag{font-size:12px;font-weight:900;color:var(--muted)}
+    .coachMessage{margin-top:10px;font-size:15px;font-weight:800;line-height:1.4;color:var(--textStrong)}
+    .coachMetaGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+    .coachMetaPill{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;padding:8px 10px;background:color-mix(in srgb, #fff 85%, var(--accent3) 15%);font-size:12px;font-weight:800;color:var(--text)}
+    .coachActions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
+    @media (max-width:640px){
+      .coachMetaGrid{grid-template-columns:1fr}
+      .coachActions{justify-content:stretch}
+      .coachActions .btn{flex:1 1 auto}
+    }
     .onboardingTitle{ margin:0; font-size:22px; line-height:1.15; }
     .onboardingBullets{ margin:10px 0 0; padding-left:18px; color:var(--text); }
     .onboardingBullets li{ margin-bottom:8px; font-size:14px; }
@@ -3020,6 +3039,26 @@ section#games.gamePaneActive .gamesHeroCard{
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
           <span class="quizCompleteActionLabel">Return to Home</span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="dailyCoachOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily Coach recommendation">
+    <div class="onboardingModal coachModal">
+      <div class="coachTitleRow">
+        <h3 class="coachTitle">🧠 Daily Coach</h3>
+        <span class="coachTag" id="coachPriorityTag">Updated now</span>
+      </div>
+      <div class="coachMessage" id="dailyCoachMessage">Loading recommendation…</div>
+      <div class="coachMetaGrid">
+        <div class="coachMetaPill" id="coachRetentionMeta">Retention: —</div>
+        <div class="coachMetaPill" id="coachAccuracyMeta">Accuracy: —</div>
+        <div class="coachMetaPill" id="coachXpMeta">XP: —</div>
+        <div class="coachMetaPill" id="coachLastStudyMeta">Last reviewed: —</div>
+      </div>
+      <div class="coachActions">
+        <button class="btn" id="coachDismissBtn" type="button">Close</button>
+        <button class="btn primary" id="coachChallengeBtn" type="button">Start today’s challenge</button>
       </div>
     </div>
   </div>
@@ -8601,6 +8640,7 @@ function checkDailyComplete(){
     saveState();
     logEvent("daily_challenge_completed", { topicId: d.topicId });
     updateDailyUI();
+    buildDailyCoachRecommendation();
     try{ computeKpis(); }catch(e){}
     closeQuizCompleteModal();
     showDailyChallengeCompleteModal(d.topicId);
@@ -8622,6 +8662,7 @@ function recordDailyFlashcard(topicId, cardId){
 
   d.flash = (d.flash||0) + 1;
   saveState();
+  buildDailyCoachRecommendation();
   updateDailyUI();
   checkDailyComplete();
 }
@@ -8636,6 +8677,7 @@ function recordDailyQuiz(topicId, percent){
   bucket.quizTotal = Number(bucket.quizTotal || 0) + p;
   bucket.quizAvg = Math.round(bucket.quizTotal / Math.max(1, bucket.quizAttempts));
   saveState();
+  buildDailyCoachRecommendation();
   updateDailyUI();
   checkDailyComplete();
 }
@@ -8646,6 +8688,7 @@ function recordDailyPlanOpened(topicId){
   const wasOpened = !!d.planOpened;
   d.planOpened = true;
   saveState();
+  buildDailyCoachRecommendation();
   updateDailyUI();
   checkDailyComplete();
   if(!wasOpened) trackTaskCompleted("PLAN_25", topicId);
@@ -9705,6 +9748,7 @@ initTopicArrowDialog();
 /* Home quick buttons (legacy IDs kept for safety) */
 
 const LAST_STUDY_CONTEXT_KEY = "russia_revision_last_study_context_v1";
+const DAILY_COACH_RECO_KEY = "russia_daily_coach_recommendation_v1";
 const EVENT_LOG_KEY = "russia_revision_event_log_v1";
 const ONBOARDED_KEY = "onboarded";
 const USER_GOAL_KEY = "userGoal";
@@ -10107,6 +10151,7 @@ function navigateToRoute(route){
 }
 function renderHomeRecommendation(){
   const reco = getNextBestAction(Date.now());
+  getDailyCoachRecommendation(false);
   logEvent("home_reco_shown", { taskType: reco.taskType, topicId: reco.topicId });
   renderDebugPanel();
 }
@@ -10225,6 +10270,197 @@ function challengeStepColor(step){
   return textColor || null;
 }
 
+function loadLastCoachRecommendation(){
+  try{
+    const raw = localStorage.getItem(DAILY_COACH_RECO_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+
+function saveLastCoachRecommendation(payload){
+  try{ localStorage.setItem(DAILY_COACH_RECO_KEY, JSON.stringify(payload)); }catch(e){}
+}
+
+function topicMasteryPercent(topicId){
+  const stats = touchTopicStats(topicId);
+  const quiz = Math.max(0, Math.min(100, Number(stats.quizBestPercent || 0)));
+  const flashTotal = Math.max(1, Number(stats.flashcardsTotal || 0));
+  const flashDone = Math.max(0, Number(stats.flashcardsDone || 0));
+  const flashPct = Math.max(0, Math.min(100, Math.round((flashDone / flashTotal) * 100)));
+  return Math.round((quiz * 0.6) + (flashPct * 0.4));
+}
+
+function topicCoachMetrics(topicId){
+  const stats = touchTopicStats(topicId);
+  const retentionData = topicRetentionSummary(topicId);
+  return {
+    topicId,
+    quizBestPercent: Math.max(0, Math.min(100, Number(stats.quizBestPercent || 0))),
+    retentionPercent: Math.max(0, Math.min(100, Math.round(Number(retentionData.retention || 0) * 100))),
+    xp: Math.max(0, Math.round(Number(stats.totalEarnedXp || 0))),
+    failedCards: Math.max(0, Number(stats.failedCards || 0)),
+    lastStudiedAt: Math.max(0, Number(stats.lastStudiedAt || 0)),
+    masteryPercent: topicMasteryPercent(topicId),
+    due: dueForReview(topicId)
+  };
+}
+
+function getCoachRecommendedTopic(){
+  const enabled = enabledTopicIds();
+  if(!enabled.length) return { topicId: "MIXED", reason: "mixed_topics", rankLabel: "Interleaved" };
+
+  const metrics = enabled.map(topicCoachMetrics);
+  const dueTopics = metrics.filter(m=>m.due);
+  if(dueTopics.length){
+    dueTopics.sort((a,b)=>{
+      if(a.lastStudiedAt !== b.lastStudiedAt) return a.lastStudiedAt - b.lastStudiedAt;
+      if(a.masteryPercent !== b.masteryPercent) return a.masteryPercent - b.masteryPercent;
+      if(a.quizBestPercent !== b.quizBestPercent) return a.quizBestPercent - b.quizBestPercent;
+      return a.topicId.localeCompare(b.topicId);
+    });
+    return { topicId: dueTopics[0].topicId, reason: "due", rankLabel: "Due now", metrics: dueTopics[0] };
+  }
+
+  const weakTopics = metrics.filter(m=>m.failedCards > 0 || m.masteryPercent < 65 || m.quizBestPercent < 70);
+  if(weakTopics.length){
+    weakTopics.sort((a,b)=>{
+      if(a.masteryPercent !== b.masteryPercent) return a.masteryPercent - b.masteryPercent;
+      if(a.quizBestPercent !== b.quizBestPercent) return a.quizBestPercent - b.quizBestPercent;
+      if(a.lastStudiedAt !== b.lastStudiedAt) return a.lastStudiedAt - b.lastStudiedAt;
+      return a.topicId.localeCompare(b.topicId);
+    });
+    return { topicId: weakTopics[0].topicId, reason: "weakest_mastery", rankLabel: "Weak topic", metrics: weakTopics[0] };
+  }
+
+  const byAccuracy = metrics.slice().sort((a,b)=>{
+    if(a.quizBestPercent !== b.quizBestPercent) return a.quizBestPercent - b.quizBestPercent;
+    if(a.lastStudiedAt !== b.lastStudiedAt) return a.lastStudiedAt - b.lastStudiedAt;
+    return a.topicId.localeCompare(b.topicId);
+  });
+  const lowestAcc = byAccuracy[0];
+  if(lowestAcc && lowestAcc.quizBestPercent < 100){
+    return { topicId: lowestAcc.topicId, reason: "lowest_accuracy", rankLabel: "Accuracy gap", metrics: lowestAcc };
+  }
+
+  const byLastReviewed = metrics.slice().sort((a,b)=>{
+    if(a.lastStudiedAt !== b.lastStudiedAt) return a.lastStudiedAt - b.lastStudiedAt;
+    return a.topicId.localeCompare(b.topicId);
+  });
+  if(byLastReviewed.length){
+    return { topicId: byLastReviewed[0].topicId, reason: "oldest_review", rankLabel: "Review gap", metrics: byLastReviewed[0] };
+  }
+
+  return { topicId: "MIXED", reason: "mixed_topics", rankLabel: "Interleaved" };
+}
+
+function formatCoachWhen(ts){
+  if(!ts) return "Never";
+  const diffDays = Math.floor((Date.now() - ts) / 86400000);
+  if(diffDays <= 0) return "Today";
+  if(diffDays === 1) return "1 day ago";
+  return `${diffDays} days ago`;
+}
+
+function buildDailyCoachRecommendation(){
+  const d = ensureDaily();
+  const pick = getCoachRecommendedTopic();
+  const topicId = pick.topicId || "MIXED";
+  const isMixed = topicId === "MIXED";
+  const topic = TOPICS.find(t=>t.id===topicId);
+  const title = isMixed ? "Interleaved Challenge" : (topic?.title || topicId);
+  const metrics = pick.metrics || {
+    retentionPercent: Math.max(0, Math.round(enabledTopicIds().reduce((sum, id)=>sum + topicCoachMetrics(id).retentionPercent, 0) / Math.max(1, enabledTopicIds().length))),
+    quizBestPercent: Math.max(0, Math.round(enabledTopicIds().reduce((sum, id)=>sum + topicCoachMetrics(id).quizBestPercent, 0) / Math.max(1, enabledTopicIds().length))),
+    xp: Math.max(0, Math.round(enabledTopicIds().reduce((sum, id)=>sum + topicCoachMetrics(id).xp, 0))),
+    lastStudiedAt: 0,
+    masteryPercent: 0,
+    failedCards: 0,
+    due: false
+  };
+
+  const retentionLine = metrics.retentionPercent;
+  const reasonText = pick.reason === "due"
+    ? `this topic is due for review`
+    : (pick.reason === "weakest_mastery"
+      ? `your mastery is lagging`
+      : (pick.reason === "lowest_accuracy"
+        ? `accuracy is the lowest here`
+        : (pick.reason === "oldest_review"
+          ? `it has gone the longest without review`
+          : `you have no weak topics, so we’re interleaving`)));
+
+  const message = `Today’s focus: ${title} — ${reasonText} (retention ${retentionLine}%). Complete today’s challenge to boost it.`;
+  const payload = {
+    date: todayKey(),
+    topicId,
+    reason: pick.reason,
+    priorityLabel: pick.rankLabel,
+    message,
+    retentionPercent: metrics.retentionPercent,
+    accuracyPercent: metrics.quizBestPercent,
+    xp: metrics.xp,
+    lastStudiedAt: metrics.lastStudiedAt,
+    due: !!metrics.due,
+    weakTopicsCount: enabledTopicIds().filter(id=>{ const m = topicCoachMetrics(id); return m.failedCards > 0 || m.masteryPercent < 65 || m.quizBestPercent < 70; }).length,
+    dailyTopicId: d.topicId,
+    createdAt: Date.now()
+  };
+  saveLastCoachRecommendation(payload);
+  return payload;
+}
+
+function getDailyCoachRecommendation(forceRefresh=false){
+  const saved = loadLastCoachRecommendation();
+  if(!forceRefresh && saved && saved.date === todayKey()) return saved;
+  return buildDailyCoachRecommendation();
+}
+
+function openDailyCoachDialog(forceRefresh=false){
+  const overlay = $("dailyCoachOverlay");
+  if(!overlay) return;
+  const reco = getDailyCoachRecommendation(forceRefresh);
+  const topicLabel = reco.topicId === "MIXED" ? "Mixed topics" : (TOPICS.find(t=>t.id===reco.topicId)?.title || reco.topicId);
+  const challengeTopic = (reco.topicId === "MIXED" || !isTopicEnabled(reco.topicId)) ? "MIXED" : reco.topicId;
+
+  const msgNode = $("dailyCoachMessage");
+  const tagNode = $("coachPriorityTag");
+  const retentionNode = $("coachRetentionMeta");
+  const accuracyNode = $("coachAccuracyMeta");
+  const xpNode = $("coachXpMeta");
+  const lastNode = $("coachLastStudyMeta");
+  const cta = $("coachChallengeBtn");
+
+  if(msgNode) msgNode.textContent = reco.message;
+  if(tagNode) tagNode.textContent = `${reco.priorityLabel} • ${topicLabel}`;
+  if(retentionNode) retentionNode.textContent = `Retention: ${reco.retentionPercent}%`;
+  if(accuracyNode) accuracyNode.textContent = `Accuracy: ${reco.accuracyPercent}%`;
+  if(xpNode) xpNode.textContent = `XP: ${reco.xp}`;
+  if(lastNode) lastNode.textContent = `Last reviewed: ${formatCoachWhen(reco.lastStudiedAt)}`;
+
+  if(cta){
+    cta.textContent = reco.topicId === "MIXED" ? "Start interleaved challenge" : `Start ${compactTopicTitle(topicLabel) || "topic"} challenge`;
+    cta.onclick = ()=>{
+      overlay.classList.add("hidden");
+      if(challengeTopic === "MIXED"){
+        setTab("quiz");
+        $("mcqTopicSelect").value = "MIXED";
+        $("mcqCount").value = "10";
+        trackTaskStarted("QUIZ", ensureDaily().topicId);
+        startQuiz();
+      }else{
+        goDailyQuiz();
+      }
+    };
+  }
+
+  overlay.classList.remove("hidden");
+}
+
+function closeDailyCoachDialog(){
+  const overlay = $("dailyCoachOverlay");
+  if(overlay) overlay.classList.add("hidden");
+}
+
 function getChallengeCtaConfig(d){
   const step = nextDailyAction(d);
   if(step){
@@ -10238,21 +10474,28 @@ function getChallengeCtaConfig(d){
     };
   }
 
-  const reco = getNextBestAction(Date.now());
-  const topic = TOPICS.find(t=>t.id===reco.topicId);
-  const compactTitle = compactTopicTitle(topic?.title || "");
-  const label = topic
-    ? (String(reco.label).trim().endsWith(":") ? `${reco.label} ${compactTitle || topic.title}` : `${reco.label} • ${compactTitle || topic.title}`)
-    : reco.label;
+  const coachReco = getDailyCoachRecommendation(false);
+  const coachTopic = coachReco?.topicId;
+  const useMixed = !coachTopic || coachTopic === "MIXED" || !isTopicEnabled(coachTopic);
+  const coachTopicTitle = useMixed ? "Mixed topics" : (TOPICS.find(t=>t.id===coachTopic)?.title || coachTopic);
+  const label = useMixed
+    ? "Daily challenge: Interleaved mixed quiz"
+    : `Daily challenge: ${compactTopicTitle(coachTopicTitle) || coachTopicTitle}`;
 
   return {
     label,
     accentColor: null,
     disabled: false,
     onClick: ()=>{
-      logEvent("home_reco_clicked", { taskType: reco.taskType, topicId: reco.topicId });
-      trackTaskStarted(reco.taskType, reco.topicId);
-      navigateToRoute(reco.route);
+      if(useMixed){
+        setTab("quiz");
+        $("mcqTopicSelect").value = "MIXED";
+        $("mcqCount").value = "10";
+        trackTaskStarted("QUIZ", ensureDaily().topicId);
+        startQuiz();
+      }else{
+        goDailyQuiz();
+      }
     }
   };
 }
@@ -10984,6 +11227,7 @@ $("btnNextQ").addEventListener("click", ()=>{
     computeKpis();
     setQuizFiltersCompletionState(true);
     showQuizCompleteModal();
+    try{ openDailyCoachDialog(true); }catch(e){}
     return;
   }
   $("quizExplainer").textContent = QUIZ.mode === "exam" ? "Exam mode: one answer only." : "Tap your answer.";
@@ -11493,6 +11737,12 @@ function init(){
   // start on Home
   setTab("home");
   renderHomeRecommendation();
+  buildDailyCoachRecommendation();
+  openDailyCoachDialog(false);
+
+  $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(true));
+  $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
+  $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
 
   document.addEventListener("visibilitychange", ()=>{
     if(document.visibilityState === "hidden") endSession();
