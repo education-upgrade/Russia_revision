@@ -2430,6 +2430,9 @@ section#games.gamePaneActive .gamesHeroCard{
     .coachMetaGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
     .coachMetaPill{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;padding:8px 10px;background:color-mix(in srgb, #fff 85%, var(--accent3) 15%);font-size:12px;font-weight:800;color:var(--text)}
     .coachActions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
+    .coachActions .btn .btnIconLabel{align-items:center}
+    .coachActionTitle{display:block;font-size:13px;font-weight:900;line-height:1.1}
+    .coachActionTopic{display:block;font-size:11px;font-weight:800;line-height:1.2;opacity:.85}
     #coachChallengeBtn{color:#fff}
     @media (max-width:640px){
       .coachMetaGrid{grid-template-columns:1fr}
@@ -3056,7 +3059,7 @@ section#games.gamePaneActive .gamesHeroCard{
   <div id="dailyCoachOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily Coach recommendation">
     <div class="onboardingModal coachModal">
       <div class="coachTitleRow">
-        <h3 class="coachTitle">Welcome back</h3>
+        <h3 class="coachTitle" id="dailyCoachTitle">Welcome back</h3>
       </div>
       <div class="coachMessage" id="dailyCoachMessage">Loading recommendation…</div>
       <div class="coachStatsLead" id="coachStatsLead">These are your stats for this topic.</div>
@@ -3068,7 +3071,18 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
       <div class="coachActions">
         <button class="btn" id="coachDismissBtn" type="button">Close</button>
-        <button class="btn primary" id="coachChallengeBtn" type="button">Start challenge</button>
+        <button class="btn" id="coachStudyBtn" type="button">
+          <span class="btnIconLabel">
+            <svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg>
+            <span><span class="coachActionTitle" id="coachStudyBtnTitle">Study</span><span class="coachActionTopic" id="coachStudyBtnTopic">topic</span></span>
+          </span>
+        </button>
+        <button class="btn primary" id="coachChallengeBtn" type="button">
+          <span class="btnIconLabel">
+            <svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg>
+            <span><span class="coachActionTitle" id="coachQuizBtnTitle">Quiz</span><span class="coachActionTopic" id="coachQuizBtnTopic">topic</span></span>
+          </span>
+        </button>
       </div>
     </div>
   </div>
@@ -10355,30 +10369,62 @@ function getDailyCoachRecommendation(forceRefresh=false){
 function openDailyCoachDialog(forceRefresh=false){
   const overlay = $("dailyCoachOverlay");
   if(!overlay) return;
-  getDailyCoachRecommendation(forceRefresh);
+  const reco = getDailyCoachRecommendation(forceRefresh);
   const daily = ensureDaily();
-  const dailyTopicId = daily.topicId;
-  const dailyTopicTitle = (TOPICS.find(t=>t.id===dailyTopicId)?.title || dailyTopicId);
-  const dailyMetrics = topicCoachMetrics(dailyTopicId);
+  const doneToday = !!daily.completed;
+  const recoTopicId = (reco?.topicId && reco.topicId !== "MIXED" && isTopicEnabled(reco.topicId)) ? reco.topicId : daily.topicId;
+  const activeTopicId = doneToday ? recoTopicId : daily.topicId;
+  const topicTitle = (TOPICS.find(t=>t.id===activeTopicId)?.title || activeTopicId);
+  const topicMetrics = topicCoachMetrics(activeTopicId);
 
+  const titleNode = $("dailyCoachTitle");
   const msgNode = $("dailyCoachMessage");
+  const leadNode = $("coachStatsLead");
   const retentionNode = $("coachRetentionMeta");
   const accuracyNode = $("coachAccuracyMeta");
   const xpNode = $("coachXpMeta");
   const lastNode = $("coachLastStudyMeta");
-  const cta = $("coachChallengeBtn");
+  const quizBtn = $("coachChallengeBtn");
+  const studyBtn = $("coachStudyBtn");
+  const studyTitleNode = $("coachStudyBtnTitle");
+  const studyTopicNode = $("coachStudyBtnTopic");
+  const quizTitleNode = $("coachQuizBtnTitle");
+  const quizTopicNode = $("coachQuizBtnTopic");
 
-  if(msgNode) msgNode.textContent = `Today’s topic: ${dailyTopicTitle}`;
-  if(retentionNode) retentionNode.textContent = `Retention: ${dailyMetrics.retentionPercent}%`;
-  if(accuracyNode) accuracyNode.textContent = `Accuracy: ${dailyMetrics.quizBestPercent}%`;
-  if(xpNode) xpNode.textContent = `XP: ${dailyMetrics.xp}`;
-  if(lastNode) lastNode.textContent = `Last reviewed: ${formatCoachWhen(dailyMetrics.lastStudiedAt)}`;
+  if(titleNode) titleNode.textContent = doneToday ? "Challenge complete" : "Welcome back";
+  if(msgNode){
+    msgNode.textContent = doneToday
+      ? `🎉 Great job — you completed today’s Daily Challenge. Next best topic: ${topicTitle}.`
+      : `Today’s topic: ${(TOPICS.find(t=>t.id===daily.topicId)?.title || daily.topicId)}`;
+  }
+  if(leadNode){
+    leadNode.textContent = doneToday
+      ? "Keep momentum by revisiting a weaker or slipping area."
+      : "These are your stats for this topic.";
+  }
+  if(retentionNode) retentionNode.textContent = `Retention: ${topicMetrics.retentionPercent}%`;
+  if(accuracyNode) accuracyNode.textContent = `Accuracy: ${topicMetrics.quizBestPercent}%`;
+  if(xpNode) xpNode.textContent = `XP: ${topicMetrics.xp}`;
+  if(lastNode) lastNode.textContent = `Last reviewed: ${formatCoachWhen(topicMetrics.lastStudiedAt)}`;
 
-  if(cta){
-    cta.textContent = "Start challenge";
-    cta.onclick = ()=>{
+  if(studyTitleNode) studyTitleNode.textContent = doneToday ? "Study" : "Start";
+  if(studyTopicNode) studyTopicNode.textContent = doneToday ? topicTitle : "Daily challenge";
+  if(quizTitleNode) quizTitleNode.textContent = doneToday ? "Quiz" : "Start";
+  if(quizTopicNode) quizTopicNode.textContent = doneToday ? topicTitle : "Daily challenge";
+
+  if(studyBtn){
+    studyBtn.classList.toggle("hidden", !doneToday);
+    studyBtn.onclick = ()=>{
       overlay.classList.add("hidden");
-      goDailyFocus();
+      openStudyForTopic(recoTopicId, "focus");
+    };
+  }
+
+  if(quizBtn){
+    quizBtn.onclick = ()=>{
+      overlay.classList.add("hidden");
+      if(doneToday) goDailyQuiz(recoTopicId);
+      else goDailyFocus();
     };
   }
 
