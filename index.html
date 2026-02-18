@@ -3362,8 +3362,8 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
 
       <div class="divider"></div>
-      <div class="note">Game plan (3–4 factors)</div>
-      <div id="examPlan" style="margin-top:10px"></div>
+      <div class="note">Step-by-step exam walkthrough</div>
+      <div id="examWalkthrough" style="margin-top:10px"></div>
 
       <div class="divider"></div>
 
@@ -11362,7 +11362,7 @@ function renderExamSelect(){
     renderExamQuestion();
   }else{
     $("examQText").textContent="No questions here yet. Try another topic.";
-    $("examPlan").innerHTML="";
+    $("examWalkthrough").innerHTML="";
     $("examHelpBody").innerHTML="";
   }
 }
@@ -11376,17 +11376,67 @@ function renderExamQuestion(){
   const topicTitle = (TOPICS.find(t=>t.id===q.topicId)||{}).title || "—";
   $("examTag").textContent = `Topic: ${topicTitle} • Suggested factors: ${q.factors.length}`;
 
-  const plan = $("examPlan");
-  plan.innerHTML="";
-  q.plan.forEach((p,i)=>{
-    const div=document.createElement("div");
-    div.style.border="1px solid var(--line)";
-    div.style.borderRadius="16px";
-    div.style.padding="12px";
-    div.style.background="#fff";
-    div.style.marginBottom="10px";
-    div.innerHTML = `<b>${i+1}. ${p.title}</b><div class="note" style="margin-top:6px;color:var(--muted)">${p.body}</div>`;
-    plan.appendChild(div);
+  const walkthrough = $("examWalkthrough");
+  walkthrough.innerHTML = "";
+
+  const factorRows = q.factors.map((factor, i)=>{
+    const linkedPlan = q.plan.find(p=>p.title.toLowerCase().includes(`factor ${i+1}`));
+    const detail = linkedPlan ? linkedPlan.body : "Use this factor as one developed analytical paragraph with precise evidence.";
+    return `<details style="border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff;margin-top:8px"><summary style="cursor:pointer;font-weight:700">${i+1}. ${factor}</summary><div class="note" style="margin-top:6px;color:var(--muted)">${detail}</div></details>`;
+  }).join("");
+
+  const introPlan = q.plan.find(p=>p.title.toLowerCase().includes("intro"));
+  const conclusionPlan = q.plan.find(p=>p.title.toLowerCase().includes("conclusion"));
+
+  const steps = [
+    {
+      title: "1) Write a brief introduction",
+      prompt: "State your overall line of argument in 1–2 sentences.",
+      compare: introPlan ? introPlan.body : "Check your intro sets up a direct judgement on the question wording."
+    },
+    {
+      title: "2) Compare your introduction to the intro plan",
+      prompt: "Tick off: clear judgement, direct wording, and brief route through your factors.",
+      compare: introPlan ? introPlan.body : "No intro plan available for this question yet."
+    },
+    {
+      title: "3) Write 4 factors you would include",
+      prompt: `Aim for concise factor labels. Suggested factors: ${q.factors.join(" • ")}`,
+      compare: `Compare your list with the plan's factors. Press each factor to reveal paragraph guidance.${factorRows}`
+    },
+    {
+      title: "4) Compare your factors to the plan",
+      prompt: "Keep factors that directly answer the wording and drop any that are descriptive only.",
+      compare: factorRows || "No factor breakdown yet for this question."
+    },
+    {
+      title: "5) Write a conclusion",
+      prompt: "Give a final judgement and explain why your strongest factor outweighs alternatives.",
+      compare: conclusionPlan ? conclusionPlan.body : "Ensure your conclusion is comparative and decisive."
+    },
+    {
+      title: "6) Compare your conclusion to the plan",
+      prompt: "Check that your final judgement matches your argument and prioritises the most important factor.",
+      compare: conclusionPlan ? conclusionPlan.body : "No conclusion plan available for this question yet."
+    }
+  ];
+
+  steps.forEach((step, i)=>{
+    const details = document.createElement("details");
+    details.style.border = "1px solid var(--line)";
+    details.style.borderRadius = "16px";
+    details.style.padding = "10px 12px";
+    details.style.background = "#fff";
+    details.style.marginBottom = "10px";
+
+    details.innerHTML = `
+      <summary style="cursor:pointer;font-weight:900;list-style:none">${step.title}</summary>
+      <div class="note" style="margin-top:8px">${step.prompt}</div>
+      <div class="note" style="margin-top:8px;color:var(--muted)"><b>Compare with plan:</b> ${step.compare}</div>
+    `;
+
+    if(i===0) details.open = true;
+    walkthrough.appendChild(details);
   });
 
   $("examHelpBody").innerHTML =
