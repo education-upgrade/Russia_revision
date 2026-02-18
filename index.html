@@ -100,7 +100,7 @@
 
     /* =========================
        CARD BACKDROP (NON-HOME TABS)
-       Subtle Russia-themed image inside cards on Study/Quiz/Games/Exam/Settings
+       Subtle Russia-themed image inside cards on all non-Home tabs
        ========================= */
     section.tabpane:not(#home) .card{
       position:relative;
@@ -738,6 +738,16 @@
     .hidden{display:none !important}
 
     .tabpane.hidden{display:none}
+    .lessonBlockCard{margin-top:12px}
+    .lessonBlockHeader{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .lessonBlockTitle{font-weight:900}
+    .lessonProgressWrap{margin-top:8px}
+    .lessonProgressTrack{height:8px;background:#ece6de;border-radius:999px;overflow:hidden}
+    .lessonProgressFill{height:100%;background:var(--accent);border-radius:999px}
+    .lessonItem{border:1px solid var(--line);border-radius:14px;padding:10px;margin-top:10px;background:#fff}
+    .lessonItemTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .lessonMeta{font-size:12px;color:var(--muted);margin-top:6px}
+    .lessonTick{font-size:15px}
 
     /* =========================
        KPI / RINGS
@@ -3469,35 +3479,46 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
   </section>
 
-  <!-- SETTINGS (includes Progress) -->
-  <section id="settings" class="tabpane hidden">
-    <div class="card">
-      <div style="font-weight:900;font-size:16px">⚙️ Settings</div>
-      <div class="note" style="margin-top:6px">Progress lives here (export/import/reset).</div>
-
-      <div class="divider"></div>
-
-      <button class="btn" id="btnExport">📤 Export progress</button>
-      <button class="btn" id="btnImport" style="margin-left:8px">📥 Import progress</button>
-
-      <div class="divider"></div>
-
-      <label>Export / Import box</label>
-      <textarea id="dataBox" rows="8" placeholder="Your export appears here. Drop JSON here to import."></textarea>
-
-      <div class="divider"></div>
-
-      <button class="btn" id="btnReset" style="border-color: rgba(183,142,161,.35);">🧨 Reset all progress</button>
+  <!-- LESSONS -->
+  <section id="lessons" class="tabpane hidden">
+    <div id="lessonLibraryView">
+      <div class="card">
+        <div style="font-weight:900;font-size:16px">Change & Continuity (Exam Skill)</div>
+        <div class="note" style="margin-top:6px">Track what changes, what stays the same, and why — across each topic period.</div>
+      </div>
+      <div id="lessonLibraryBlocks"></div>
     </div>
 
-    <div class="card">
-      <div style="font-weight:900">How this app works</div>
-      <div class="note" style="margin-top:10px">
-        <ul style="margin:0 0 0 18px">
-          <li>Quiz auto-generates 30+ questions per topic from FACT_BANK.</li>
-          <li>Emoji clues are in EMOJI_BANK — easy to expand.</li>
-          <li>Exam questions are in EXAM_BANK (3 per topic enforced).</li>
-        </ul>
+    <div id="lessonPlayerView" class="hidden">
+      <div class="card">
+        <button class="btn" id="lessonBackBtn" type="button">← Back to library</button>
+        <div class="divider"></div>
+        <div class="note" id="lessonThemeLabel"></div>
+        <div style="font-weight:900;font-size:18px;line-height:1.3;margin-top:4px" id="lessonTitle"></div>
+      </div>
+
+      <div class="card" id="lessonBriefingCard">
+        <div style="font-weight:800">Briefing</div>
+        <div class="note" style="margin-top:8px;white-space:pre-line" id="lessonBriefing"></div>
+        <div class="divider"></div>
+        <button class="btn primary" id="lessonStartBtn" type="button">Start Quiz</button>
+      </div>
+
+      <div class="card hidden" id="lessonQuizCard">
+        <div class="note" id="lessonQuestionCounter"></div>
+        <div style="font-weight:800;margin-top:6px" id="lessonQuestionText"></div>
+        <div class="divider"></div>
+        <div id="lessonQuestionOptions" style="display:grid;gap:8px"></div>
+        <div id="lessonFeedback" class="note" style="margin-top:12px"></div>
+        <div class="divider"></div>
+        <button class="btn primary hidden" id="lessonNextQuestionBtn" type="button">Next Question</button>
+      </div>
+
+      <div class="card hidden" id="lessonSummaryCard">
+        <div style="font-weight:900">Lesson complete</div>
+        <div class="note" id="lessonSummaryText" style="margin-top:8px"></div>
+        <div class="divider"></div>
+        <button class="btn primary" id="lessonNextLessonBtn" type="button">Next Lesson</button>
       </div>
     </div>
   </section>
@@ -3512,7 +3533,7 @@ section#games.gamePaneActive .gamesHeroCard{
   <div class="navBtn" data-tab="quiz"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg><div class="navLabel">Quiz</div></div>
   <div class="navBtn" data-tab="games"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg><div class="navLabel">Games</div></div>
   <div class="navBtn" data-tab="exam"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg><div class="navLabel">Exam</div></div>
-  <div class="navBtn" data-tab="settings"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.05.05a2 2 0 1 1-2.83 2.83l-.05-.05a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.08a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.05.05a2 2 0 1 1-2.83-2.83l.05-.05A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.08a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.05-.05a2 2 0 0 1 2.83-2.83l.05.05A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.08a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.05-.05a2 2 0 1 1 2.83 2.83l-.05.05A1.7 1.7 0 0 0 19.4 9c.24.64.86 1.05 1.55 1.05H21a2 2 0 1 1 0 4h-.08c-.69 0-1.31.41-1.55 1.05z"></path></svg><div class="navLabel">Settings</div></div>
+  <div class="navBtn" data-tab="lessons"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="14" height="10" rx="1.5"></rect><path d="M6 9h8"></path><path d="M6 12h5"></path><circle cx="20" cy="9" r="1.4"></circle><path d="M19.2 11.8 17.7 15"></path><path d="M20.8 11.8 22.3 15"></path></svg><div class="navLabel">Lessons</div></div>
 </nav>
 
 <div id="nextUpSheet" class="nextUpSheet hidden" role="dialog" aria-live="polite" aria-label="Next up recommendation">
@@ -8278,6 +8299,374 @@ const EXAM_BANK = [
     }
 ];
 
+
+/* ==========================================================
+   LESSONS: Change & Continuity
+   ========================================================== */
+const LESSON_BLOCKS = [
+  { id:"1855-1894", title:"1855–1894: Trying to Preserve Autocracy" },
+  { id:"1894-1917", title:"1894–1917: Collapse of Autocracy" },
+  { id:"1917-1941", title:"1917–1941: Emergence of Communist Dictatorship" },
+  { id:"1941-1964", title:"1941–1964: Stalinist Dictatorship & Reaction" }
+];
+
+const LESSONS = [
+  { id:"l1", block:"1855-1894", theme:"Political Authority & Government", title:"1855–1894 | Political Authority: Reform within Autocracy", briefing:`Focus: how far the tsarist system changed without surrendering autocratic power.
+• Changes: Alexander II introduced zemstva (1864), legal reform with independent courts, and military reform after Crimean defeat.
+• Changes: under Alexander III, central ministries tightened control and the Land Captains (1889) expanded noble authority in villages.
+• Continuities: the Tsar still held supreme authority, and no national representative parliament appeared.
+• Continuities: censorship and bureaucratic hierarchy remained central to rule.
+In a 25-marker, judge whether reforms modernised governance or mainly protected autocracy, using precise policy evidence.`, questions:[
+    { q:"Which reform created elected local councils in 1864?", options:["Duma reform","Zemstva reform","Stolypin reform","October Manifesto"], correctIndex:1, feedbackCorrect:"Correct. Zemstva were local elected councils introduced under Alexander II in 1864.", feedbackWrongByIndex:{0:"Not quite. A national Duma only appeared after 1905, outside this reform moment.",1:"",2:"Not quite. Stolypin’s measures came after 1906 under Nicholas II.",3:"Not quite. The October Manifesto was issued in 1905."}},
+    { q:"What did the Manifesto of Unshakeable Autocracy (1881) signal?", options:["A move to constitutional monarchy","Commitment to strengthening autocratic rule","Immediate abolition of censorship","Legalisation of socialist parties"], correctIndex:1, feedbackCorrect:"Correct. Alexander III used it to assert firm personal autocratic authority.", feedbackWrongByIndex:{0:"Not quite. It rejected constitutional drift rather than embracing it.",1:"",2:"Not quite. Censorship tightened in the 1880s.",3:"Not quite. Opposition groups were repressed, not legalised."}},
+    { q:"Which statement best reflects continuity across 1855–1894?", options:["A national parliament controlled ministers","Tsarist authority remained above law and representative institutions","Peasants elected the emperor","Political parties replaced the bureaucracy"], correctIndex:1, feedbackCorrect:"Correct. Despite reforms, sovereignty remained concentrated in the tsar and state bureaucracy.", feedbackWrongByIndex:{0:"Not quite. No parliament with sovereign control existed in this period.",1:"",2:"Not quite. Succession stayed dynastic, not elective.",3:"Not quite. Parties were not the main governing mechanism."}}
+  ]},
+  { id:"l2", block:"1855-1894", theme:"Opposition & Control", title:"1855–1894 | Opposition & Control: From Intelligentsia to Terror", briefing:`Focus: changing forms of opposition and state repression.
+• Changes: radical populism expanded in the 1870s, Land and Liberty split, and People’s Will turned to terrorism, assassinating Alexander II in 1881.
+• Changes: repression intensified under Alexander III through the Okhrana and emergency powers.
+• Continuities: dissent was still treated as a security threat, not legitimate politics.
+• Continuities: exile, censorship, and policing remained key tools of control.
+In essays, weigh whether opposition grew because reforms failed to go far enough or because autocratic controls kept closing peaceful routes.`, questions:[
+    { q:"Which group assassinated Alexander II in 1881?", options:["SRs","People’s Will (Narodnaya Volya)","Mensheviks","Kadets"], correctIndex:1, feedbackCorrect:"Correct. People’s Will used terrorism and killed the Tsar in March 1881.", feedbackWrongByIndex:{0:"Not quite. Socialist Revolutionaries were prominent later, especially after 1901.",1:"",2:"Not quite. Mensheviks emerged in the twentieth century.",3:"Not quite. Kadets were a liberal party formed after 1905."}},
+    { q:"What was a major purpose of the Okhrana?", options:["Managing foreign trade","Monitoring and suppressing political opposition","Running the zemstva","Overseeing church doctrine"], correctIndex:1, feedbackCorrect:"Correct. The Okhrana was the political police focused on surveillance and repression.", feedbackWrongByIndex:{0:"Not quite. Trade policy sat with economic ministries.",1:"",2:"Not quite. Zemstva were local government bodies.",3:"Not quite. Church supervision was linked to the Holy Synod and state church officials."}},
+    { q:"The Law on Exceptional Measures helped the regime by:", options:["Expanding jury independence","Granting emergency powers to officials","Creating legal trade unions","Ending administrative exile"], correctIndex:1, feedbackCorrect:"Correct. It allowed sweeping emergency action, including arbitrary detention.", feedbackWrongByIndex:{0:"Not quite. Judicial independence was constrained in the reactionary era.",1:"",2:"Not quite. Independent labour organisation was not genuinely protected.",3:"Not quite. Exile remained a standard coercive tool."}}
+  ]},
+  { id:"l3", block:"1855-1894", theme:"Economy", title:"1855–1894 | Economy: Reform, Railways, and Rural Limits", briefing:`Focus: how far Russia’s economy changed after serf emancipation.
+• Changes: emancipation ended legal serfdom in 1861, rail expansion accelerated market links, and Witte-era industrial policy began in the 1890s.
+• Changes: some urban industry and finance grew, especially in heavy industry hubs.
+• Continuities: peasant poverty, redemption burdens, and mir constraints limited productivity.
+• Continuities: agriculture stayed dominant and vulnerable to harvest shocks.
+In 25-mark essays, judge whether economic modernisation was substantial or still structurally weak by 1894.`, questions:[
+    { q:"What did many former serfs have to pay after 1861?", options:["Tithe tax","Redemption payments","Income tax bands","War bonds"], correctIndex:1, feedbackCorrect:"Correct. Redemption payments tied peasants to long-term debt after emancipation.", feedbackWrongByIndex:{0:"Not quite. The key burden linked to emancipation was redemption payments.",1:"",2:"Not quite. Modern income tax bands were not the core issue here.",3:"Not quite. War bonds are unrelated to emancipation settlements."}},
+    { q:"Which factor most limited peasant mobility after emancipation?", options:["The mir’s communal controls","Universal suffrage","Factory inspectors","Urban housing laws"], correctIndex:0, feedbackCorrect:"Correct. The mir restricted movement and land decisions in many villages.", feedbackWrongByIndex:{0:"",1:"Not quite. Universal suffrage did not exist in this system.",2:"Not quite. Factory inspection concerned industrial labour, not village movement.",3:"Not quite. Urban laws did not drive the main rural continuity."}},
+    { q:"By 1894, which statement is most accurate?", options:["Russia had become mainly an urban industrial economy","Agriculture still dominated despite industrial growth","All peasant debt had ended","Railways had declined sharply"], correctIndex:1, feedbackCorrect:"Correct. Industry grew, but the economy remained heavily agrarian.", feedbackWrongByIndex:{0:"Not quite. Industrial growth was real but not enough to make Russia mainly urban-industrial.",1:"",2:"Not quite. Debt burdens persisted for many peasants.",3:"Not quite. Rail expansion was a major feature, not decline."}}
+  ]},
+  { id:"l4", block:"1855-1894", theme:"Society & Culture", title:"1855–1894 | Society & Culture: Reform, Identity, and Constraint", briefing:`Focus: social shifts after emancipation and the limits of change.
+• Changes: legal status of serfs changed, higher education and professional groups expanded, and cities grew as labour demand rose.
+• Changes: new social tensions emerged among workers, students, and national minorities.
+• Continuities: the peasantry remained the overwhelming majority and often poor.
+• Continuities: Orthodoxy, hierarchy, and state censorship still shaped public life.
+In essays, show that social change was uneven: modern sectors grew, but old structures and coercive culture endured.`, questions:[
+    { q:"Which social group remained numerically dominant in Russia across this period?", options:["Industrial workers","Nobility","Peasants","Middle-class professionals"], correctIndex:2, feedbackCorrect:"Correct. Russia remained overwhelmingly peasant in demographic terms.", feedbackWrongByIndex:{0:"Not quite. Workers grew, but from a small base.",1:"Not quite. Nobles were influential but a minority.",2:"",3:"Not quite. Professionals expanded but were not the majority."}},
+    { q:"Russification under Alexander III was designed to:", options:["Promote regional autonomy","Strengthen Russian language and culture across the empire","Separate church from state","Create elected ethnic assemblies"], correctIndex:1, feedbackCorrect:"Correct. Russification aimed at cultural-political integration under Russian norms.", feedbackWrongByIndex:{0:"Not quite. It reduced autonomy rather than expanding it.",1:"",2:"Not quite. The state maintained close church links.",3:"Not quite. The policy did not create democratic ethnic representation."}},
+    { q:"A key continuity in culture and society was:", options:["End of censorship","Persistence of authoritarian social control","Free political journalism nationwide","Universal equal rights for minorities"], correctIndex:1, feedbackCorrect:"Correct. Control over expression and public life remained strong.", feedbackWrongByIndex:{0:"Not quite. Censorship continued and often tightened.",1:"",2:"Not quite. Journalism faced restrictions and penalties.",3:"Not quite. Minority rights were limited, not universal."}}
+  ]},
+  { id:"l5", block:"1894-1917", theme:"Political Authority & Government", title:"1894–1917 | Political Authority: Autocracy under Strain", briefing:`Focus: the pressures that forced change in government without ending autocracy until 1917.
+• Changes: the 1905 Revolution forced the October Manifesto and creation of the Duma.
+• Changes: Fundamental Laws (1906) redefined institutions and Stolypin used new administrative tools.
+• Continuities: Nicholas II defended autocratic sovereignty and could dismiss Dumas.
+• Continuities: ministers remained responsible to the Tsar, not parliament.
+In a 25-marker, judge whether constitutional change was meaningful or mostly a managed survival strategy before collapse.`, questions:[
+    { q:"Which event directly pressured Nicholas II into issuing the October Manifesto?", options:["Crimean War defeat","1905 Revolution unrest","February Revolution 1917","Kornilov Affair"], correctIndex:1, feedbackCorrect:"Correct. Mass unrest and strikes in 1905 forced major concessions.", feedbackWrongByIndex:{0:"Not quite. Crimean defeat belonged to an earlier reign.",1:"",2:"Not quite. By February 1917 Nicholas abdicated rather than issuing this manifesto.",3:"Not quite. Kornilov Affair occurred later in 1917."}},
+    { q:"What did the Fundamental Laws (1906) confirm?", options:["The Duma held sovereign power","The Tsar retained supreme authority","Russia became a federal republic","Universal civil liberties were guaranteed"], correctIndex:1, feedbackCorrect:"Correct. The laws reaffirmed the Tsar’s dominant constitutional position.", feedbackWrongByIndex:{0:"Not quite. The Duma’s powers were constrained.",1:"",2:"Not quite. Russia did not become a republic in 1906.",3:"Not quite. Rights were limited and often overridden."}},
+    { q:"A political continuity from 1894 to 1917 was:", options:["Stable parliamentary democracy","Ministerial dependence on the Tsar","Legal opposition governments","End of emergency powers"], correctIndex:1, feedbackCorrect:"Correct. Key executive accountability remained vertical to the crown.", feedbackWrongByIndex:{0:"Not quite. Parliamentary authority was incomplete and unstable.",1:"",2:"Not quite. Opposition never formed sovereign government under Nicholas II.",3:"Not quite. Coercive powers persisted."}}
+  ]},
+  { id:"l6", block:"1894-1917", theme:"Opposition & Control", title:"1894–1917 | Opposition & Control: Revolution, Repression, and War", briefing:`Focus: the interaction between organised opposition and coercion before 1917.
+• Changes: revolutionary parties (SRs, SDs, Bolsheviks/Mensheviks split) expanded, and soviets emerged in 1905 and 1917.
+• Changes: strikes, mutinies, and wartime protest widened opposition bases.
+• Continuities: policing, censorship, and exile remained core control methods.
+• Continuities: legal politics stayed tightly constrained despite the Duma framework.
+Essay judgements should assess whether repression stabilised autocracy or deepened long-term regime weakness.`, questions:[
+    { q:"Which body emerged as a key workers’ representative institution in 1905?", options:["Zemstvo congress","Soviet","State Council","Holy Synod"], correctIndex:1, feedbackCorrect:"Correct. Soviets became important centres of worker political coordination.", feedbackWrongByIndex:{0:"Not quite. Zemstva were local government bodies, not worker councils.",1:"",2:"Not quite. The State Council was part of imperial governance.",3:"Not quite. The Holy Synod was a church governing body."}},
+    { q:"Which split happened in the Russian Social Democratic movement in 1903?", options:["Kadets and Octobrists","Bolsheviks and Mensheviks","SRs and Narodniks","Whites and Reds"], correctIndex:1, feedbackCorrect:"Correct. The RSDLP split into Bolshevik and Menshevik factions.", feedbackWrongByIndex:{0:"Not quite. Those were liberal groups later tied to Duma politics.",1:"",2:"Not quite. That pairing is not the 1903 social democratic split.",3:"Not quite. Whites vs Reds belongs to civil war context after 1917."}},
+    { q:"During this period, the Okhrana mainly acted to:", options:["Promote trade unions","Expand press freedoms","Infiltrate and suppress opposition groups","Run army recruitment"], correctIndex:2, feedbackCorrect:"Correct. Surveillance and infiltration were central to tsarist political policing.", feedbackWrongByIndex:{0:"Not quite. Independent labour activism was often restricted.",1:"Not quite. Press freedoms were limited and reversible.",2:"",3:"Not quite. Military recruitment was not its primary role."}}
+  ]},
+  { id:"l7", block:"1894-1917", theme:"Economy", title:"1894–1917 | Economy: Industrial Growth and Structural Weakness", briefing:`Focus: rapid growth and deep fragility in late-tsarist economy.
+• Changes: Witte’s policies drove heavy industry, railways, and foreign investment.
+• Changes: Stolypin reforms encouraged some peasant land consolidation and migration.
+• Continuities: living standards for many workers and peasants stayed precarious.
+• Continuities: uneven development and agrarian pressure persisted, worsened by war.
+In 25-mark essays, weigh headline growth against social strain, food/transport failures, and wartime breakdown.`, questions:[
+    { q:"Which minister is most associated with state-led industrialisation in the 1890s?", options:["Pobedonostsev","Witte","Kerensky","Milyutin"], correctIndex:1, feedbackCorrect:"Correct. Sergei Witte pushed railway expansion and heavy-industry growth.", feedbackWrongByIndex:{0:"Not quite. Pobedonostsev was a conservative ideologue, not the industrial architect.",1:"",2:"Not quite. Kerensky belonged to 1917 provisional politics.",3:"Not quite. Milyutin is linked to military reform in an earlier period."}},
+    { q:"What was one aim of Stolypin’s agrarian reforms?", options:["Restore serfdom","Create more independent peasant farmers","Nationalise all land immediately","End peasant migration"], correctIndex:1, feedbackCorrect:"Correct. Stolypin sought a more productive, property-owning peasantry.", feedbackWrongByIndex:{0:"Not quite. Serfdom had been abolished in 1861.",1:"",2:"Not quite. Full immediate nationalisation was not Stolypin’s policy.",3:"Not quite. Reform often encouraged movement, including to Siberia."}},
+    { q:"A major economic continuity by 1917 was:", options:["No rural pressure on land","Persistent agrarian strain despite growth","Balanced living standards across classes","Absence of transport problems"], correctIndex:1, feedbackCorrect:"Correct. Agricultural pressure and uneven development remained severe.", feedbackWrongByIndex:{0:"Not quite. Land hunger remained a major issue.",1:"",2:"Not quite. Inequality and insecurity were significant.",3:"Not quite. Transport and supply problems were acute in wartime."}}
+  ]},
+  { id:"l8", block:"1894-1917", theme:"Society & Culture", title:"1894–1917 | Society & Culture: Living Conditions and Social Tension", briefing:`Focus: social change in a society moving faster than its institutions.
+• Changes: urbanisation and factory work expanded, literacy improved, and political awareness widened.
+• Changes: wartime hardship intensified food shortages and public anger.
+• Continuities: rural poverty and land hunger persisted for millions.
+• Continuities: gender and class inequalities remained entrenched despite activism.
+For essays, show how social strain linked economic weakness to political breakdown, especially by 1917.`, questions:[
+    { q:"Which city became a major centre of worker unrest before 1917?", options:["Odessa only","St Petersburg/Petrograd","Kiev only","Vladivostok only"], correctIndex:1, feedbackCorrect:"Correct. The capital was a key hub for strikes, protest, and revolutionary politics.", feedbackWrongByIndex:{0:"Not quite. Unrest was wider and especially intense in the capital.",1:"",2:"Not quite. Kiev mattered, but the capital remained central.",3:"Not quite. This was not the main focus of pre-1917 unrest."}},
+    { q:"What did many peasants continue to demand up to 1917?", options:["Restoration of noble privileges","More land access and relief from pressure","Immediate constitutional monarchy","End of railways"], correctIndex:1, feedbackCorrect:"Correct. Land hunger stayed a powerful social and political grievance.", feedbackWrongByIndex:{0:"Not quite. Peasant demands tended to challenge landlord dominance.",1:"",2:"Not quite. Rural demands were often more socio-economic than constitutional.",3:"Not quite. Railways were not the core grievance."}},
+    { q:"Which continuity best describes social conditions by the First World War?", options:["Class tension had disappeared","Deep inequality and insecurity remained","All workers had political rights","Food supply was stable"], correctIndex:1, feedbackCorrect:"Correct. Structural inequalities and insecurity remained severe.", feedbackWrongByIndex:{0:"Not quite. Class tension intensified.",1:"",2:"Not quite. Political rights were limited and contested.",3:"Not quite. Supply crises worsened during war."}}
+  ]},
+  { id:"l9", block:"1917-1941", theme:"Political Authority & Government", title:"1917–1941 | Political Authority: From Lenin’s State to Stalin’s Dictatorship", briefing:`Focus: building a one-party state and then personal dictatorship.
+• Changes: Bolsheviks dissolved the Constituent Assembly, built Sovnarkom rule, and won civil war centralisation.
+• Changes: Stalin’s 1930s purges and command system created personal dominance beyond collective leadership norms.
+• Continuities: one-party monopoly and repression of political pluralism stayed constant.
+• Continuities: coercive institutions remained central to maintaining authority.
+In 25-mark essays, judge whether Stalin represented a sharp break or an intensification of Leninist authoritarian foundations.`, questions:[
+    { q:"What happened to the Constituent Assembly in 1918?", options:["It became a permanent parliament","It was dissolved by the Bolsheviks","It elected Stalin as president","It merged with the Duma"], correctIndex:1, feedbackCorrect:"Correct. The Bolsheviks closed it when it did not give them control.", feedbackWrongByIndex:{0:"Not quite. It did not become the basis of pluralist government.",1:"",2:"Not quite. Stalin was not elected in this way.",3:"Not quite. The Duma system had already collapsed."}},
+    { q:"Which development is most associated with Stalin’s 1930s political control?", options:["New Economic Policy","Great Purges","October Manifesto","Dual power"], correctIndex:1, feedbackCorrect:"Correct. The Great Purges were central to enforcing Stalin’s personal dictatorship.", feedbackWrongByIndex:{0:"Not quite. NEP is linked to the 1920s economic retreat.",1:"",2:"Not quite. That belongs to 1905 tsarist concessions.",3:"Not quite. Dual power refers to 1917 before Bolshevik consolidation."}},
+    { q:"A key continuity from Lenin to Stalin was:", options:["Multi-party elections","One-party rule backed by coercion","Independent judiciary checking the party","Free national press"], correctIndex:1, feedbackCorrect:"Correct. Party monopoly and coercive enforcement remained fundamental.", feedbackWrongByIndex:{0:"Not quite. Opposition parties were excluded.",1:"",2:"Not quite. Courts did not provide liberal constitutional checks.",3:"Not quite. Media freedom did not define the system."}}
+  ]},
+  { id:"l10", block:"1917-1941", theme:"Opposition & Control", title:"1917–1941 | Opposition & Control: Civil War to Great Terror", briefing:`Focus: how the regime dealt with enemies and dissent.
+• Changes: the Cheka emerged in civil war, later institutionalised as GPU/NKVD with wider bureaucratic reach.
+• Changes: by 1936–38, terror expanded from targeted repression to mass purges and show trials.
+• Continuities: coercion, surveillance, and labour camps remained core tools.
+• Continuities: opposition was framed as treasonous threat, not legitimate disagreement.
+Essay judgement should weigh security contexts (civil war, fear of enemies) against ideological and personal power motives.`, questions:[
+    { q:"Which security body was created in 1917 to combat counter-revolution?", options:["Cheka","Okhrana","Comintern","Sovnarkom"], correctIndex:0, feedbackCorrect:"Correct. The Cheka was the first Bolshevik political police force.", feedbackWrongByIndex:{0:"",1:"Not quite. Okhrana was tsarist political police before 1917.",2:"Not quite. Comintern coordinated international communism, not domestic policing.",3:"Not quite. Sovnarkom was the government council."}},
+    { q:"What characterised the Great Terror of 1936–38?", options:["Ending of political trials","Mass arrests, executions, and purges","Free debate inside the party","Abolition of labour camps"], correctIndex:1, feedbackCorrect:"Correct. The period saw extensive purges across party, military, and society.", feedbackWrongByIndex:{0:"Not quite. Political trials and confessions were central.",1:"",2:"Not quite. Internal dissent was dangerous, not freely debated.",3:"Not quite. The camp system expanded rather than ending."}},
+    { q:"Which continuity best describes 1917–1941 control methods?", options:["Reliance on independent courts","Use of coercive police institutions","Legal opposition newspapers","Federal autonomy in security policy"], correctIndex:1, feedbackCorrect:"Correct. Coercive security organs remained core to regime survival.", feedbackWrongByIndex:{0:"Not quite. Judicial independence was highly limited.",1:"",2:"Not quite. Opposition media was not tolerated.",3:"Not quite. Security was tightly centralised."}}
+  ]},
+  { id:"l11", block:"1917-1941", theme:"Economy", title:"1917–1941 | Economy: NEP to Five-Year Plans (What changes? What persists?)", briefing:`Focus: economic transformation and enduring coercive priorities.
+• Changes: War Communism gave way to NEP market concessions in 1921, then to rapid industrialisation from 1928.
+• Changes: collectivisation transformed agriculture through state control and violence.
+• Continuities: state priorities still dominated over consumer welfare.
+• Continuities: coercion and compulsion remained central to labour and rural policy.
+In essays, judge whether Stalin’s model solved backwardness or created new structural costs in society and agriculture.`, questions:[
+    { q:"Why was NEP introduced in 1921?", options:["To expand forced collectivisation","To stabilise the economy after War Communism crisis","To privatise all heavy industry permanently","To abolish grain trade"], correctIndex:1, feedbackCorrect:"Correct. NEP was a tactical retreat to recover production and social stability.", feedbackWrongByIndex:{0:"Not quite. Collectivisation came later under Stalin.",1:"",2:"Not quite. Heavy industry remained under state control.",3:"Not quite. NEP restored limited legal trade."}},
+    { q:"Which policy is most linked to the First Five-Year Plan era?", options:["Decentralised free-market pricing","Rapid heavy-industry targets and collectivisation","Return to private banking control","Abolition of planning"], correctIndex:1, feedbackCorrect:"Correct. The late 1920s/1930s saw central planning with intense industrial targets.", feedbackWrongByIndex:{0:"Not quite. Policy moved away from market coordination.",1:"",2:"Not quite. Banking stayed under state direction.",3:"Not quite. Planning expanded dramatically."}},
+    { q:"A continuity from Lenin to Stalin economic governance was:", options:["Priority for state direction over market freedom","Consumer choice as top goal","No use of coercion","Weak central intervention"], correctIndex:0, feedbackCorrect:"Correct. Even when tactics shifted, state direction remained fundamental.", feedbackWrongByIndex:{0:"",1:"Not quite. Consumer welfare was often subordinated to strategic goals.",2:"Not quite. Coercion remained a recurrent tool.",3:"Not quite. Central intervention was substantial."}}
+  ]},
+  { id:"l12", block:"1917-1941", theme:"Society & Culture", title:"1917–1941 | Society & Culture: Mobilisation, Welfare Claims, and Fear", briefing:`Focus: social engineering and everyday life under communist rule.
+• Changes: literacy campaigns, expanded technical education, and new opportunities for some workers/women.
+• Changes: urban growth and propaganda culture reshaped public identity.
+• Continuities: fear, denunciation, and conformity remained embedded in daily life.
+• Continuities: state control of culture and information stayed strong, even when messages shifted.
+In essays, balance social mobility and modernisation claims against repression, famine impact, and restricted freedoms.`, questions:[
+    { q:"Which feature expanded significantly in Stalin’s era?", options:["Independent private newspapers","State-directed propaganda and mass mobilisation","Local democratic media councils","Religious autonomy"], correctIndex:1, feedbackCorrect:"Correct. Propaganda and organised mobilisation were central tools of rule.", feedbackWrongByIndex:{0:"Not quite. Media remained under tight control.",1:"",2:"Not quite. Democratic media institutions were not a core feature.",3:"Not quite. Religious institutions faced constraints."}},
+    { q:"How did the regime often present industrial labour achievements?", options:["As evidence for ending one-party rule","Through model-worker campaigns and socialist competition","By rejecting productivity targets","By abandoning planning slogans"], correctIndex:1, feedbackCorrect:"Correct. Campaigns celebrated model workers to drive output and loyalty.", feedbackWrongByIndex:{0:"Not quite. Labour achievements were used to legitimise the regime, not end it.",1:"",2:"Not quite. Targets were central, not rejected.",3:"Not quite. Planning language intensified."}},
+    { q:"A major continuity in social life by 1941 was:", options:["Secure freedom of criticism","Persistent risk in opposing official policy","Independent civil society power","End of political fear"], correctIndex:1, feedbackCorrect:"Correct. Public dissent still carried serious danger.", feedbackWrongByIndex:{0:"Not quite. Criticism remained risky.",1:"",2:"Not quite. Civil society autonomy was heavily limited.",3:"Not quite. Fear remained a defining feature."}}
+  ]},
+  { id:"l13", block:"1941-1964", theme:"Political Authority & Government", title:"1941–1964 | Political Authority: High Stalinism to De-Stalinisation", briefing:`Focus: shifts from wartime/high-Stalin rule to Khrushchev’s partial reform.
+• Changes: post-1953 collective leadership displaced one-man terror dominance, and the Secret Speech (1956) attacked Stalin’s cult.
+• Changes: some decision-making and party style became less lethal and somewhat less rigid.
+• Continuities: the CPSU kept monopoly power and suppressed pluralism.
+• Continuities: core constitutional structure remained one-party authoritarian.
+In essays, judge whether de-Stalinisation changed the nature of rule or mainly altered methods and tone.`, questions:[
+    { q:"What was the significance of Khrushchev’s Secret Speech (1956)?", options:["It restored Stalin’s cult","It denounced key aspects of Stalin’s rule","It introduced multi-party elections","It ended Soviet control in Eastern Europe"], correctIndex:1, feedbackCorrect:"Correct. The speech criticised Stalin’s crimes and cult, launching de-Stalinisation.", feedbackWrongByIndex:{0:"Not quite. It did the opposite of restoring the cult.",1:"",2:"Not quite. The USSR remained one-party.",3:"Not quite. Soviet influence in Eastern Europe continued."}},
+    { q:"Which continuity remained from Stalin to Khrushchev?", options:["Competitive national elections","CPSU political monopoly","Independent judiciary over party","Legal opposition parties"], correctIndex:1, feedbackCorrect:"Correct. Party monopoly remained foundational despite stylistic change.", feedbackWrongByIndex:{0:"Not quite. Elections were not pluralist competition.",1:"",2:"Not quite. Courts did not independently overrule party supremacy.",3:"Not quite. Opposition parties were not legalised."}},
+    { q:"After 1953, a key political change was:", options:["Immediate liberal democracy","Reduction in mass terror methods","Abolition of party control","Return of the Tsar"], correctIndex:1, feedbackCorrect:"Correct. Repression persisted, but mass terror of 1930s type receded.", feedbackWrongByIndex:{0:"Not quite. No democratic transition occurred.",1:"",2:"Not quite. Party control continued.",3:"Not quite. Monarchy did not return."}}
+  ]},
+  { id:"l14", block:"1941-1964", theme:"Opposition & Control", title:"1941–1964 | Opposition & Control: Wartime Discipline to Post-Stalin Limits", briefing:`Focus: how control adapted after WWII and Stalin’s death.
+• Changes: post-Stalin releases and rehabilitations reduced the scale of terror.
+• Changes: censorship and policing became more selective, though still potent.
+• Continuities: dissent remained punishable; coercion never disappeared.
+• Continuities: when authority was challenged (e.g. Hungary 1956, Novocherkassk 1962), force was used.
+In 25-mark judgements, weigh reduced fear against the enduring coercive boundaries of Soviet power.`, questions:[
+    { q:"Which event showed clear limits to de-Stalinisation in domestic control?", options:["October Manifesto","Novocherkassk shootings (1962)","Emancipation Edict","NEP legalisation"], correctIndex:1, feedbackCorrect:"Correct. The state used force against workers at Novocherkassk.", feedbackWrongByIndex:{0:"Not quite. That belongs to tsarist 1905 reforms.",1:"",2:"Not quite. Emancipation was in 1861.",3:"Not quite. NEP was a 1920s policy."}},
+    { q:"How did the USSR respond to the Hungarian uprising in 1956?", options:["Accepted full independence","Used military force to crush it","Transferred power to UN authorities","Ended Warsaw Pact ties"], correctIndex:1, feedbackCorrect:"Correct. Soviet military intervention reasserted bloc control.", feedbackWrongByIndex:{0:"Not quite. The uprising was suppressed, not accepted.",1:"",2:"Not quite. No UN transfer of authority occurred.",3:"Not quite. Soviet alliance control remained."}},
+    { q:"A continuity in 1941–1964 control methods was:", options:["No censorship at all","State readiness to repress serious opposition","Permanent free press","Regional control over security forces"], correctIndex:1, feedbackCorrect:"Correct. Coercion remained available when the regime felt threatened.", feedbackWrongByIndex:{0:"Not quite. Censorship continued, though intensity varied.",1:"",2:"Not quite. Press freedoms remained limited.",3:"Not quite. Security remained centrally controlled."}}
+  ]},
+  { id:"l15", block:"1941-1964", theme:"Economy", title:"1941–1964 | Economy: Command Recovery, Reform Attempts, and Constraints", briefing:`Focus: postwar rebuilding and reform limits in a command economy.
+• Changes: post-1945 reconstruction restored heavy industry and military capacity.
+• Changes: Khrushchev tried rebalancing priorities through Virgin Lands and regional reforms.
+• Continuities: planning remained top-down, with chronic inefficiency and bottlenecks.
+• Continuities: consumer goods often lagged behind heavy-industry priorities.
+In essays, assess whether Khrushchev-era economic change solved structural weaknesses or exposed them more clearly.`, questions:[
+    { q:"Which campaign was strongly associated with Khrushchev’s agricultural policy?", options:["War Communism","Virgin Lands campaign","Five-Year Plan of 1928","Redemption payments"], correctIndex:1, feedbackCorrect:"Correct. Virgin Lands sought rapid grain expansion, with mixed long-term results.", feedbackWrongByIndex:{0:"Not quite. War Communism belongs to civil war years.",1:"",2:"Not quite. That refers to Stalin’s earlier industrial drive.",3:"Not quite. Redemption payments relate to 1861 emancipation."}},
+    { q:"A persistent economic continuity from 1941 to 1964 was:", options:["Full market pricing","Central planning dominance","Independent private banking","No state production targets"], correctIndex:1, feedbackCorrect:"Correct. Central planning remained the core organising mechanism.", feedbackWrongByIndex:{0:"Not quite. Market mechanisms were limited.",1:"",2:"Not quite. Banking and investment remained state-directed.",3:"Not quite. Targets remained integral."}},
+    { q:"What was a recurring weakness of the command economy in this period?", options:["Too much consumer abundance","Inefficiency and poor quality output incentives","Lack of state authority","No industrial recovery after war"], correctIndex:1, feedbackCorrect:"Correct. Quantitative targets often encouraged waste and poor-quality production.", feedbackWrongByIndex:{0:"Not quite. Consumer supply was often insufficient.",1:"",2:"Not quite. State authority remained strong.",3:"Not quite. There was substantial postwar industrial recovery."}}
+  ]},
+  { id:"l16", block:"1941-1964", theme:"Society & Culture", title:"1941–1964 | Society & Culture: Control, Thaw, and Limits", briefing:`Focus: social life between continued control and partial relaxation.
+• Changes: post-Stalin “thaw” allowed wider cultural experimentation and less intense fear for many citizens.
+• Changes: education, housing drives, and social mobility initiatives expanded opportunities.
+• Continuities: censorship and ideological boundaries remained in place.
+• Continuities: party-state expectations of conformity continued despite softer rhetoric.
+In essays, make a balanced judgement: significant tonal and social change, but limited transformation of underlying political culture.`, questions:[
+    { q:"What is meant by the Soviet ‘Thaw’?", options:["End of one-party rule","A period of relative cultural relaxation after Stalin","A return to tsarist censorship","Immediate freedom for all dissidents"], correctIndex:1, feedbackCorrect:"Correct. The Thaw brought partial openings, though boundaries remained.", feedbackWrongByIndex:{0:"Not quite. Party monopoly continued.",1:"",2:"Not quite. It was not a tsarist restoration.",3:"Not quite. Repression eased for some, but full freedom was not granted."}},
+    { q:"Which continuity best fits social and cultural policy to 1964?", options:["No ideological oversight","State-defined limits on acceptable expression","Unrestricted publication choices","Total depoliticisation of culture"], correctIndex:1, feedbackCorrect:"Correct. Cultural life loosened in places but remained politically bounded.", feedbackWrongByIndex:{0:"Not quite. Oversight persisted.",1:"",2:"Not quite. Publication was not unrestricted.",3:"Not quite. Culture stayed politically significant."}},
+    { q:"A social change under Khrushchev included:", options:["Reintroduction of serfdom","Large-scale housing and welfare-oriented initiatives","Abolition of education expansion","End of urban growth"], correctIndex:1, feedbackCorrect:"Correct. Housing and social-policy drives were major Khrushchev themes.", feedbackWrongByIndex:{0:"Not quite. Serfdom had ended long before.",1:"",2:"Not quite. Education remained important to Soviet modernisation.",3:"Not quite. Urban society continued to expand."}}
+  ]}
+];
+
+const LESSON_STORAGE_KEY = "russia_revision_lessons_v1";
+let LESSON_PROGRESS = {};
+let currentLessonId = null;
+let lessonQuestionIndex = 0;
+let lessonScore = 0;
+let lessonAnsweredCurrent = false;
+
+function lessonDefaultProgress(){
+  const out = {};
+  LESSONS.forEach(lesson=>{ out[lesson.id] = { completed:false, bestScore:0, attempts:0, lastAttemptDate:null }; });
+  return out;
+}
+function loadLessonProgress(){
+  try{
+    const raw = localStorage.getItem(LESSON_STORAGE_KEY);
+    if(!raw) return lessonDefaultProgress();
+    const parsed = JSON.parse(raw) || {};
+    const out = lessonDefaultProgress();
+    Object.keys(out).forEach(id=>{
+      if(parsed[id] && typeof parsed[id]==="object") out[id] = { ...out[id], ...parsed[id] };
+    });
+    return out;
+  }catch{ return lessonDefaultProgress(); }
+}
+function saveLessonProgress(){ localStorage.setItem(LESSON_STORAGE_KEY, JSON.stringify(LESSON_PROGRESS)); }
+
+function blockLessons(blockId){ return LESSONS.filter(l=>l.block===blockId); }
+
+function renderLessonLibrary(){
+  const host = $("lessonLibraryBlocks");
+  if(!host) return;
+  host.innerHTML = "";
+
+  LESSON_BLOCKS.forEach(block=>{
+    const lessons = blockLessons(block.id);
+    const done = lessons.filter(l=>LESSON_PROGRESS[l.id]?.completed).length;
+    const pct = lessons.length ? Math.round((done / lessons.length)*100) : 0;
+
+    const card = document.createElement("div");
+    card.className = "card lessonBlockCard";
+    card.innerHTML = `
+      <div class="lessonBlockHeader">
+        <div>
+          <div class="lessonBlockTitle">${block.title}</div>
+          <div class="note">${done}/${lessons.length} lessons completed</div>
+        </div>
+        <div class="note">${pct}%</div>
+      </div>
+      <div class="lessonProgressWrap">
+        <div class="lessonProgressTrack"><div class="lessonProgressFill" style="width:${pct}%"></div></div>
+      </div>
+      <div class="divider"></div>
+      <div class="lessonItems"></div>
+    `;
+
+    const items = card.querySelector('.lessonItems');
+    lessons.forEach(lesson=>{
+      const progress = LESSON_PROGRESS[lesson.id] || { completed:false, bestScore:0, attempts:0 };
+      const item = document.createElement("div");
+      item.className = "lessonItem";
+      item.innerHTML = `
+        <div class="lessonItemTop">
+          <div>
+            <div style="font-weight:800">${lesson.title}</div>
+            <div class="lessonMeta">${lesson.theme} • Best: ${progress.bestScore}/4 • Attempts: ${progress.attempts}</div>
+          </div>
+          <div class="lessonTick" aria-label="completion">${progress.completed ? "✅" : "⬜"}</div>
+        </div>
+        <button class="btn" type="button" style="margin-top:8px">${progress.attempts ? "Retry lesson" : "Open lesson"}</button>
+      `;
+      item.querySelector("button").addEventListener("click", ()=>openLesson(lesson.id));
+      items.appendChild(item);
+    });
+
+    host.appendChild(card);
+  });
+}
+
+function openLesson(lessonId){
+  const lesson = LESSONS.find(l=>l.id===lessonId);
+  if(!lesson) return;
+  currentLessonId = lessonId;
+  lessonQuestionIndex = 0;
+  lessonScore = 0;
+  lessonAnsweredCurrent = false;
+
+  $("lessonLibraryView").classList.add("hidden");
+  $("lessonPlayerView").classList.remove("hidden");
+  $("lessonQuizCard").classList.add("hidden");
+  $("lessonSummaryCard").classList.add("hidden");
+  $("lessonBriefingCard").classList.remove("hidden");
+
+  $("lessonThemeLabel").textContent = `${lesson.block} • ${lesson.theme}`;
+  $("lessonTitle").textContent = lesson.title;
+  $("lessonBriefing").textContent = lesson.briefing;
+}
+
+function closeLessonPlayer(){
+  $("lessonPlayerView").classList.add("hidden");
+  $("lessonLibraryView").classList.remove("hidden");
+  renderLessonLibrary();
+}
+
+function startLessonQuiz(){
+  const lesson = LESSONS.find(l=>l.id===currentLessonId);
+  if(!lesson) return;
+  lessonQuestionIndex = 0;
+  lessonScore = 0;
+  lessonAnsweredCurrent = false;
+  $("lessonBriefingCard").classList.add("hidden");
+  $("lessonSummaryCard").classList.add("hidden");
+  $("lessonQuizCard").classList.remove("hidden");
+  renderLessonQuestion();
+}
+
+function selectLessonOption(optIdx){
+  const lesson = LESSONS.find(l=>l.id===currentLessonId);
+  if(!lesson || lessonAnsweredCurrent) return;
+  const q = lesson.questions[lessonQuestionIndex];
+  lessonAnsweredCurrent = true;
+  const correct = optIdx === q.correctIndex;
+  if(correct) lessonScore += 1;
+
+  const feedback = $("lessonFeedback");
+  const text = correct ? `✅ Correct. ${q.feedbackCorrect}` : `❌ Not quite. ${(q.feedbackWrongByIndex||{})[optIdx] || "Review the key fact in the briefing and try the next question."}`;
+  feedback.textContent = text;
+
+  const optionsWrap = $("lessonQuestionOptions");
+  [...optionsWrap.querySelectorAll("button")].forEach((btn, idx)=>{
+    btn.disabled = true;
+    if(idx === q.correctIndex){ btn.style.borderColor = "#2f8f46"; }
+    if(idx === optIdx && !correct){ btn.style.borderColor = "#b24747"; }
+  });
+
+  $("lessonNextQuestionBtn").classList.remove("hidden");
+}
+
+function nextLessonQuestion(){
+  const lesson = LESSONS.find(l=>l.id===currentLessonId);
+  if(!lesson) return;
+  lessonQuestionIndex += 1;
+  if(lessonQuestionIndex >= lesson.questions.length) return finishLessonQuiz();
+  lessonAnsweredCurrent = false;
+  renderLessonQuestion();
+}
+
+function renderLessonQuestion(){
+  const lesson = LESSONS.find(l=>l.id===currentLessonId);
+  if(!lesson) return;
+  const q = lesson.questions[lessonQuestionIndex];
+  $("lessonQuestionCounter").textContent = `Question ${lessonQuestionIndex+1} of ${lesson.questions.length}`;
+  $("lessonQuestionText").textContent = q.q;
+  const wrap = $("lessonQuestionOptions");
+  wrap.innerHTML = "";
+  q.options.forEach((opt, idx)=>{
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "btn";
+    b.style.textAlign = "left";
+    b.textContent = `${String.fromCharCode(65+idx)}. ${opt}`;
+    b.addEventListener("click", ()=>selectLessonOption(idx));
+    wrap.appendChild(b);
+  });
+  $("lessonFeedback").textContent = "Select an answer to get immediate feedback.";
+  $("lessonNextQuestionBtn").classList.add("hidden");
+}
+
+function finishLessonQuiz(){
+  const lesson = LESSONS.find(l=>l.id===currentLessonId);
+  if(!lesson) return;
+  const p = LESSON_PROGRESS[lesson.id] || { completed:false, bestScore:0, attempts:0, lastAttemptDate:null };
+  p.attempts += 1;
+  p.bestScore = Math.max(p.bestScore || 0, lessonScore);
+  p.completed = true;
+  p.lastAttemptDate = new Date().toISOString();
+  LESSON_PROGRESS[lesson.id] = p;
+  saveLessonProgress();
+
+  $("lessonQuizCard").classList.add("hidden");
+  $("lessonSummaryCard").classList.remove("hidden");
+  const nextMsg = lessonScore >= 3
+    ? "Strong foundation. Next step: keep linking each fact to a judgement about extent of change."
+    : "Good start. Next step: revisit the briefing and lock down the key dates/policies before moving on.";
+  $("lessonSummaryText").textContent = `Score: ${lessonScore}/${lesson.questions.length}. ${nextMsg}`;
+
+  const next = LESSONS[LESSONS.findIndex(x=>x.id===lesson.id)+1];
+  const btn = $("lessonNextLessonBtn");
+  btn.textContent = next ? "Next Lesson" : "Back to Library";
+  btn.onclick = ()=>{
+    if(next) openLesson(next.id);
+    else closeLessonPlayer();
+  };
+}
+
 /* ==========================================================
    STORAGE + STATE
    ========================================================== */
@@ -8900,6 +9289,9 @@ function setTab(tabId){
   }
   if(tabId === "progress"){
     renderProgressReport();
+  }
+  if(tabId === "lessons"){
+    renderLessonLibrary();
   }
 }
 document.querySelectorAll(".navBtn").forEach(btn=>{
@@ -11673,33 +12065,41 @@ $("examTopicSelect").addEventListener("change", renderExamSelect);
 $("examSelect").addEventListener("change", renderExamQuestion);
 
 /* ==========================================================
-   EXPORT / IMPORT / RESET
+   LESSON + LEGACY SETTINGS HANDLERS
    ========================================================== */
-$("btnExport").addEventListener("click", ()=>{ $("dataBox").value = JSON.stringify(STATE); });
+$("lessonBackBtn")?.addEventListener("click", closeLessonPlayer);
+$("lessonStartBtn")?.addEventListener("click", startLessonQuiz);
+$("lessonNextQuestionBtn")?.addEventListener("click", nextLessonQuestion);
 
-$("btnImport").addEventListener("click", ()=>{
-  const raw = $("dataBox").value.trim();
-  if(!raw) return alert("Drop JSON into the box first.");
-  try{
-    const obj = JSON.parse(raw);
-    if(!obj || typeof obj !== "object") throw new Error("Invalid data");
-    STATE = obj;
+if($("btnExport") && $("dataBox")){
+  $("btnExport").addEventListener("click", ()=>{ $("dataBox").value = JSON.stringify(STATE); });
+}
+if($("btnImport") && $("dataBox")){
+  $("btnImport").addEventListener("click", ()=>{
+    const raw = $("dataBox").value.trim();
+    if(!raw) return alert("Drop JSON into the box first.");
+    try{
+      const obj = JSON.parse(raw);
+      if(!obj || typeof obj !== "object") throw new Error("Invalid data");
+      STATE = obj;
+      saveState();
+      computeKpis();
+      alert("Import complete.");
+    }catch(e){
+      alert("Import failed — JSON format is invalid.");
+    }
+  });
+}
+if($("btnReset")){
+  $("btnReset").addEventListener("click", ()=>{
+    const ok = confirm("Reset all progress on this device?");
+    if(!ok) return;
+    STATE = baseState();
     saveState();
     computeKpis();
-    alert("Import complete.");
-  }catch(e){
-    alert("Import failed — JSON format is invalid.");
-  }
-});
-
-$("btnReset").addEventListener("click", ()=>{
-  const ok = confirm("Reset all progress on this device?");
-  if(!ok) return;
-  STATE = baseState();
-  saveState();
-  computeKpis();
-  alert("Progress reset done.");
-});
+    alert("Progress reset done.");
+  });
+}
 
 /* ==========================================================
    INIT
@@ -11720,6 +12120,8 @@ function init(){
   $("matchTopicSelect").value = "MIXED";
   $("examTopicSelect").value = "ALL";
 
+  LESSON_PROGRESS = loadLessonProgress();
+  renderLessonLibrary();
   renderExamSelect();
   updateStudyLaunchCta();
   computeKpis();
