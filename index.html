@@ -8367,12 +8367,6 @@ function ensureDaily(){
     STATE.daily[k] = { topicId: wantTopic, flash:0, quizBest:0, planOpened:false, completed:false };
     saveState();
   }
-  // If topic rotation logic changes (or bank changes), keep today aligned.
-  if(STATE.daily[k].topicId !== wantTopic){
-    STATE.daily[k].topicId = wantTopic;
-    // don't wipe progress; just realign.
-    saveState();
-  }
   return STATE.daily[k];
 }
 
@@ -10381,15 +10375,7 @@ function openDailyCoachDialog(forceRefresh=false){
     cta.textContent = "Start challenge";
     cta.onclick = ()=>{
       overlay.classList.add("hidden");
-      if(challengeTopic === "MIXED"){
-        setTab("quiz");
-        $("mcqTopicSelect").value = "MIXED";
-        $("mcqCount").value = "10";
-        trackTaskStarted("QUIZ", ensureDaily().topicId);
-        startQuiz();
-      }else{
-        goDailyQuiz(challengeTopic);
-      }
+      goDailyFocus();
     };
   }
 
@@ -11680,10 +11666,9 @@ function init(){
   // start on Home
   setTab("home");
   renderHomeRecommendation();
-  buildDailyCoachRecommendation();
   openDailyCoachDialog(false);
 
-  $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(true));
+  $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
   $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
   $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
 
