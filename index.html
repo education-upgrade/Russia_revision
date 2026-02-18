@@ -748,6 +748,41 @@
     .lessonItemTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
     .lessonMeta{font-size:12px;color:var(--muted);margin-top:6px}
     .lessonTick{font-size:15px}
+    .lessonHeaderCard{padding:18px}
+    .lessonHeaderCard .lessonMeta{font-size:13px;letter-spacing:.2px;text-transform:uppercase}
+    .lessonTitleMain{font-weight:900;font-size:clamp(26px,5vw,36px);line-height:1.15;margin-top:8px;letter-spacing:-.3px}
+    .lessonBriefingTitle{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px}
+    .lessonFocusBand{
+      margin-top:12px;
+      border:1px solid color-mix(in srgb, var(--line) 74%, var(--accent2) 26%);
+      border-radius:14px;
+      padding:10px 12px;
+      background:linear-gradient(135deg, rgba(250,252,255,.85), rgba(230,239,250,.72));
+    }
+    .lessonFocusLabel{font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:var(--muted)}
+    .lessonFocusText{margin-top:4px;font-size:14px;font-weight:700;line-height:1.4;color:var(--textStrong)}
+    .lessonChunkGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+    .lessonChunkCard{border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(255,255,255,.72)}
+    .lessonChunkCard h4{margin:0;font-size:13px;font-weight:900;letter-spacing:.2px;color:var(--textStrong)}
+    .lessonPointList{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:7px}
+    .lessonPointList li{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.45;color:var(--text)}
+    .lessonPointList li::before{content:"";width:8px;height:8px;border-radius:999px;margin-top:6px;flex:0 0 auto;background:var(--accent)}
+    .lessonPointList.isContinuity li::before{background:#97a8c5}
+    .lessonExamTip{
+      margin-top:12px;
+      border-left:4px solid color-mix(in srgb, var(--accent) 72%, #6f8fbd 28%);
+      background:rgba(243,248,255,.84);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+      line-height:1.45;
+      color:var(--textStrong);
+    }
+    .lessonBriefingFallback{margin-top:10px;white-space:pre-line;font-size:13px;line-height:1.5}
+    @media(max-width:720px){
+      .lessonTitleMain{font-size:clamp(22px,8vw,31px)}
+      .lessonChunkGrid{grid-template-columns:1fr}
+    }
 
     /* =========================
        KPI / RINGS
@@ -3490,16 +3525,17 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
 
     <div id="lessonPlayerView" class="hidden">
-      <div class="card">
+      <div class="card lessonHeaderCard">
         <button class="btn" id="lessonBackBtn" type="button">← Back to library</button>
         <div class="divider"></div>
-        <div class="note" id="lessonThemeLabel"></div>
-        <div style="font-weight:900;font-size:18px;line-height:1.3;margin-top:4px" id="lessonTitle"></div>
+        <div class="lessonMeta" id="lessonThemeLabel"></div>
+        <div class="lessonTitleMain" id="lessonTitle"></div>
       </div>
 
       <div class="card" id="lessonBriefingCard">
-        <div style="font-weight:800">Briefing</div>
-        <div class="note" style="margin-top:8px;white-space:pre-line" id="lessonBriefing"></div>
+        <div class="lessonBriefingTitle">🧭 Briefing</div>
+        <div id="lessonBriefingStructured"></div>
+        <div class="note lessonBriefingFallback hidden" id="lessonBriefing"></div>
         <div class="divider"></div>
         <button class="btn primary" id="lessonStartBtn" type="button">Start Quiz</button>
       </div>
@@ -8501,6 +8537,81 @@ function saveLessonProgress(){ localStorage.setItem(LESSON_STORAGE_KEY, JSON.str
 
 function blockLessons(blockId){ return LESSONS.filter(l=>l.block===blockId); }
 
+function parseLessonBriefing(briefingText){
+  const lines = (briefingText || "").split("\n").map(line=>line.trim()).filter(Boolean);
+  const out = { focus:"", changes:[], continuities:[], examTip:"", fallback:briefingText || "" };
+
+  lines.forEach(line=>{
+    const clean = line.replace(/^•\s*/, "").trim();
+    const lower = clean.toLowerCase();
+    if(lower.startsWith("focus:")){
+      out.focus = clean.replace(/^focus:\s*/i, "").trim();
+      return;
+    }
+    if(lower.startsWith("changes:")){
+      out.changes.push(clean.replace(/^changes:\s*/i, "").trim());
+      return;
+    }
+    if(lower.startsWith("continuities:")){
+      out.continuities.push(clean.replace(/^continuities:\s*/i, "").trim());
+      return;
+    }
+    if(lower.startsWith("in essays")){
+      out.examTip = clean;
+      return;
+    }
+    if(out.focus === "") out.focus = clean;
+    else if(!out.examTip) out.examTip = clean;
+    else out.changes.push(clean);
+  });
+
+  return out;
+}
+
+function renderLessonBriefing(lesson){
+  const structured = $("lessonBriefingStructured");
+  const fallback = $("lessonBriefing");
+  if(!structured || !fallback) return;
+
+  const parsed = parseLessonBriefing(lesson?.briefing || "");
+  const hasStructured = Boolean(parsed.focus || parsed.changes.length || parsed.continuities.length || parsed.examTip);
+
+  if(!hasStructured){
+    structured.innerHTML = "";
+    fallback.classList.remove("hidden");
+    fallback.textContent = lesson?.briefing || "";
+    return;
+  }
+
+  const changesHtml = parsed.changes.length
+    ? parsed.changes.map(item=>`<li>${item}</li>`).join("")
+    : "<li>No key changes listed yet.</li>";
+  const continuitiesHtml = parsed.continuities.length
+    ? parsed.continuities.map(item=>`<li>${item}</li>`).join("")
+    : "<li>No key continuities listed yet.</li>";
+
+  structured.innerHTML = `
+    <div class="lessonFocusBand">
+      <div class="lessonFocusLabel">Big picture</div>
+      <div class="lessonFocusText">${parsed.focus || "Read this lesson for the key narrative before you start the quiz."}</div>
+    </div>
+    <div class="lessonChunkGrid">
+      <div class="lessonChunkCard">
+        <h4>🔄 What changed?</h4>
+        <ul class="lessonPointList">${changesHtml}</ul>
+      </div>
+      <div class="lessonChunkCard">
+        <h4>🧱 What stayed the same?</h4>
+        <ul class="lessonPointList isContinuity">${continuitiesHtml}</ul>
+      </div>
+    </div>
+    ${parsed.examTip ? `<div class="lessonExamTip"><strong>Exam lens:</strong> ${parsed.examTip}</div>` : ""}
+  `;
+
+  fallback.classList.add("hidden");
+  fallback.textContent = parsed.fallback;
+}
+
 function renderLessonLibrary(){
   const host = $("lessonLibraryBlocks");
   if(!host) return;
@@ -8567,7 +8678,7 @@ function openLesson(lessonId){
 
   $("lessonThemeLabel").textContent = `${lesson.block} • ${lesson.theme}`;
   $("lessonTitle").textContent = lesson.title;
-  $("lessonBriefing").textContent = lesson.briefing;
+  renderLessonBriefing(lesson);
 }
 
 function closeLessonPlayer(){
