@@ -752,6 +752,28 @@
     .lessonHeaderCard .lessonMeta{font-size:13px;letter-spacing:.2px;text-transform:uppercase}
     .lessonTitleMain{font-weight:900;font-size:clamp(26px,5vw,36px);line-height:1.15;margin-top:8px;letter-spacing:-.3px}
     .lessonBriefingTitle{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px}
+    .lessonSlideShell{margin-top:12px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:16px;padding:12px;background:linear-gradient(175deg, rgba(250,252,255,.95), rgba(232,241,251,.82))}
+    .lessonSlideMeta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+    .lessonSlideCounter{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
+    .lessonSlideTag{font-size:12px;font-weight:900;padding:5px 10px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 65%, var(--accent2) 35%);background:rgba(255,255,255,.84)}
+    .lessonSlideVisual{margin-top:10px;border:1px solid color-mix(in srgb, var(--line) 65%, var(--accent2) 35%);border-radius:14px;overflow:hidden;position:relative;min-height:148px;background:#edf3fb}
+    .lessonSlideVisual img{display:block;width:100%;height:158px;object-fit:cover;filter:saturate(.87) brightness(1.02)}
+    .lessonSlideOverlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(12,24,40,.2), rgba(12,24,40,.58));display:flex;flex-direction:column;justify-content:flex-end;padding:12px;color:#fff}
+    .lessonSlideOverlayTitle{font-size:15px;font-weight:900;line-height:1.25}
+    .lessonSlideOverlaySub{font-size:12px;line-height:1.35;opacity:.93;margin-top:3px}
+    .lessonSlideBody{margin-top:12px}
+    .lessonSlideHeading{margin:0;font-size:18px;line-height:1.25;font-weight:900;color:var(--textStrong)}
+    .lessonSlideLead{margin:8px 0 0;font-size:14px;line-height:1.5;color:var(--text)}
+    .lessonSlideList{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:8px}
+    .lessonSlideList li{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.45}
+    .lessonSlideList li::before{content:"";width:8px;height:8px;border-radius:999px;margin-top:6px;flex:0 0 auto;background:var(--accent)}
+    .lessonSlideList[data-tone="continuity"] li::before{background:#97a8c5}
+    .lessonSlideList[data-tone="exam"] li::before{background:#6484b6}
+    .lessonSlideControls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
+    .lessonSlideDots{display:flex;gap:6px;align-items:center}
+    .lessonSlideDot{width:8px;height:8px;border-radius:999px;background:color-mix(in srgb, var(--line) 60%, #d6e1ef 40%);border:0;padding:0}
+    .lessonSlideDot.isActive{width:20px;border-radius:999px;background:var(--accent)}
+    .lessonSlideBtn{min-width:86px}
     .lessonFocusBand{
       margin-top:12px;
       border:1px solid color-mix(in srgb, var(--line) 74%, var(--accent2) 26%);
@@ -782,6 +804,8 @@
     @media(max-width:720px){
       .lessonTitleMain{font-size:clamp(22px,8vw,31px)}
       .lessonChunkGrid{grid-template-columns:1fr}
+      .lessonSlideShell{padding:10px}
+      .lessonSlideVisual img{height:146px}
     }
 
     /* =========================
@@ -3533,9 +3557,14 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
 
       <div class="card" id="lessonBriefingCard">
-        <div class="lessonBriefingTitle">🧭 Briefing</div>
+        <div class="lessonBriefingTitle">Lesson briefing</div>
         <div id="lessonBriefingStructured"></div>
         <div class="note lessonBriefingFallback hidden" id="lessonBriefing"></div>
+        <div class="lessonSlideControls" id="lessonSlideControls">
+          <button class="btn lessonSlideBtn" id="lessonSlidePrevBtn" type="button">Previous</button>
+          <div class="lessonSlideDots" id="lessonSlideDots" aria-label="Lesson slide progress"></div>
+          <button class="btn lessonSlideBtn" id="lessonSlideNextBtn" type="button">Next</button>
+        </div>
         <div class="divider"></div>
         <button class="btn primary" id="lessonStartBtn" type="button">Start Quiz</button>
       </div>
@@ -8515,6 +8544,14 @@ let currentLessonId = null;
 let lessonQuestionIndex = 0;
 let lessonScore = 0;
 let lessonAnsweredCurrent = false;
+let lessonSlides = [];
+let lessonSlideIndex = 0;
+const LESSON_SLIDE_IMAGES = [
+  "./topic1.png?v=1",
+  "./topic2.png?v=1",
+  "./topic3.png?v=1",
+  "./topic4.png?v=1"
+];
 
 function lessonDefaultProgress(){
   const out = {};
@@ -8568,48 +8605,128 @@ function parseLessonBriefing(briefingText){
   return out;
 }
 
-function renderLessonBriefing(lesson){
+function getLessonSlideImage(lesson){
+  const blockIndex = LESSON_BLOCKS.findIndex(block=>block.id===lesson?.block);
+  if(blockIndex >= 0) return LESSON_SLIDE_IMAGES[blockIndex % LESSON_SLIDE_IMAGES.length];
+  return LESSON_SLIDE_IMAGES[0];
+}
+
+function buildLessonSlides(lesson){
+  const parsed = parseLessonBriefing(lesson?.briefing || "");
+  const defaultIntro = "Read this section to lock in the narrative before attempting the questions.";
+  return [
+    {
+      tag:"Overview",
+      visualTitle:lesson?.title || "Lesson overview",
+      visualSub:(lesson?.block && lesson?.theme) ? `${lesson.block} • ${lesson.theme}` : "",
+      heading:"Big picture focus",
+      lead:parsed.focus || defaultIntro,
+      bullets:[],
+      tone:"overview",
+      image:getLessonSlideImage(lesson)
+    },
+    {
+      tag:"Change",
+      visualTitle:"How the period changed",
+      visualSub:"Trace developments with specific policy evidence.",
+      heading:"What changed?",
+      lead:"Identify what shifted and explain the significance of each change.",
+      bullets:parsed.changes.length ? parsed.changes : ["No key changes listed yet."],
+      tone:"change",
+      image:getLessonSlideImage(lesson)
+    },
+    {
+      tag:"Continuity",
+      visualTitle:"What remained durable",
+      visualSub:"Prioritise long-term structures that resisted reform.",
+      heading:"What stayed the same?",
+      lead:"Anchor your judgement in continuities that persisted across the period.",
+      bullets:parsed.continuities.length ? parsed.continuities : ["No key continuities listed yet."],
+      tone:"continuity",
+      image:getLessonSlideImage(lesson)
+    },
+    {
+      tag:"Exam",
+      visualTitle:"Use this in the 25-mark essay",
+      visualSub:"Turn content into argument and judgement.",
+      heading:"Exam-ready thinking",
+      lead:parsed.examTip || "Build a balanced judgement: explain which factor mattered most and why.",
+      bullets:["Support each point with precise dates, named policies, and clear consequences.","Compare change and continuity directly so your conclusion weighs relative importance."],
+      tone:"exam",
+      image:getLessonSlideImage(lesson)
+    }
+  ];
+}
+
+function renderLessonSlide(){
   const structured = $("lessonBriefingStructured");
   const fallback = $("lessonBriefing");
-  if(!structured || !fallback) return;
+  const dots = $("lessonSlideDots");
+  const controls = $("lessonSlideControls");
+  const prevBtn = $("lessonSlidePrevBtn");
+  const nextBtn = $("lessonSlideNextBtn");
+  if(!structured || !fallback || !dots || !controls || !prevBtn || !nextBtn) return;
 
-  const parsed = parseLessonBriefing(lesson?.briefing || "");
-  const hasStructured = Boolean(parsed.focus || parsed.changes.length || parsed.continuities.length || parsed.examTip);
-
-  if(!hasStructured){
+  if(!lessonSlides.length){
     structured.innerHTML = "";
+    controls.classList.add("hidden");
     fallback.classList.remove("hidden");
-    fallback.textContent = lesson?.briefing || "";
+    fallback.textContent = "Lesson briefing unavailable.";
     return;
   }
 
-  const changesHtml = parsed.changes.length
-    ? parsed.changes.map(item=>`<li>${item}</li>`).join("")
-    : "<li>No key changes listed yet.</li>";
-  const continuitiesHtml = parsed.continuities.length
-    ? parsed.continuities.map(item=>`<li>${item}</li>`).join("")
-    : "<li>No key continuities listed yet.</li>";
+  const slide = lessonSlides[lessonSlideIndex] || lessonSlides[0];
+  const bullets = (slide.bullets || []).map(item=>`<li>${item}</li>`).join("");
+  const listTone = slide.tone === "continuity" ? "continuity" : (slide.tone === "exam" ? "exam" : "change");
 
   structured.innerHTML = `
-    <div class="lessonFocusBand">
-      <div class="lessonFocusLabel">Big picture</div>
-      <div class="lessonFocusText">${parsed.focus || "Read this lesson for the key narrative before you start the quiz."}</div>
-    </div>
-    <div class="lessonChunkGrid">
-      <div class="lessonChunkCard">
-        <h4>🔄 What changed?</h4>
-        <ul class="lessonPointList">${changesHtml}</ul>
+    <div class="lessonSlideShell">
+      <div class="lessonSlideMeta">
+        <div class="lessonSlideCounter">Slide ${lessonSlideIndex + 1} of ${lessonSlides.length}</div>
+        <div class="lessonSlideTag">${slide.tag || "Section"}</div>
       </div>
-      <div class="lessonChunkCard">
-        <h4>🧱 What stayed the same?</h4>
-        <ul class="lessonPointList isContinuity">${continuitiesHtml}</ul>
+      <div class="lessonSlideVisual">
+        <img src="${slide.image}" alt="${slide.visualTitle || "Lesson visual"}">
+        <div class="lessonSlideOverlay">
+          <div class="lessonSlideOverlayTitle">${slide.visualTitle || "Lesson summary"}</div>
+          ${slide.visualSub ? `<div class="lessonSlideOverlaySub">${slide.visualSub}</div>` : ""}
+        </div>
+      </div>
+      <div class="lessonSlideBody">
+        <h3 class="lessonSlideHeading">${slide.heading || "Section"}</h3>
+        ${slide.lead ? `<p class="lessonSlideLead">${slide.lead}</p>` : ""}
+        ${bullets ? `<ul class="lessonSlideList" data-tone="${listTone}">${bullets}</ul>` : ""}
       </div>
     </div>
-    ${parsed.examTip ? `<div class="lessonExamTip"><strong>Exam lens:</strong> ${parsed.examTip}</div>` : ""}
   `;
 
+  dots.innerHTML = lessonSlides.map((_, idx)=>`<button type="button" class="lessonSlideDot ${idx===lessonSlideIndex ? "isActive" : ""}" data-slide-index="${idx}" aria-label="Open slide ${idx+1}"></button>`).join("");
+  dots.querySelectorAll("[data-slide-index]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      lessonSlideIndex = Number(btn.dataset.slideIndex) || 0;
+      renderLessonSlide();
+    });
+  });
+
+  prevBtn.disabled = lessonSlideIndex === 0;
+  nextBtn.disabled = lessonSlideIndex === lessonSlides.length - 1;
+  controls.classList.remove("hidden");
   fallback.classList.add("hidden");
-  fallback.textContent = parsed.fallback;
+  fallback.textContent = "";
+}
+
+function renderLessonBriefing(lesson){
+  lessonSlides = buildLessonSlides(lesson);
+  lessonSlideIndex = 0;
+  renderLessonSlide();
+}
+
+function moveLessonSlide(delta){
+  if(!lessonSlides.length) return;
+  const nextIndex = Math.min(Math.max(lessonSlideIndex + delta, 0), lessonSlides.length - 1);
+  if(nextIndex === lessonSlideIndex) return;
+  lessonSlideIndex = nextIndex;
+  renderLessonSlide();
 }
 
 function renderLessonLibrary(){
@@ -8650,7 +8767,7 @@ function renderLessonLibrary(){
             <div style="font-weight:800">${lesson.title}</div>
             <div class="lessonMeta">${lesson.theme} • Best: ${progress.bestScore}/4 • Attempts: ${progress.attempts}</div>
           </div>
-          <div class="lessonTick" aria-label="completion">${progress.completed ? "✅" : "⬜"}</div>
+          <div class="lessonTick" aria-label="completion">${progress.completed ? "Done" : "Not started"}</div>
         </div>
         <button class="btn" type="button" style="margin-top:8px">${progress.attempts ? "Retry lesson" : "Open lesson"}</button>
       `;
@@ -8708,7 +8825,7 @@ function selectLessonOption(optIdx){
   if(correct) lessonScore += 1;
 
   const feedback = $("lessonFeedback");
-  const text = correct ? `✅ Correct. ${q.feedbackCorrect}` : `❌ Not quite. ${(q.feedbackWrongByIndex||{})[optIdx] || "Review the key fact in the briefing and try the next question."}`;
+  const text = correct ? `Correct. ${q.feedbackCorrect}` : `Not quite. ${(q.feedbackWrongByIndex||{})[optIdx] || "Review the key fact in the briefing and try the next question."}`;
   feedback.textContent = text;
 
   const optionsWrap = $("lessonQuestionOptions");
@@ -12180,6 +12297,8 @@ $("examSelect").addEventListener("change", renderExamQuestion);
    ========================================================== */
 $("lessonBackBtn")?.addEventListener("click", closeLessonPlayer);
 $("lessonStartBtn")?.addEventListener("click", startLessonQuiz);
+$("lessonSlidePrevBtn")?.addEventListener("click", ()=>moveLessonSlide(-1));
+$("lessonSlideNextBtn")?.addEventListener("click", ()=>moveLessonSlide(1));
 $("lessonNextQuestionBtn")?.addEventListener("click", nextLessonQuestion);
 
 if($("btnExport") && $("dataBox")){
