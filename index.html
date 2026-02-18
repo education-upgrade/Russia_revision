@@ -11222,7 +11222,6 @@ $("btnNextQ").addEventListener("click", ()=>{
     computeKpis();
     setQuizFiltersCompletionState(true);
     showQuizCompleteModal();
-    try{ openDailyCoachDialog(true); }catch(e){}
     return;
   }
   $("quizExplainer").textContent = QUIZ.mode === "exam" ? "Exam mode: one answer only." : "Tap your answer.";
