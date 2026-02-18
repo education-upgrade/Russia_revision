@@ -10388,7 +10388,7 @@ function openDailyCoachDialog(forceRefresh=false){
         trackTaskStarted("QUIZ", ensureDaily().topicId);
         startQuiz();
       }else{
-        goDailyQuiz();
+        goDailyQuiz(challengeTopic);
       }
     };
   }
@@ -10434,7 +10434,7 @@ function getChallengeCtaConfig(d){
         trackTaskStarted("QUIZ", ensureDaily().topicId);
         startQuiz();
       }else{
-        goDailyQuiz();
+        goDailyQuiz(coachTopic);
       }
     }
   };
@@ -10448,14 +10448,17 @@ function goDailyFocus(){
   openStudyForTopic(d.topicId, "all");
   startDailyFlashSession(d.topicId);
 }
-function goDailyQuiz(){
+function goDailyQuiz(topicIdOverride=null){
   const d = ensureDaily();
+  const targetTopicId = (topicIdOverride && topicIdOverride !== "MIXED" && isTopicEnabled(topicIdOverride))
+    ? topicIdOverride
+    : d.topicId;
   d.lastStep = "quiz";
   saveState();
-  trackTaskStarted("QUIZ", d.topicId);
+  trackTaskStarted("QUIZ", targetTopicId);
   NEXT_QUIZ_FROM_DAILY_CHALLENGE = true;
   setTab("quiz");
-  $("mcqTopicSelect").value = d.topicId;
+  $("mcqTopicSelect").value = targetTopicId;
   $("mcqCount").value = "10";
   startQuiz();
 }
