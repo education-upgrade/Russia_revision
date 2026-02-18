@@ -8546,6 +8546,7 @@ let lessonScore = 0;
 let lessonAnsweredCurrent = false;
 let lessonSlides = [];
 let lessonSlideIndex = 0;
+let lessonQuizQuestions = [];
 const LESSON_SLIDE_IMAGES = [
   "./topic1.png?v=1",
   "./topic2.png?v=1",
@@ -8779,6 +8780,24 @@ function renderLessonLibrary(){
   });
 }
 
+function prepareLessonQuizQuestions(lesson){
+  return (lesson?.questions || []).map(question=>{
+    const options = question.options.map((text, originalIndex)=>({ text, originalIndex }));
+    const shuffled = shuffle(options.slice());
+    const remappedWrong = {};
+    shuffled.forEach((option, newIndex)=>{
+      const msg = (question.feedbackWrongByIndex || {})[option.originalIndex];
+      if(msg !== undefined) remappedWrong[newIndex] = msg;
+    });
+    return {
+      ...question,
+      options: shuffled.map(option=>option.text),
+      correctIndex: shuffled.findIndex(option=>option.originalIndex === question.correctIndex),
+      feedbackWrongByIndex: remappedWrong
+    };
+  });
+}
+
 function openLesson(lessonId){
   const lesson = LESSONS.find(l=>l.id===lessonId);
   if(!lesson) return;
@@ -8786,6 +8805,7 @@ function openLesson(lessonId){
   lessonQuestionIndex = 0;
   lessonScore = 0;
   lessonAnsweredCurrent = false;
+  lessonQuizQuestions = [];
 
   $("lessonLibraryView").classList.add("hidden");
   $("lessonPlayerView").classList.remove("hidden");
@@ -8810,6 +8830,7 @@ function startLessonQuiz(){
   lessonQuestionIndex = 0;
   lessonScore = 0;
   lessonAnsweredCurrent = false;
+  lessonQuizQuestions = prepareLessonQuizQuestions(lesson);
   $("lessonBriefingCard").classList.add("hidden");
   $("lessonSummaryCard").classList.add("hidden");
   $("lessonQuizCard").classList.remove("hidden");
@@ -8819,7 +8840,7 @@ function startLessonQuiz(){
 function selectLessonOption(optIdx){
   const lesson = LESSONS.find(l=>l.id===currentLessonId);
   if(!lesson || lessonAnsweredCurrent) return;
-  const q = lesson.questions[lessonQuestionIndex];
+  const q = lessonQuizQuestions[lessonQuestionIndex];
   lessonAnsweredCurrent = true;
   const correct = optIdx === q.correctIndex;
   if(correct) lessonScore += 1;
@@ -8842,7 +8863,7 @@ function nextLessonQuestion(){
   const lesson = LESSONS.find(l=>l.id===currentLessonId);
   if(!lesson) return;
   lessonQuestionIndex += 1;
-  if(lessonQuestionIndex >= lesson.questions.length) return finishLessonQuiz();
+  if(lessonQuestionIndex >= lessonQuizQuestions.length) return finishLessonQuiz();
   lessonAnsweredCurrent = false;
   renderLessonQuestion();
 }
@@ -8850,8 +8871,9 @@ function nextLessonQuestion(){
 function renderLessonQuestion(){
   const lesson = LESSONS.find(l=>l.id===currentLessonId);
   if(!lesson) return;
-  const q = lesson.questions[lessonQuestionIndex];
-  $("lessonQuestionCounter").textContent = `Question ${lessonQuestionIndex+1} of ${lesson.questions.length}`;
+  const q = lessonQuizQuestions[lessonQuestionIndex];
+  if(!q) return finishLessonQuiz();
+  $("lessonQuestionCounter").textContent = `Question ${lessonQuestionIndex+1} of ${lessonQuizQuestions.length}`;
   $("lessonQuestionText").textContent = q.q;
   const wrap = $("lessonQuestionOptions");
   wrap.innerHTML = "";
@@ -8884,7 +8906,7 @@ function finishLessonQuiz(){
   const nextMsg = lessonScore >= 3
     ? "Strong foundation. Next step: keep linking each fact to a judgement about extent of change."
     : "Good start. Next step: revisit the briefing and lock down the key dates/policies before moving on.";
-  $("lessonSummaryText").textContent = `Score: ${lessonScore}/${lesson.questions.length}. ${nextMsg}`;
+  $("lessonSummaryText").textContent = `Score: ${lessonScore}/${lessonQuizQuestions.length || lesson.questions.length}. ${nextMsg}`;
 
   const next = LESSONS[LESSONS.findIndex(x=>x.id===lesson.id)+1];
   const btn = $("lessonNextLessonBtn");
