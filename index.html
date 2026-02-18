@@ -10355,8 +10355,11 @@ function getDailyCoachRecommendation(forceRefresh=false){
 function openDailyCoachDialog(forceRefresh=false){
   const overlay = $("dailyCoachOverlay");
   if(!overlay) return;
-  const reco = getDailyCoachRecommendation(forceRefresh);
-  const challengeTopic = (reco.topicId === "MIXED" || !isTopicEnabled(reco.topicId)) ? "MIXED" : reco.topicId;
+  getDailyCoachRecommendation(forceRefresh);
+  const daily = ensureDaily();
+  const dailyTopicId = daily.topicId;
+  const dailyTopicTitle = (TOPICS.find(t=>t.id===dailyTopicId)?.title || dailyTopicId);
+  const dailyMetrics = topicCoachMetrics(dailyTopicId);
 
   const msgNode = $("dailyCoachMessage");
   const retentionNode = $("coachRetentionMeta");
@@ -10365,11 +10368,11 @@ function openDailyCoachDialog(forceRefresh=false){
   const lastNode = $("coachLastStudyMeta");
   const cta = $("coachChallengeBtn");
 
-  if(msgNode) msgNode.textContent = reco.message;
-  if(retentionNode) retentionNode.textContent = `Retention: ${reco.retentionPercent}%`;
-  if(accuracyNode) accuracyNode.textContent = `Accuracy: ${reco.accuracyPercent}%`;
-  if(xpNode) xpNode.textContent = `XP: ${reco.xp}`;
-  if(lastNode) lastNode.textContent = `Last reviewed: ${formatCoachWhen(reco.lastStudiedAt)}`;
+  if(msgNode) msgNode.textContent = `Today’s topic: ${dailyTopicTitle}`;
+  if(retentionNode) retentionNode.textContent = `Retention: ${dailyMetrics.retentionPercent}%`;
+  if(accuracyNode) accuracyNode.textContent = `Accuracy: ${dailyMetrics.quizBestPercent}%`;
+  if(xpNode) xpNode.textContent = `XP: ${dailyMetrics.xp}`;
+  if(lastNode) lastNode.textContent = `Last reviewed: ${formatCoachWhen(dailyMetrics.lastStudiedAt)}`;
 
   if(cta){
     cta.textContent = "Start challenge";
