@@ -11395,29 +11395,14 @@ function renderExamQuestion(){
       compare: introPlan ? introPlan.body : "Check your intro sets up a direct judgement on the question wording."
     },
     {
-      title: "2) Compare your introduction to the intro plan",
-      prompt: "Tick off: clear judgement, direct wording, and brief route through your factors.",
-      compare: introPlan ? introPlan.body : "No intro plan available for this question yet."
-    },
-    {
-      title: "3) Write 4 factors you would include",
+      title: "2) Write 4 factors you would include",
       prompt: `Aim for concise factor labels. Suggested factors: ${q.factors.join(" • ")}`,
       compare: `Compare your list with the plan's factors. Press each factor to reveal paragraph guidance.${factorRows}`
     },
     {
-      title: "4) Compare your factors to the plan",
-      prompt: "Keep factors that directly answer the wording and drop any that are descriptive only.",
-      compare: factorRows || "No factor breakdown yet for this question."
-    },
-    {
-      title: "5) Write a conclusion",
+      title: "3) Write a conclusion",
       prompt: "Give a final judgement and explain why your strongest factor outweighs alternatives.",
       compare: conclusionPlan ? conclusionPlan.body : "Ensure your conclusion is comparative and decisive."
-    },
-    {
-      title: "6) Compare your conclusion to the plan",
-      prompt: "Check that your final judgement matches your argument and prioritises the most important factor.",
-      compare: conclusionPlan ? conclusionPlan.body : "No conclusion plan available for this question yet."
     }
   ];
 
