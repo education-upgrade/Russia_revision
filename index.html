@@ -2940,8 +2940,8 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
 
 
-      <details style="margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(247,251,255,.9)">
-        <summary style="cursor:pointer;font-weight:900">Quiz filters</summary>
+      <details id="quizFiltersDetails" style="margin-top:10px;border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(247,251,255,.9)">
+        <summary style="cursor:pointer;font-weight:900"><span id="quizFiltersSummaryLabel">Quiz filters</span></summary>
         <div class="row" style="margin-top:10px">
           <div class="grow">
             <label>Topic</label>
@@ -10878,6 +10878,7 @@ function startRandomQuiz(){
 
 function startQuiz(useErrorBank=false){
   closeQuizCompleteModal();
+  setQuizFiltersCompletionState(false);
   const topicId = $("mcqTopicSelect").value;
   const count = Number($("mcqCount").value);
   const mode = $("quizModeSelect")?.value || "standard";
@@ -10981,6 +10982,7 @@ $("btnNextQ").addEventListener("click", ()=>{
     updateQuizMasteryUi();
     confetti.burst(140);
     computeKpis();
+    setQuizFiltersCompletionState(true);
     showQuizCompleteModal();
     return;
   }
@@ -11050,6 +11052,13 @@ function renderQuizQ(){
 
     $("quizChoices").appendChild(b);
   });
+}
+
+function setQuizFiltersCompletionState(isComplete){
+  const filtersDetails = $("quizFiltersDetails");
+  const summaryLabel = $("quizFiltersSummaryLabel");
+  if(summaryLabel) summaryLabel.textContent = isComplete ? "Load another quiz" : "Quiz filters";
+  if(filtersDetails) filtersDetails.open = !!isComplete;
 }
 
 /* ==========================================================
