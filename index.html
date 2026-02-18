@@ -748,9 +748,12 @@
     .lessonItemTop{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
     .lessonMeta{font-size:12px;color:var(--muted);margin-top:6px}
     .lessonTick{font-size:15px}
-    .lessonHeaderCard{padding:18px}
-    .lessonHeaderCard .lessonMeta{font-size:13px;letter-spacing:.2px;text-transform:uppercase}
-    .lessonTitleMain{font-weight:900;font-size:clamp(26px,5vw,36px);line-height:1.15;margin-top:8px;letter-spacing:-.3px}
+    .lessonHeaderCard{padding:14px}
+    .lessonHeaderTopRow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .lessonHeaderTopTitle{display:inline-flex;align-items:center;gap:8px;font-weight:900;color:var(--textStrong);font-size:16px;white-space:nowrap}
+    .lessonHeaderTopTitle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    .lessonHeaderCard .lessonMeta{font-size:12px;letter-spacing:.2px;text-transform:uppercase;margin-top:2px}
+    .lessonTitleMain{font-weight:900;font-size:clamp(20px,4vw,28px);line-height:1.08;margin-top:6px;letter-spacing:-.3px}
     .lessonBriefingTitle{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px}
     .lessonSlideShell{margin-top:12px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:16px;padding:12px;background:linear-gradient(175deg, rgba(250,252,255,.95), rgba(232,241,251,.82))}
     .lessonSlideMeta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
@@ -802,7 +805,10 @@
     }
     .lessonBriefingFallback{margin-top:10px;white-space:pre-line;font-size:13px;line-height:1.5}
     @media(max-width:720px){
-      .lessonTitleMain{font-size:clamp(22px,8vw,31px)}
+      .lessonHeaderCard{padding:12px}
+      .lessonHeaderTopTitle{font-size:14px;gap:6px}
+      .lessonHeaderTopTitle svg{width:18px;height:18px}
+      .lessonTitleMain{font-size:clamp(16px,6.6vw,22px);line-height:1.06}
       .lessonChunkGrid{grid-template-columns:1fr}
       .lessonSlideShell{padding:10px}
       .lessonSlideVisual img{height:146px}
@@ -3553,7 +3559,13 @@ section#games.gamePaneActive .gamesHeroCard{
 
     <div id="lessonPlayerView" class="hidden">
       <div class="card lessonHeaderCard">
-        <button class="btn" id="lessonBackBtn" type="button">← Back to library</button>
+        <div class="lessonHeaderTopRow">
+          <button class="btn" id="lessonBackBtn" type="button">← Back to library</button>
+          <div class="lessonHeaderTopTitle" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="14" height="10" rx="1.5"></rect><path d="M6 9h8"></path><path d="M6 12h5"></path><circle cx="20" cy="9" r="1.4"></circle><path d="M19.2 11.8 17.7 15"></path><path d="M20.8 11.8 22.3 15"></path></svg>
+            <span>Lessons</span>
+          </div>
+        </div>
         <div class="divider"></div>
         <div class="lessonMeta" id="lessonThemeLabel"></div>
         <div class="lessonTitleMain" id="lessonTitle"></div>
