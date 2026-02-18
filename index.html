@@ -3489,29 +3489,6 @@ section#games.gamePaneActive .gamesHeroCard{
   </div>
 </div>
 
-<div id="onboardingOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Welcome">
-  <div class="onboardingModal">
-    <div id="onboardingStep1">
-      <h3 class="onboardingTitle">How this helps your grades</h3>
-      <ul class="onboardingBullets">
-        <li>Daily tasks matched to what you need most</li>
-        <li>Quick quiz + flashcards + exam practice</li>
-        <li>Track streak + mastery by topic</li>
-      </ul>
-      <button class="btn primary" id="onboardingNextBtn" type="button" style="margin-top:10px;width:100%">Start my 10 minutes</button>
-    </div>
-    <div id="onboardingStep2" class="hidden">
-      <h3 class="onboardingTitle">Pick your goal</h3>
-      <div class="goalOptions">
-        <button class="goalBtn" data-goal="pass" type="button">Just pass</button>
-        <button class="goalBtn" data-goal="aim_high" type="button">Aim high</button>
-        <button class="goalBtn" data-goal="top" type="button">Top grades</button>
-      </div>
-      <button class="btn primary" id="onboardingDoneBtn" type="button" style="margin-top:12px;width:100%">Let's go</button>
-    </div>
-  </div>
-</div>
-
 <div id="debugPanel" class="debugPanel hidden" role="region" aria-label="Recommendation debug panel">
   <h4>Recommendation debug</h4>
   <div id="debugReco"></div>
@@ -10160,43 +10137,10 @@ function showNextUpSheet(){
   if(sheet) sheet.classList.add("hidden");
 }
 function initOnboarding(){
-  const overlay = $("onboardingOverlay");
-  const step1 = $("onboardingStep1");
-  const step2 = $("onboardingStep2");
-  const nextBtn = $("onboardingNextBtn");
-  const doneBtn = $("onboardingDoneBtn");
-  if(!overlay || !step1 || !step2 || !nextBtn || !doneBtn) return;
-
-  let selectedGoal = localStorage.getItem(USER_GOAL_KEY) || "";
-  const syncGoals = ()=>{
-    overlay.querySelectorAll(".goalBtn").forEach(btn=>{
-      btn.classList.toggle("active", btn.dataset.goal === selectedGoal);
-    });
-  };
-
-  nextBtn.onclick = ()=>{
-    step1.classList.add("hidden");
-    step2.classList.remove("hidden");
-  };
-
-  overlay.querySelectorAll(".goalBtn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      selectedGoal = btn.dataset.goal || "pass";
-      syncGoals();
-    });
-  });
-
-  doneBtn.onclick = ()=>{
-    const goal = selectedGoal || "pass";
-    localStorage.setItem(USER_GOAL_KEY, goal);
-    localStorage.setItem(ONBOARDED_KEY, "1");
-    overlay.classList.add("hidden");
-  };
-
-  syncGoals();
-  if(localStorage.getItem(ONBOARDED_KEY) !== "1"){
-    overlay.classList.remove("hidden");
+  if(!localStorage.getItem(USER_GOAL_KEY)){
+    localStorage.setItem(USER_GOAL_KEY, "pass");
   }
+  localStorage.setItem(ONBOARDED_KEY, "1");
 }
 
 function renderDebugPanel(){
