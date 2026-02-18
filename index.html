@@ -2414,13 +2414,23 @@ section#games.gamePaneActive .gamesHeroCard{
       background:linear-gradient(180deg, color-mix(in srgb, #ffffff 90%, var(--accent3) 10%), color-mix(in srgb, #ffffff 80%, var(--accent2) 20%));
       box-shadow:var(--shadow);
     }
-    .coachTitleRow{display:flex;align-items:center;justify-content:space-between;gap:10px}
-    .coachTitle{margin:0;font-size:20px;line-height:1.2}
+    .coachTitleRow{display:flex;align-items:center;justify-content:flex-start;gap:10px}
+    .coachTitle{
+      margin:0;
+      color:var(--accent);
+      font-size:24px;
+      font-weight:900;
+      letter-spacing:.1px;
+      line-height:1;
+      text-transform:none;
+    }
     .coachTag{font-size:12px;font-weight:900;color:var(--muted)}
     .coachMessage{margin-top:10px;font-size:15px;font-weight:800;line-height:1.4;color:var(--textStrong)}
+    .coachStatsLead{margin-top:10px;font-size:14px;font-weight:800;color:var(--muted)}
     .coachMetaGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
     .coachMetaPill{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;padding:8px 10px;background:color-mix(in srgb, #fff 85%, var(--accent3) 15%);font-size:12px;font-weight:800;color:var(--text)}
     .coachActions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
+    #coachChallengeBtn{color:#fff}
     @media (max-width:640px){
       .coachMetaGrid{grid-template-columns:1fr}
       .coachActions{justify-content:stretch}
@@ -3046,10 +3056,10 @@ section#games.gamePaneActive .gamesHeroCard{
   <div id="dailyCoachOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily Coach recommendation">
     <div class="onboardingModal coachModal">
       <div class="coachTitleRow">
-        <h3 class="coachTitle">🧠 Daily Coach</h3>
-        <span class="coachTag" id="coachPriorityTag">Updated now</span>
+        <h3 class="coachTitle">Welcome back</h3>
       </div>
       <div class="coachMessage" id="dailyCoachMessage">Loading recommendation…</div>
+      <div class="coachStatsLead" id="coachStatsLead">These are your stats for this topic.</div>
       <div class="coachMetaGrid">
         <div class="coachMetaPill" id="coachRetentionMeta">Retention: —</div>
         <div class="coachMetaPill" id="coachAccuracyMeta">Accuracy: —</div>
@@ -3058,7 +3068,7 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
       <div class="coachActions">
         <button class="btn" id="coachDismissBtn" type="button">Close</button>
-        <button class="btn primary" id="coachChallengeBtn" type="button">Start today’s challenge</button>
+        <button class="btn primary" id="coachChallengeBtn" type="button">Start challenge</button>
       </div>
     </div>
   </div>
@@ -10262,7 +10272,7 @@ function getCoachRecommendedTopic(){
       if(a.quizBestPercent !== b.quizBestPercent) return a.quizBestPercent - b.quizBestPercent;
       return a.topicId.localeCompare(b.topicId);
     });
-    return { topicId: dueTopics[0].topicId, reason: "due", rankLabel: "Due now", metrics: dueTopics[0] };
+    return { topicId: dueTopics[0].topicId, reason: "due", rankLabel: "Due", metrics: dueTopics[0] };
   }
 
   const weakTopics = metrics.filter(m=>m.failedCards > 0 || m.masteryPercent < 65 || m.quizBestPercent < 70);
@@ -10322,18 +10332,7 @@ function buildDailyCoachRecommendation(){
     due: false
   };
 
-  const retentionLine = metrics.retentionPercent;
-  const reasonText = pick.reason === "due"
-    ? `this topic is due for review`
-    : (pick.reason === "weakest_mastery"
-      ? `your mastery is lagging`
-      : (pick.reason === "lowest_accuracy"
-        ? `accuracy is the lowest here`
-        : (pick.reason === "oldest_review"
-          ? `it has gone the longest without review`
-          : `you have no weak topics, so we’re interleaving`)));
-
-  const message = `Today’s focus: ${title} — ${reasonText} (retention ${retentionLine}%). Complete today’s challenge to boost it.`;
+  const message = `Today’s topic: ${title}`;
   const payload = {
     date: todayKey(),
     topicId,
@@ -10363,11 +10362,9 @@ function openDailyCoachDialog(forceRefresh=false){
   const overlay = $("dailyCoachOverlay");
   if(!overlay) return;
   const reco = getDailyCoachRecommendation(forceRefresh);
-  const topicLabel = reco.topicId === "MIXED" ? "Mixed topics" : (TOPICS.find(t=>t.id===reco.topicId)?.title || reco.topicId);
   const challengeTopic = (reco.topicId === "MIXED" || !isTopicEnabled(reco.topicId)) ? "MIXED" : reco.topicId;
 
   const msgNode = $("dailyCoachMessage");
-  const tagNode = $("coachPriorityTag");
   const retentionNode = $("coachRetentionMeta");
   const accuracyNode = $("coachAccuracyMeta");
   const xpNode = $("coachXpMeta");
@@ -10375,14 +10372,13 @@ function openDailyCoachDialog(forceRefresh=false){
   const cta = $("coachChallengeBtn");
 
   if(msgNode) msgNode.textContent = reco.message;
-  if(tagNode) tagNode.textContent = `${reco.priorityLabel} • ${topicLabel}`;
   if(retentionNode) retentionNode.textContent = `Retention: ${reco.retentionPercent}%`;
   if(accuracyNode) accuracyNode.textContent = `Accuracy: ${reco.accuracyPercent}%`;
   if(xpNode) xpNode.textContent = `XP: ${reco.xp}`;
   if(lastNode) lastNode.textContent = `Last reviewed: ${formatCoachWhen(reco.lastStudiedAt)}`;
 
   if(cta){
-    cta.textContent = reco.topicId === "MIXED" ? "Start interleaved challenge" : `Start ${compactTopicTitle(topicLabel) || "topic"} challenge`;
+    cta.textContent = "Start challenge";
     cta.onclick = ()=>{
       overlay.classList.add("hidden");
       if(challengeTopic === "MIXED"){
