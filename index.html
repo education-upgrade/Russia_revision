@@ -10951,8 +10951,12 @@ $("btnDailyCompleteHome")?.addEventListener("click", ()=>{
 
 $("btnDailyCompleteFocus")?.addEventListener("click", ()=>{
   closeDailyChallengeCompleteModal();
-  const d = ensureDaily();
-  openStudyForTopic(d.topicId, "focus");
+  setTab("study");
+  $("topicSelect").value = "ALL";
+  $("modeSelect").value = "focus";
+  $("orderSelect").value = "random";
+  loadNextCard();
+  rememberStudyContext();
 });
 
 $("btnNextQ").addEventListener("click", ()=>{
