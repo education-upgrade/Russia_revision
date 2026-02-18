@@ -2426,13 +2426,35 @@ section#games.gamePaneActive .gamesHeroCard{
     }
     .coachTag{font-size:12px;font-weight:900;color:var(--muted)}
     .coachMessage{margin-top:10px;font-size:15px;font-weight:800;line-height:1.4;color:var(--textStrong)}
-    .coachStatsLead{margin-top:10px;font-size:14px;font-weight:800;color:var(--muted)}
+    .coachStatsLead{margin-top:10px;font-size:14px;font-weight:800;color:var(--muted);line-height:1.35;white-space:pre-line}
     .coachMetaGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
     .coachMetaPill{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;padding:8px 10px;background:color-mix(in srgb, #fff 85%, var(--accent3) 15%);font-size:12px;font-weight:800;color:var(--text)}
     .coachActions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;flex-wrap:wrap}
     .coachActions .btn .btnIconLabel{align-items:center}
     .coachActionTitle{display:block;font-size:13px;font-weight:900;line-height:1.1}
-    .coachActionTopic{display:block;font-size:11px;font-weight:800;line-height:1.2;opacity:.85}
+    #coachStudyBtn,
+    #coachChallengeBtn{
+      width:82px;
+      height:82px;
+      padding:10px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+    }
+    #coachStudyBtn .btnIconLabel,
+    #coachChallengeBtn .btnIconLabel{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      gap:6px;
+      text-align:center;
+    }
+    #coachStudyBtn .navIcon,
+    #coachChallengeBtn .navIcon{
+      width:20px;
+      height:20px;
+    }
     #coachChallengeBtn{color:#fff}
     @media (max-width:640px){
       .coachMetaGrid{grid-template-columns:1fr}
@@ -3074,13 +3096,13 @@ section#games.gamePaneActive .gamesHeroCard{
         <button class="btn" id="coachStudyBtn" type="button">
           <span class="btnIconLabel">
             <svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg>
-            <span><span class="coachActionTitle" id="coachStudyBtnTitle">Study</span><span class="coachActionTopic" id="coachStudyBtnTopic">topic</span></span>
+            <span class="coachActionTitle" id="coachStudyBtnTitle">Study</span>
           </span>
         </button>
         <button class="btn primary" id="coachChallengeBtn" type="button">
           <span class="btnIconLabel">
             <svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg>
-            <span><span class="coachActionTitle" id="coachQuizBtnTitle">Quiz</span><span class="coachActionTopic" id="coachQuizBtnTopic">topic</span></span>
+            <span class="coachActionTitle" id="coachQuizBtnTitle">Quiz</span>
           </span>
         </button>
       </div>
@@ -10387,19 +10409,17 @@ function openDailyCoachDialog(forceRefresh=false){
   const quizBtn = $("coachChallengeBtn");
   const studyBtn = $("coachStudyBtn");
   const studyTitleNode = $("coachStudyBtnTitle");
-  const studyTopicNode = $("coachStudyBtnTopic");
   const quizTitleNode = $("coachQuizBtnTitle");
-  const quizTopicNode = $("coachQuizBtnTopic");
 
   if(titleNode) titleNode.textContent = doneToday ? "Challenge complete" : "Welcome back";
   if(msgNode){
     msgNode.textContent = doneToday
-      ? `🎉 Great job — you completed today’s Daily Challenge. Next best topic: ${topicTitle}.`
+      ? "You’ve already completed today’s challenge. Good work!"
       : `Today’s topic: ${(TOPICS.find(t=>t.id===daily.topicId)?.title || daily.topicId)}`;
   }
   if(leadNode){
     leadNode.textContent = doneToday
-      ? "Keep momentum by revisiting a weaker or slipping area."
+      ? `Why not boost this topic now?\n${topicTitle}`
       : "These are your stats for this topic.";
   }
   if(retentionNode) retentionNode.textContent = `Retention: ${topicMetrics.retentionPercent}%`;
@@ -10408,9 +10428,7 @@ function openDailyCoachDialog(forceRefresh=false){
   if(lastNode) lastNode.textContent = `Last reviewed: ${formatCoachWhen(topicMetrics.lastStudiedAt)}`;
 
   if(studyTitleNode) studyTitleNode.textContent = doneToday ? "Study" : "Start";
-  if(studyTopicNode) studyTopicNode.textContent = doneToday ? topicTitle : "Daily challenge";
   if(quizTitleNode) quizTitleNode.textContent = doneToday ? "Quiz" : "Start";
-  if(quizTopicNode) quizTopicNode.textContent = doneToday ? topicTitle : "Daily challenge";
 
   if(studyBtn){
     studyBtn.classList.toggle("hidden", !doneToday);
