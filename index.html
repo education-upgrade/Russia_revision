@@ -9081,6 +9081,20 @@ function getStoredBuildAnswerChecked(lessonId, slideIdx){
   return !!lessonsNav.checked?.[lessonId]?.[slideIdx];
 }
 
+function getStoredArgIdentifyState(lessonId, slideIdx){
+  const value = lessonsNav.answers?.[lessonId]?.[slideIdx];
+  if(!value || typeof value !== "object" || Array.isArray(value)) return { value:null, checked:false };
+  const selectedIndex = Number.isInteger(value.value) ? value.value : null;
+  return { value:selectedIndex, checked:!!value.checked };
+}
+
+function getStoredEvidenceSelectState(lessonId, slideIdx){
+  const value = lessonsNav.answers?.[lessonId]?.[slideIdx];
+  if(!value || typeof value !== "object" || Array.isArray(value)) return { value:[], checked:false };
+  const selectedIds = Array.isArray(value.value) ? value.value : [];
+  return { value:selectedIds, checked:!!value.checked };
+}
+
 const lessonsData = [
   {
     id:"topic1",
@@ -9140,6 +9154,84 @@ const lessonsData = [
               { type:"idea", heading:"Big picture idea", text:"1905 forced concessions and exposed regime fragility, but Nicholas II retained enough coercive and constitutional control to survive in the short term." },
               { type:"briefing", heading:"Micro-briefing 1", text:"The October Manifesto created a Duma and civil liberties in principle, showing that pressure could extract reform from the regime." },
               { type:"briefing", heading:"Micro-briefing 2", text:"Fundamental Laws (1906), control over ministers, and repressive measures under Stolypin limited parliamentary authority and restored significant autocratic leverage." },
+              {
+                type:"interpretation",
+                heading:"Interpretation A",
+                subheading:"Constitutional constraint and negotiated politics",
+                text:"The 1905 Revolution weakened autocracy in more than a temporary way because it forced the regime to concede new political rules and habits. The October Manifesto did not simply calm unrest; it acknowledged that mass protest, strikes, and elite pressure could compel the Tsar to negotiate. Even with later restrictions, the creation of the Duma, legal political parties, and a wider public sphere shifted expectations about governance. Ministers now had to think about opinion, coalition, and legislative management. In that sense, 1905 changed political culture: autocracy survived, but it could no longer govern with the same unquestioned authority as before the crisis."
+              },
+              {
+                type:"arg-identify",
+                heading:"What is the main argument?",
+                prompt:"Choose the best summary of Interpretation A.",
+                options:[
+                  "1905 changed very little because the regime quickly restored complete pre-revolutionary authority.",
+                  "1905 created immediate full democracy and ended autocracy by constitutional transfer of sovereignty.",
+                  "1905 introduced meaningful constitutional limits and a new politics of negotiation, even if autocracy survived.",
+                  "1905 mattered mainly because military expansion solved agrarian tensions and removed opposition."
+                ],
+                correctIndex:2,
+                feedbackCorrect:"Correct: this captures the interpretation's core claim about lasting constitutional and political-cultural change.",
+                feedbackWrong:"Not quite: this misses the interpretation's emphasis on partial but real constitutional constraint and negotiated politics.",
+                skillTag:"AO3-argument"
+              },
+              {
+                type:"evidence-select",
+                heading:"Select evidence to support this view",
+                prompt:"Select 3 statements that best support Interpretation A.",
+                selectionLimit:3,
+                statements:[
+                  { id:"a1", text:"The October Manifesto conceded a Duma and civil liberties under pressure, showing the regime could be compelled to bargain.", score:2, feedback:"Strong support: this directly shows pressure forcing constitutional concession and negotiation." },
+                  { id:"a2", text:"After 1905, legal political parties and electoral campaigns became embedded in political life.", score:2, feedback:"Strong: it supports the claim that political culture shifted toward organised negotiation." },
+                  { id:"a3", text:"Even conservative ministers had to plan for Duma management, alliances, and public justification.", score:2, feedback:"Excellent evidence of changed governing practice rather than pure command politics." },
+                  { id:"a4", text:"Public debate expanded through newspapers and associations despite censorship and periodic repression.", score:2, feedback:"Directly relevant: this supports a wider political sphere after 1905." },
+                  { id:"a5", text:"Social unrest in cities and countryside revealed serious dissatisfaction with the old order.", score:1, feedback:"Relevant context, though less precise than constitutional or institutional evidence." },
+                  { id:"a6", text:"The empire remained socially diverse and difficult to govern across many regions.", score:1, feedback:"Broadly relevant, but generic and not specific proof of this interpretation." },
+                  { id:"a7", text:"Russia still faced major economic and military pressures before 1914.", score:0, feedback:"True but neutral here: it does not directly prove negotiated constitutional change." },
+                  { id:"a8", text:"The Fundamental Laws gave the Tsar powers over ministers, the executive, and dissolution.", score:0, feedback:"Factually important, but used alone it supports a different interpretation more strongly." },
+                  { id:"a9", text:"Nicholas II accepted binding parliamentary sovereignty and stopped dissolving the Duma after 1905.", score:-1, feedback:"Misleading: the Tsar retained key powers and did dissolve Dumas." },
+                  { id:"a10", text:"The June 1907 electoral changes broadened mass representation and reduced executive influence.", score:-1, feedback:"Incorrect direction: 1907 was designed to limit representation and strengthen regime control." }
+                ]
+              },
+              {
+                type:"interpretation",
+                heading:"Interpretation B",
+                subheading:"Tactical concession and preserved executive power",
+                text:"A different reading is that 1905 did not fundamentally weaken autocracy, because concessions were tactical and reversible. The regime offered the October Manifesto to divide opposition and restore order, then rebuilt control through law and coercion. The Fundamental Laws of 1906 confirmed the Tsar's supremacy over ministers, the army, and foreign policy, while allowing dissolution of hostile Dumas. Stolypin's repression and emergency courts further stabilised executive authority. The 1907 electoral changes narrowed effective representation and produced more manageable assemblies. On this view, 1905 was a crisis of adaptation: autocracy adjusted its methods, but the constitutional core of tsarist power remained intact."
+              },
+              {
+                type:"arg-identify",
+                heading:"What is the main argument?",
+                prompt:"Choose the best summary of Interpretation B.",
+                options:[
+                  "1905 permanently shifted sovereignty to parliament, so executive authority became secondary.",
+                  "1905 was mainly a social revolution in the countryside with little constitutional significance.",
+                  "1905 forced tactical concessions, but autocracy preserved its constitutional core and executive dominance.",
+                  "1905 failed to produce any political institutions at all, so there was no adaptation by the regime."
+                ],
+                correctIndex:2,
+                feedbackCorrect:"Correct: this is the interpretation's central claim about adaptation without constitutional surrender.",
+                feedbackWrong:"Not quite: Interpretation B argues concessions were tactical while executive authority remained dominant.",
+                skillTag:"AO3-argument"
+              },
+              {
+                type:"evidence-select",
+                heading:"Select evidence to support this view",
+                prompt:"Select 3 statements that best support Interpretation B.",
+                selectionLimit:3,
+                statements:[
+                  { id:"b1", text:"The Fundamental Laws (1906) reaffirmed the Tsar's authority and limited the Duma's constitutional reach.", score:2, feedback:"Strong support: this is central evidence for preserved autocratic supremacy." },
+                  { id:"b2", text:"Nicholas II retained control over ministers and could dissolve uncooperative Dumas.", score:2, feedback:"Excellent: directly demonstrates continued executive dominance." },
+                  { id:"b3", text:"Stolypin used coercion and exceptional courts to suppress opposition after 1905.", score:2, feedback:"Strong evidence that regime survival relied on restored coercive power." },
+                  { id:"b4", text:"The June 1907 electoral law reduced radical influence and produced more compliant Dumas.", score:2, feedback:"Directly supports the argument that concessions were managed to preserve control." },
+                  { id:"b5", text:"The regime survived from 1905 to 1914 without conceding parliamentary sovereignty.", score:1, feedback:"Relevant and supportive, but less specific than legal and institutional proof." },
+                  { id:"b6", text:"Opposition remained divided between liberals, socialists, and nationalist groups.", score:1, feedback:"Useful context that helps explain survival, though it is indirect evidence." },
+                  { id:"b7", text:"Industrialisation continued in some sectors before the First World War.", score:0, feedback:"True but neutral for judging constitutional authority after 1905." },
+                  { id:"b8", text:"Russia remained a vast multi-ethnic empire with regional administrative challenges.", score:0, feedback:"Background context only; it does not directly prove this interpretation." },
+                  { id:"b9", text:"The October Manifesto instantly created an irreversible liberal constitutional monarchy.", score:-1, feedback:"Misapplied: later laws and practice prevented such a constitutional outcome." },
+                  { id:"b10", text:"After 1905, the Tsar had to seek parliamentary permission before appointing ministers.", score:-1, feedback:"Incorrect: ministerial responsibility remained to the Tsar, not parliament." }
+                ]
+              },
               {
                 type:"build-answer",
                 heading:"Build an exam answer",
@@ -9410,9 +9502,13 @@ function renderLessonPlayer(root){
   const slide = slides[idx];
   const storedAnswer = slide.type === "quick-check" ? getStoredQuickCheckAnswer(lesson.id, idx) : null;
   const buildAnswerChecked = slide.type === "build-answer" ? getStoredBuildAnswerChecked(lesson.id, idx) : false;
+  const argIdentifyState = slide.type === "arg-identify" ? getStoredArgIdentifyState(lesson.id, idx) : { checked:false };
+  const evidenceSelectState = slide.type === "evidence-select" ? getStoredEvidenceSelectState(lesson.id, idx) : { checked:false };
   const nextDisabled = idx===total-1
     || (slide.type === "quick-check" && !Number.isInteger(storedAnswer))
-    || (slide.type === "build-answer" && !buildAnswerChecked);
+    || (slide.type === "build-answer" && !buildAnswerChecked)
+    || (slide.type === "arg-identify" && !argIdentifyState.checked)
+    || (slide.type === "evidence-select" && !evidenceSelectState.checked);
 
   root.innerHTML = `
     <div class="card">
@@ -9507,6 +9603,63 @@ function renderLessonPlayer(root){
     }
   }
 
+  if(slide.type === "arg-identify"){
+    root.querySelectorAll('[data-action="arg-identify-option"]').forEach((btn,i)=>{
+      btn.addEventListener("click", ()=>{
+        const state = getStoredArgIdentifyState(lesson.id, idx);
+        if(state.checked) return;
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        lessonsNav.answers[lesson.id][idx] = { value:i, checked:false };
+        renderLessons();
+      });
+    });
+
+    const checkBtn = $("argIdentifyCheckBtn");
+    if(checkBtn){
+      checkBtn.addEventListener("click", ()=>{
+        const state = getStoredArgIdentifyState(lesson.id, idx);
+        if(!Number.isInteger(state.value)) return;
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        lessonsNav.answers[lesson.id][idx] = { value:state.value, checked:true };
+        renderLessons();
+      });
+    }
+  }
+
+  if(slide.type === "evidence-select"){
+    root.querySelectorAll('[data-action="evidence-select-option"]').forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const statementId = btn.dataset.statementId;
+        const limit = Number(slide.selectionLimit || 0);
+        const state = getStoredEvidenceSelectState(lesson.id, idx);
+        if(!statementId || state.checked) return;
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        const selectedIds = state.value;
+        const isSelected = selectedIds.includes(statementId);
+        let nextSelection = selectedIds;
+        if(isSelected){
+          nextSelection = selectedIds.filter(id=>id!==statementId);
+        }else if(selectedIds.length < limit){
+          nextSelection = [...selectedIds, statementId];
+        }
+        lessonsNav.answers[lesson.id][idx] = { value:nextSelection, checked:false };
+        renderLessons();
+      });
+    });
+
+    const checkBtn = $("evidenceSelectCheckBtn");
+    if(checkBtn){
+      checkBtn.addEventListener("click", ()=>{
+        const state = getStoredEvidenceSelectState(lesson.id, idx);
+        const limit = Number(slide.selectionLimit || 0);
+        if(state.value.length !== limit) return;
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        lessonsNav.answers[lesson.id][idx] = { value:state.value, checked:true };
+        renderLessons();
+      });
+    }
+  }
+
   if(slide.type === "results"){
     const retryBtn = $("lessonRetryBtn");
     if(retryBtn){
@@ -9530,7 +9683,7 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
       const answer = getStoredQuickCheckAnswer(lesson.id, currentIdx);
       return count + (answer===currentSlide.correctIndex ? 1 : 0);
     }, 0);
-    const quickCheckPercent = totalQuickChecks ? Math.round((correctCount / totalQuickChecks) * 100) : 0;
+
     const buildTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
       if(currentSlide.type !== "build-answer") return totals;
       const selectedIds = getStoredBuildAnswerSelection(lesson.id, currentIdx);
@@ -9543,10 +9696,51 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
         max: totals.max + (Number(currentSlide.selectionLimit || 0) * 2)
       };
     }, { earned:0, max:0 });
-    const buildAnswerPercent = buildTotals.max ? Math.round((buildTotals.earned / buildTotals.max) * 100) : quickCheckPercent;
-    const finalPercent = buildTotals.max
-      ? Math.round((quickCheckPercent * 0.6) + (buildAnswerPercent * 0.4))
-      : quickCheckPercent;
+
+    const argIdentifyTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+      if(currentSlide.type !== "arg-identify") return totals;
+      const state = getStoredArgIdentifyState(lesson.id, currentIdx);
+      const isCorrect = state.checked && state.value===currentSlide.correctIndex;
+      return {
+        earned: totals.earned + (isCorrect ? 1 : 0),
+        max: totals.max + 1
+      };
+    }, { earned:0, max:0 });
+
+    const evidenceTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+      if(currentSlide.type !== "evidence-select") return totals;
+      const state = getStoredEvidenceSelectState(lesson.id, currentIdx);
+      const scoreEarned = state.value.reduce((sum, statementId)=>{
+        const statement = currentSlide.statements.find(item=>item.id===statementId);
+        return sum + Number(statement?.score || 0);
+      }, 0);
+      return {
+        earned: totals.earned + scoreEarned,
+        max: totals.max + (Number(currentSlide.selectionLimit || 0) * 2)
+      };
+    }, { earned:0, max:0 });
+
+    const componentPercents = {
+      quickCheck: totalQuickChecks ? Math.round((correctCount / totalQuickChecks) * 100) : 0,
+      buildAnswer: buildTotals.max ? Math.round((buildTotals.earned / buildTotals.max) * 100) : 0,
+      argIdentify: argIdentifyTotals.max ? Math.round((argIdentifyTotals.earned / argIdentifyTotals.max) * 100) : 0,
+      evidenceSelect: evidenceTotals.max ? Math.round((evidenceTotals.earned / evidenceTotals.max) * 100) : 0
+    };
+
+    const baseWeights = { quickCheck:40, buildAnswer:20, argIdentify:20, evidenceSelect:20 };
+    const availableComponents = Object.keys(baseWeights).filter(key=>{
+      if(key === "buildAnswer") return buildTotals.max > 0;
+      if(key === "quickCheck") return totalQuickChecks > 0;
+      if(key === "argIdentify") return argIdentifyTotals.max > 0;
+      if(key === "evidenceSelect") return evidenceTotals.max > 0;
+      return false;
+    });
+    const availableWeightTotal = availableComponents.reduce((sum, key)=>sum + baseWeights[key], 0);
+    const finalPercent = availableWeightTotal ? Math.round(availableComponents.reduce((sum, key)=>{
+      const adjustedWeight = baseWeights[key] / availableWeightTotal;
+      return sum + (componentPercents[key] * adjustedWeight);
+    }, 0)) : 0;
+
     const feedback = finalPercent >= 80
       ? "Exam ready – you’re selecting evidence precisely."
       : finalPercent >= 50
@@ -9557,12 +9751,14 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
       <h4 class="slideHeading">Results</h4>
       <div class="quickCheckFeedback" style="margin-top:10px">
         <div><strong>Quick-check:</strong> ${correctCount} / ${totalQuickChecks}</div>
-        <div><strong>Build-answer tasks:</strong> ${buildTotals.earned} / ${buildTotals.max}</div>
+        ${buildTotals.max ? `<div><strong>Build-answer:</strong> ${buildTotals.earned} / ${buildTotals.max}</div>` : ""}
+        <div><strong>Main argument identified:</strong> ${argIdentifyTotals.earned} / ${argIdentifyTotals.max}</div>
+        <div><strong>Evidence selection:</strong> ${evidenceTotals.earned} / ${evidenceTotals.max}</div>
         <div><strong>Final score:</strong> ${finalPercent}%</div>
       </div>
       <div class="quickCheckFeedback" style="margin-top:10px">${feedback}</div>
       <div class="row" style="margin-top:12px">
-        <button class="btn primary" id="lessonRetryBtn" type="button">Retry quick checks</button>
+        <button class="btn primary" id="lessonRetryBtn" type="button">Retry lesson</button>
       </div>
     `;
   }
@@ -9607,6 +9803,91 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
     `;
   }
 
+  if(slide.type === "interpretation"){
+    return `
+      <h4 class="slideHeading">${slide.heading}</h4>
+      ${slide.subheading ? `<div class="note" style="margin-bottom:8px">${slide.subheading}</div>` : ""}
+      <div>${slide.text}</div>
+      <div class="note" style="margin-top:10px">Next: identify the main argument, then select evidence.</div>
+    `;
+  }
+
+  if(slide.type === "arg-identify"){
+    const state = getStoredArgIdentifyState(lesson.id, slideIdx);
+    const selected = state.value;
+    const canCheck = Number.isInteger(selected) && !state.checked;
+    const feedback = !state.checked
+      ? ""
+      : (selected===slide.correctIndex ? slide.feedbackCorrect : slide.feedbackWrong);
+
+    return `
+      <h4 class="slideHeading">${slide.heading}</h4>
+      <div>${slide.prompt}</div>
+      <div class="note" style="margin-top:8px">Skill: ${slide.skillTag || "AO3-argument"}</div>
+      <div class="quickCheckOptions">
+        ${slide.options.map((opt,i)=>{
+          const active = selected===i;
+          const showResultStyles = state.checked;
+          let style = "";
+          if(showResultStyles){
+            if(i===slide.correctIndex){
+              style = "border-color:rgba(126,185,170,.8);";
+            }else if(active){
+              style = "border-color:rgba(183,142,161,.8);";
+            }
+          }else if(active){
+            style = "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);";
+          }
+          return `<button class="btn" data-action="arg-identify-option" type="button" style="text-align:left;justify-content:flex-start;${style}" ${state.checked ? "disabled" : ""}>${opt}</button>`;
+        }).join("")}
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="argIdentifyCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check</button>
+      </div>
+      ${state.checked ? `<div class="quickCheckFeedback" style="margin-top:10px">${feedback}</div>` : ""}
+    `;
+  }
+
+  if(slide.type === "evidence-select"){
+    const state = getStoredEvidenceSelectState(lesson.id, slideIdx);
+    const selectedIds = state.value;
+    const selectionLimit = Number(slide.selectionLimit || 0);
+    const selectedSet = new Set(selectedIds);
+    const canSelectMore = selectedIds.length < selectionLimit;
+    const canCheck = selectedIds.length === selectionLimit && !state.checked;
+    const scoreEarned = selectedIds.reduce((sum, statementId)=>{
+      const statement = slide.statements.find(item=>item.id===statementId);
+      return sum + Number(statement?.score || 0);
+    }, 0);
+    const maxScore = selectionLimit * 2;
+
+    return `
+      <h4 class="slideHeading">${slide.heading}</h4>
+      <div>${slide.prompt}</div>
+      <div class="note" style="margin-top:8px">Select exactly ${selectionLimit} statements.</div>
+      <div class="quickCheckOptions">
+        ${slide.statements.map(statement=>{
+          const isSelected = selectedSet.has(statement.id);
+          const isDisabled = state.checked || (!isSelected && !canSelectMore);
+          const optionStyle = isSelected ? "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);" : "";
+          const feedbackHtml = state.checked && isSelected
+            ? `<div class="quickCheckFeedback" style="margin-top:6px">${statement.feedback}</div>`
+            : "";
+          return `
+            <div>
+              <button class="btn" data-action="evidence-select-option" data-statement-id="${statement.id}" type="button" style="text-align:left;justify-content:flex-start;${optionStyle}" ${isDisabled ? "disabled" : ""}>${statement.text}</button>
+              ${feedbackHtml}
+            </div>
+          `;
+        }).join("")}
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="evidenceSelectCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check</button>
+      </div>
+      ${state.checked ? `<div class="quickCheckFeedback" style="margin-top:10px">You scored ${scoreEarned} / ${maxScore}</div>` : ""}
+    `;
+  }
+
   if(slide.type !== "quick-check") return `<h4 class="slideHeading">${slide.heading}</h4><div>${slide.text}</div>`;
 
   const storedAnswer = getStoredQuickCheckAnswer(lesson.id, slideIdx);
@@ -9630,6 +9911,7 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
     ${selected===null ? "" : `<div class="quickCheckFeedback">${feedback}</div>`}
   `;
 }
+
 
 document.addEventListener("DOMContentLoaded", renderLessons);
 
