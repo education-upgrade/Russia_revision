@@ -9059,44 +9059,109 @@ window.addEventListener("DOMContentLoaded", ()=>{
 /* ==========================================================
    LESSONS (basic SPA + player)
    ========================================================== */
-const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, selectedOptionIndex:null, answers:{}, checked:{} };
+const LESSON_MODE_KEY = "LESSON_MODE_KEY";
+const LESSON_MODES = ["overview", "simple", "exam"];
+
+function getInitialLessonMode(){
+  try{
+    const storedMode = localStorage.getItem(LESSON_MODE_KEY);
+    return LESSON_MODES.includes(storedMode) ? storedMode : "overview";
+  }catch(_err){
+    return "overview";
+  }
+}
+
+function persistLessonMode(mode){
+  try{ localStorage.setItem(LESSON_MODE_KEY, mode); }catch(_err){}
+}
+
+const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, mode:getInitialLessonMode(), selectedOptionIndex:null, answers:{} };
+
+function ensureSlideMeta(slide, index){
+  const nextSlide = { ...slide };
+  if(!nextSlide.slideId) nextSlide.slideId = `slide-${index+1}`;
+  return nextSlide;
+}
+
+function getDefaultModesForSlide(slide, interpretationOrder){
+  if(slide.type === "results") return ["overview", "simple", "exam"];
+  if(slide.type === "idea" || slide.type === "briefing" || slide.type === "quick-check" || slide.type === "next-steps") return ["overview", "simple", "exam"];
+  if(slide.type === "interpretation") return interpretationOrder === 1 ? ["simple", "exam"] : ["exam"];
+  if(slide.type === "arg-identify") return ["simple", "exam"];
+  if(slide.type === "evidence-select") return slide.purpose === "challenge" ? ["exam"] : ["simple", "exam"];
+  if(slide.type === "judgement") return ["exam"];
+  return ["exam"];
+}
+
+function getSlidesForMode(allSlides, mode){
+  return allSlides.filter(slide=>Array.isArray(slide.modes) && slide.modes.includes(mode));
+}
 
 function getLessonSlides(lesson){
   if(!lesson) return [];
-  const hasResults = lesson.slides.some(slide=>slide.type === "results");
-  if(hasResults) return lesson.slides;
-  return [...lesson.slides, { type:"results", heading:"Results" }];
+  const baseSlides = lesson.slides.map((slide, index)=>ensureSlideMeta(slide, index));
+  const withResults = baseSlides.some(slide=>slide.type === "results")
+    ? baseSlides
+    : [...baseSlides, ensureSlideMeta({ type:"results", heading:"Results" }, baseSlides.length)];
+
+  let interpretationCount = 0;
+  return withResults.map(slide=>{
+    const nextSlide = { ...slide };
+    if(slide.type === "interpretation") interpretationCount += 1;
+    if(!Array.isArray(nextSlide.modes)){
+      if(nextSlide.minMode){
+        const minIndex = LESSON_MODES.indexOf(nextSlide.minMode);
+        nextSlide.modes = minIndex >= 0 ? LESSON_MODES.slice(minIndex) : getDefaultModesForSlide(nextSlide, interpretationCount);
+      }else{
+        nextSlide.modes = getDefaultModesForSlide(nextSlide, interpretationCount);
+      }
+    }
+    return nextSlide;
+  });
 }
 
-function getStoredQuickCheckAnswer(lessonId, slideIdx){
-  return lessonsNav.answers?.[lessonId]?.[slideIdx];
+function getLessonAnswer(lessonId, slideId){
+  return lessonsNav.answers?.[lessonId]?.[slideId];
 }
 
-function getStoredBuildAnswerSelection(lessonId, slideIdx){
-  const value = lessonsNav.answers?.[lessonId]?.[slideIdx];
-  return Array.isArray(value) ? value : [];
+function setLessonAnswer(lessonId, slideId, value){
+  if(!lessonsNav.answers[lessonId]) lessonsNav.answers[lessonId] = {};
+  lessonsNav.answers[lessonId][slideId] = value;
 }
 
-function getStoredBuildAnswerChecked(lessonId, slideIdx){
-  return !!lessonsNav.checked?.[lessonId]?.[slideIdx];
+function getStoredQuickCheckAnswer(lessonId, slideId){
+  const value = getLessonAnswer(lessonId, slideId);
+  if(!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return Number.isInteger(value.value) ? value.value : null;
 }
 
-function getStoredArgIdentifyState(lessonId, slideIdx){
-  const value = lessonsNav.answers?.[lessonId]?.[slideIdx];
+function getStoredBuildAnswerSelection(lessonId, slideId){
+  const value = getLessonAnswer(lessonId, slideId);
+  if(!value || typeof value !== "object" || Array.isArray(value)) return [];
+  return Array.isArray(value.value) ? value.value : [];
+}
+
+function getStoredBuildAnswerChecked(lessonId, slideId){
+  const value = getLessonAnswer(lessonId, slideId);
+  return !!(value && typeof value === "object" && value.checked);
+}
+
+function getStoredArgIdentifyState(lessonId, slideId){
+  const value = getLessonAnswer(lessonId, slideId);
   if(!value || typeof value !== "object" || Array.isArray(value)) return { value:null, checked:false };
   const selectedIndex = Number.isInteger(value.value) ? value.value : null;
   return { value:selectedIndex, checked:!!value.checked };
 }
 
-function getStoredEvidenceSelectState(lessonId, slideIdx){
-  const value = lessonsNav.answers?.[lessonId]?.[slideIdx];
+function getStoredEvidenceSelectState(lessonId, slideId){
+  const value = getLessonAnswer(lessonId, slideId);
   if(!value || typeof value !== "object" || Array.isArray(value)) return { value:[], checked:false };
   const selectedIds = Array.isArray(value.value) ? value.value : [];
   return { value:selectedIds, checked:!!value.checked };
 }
 
-function getStoredJudgementState(lessonId, slideIdx){
-  const value = lessonsNav.answers?.[lessonId]?.[slideIdx];
+function getStoredJudgementState(lessonId, slideId){
+  const value = getLessonAnswer(lessonId, slideId);
   if(!value || typeof value !== "object" || Array.isArray(value)){
     return { optionIndex:null, optionChecked:false, evidenceValue:[], evidenceChecked:false };
   }
@@ -9551,22 +9616,28 @@ function renderLessonPlayer(root){
   const lesson = getLesson();
   if(!lesson){ lessonsNav.view = "lessons"; return renderLessons(); }
 
-  const slides = getLessonSlides(lesson);
+  const allSlides = getLessonSlides(lesson);
+  const slides = getSlidesForMode(allSlides, lessonsNav.mode);
   const total = slides.length;
   const idx = Math.max(0, Math.min(lessonsNav.slideIdx, total-1));
   lessonsNav.slideIdx = idx;
   const slide = slides[idx];
-  const storedAnswer = slide.type === "quick-check" ? getStoredQuickCheckAnswer(lesson.id, idx) : null;
-  const buildAnswerChecked = slide.type === "build-answer" ? getStoredBuildAnswerChecked(lesson.id, idx) : false;
-  const argIdentifyState = slide.type === "arg-identify" ? getStoredArgIdentifyState(lesson.id, idx) : { checked:false };
-  const evidenceSelectState = slide.type === "evidence-select" ? getStoredEvidenceSelectState(lesson.id, idx) : { checked:false };
-  const judgementState = slide.type === "judgement" ? getStoredJudgementState(lesson.id, idx) : { optionChecked:false, evidenceChecked:false };
+  const slideId = slide?.slideId;
+  const storedAnswer = slide.type === "quick-check" ? getStoredQuickCheckAnswer(lesson.id, slideId) : null;
+  const buildAnswerChecked = slide.type === "build-answer" ? getStoredBuildAnswerChecked(lesson.id, slideId) : false;
+  const argIdentifyState = slide.type === "arg-identify" ? getStoredArgIdentifyState(lesson.id, slideId) : { checked:false, value:null };
+  const evidenceSelectState = slide.type === "evidence-select" ? getStoredEvidenceSelectState(lesson.id, slideId) : { checked:false, value:[] };
+  const judgementState = slide.type === "judgement" ? getStoredJudgementState(lesson.id, slideId) : { optionChecked:false, evidenceChecked:false };
+
+  const quickCheckCanAdvance = lessonsNav.mode === "overview"
+    ? Number.isInteger(storedAnswer)
+    : Number.isInteger(storedAnswer);
   const nextDisabled = idx===total-1
-    || (slide.type === "quick-check" && !Number.isInteger(storedAnswer))
+    || (slide.type === "quick-check" && !quickCheckCanAdvance)
     || (slide.type === "build-answer" && !buildAnswerChecked)
-    || (slide.type === "arg-identify" && !argIdentifyState.checked)
-    || (slide.type === "evidence-select" && !evidenceSelectState.checked)
-    || (slide.type === "judgement" && (!judgementState.optionChecked || !judgementState.evidenceChecked));
+    || (slide.type === "arg-identify" && lessonsNav.mode === "exam" && !argIdentifyState.checked)
+    || (slide.type === "evidence-select" && lessonsNav.mode === "exam" && !evidenceSelectState.checked)
+    || (slide.type === "judgement" && lessonsNav.mode === "exam" && (!judgementState.optionChecked || !judgementState.evidenceChecked));
 
   root.innerHTML = `
     <div class="card">
@@ -9576,9 +9647,9 @@ function renderLessonPlayer(root){
       </div>
       <div class="pill slideCounter">Slide ${idx+1} of ${total}</div>
       <div class="modePills">
-        <span class="pill modePill active">Overview</span>
-        <span class="pill modePill">Simple</span>
-        <span class="pill modePill">Exam+</span>
+        <span class="pill modePill ${lessonsNav.mode === "overview" ? "active" : ""}" data-action="lesson-mode" data-mode="overview">Overview</span>
+        <span class="pill modePill ${lessonsNav.mode === "simple" ? "active" : ""}" data-action="lesson-mode" data-mode="simple">Simple</span>
+        <span class="pill modePill ${lessonsNav.mode === "exam" ? "active" : ""}" data-action="lesson-mode" data-mode="exam">Exam+</span>
       </div>
       <div class="lessonHero" style="background-image:url('${lesson.heroImage}')">
         <div class="lessonHeroCopy">
@@ -9587,7 +9658,7 @@ function renderLessonPlayer(root){
         </div>
       </div>
       <div class="slideBody">
-        ${renderLessonSlideBody(slide, lesson, idx, slides)}
+        ${renderLessonSlideBody(slide, lesson, slideId, slides, lessonsNav.mode)}
       </div>
       <div class="playerFooter">
         <button class="btn" id="lessonPrevBtn" type="button" ${idx===0 ? "disabled" : ""}>Previous</button>
@@ -9595,6 +9666,18 @@ function renderLessonPlayer(root){
         <button class="btn primary" id="lessonNextBtn" type="button" ${nextDisabled ? "disabled" : ""}>Next</button>
       </div>
     </div>`;
+
+  root.querySelectorAll('[data-action="lesson-mode"]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const mode = btn.dataset.mode;
+      if(!LESSON_MODES.includes(mode) || mode===lessonsNav.mode) return;
+      lessonsNav.mode = mode;
+      persistLessonMode(mode);
+      lessonsNav.slideIdx = 0;
+      lessonsNav.selectedOptionIndex = null;
+      renderLessons();
+    });
+  });
 
   $("backToLessonList").addEventListener("click", ()=>{
     lessonsNav.view = "lessons";
@@ -9623,8 +9706,7 @@ function renderLessonPlayer(root){
   if(slide.type === "quick-check"){
     root.querySelectorAll('[data-action="quick-option"]').forEach((btn,i)=>{
       btn.addEventListener("click", ()=>{
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        lessonsNav.answers[lesson.id][idx] = i;
+        setLessonAnswer(lesson.id, slideId, { value:i, checked:false });
         lessonsNav.selectedOptionIndex = i;
         renderLessons();
       });
@@ -9636,9 +9718,8 @@ function renderLessonPlayer(root){
       btn.addEventListener("click", ()=>{
         const statementId = btn.dataset.statementId;
         const limit = Number(slide.selectionLimit || 0);
-        if(!statementId || getStoredBuildAnswerChecked(lesson.id, idx)) return;
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        const selectedIds = [...getStoredBuildAnswerSelection(lesson.id, idx)];
+        if(!statementId || getStoredBuildAnswerChecked(lesson.id, slideId)) return;
+        const selectedIds = [...getStoredBuildAnswerSelection(lesson.id, slideId)];
         const isSelected = selectedIds.includes(statementId);
         let nextSelection = selectedIds;
         if(isSelected){
@@ -9646,7 +9727,7 @@ function renderLessonPlayer(root){
         }else if(selectedIds.length < limit){
           nextSelection = [...selectedIds, statementId];
         }
-        lessonsNav.answers[lesson.id][idx] = nextSelection;
+        setLessonAnswer(lesson.id, slideId, { value:nextSelection, checked:false });
         renderLessons();
       });
     });
@@ -9654,8 +9735,10 @@ function renderLessonPlayer(root){
     const checkBtn = $("buildAnswerCheckBtn");
     if(checkBtn){
       checkBtn.addEventListener("click", ()=>{
-        if(!lessonsNav.checked[lesson.id]) lessonsNav.checked[lesson.id] = {};
-        lessonsNav.checked[lesson.id][idx] = true;
+        const selectedIds = getStoredBuildAnswerSelection(lesson.id, slideId);
+        const limit = Number(slide.selectionLimit || 0);
+        if(selectedIds.length !== limit) return;
+        setLessonAnswer(lesson.id, slideId, { value:selectedIds, checked:true });
         renderLessons();
       });
     }
@@ -9664,10 +9747,9 @@ function renderLessonPlayer(root){
   if(slide.type === "arg-identify"){
     root.querySelectorAll('[data-action="arg-identify-option"]').forEach((btn,i)=>{
       btn.addEventListener("click", ()=>{
-        const state = getStoredArgIdentifyState(lesson.id, idx);
+        const state = getStoredArgIdentifyState(lesson.id, slideId);
         if(state.checked) return;
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        lessonsNav.answers[lesson.id][idx] = { value:i, checked:false };
+        setLessonAnswer(lesson.id, slideId, { value:i, checked:false });
         renderLessons();
       });
     });
@@ -9675,10 +9757,9 @@ function renderLessonPlayer(root){
     const checkBtn = $("argIdentifyCheckBtn");
     if(checkBtn){
       checkBtn.addEventListener("click", ()=>{
-        const state = getStoredArgIdentifyState(lesson.id, idx);
+        const state = getStoredArgIdentifyState(lesson.id, slideId);
         if(!Number.isInteger(state.value)) return;
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        lessonsNav.answers[lesson.id][idx] = { value:state.value, checked:true };
+        setLessonAnswer(lesson.id, slideId, { value:state.value, checked:true });
         renderLessons();
       });
     }
@@ -9689,9 +9770,8 @@ function renderLessonPlayer(root){
       btn.addEventListener("click", ()=>{
         const statementId = btn.dataset.statementId;
         const limit = Number(slide.selectionLimit || (slide.purpose === "challenge" ? 2 : 0));
-        const state = getStoredEvidenceSelectState(lesson.id, idx);
+        const state = getStoredEvidenceSelectState(lesson.id, slideId);
         if(!statementId || state.checked) return;
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
         const selectedIds = state.value;
         const isSelected = selectedIds.includes(statementId);
         let nextSelection = selectedIds;
@@ -9700,7 +9780,7 @@ function renderLessonPlayer(root){
         }else if(selectedIds.length < limit){
           nextSelection = [...selectedIds, statementId];
         }
-        lessonsNav.answers[lesson.id][idx] = { value:nextSelection, checked:false };
+        setLessonAnswer(lesson.id, slideId, { value:nextSelection, checked:false });
         renderLessons();
       });
     });
@@ -9708,11 +9788,10 @@ function renderLessonPlayer(root){
     const checkBtn = $("evidenceSelectCheckBtn");
     if(checkBtn){
       checkBtn.addEventListener("click", ()=>{
-        const state = getStoredEvidenceSelectState(lesson.id, idx);
+        const state = getStoredEvidenceSelectState(lesson.id, slideId);
         const limit = Number(slide.selectionLimit || (slide.purpose === "challenge" ? 2 : 0));
         if(state.value.length !== limit) return;
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        lessonsNav.answers[lesson.id][idx] = { value:state.value, checked:true };
+        setLessonAnswer(lesson.id, slideId, { value:state.value, checked:true });
         renderLessons();
       });
     }
@@ -9721,15 +9800,14 @@ function renderLessonPlayer(root){
   if(slide.type === "judgement"){
     root.querySelectorAll('[data-action="judgement-option"]').forEach((btn,i)=>{
       btn.addEventListener("click", ()=>{
-        const state = getStoredJudgementState(lesson.id, idx);
+        const state = getStoredJudgementState(lesson.id, slideId);
         if(state.optionChecked) return;
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        lessonsNav.answers[lesson.id][idx] = {
+        setLessonAnswer(lesson.id, slideId, {
           optionIndex:i,
           optionChecked:false,
           evidenceValue:state.evidenceValue,
           evidenceChecked:false
-        };
+        });
         renderLessons();
       });
     });
@@ -9737,10 +9815,9 @@ function renderLessonPlayer(root){
     root.querySelectorAll('[data-action="judgement-evidence-option"]').forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const statementId = btn.dataset.statementId;
-        const state = getStoredJudgementState(lesson.id, idx);
+        const state = getStoredJudgementState(lesson.id, slideId);
         const limit = Number(slide.evidencePick?.selectionLimit || 0);
         if(!statementId || !state.optionChecked || state.evidenceChecked) return;
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
         const selectedIds = [...state.evidenceValue];
         const isSelected = selectedIds.includes(statementId);
         let nextSelection = selectedIds;
@@ -9749,12 +9826,12 @@ function renderLessonPlayer(root){
         }else if(selectedIds.length < limit){
           nextSelection = [...selectedIds, statementId];
         }
-        lessonsNav.answers[lesson.id][idx] = {
+        setLessonAnswer(lesson.id, slideId, {
           optionIndex:state.optionIndex,
           optionChecked:true,
           evidenceValue:nextSelection,
           evidenceChecked:false
-        };
+        });
         renderLessons();
       });
     });
@@ -9762,15 +9839,14 @@ function renderLessonPlayer(root){
     const optionCheckBtn = $("judgementOptionCheckBtn");
     if(optionCheckBtn){
       optionCheckBtn.addEventListener("click", ()=>{
-        const state = getStoredJudgementState(lesson.id, idx);
+        const state = getStoredJudgementState(lesson.id, slideId);
         if(!Number.isInteger(state.optionIndex)) return;
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        lessonsNav.answers[lesson.id][idx] = {
+        setLessonAnswer(lesson.id, slideId, {
           optionIndex:state.optionIndex,
           optionChecked:true,
           evidenceValue:state.evidenceValue,
           evidenceChecked:state.evidenceChecked
-        };
+        });
         renderLessons();
       });
     }
@@ -9778,16 +9854,15 @@ function renderLessonPlayer(root){
     const evidenceCheckBtn = $("judgementEvidenceCheckBtn");
     if(evidenceCheckBtn){
       evidenceCheckBtn.addEventListener("click", ()=>{
-        const state = getStoredJudgementState(lesson.id, idx);
+        const state = getStoredJudgementState(lesson.id, slideId);
         const limit = Number(slide.evidencePick?.selectionLimit || 0);
         if(!state.optionChecked || state.evidenceValue.length !== limit) return;
-        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        lessonsNav.answers[lesson.id][idx] = {
+        setLessonAnswer(lesson.id, slideId, {
           optionIndex:state.optionIndex,
           optionChecked:true,
           evidenceValue:state.evidenceValue,
           evidenceChecked:true
-        };
+        });
         renderLessons();
       });
     }
@@ -9798,7 +9873,6 @@ function renderLessonPlayer(root){
     if(retryBtn){
       retryBtn.addEventListener("click", ()=>{
         lessonsNav.answers[lesson.id] = {};
-        lessonsNav.checked[lesson.id] = {};
         lessonsNav.slideIdx = 0;
         lessonsNav.selectedOptionIndex = null;
         renderLessons();
@@ -9807,80 +9881,55 @@ function renderLessonPlayer(root){
   }
 }
 
-function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
+function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
   if(slide.type === "results"){
     const quickCheckSlides = allSlides.filter(s=>s.type === "quick-check");
     const totalQuickChecks = quickCheckSlides.length;
-    const correctCount = allSlides.reduce((count, currentSlide, currentIdx)=>{
+    const correctCount = allSlides.reduce((count, currentSlide)=>{
       if(currentSlide.type !== "quick-check") return count;
-      const answer = getStoredQuickCheckAnswer(lesson.id, currentIdx);
+      const answer = getStoredQuickCheckAnswer(lesson.id, currentSlide.slideId);
       return count + (answer===currentSlide.correctIndex ? 1 : 0);
     }, 0);
 
-    const buildTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
-      if(currentSlide.type !== "build-answer") return totals;
-      const selectedIds = getStoredBuildAnswerSelection(lesson.id, currentIdx);
-      const scoreEarned = selectedIds.reduce((sum, statementId)=>{
-        const statement = currentSlide.statements.find(item=>item.id===statementId);
-        return sum + Number(statement?.score || 0);
-      }, 0);
-      return {
-        earned: totals.earned + scoreEarned,
-        max: totals.max + (Number(currentSlide.selectionLimit || 0) * 2)
-      };
-    }, { earned:0, max:0 });
-
-    const argIdentifyTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+    const argIdentifyTotals = allSlides.reduce((totals, currentSlide)=>{
       if(currentSlide.type !== "arg-identify") return totals;
-      const state = getStoredArgIdentifyState(lesson.id, currentIdx);
+      const state = getStoredArgIdentifyState(lesson.id, currentSlide.slideId);
       const isCorrect = state.checked && state.value===currentSlide.correctIndex;
-      return {
-        earned: totals.earned + (isCorrect ? 1 : 0),
-        max: totals.max + 1
-      };
+      return { earned: totals.earned + (isCorrect ? 1 : 0), max: totals.max + 1 };
     }, { earned:0, max:0 });
 
-    const supportEvidenceTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+    const supportEvidenceTotals = allSlides.reduce((totals, currentSlide)=>{
       if(currentSlide.type !== "evidence-select" || currentSlide.purpose === "challenge") return totals;
-      const state = getStoredEvidenceSelectState(lesson.id, currentIdx);
+      const state = getStoredEvidenceSelectState(lesson.id, currentSlide.slideId);
       const scoreEarned = state.value.reduce((sum, statementId)=>{
         const statement = currentSlide.statements.find(item=>item.id===statementId);
         return sum + Number(statement?.score || 0);
       }, 0);
       const limit = Number(currentSlide.selectionLimit || (currentSlide.purpose === "challenge" ? 2 : 0));
-      return {
-        earned: totals.earned + scoreEarned,
-        max: totals.max + (limit * 2)
-      };
+      return { earned: totals.earned + scoreEarned, max: totals.max + (limit * 2) };
     }, { earned:0, max:0 });
 
-    const challengeEvidenceTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+    const challengeEvidenceTotals = allSlides.reduce((totals, currentSlide)=>{
       if(currentSlide.type !== "evidence-select" || currentSlide.purpose !== "challenge") return totals;
-      const state = getStoredEvidenceSelectState(lesson.id, currentIdx);
+      const state = getStoredEvidenceSelectState(lesson.id, currentSlide.slideId);
       const scoreEarned = state.value.reduce((sum, statementId)=>{
         const statement = currentSlide.statements.find(item=>item.id===statementId);
         return sum + Number(statement?.score || 0);
       }, 0);
       const limit = Number(currentSlide.selectionLimit || 2);
-      return {
-        earned: totals.earned + scoreEarned,
-        max: totals.max + (limit * 2)
-      };
+      return { earned: totals.earned + scoreEarned, max: totals.max + (limit * 2) };
     }, { earned:0, max:0 });
 
-    const judgementTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+    const judgementTotals = allSlides.reduce((totals, currentSlide)=>{
       if(currentSlide.type !== "judgement") return totals;
-      const state = getStoredJudgementState(lesson.id, currentIdx);
+      const state = getStoredJudgementState(lesson.id, currentSlide.slideId);
       const optionEarned = state.optionChecked && state.optionIndex===currentSlide.bestIndex ? 2 : 0;
       const evidenceEarned = state.evidenceValue.reduce((sum, statementId)=>{
         const statement = currentSlide.evidencePick?.statements?.find(item=>item.id===statementId);
         return sum + Number(statement?.score || 0);
       }, 0);
       const evidenceLimit = Number(currentSlide.evidencePick?.selectionLimit || 2);
-      return {
-        earned: totals.earned + optionEarned + evidenceEarned,
-        max: totals.max + 2 + (evidenceLimit * 2)
-      };
+      return { earned: totals.earned + optionEarned + evidenceEarned, max: totals.max + 2 + (evidenceLimit * 2) };
     }, { earned:0, max:0 });
 
     const componentPercents = {
@@ -9891,8 +9940,12 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
       judgement: judgementTotals.max ? Math.round((judgementTotals.earned / judgementTotals.max) * 100) : 0
     };
 
-    const baseWeights = { quickCheck:30, argIdentify:20, supportEvidence:20, challengeEvidence:20, judgement:10 };
-    const availableComponents = Object.keys(baseWeights).filter(key=>{
+    const modeComponents = mode === "overview"
+      ? ["quickCheck"]
+      : mode === "simple"
+        ? ["quickCheck", "argIdentify", "supportEvidence"]
+        : ["quickCheck", "argIdentify", "supportEvidence", "challengeEvidence", "judgement"];
+    const availableComponents = modeComponents.filter(key=>{
       if(key === "quickCheck") return totalQuickChecks > 0;
       if(key === "argIdentify") return argIdentifyTotals.max > 0;
       if(key === "supportEvidence") return supportEvidenceTotals.max > 0;
@@ -9900,11 +9953,7 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
       if(key === "judgement") return judgementTotals.max > 0;
       return false;
     });
-    const availableWeightTotal = availableComponents.reduce((sum, key)=>sum + baseWeights[key], 0);
-    const finalPercent = availableWeightTotal ? Math.round(availableComponents.reduce((sum, key)=>{
-      const adjustedWeight = baseWeights[key] / availableWeightTotal;
-      return sum + (componentPercents[key] * adjustedWeight);
-    }, 0)) : 0;
+    const finalPercent = availableComponents.length ? Math.round(availableComponents.reduce((sum, key)=>sum + componentPercents[key], 0) / availableComponents.length) : 0;
 
     const feedback = finalPercent >= 80
       ? "Exam ready – you’re selecting evidence precisely."
@@ -9912,14 +9961,26 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
         ? "Nearly there – tighten evidence and link back to the question."
         : "Rebuild foundations – re-read micro-briefings and retry.";
 
+    const modeRows = mode === "overview"
+      ? `<div><strong>Quick-check:</strong> ${correctCount} / ${totalQuickChecks}</div>`
+      : mode === "simple"
+        ? `
+          <div><strong>Quick-check:</strong> ${correctCount} / ${totalQuickChecks}</div>
+          <div><strong>Main arguments identified:</strong> ${argIdentifyTotals.earned} / ${argIdentifyTotals.max}</div>
+          <div><strong>Support evidence:</strong> ${supportEvidenceTotals.earned} / ${supportEvidenceTotals.max}</div>
+        `
+        : `
+          <div><strong>Quick-check:</strong> ${correctCount} / ${totalQuickChecks}</div>
+          <div><strong>Main arguments identified:</strong> ${argIdentifyTotals.earned} / ${argIdentifyTotals.max}</div>
+          <div><strong>Support evidence:</strong> ${supportEvidenceTotals.earned} / ${supportEvidenceTotals.max}</div>
+          <div><strong>Challenge evidence:</strong> ${challengeEvidenceTotals.earned} / ${challengeEvidenceTotals.max}</div>
+          <div><strong>Judgement:</strong> ${judgementTotals.earned} / ${judgementTotals.max}</div>
+        `;
+
     return `
       <h4 class="slideHeading">Results</h4>
       <div class="quickCheckFeedback" style="margin-top:10px">
-        <div><strong>Quick-check:</strong> ${correctCount} / ${totalQuickChecks}</div>
-                <div><strong>Main arguments identified:</strong> ${argIdentifyTotals.earned} / ${argIdentifyTotals.max}</div>
-        <div><strong>Support evidence:</strong> ${supportEvidenceTotals.earned} / ${supportEvidenceTotals.max}</div>
-        <div><strong>Challenge evidence:</strong> ${challengeEvidenceTotals.earned} / ${challengeEvidenceTotals.max}</div>
-        <div><strong>Judgement:</strong> ${judgementTotals.earned} / ${judgementTotals.max}</div>
+        ${modeRows}
         <div><strong>Final score:</strong> ${finalPercent}%</div>
       </div>
       <div class="quickCheckFeedback" style="margin-top:10px">${feedback}</div>
@@ -9930,9 +9991,9 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
   }
 
   if(slide.type === "build-answer"){
-    const selectedIds = getStoredBuildAnswerSelection(lesson.id, slideIdx);
+    const selectedIds = getStoredBuildAnswerSelection(lesson.id, slideId);
     const selectionLimit = Number(slide.selectionLimit || (slide.purpose === "challenge" ? 2 : 0));
-    const isChecked = getStoredBuildAnswerChecked(lesson.id, slideIdx);
+    const isChecked = getStoredBuildAnswerChecked(lesson.id, slideId);
     const selectedSet = new Set(selectedIds);
     const canSelectMore = selectedIds.length < selectionLimit;
     const canCheck = selectedIds.length === selectionLimit && !isChecked;
@@ -9963,9 +10024,9 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
         }).join("")}
       </div>
       <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="buildAnswerCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check</button>
+        <button class="btn primary" id="buildAnswerCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check answer</button>
       </div>
-      ${isChecked ? `<div class="quickCheckFeedback" style="margin-top:10px">You scored ${scoreEarned}/${maxScore} on this task.</div>` : ""}
+      ${isChecked ? `<div class="quickCheckFeedback" style="margin-top:10px">Score: ${scoreEarned} / ${maxScore}</div>` : ""}
     `;
   }
 
@@ -9974,33 +10035,25 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
       <h4 class="slideHeading">${slide.heading}</h4>
       ${slide.subheading ? `<div class="note" style="margin-bottom:8px">${slide.subheading}</div>` : ""}
       <div>${slide.text}</div>
-      <div class="note" style="margin-top:10px">Next: identify the main argument, then select evidence.</div>
     `;
   }
 
   if(slide.type === "arg-identify"){
-    const state = getStoredArgIdentifyState(lesson.id, slideIdx);
-    const selected = state.value;
-    const canCheck = Number.isInteger(selected) && !state.checked;
-    const feedback = !state.checked
-      ? ""
-      : (selected===slide.correctIndex ? slide.feedbackCorrect : slide.feedbackWrong);
-
+    const state = getStoredArgIdentifyState(lesson.id, slideId);
+    const selected = Number.isInteger(state.value) ? state.value : null;
+    const canCheck = selected!==null && !state.checked;
+    const feedback = !state.checked ? "" : (selected===slide.correctIndex ? slide.feedbackCorrect : slide.feedbackWrong);
     return `
       <h4 class="slideHeading">${slide.heading}</h4>
       <div>${slide.prompt}</div>
       <div class="note" style="margin-top:8px">Skill: ${slide.skillTag || "AO3-argument"}</div>
-      <div class="quickCheckOptions">
+      <div class="quickCheckOptions" style="margin-top:10px">
         ${slide.options.map((opt,i)=>{
           const active = selected===i;
-          const showResultStyles = state.checked;
           let style = "";
-          if(showResultStyles){
-            if(i===slide.correctIndex){
-              style = "border-color:rgba(126,185,170,.8);";
-            }else if(active){
-              style = "border-color:rgba(183,142,161,.8);";
-            }
+          if(state.checked){
+            if(i===slide.correctIndex){ style = "border-color:rgba(126,185,170,.8);"; }
+            else if(active){ style = "border-color:rgba(183,142,161,.8);"; }
           }else if(active){
             style = "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);";
           }
@@ -10008,24 +10061,22 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
         }).join("")}
       </div>
       <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="argIdentifyCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check</button>
+        <button class="btn primary" id="argIdentifyCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check argument</button>
       </div>
       ${state.checked ? `<div class="quickCheckFeedback" style="margin-top:10px">${feedback}</div>` : ""}
     `;
   }
 
   if(slide.type === "evidence-select"){
-    const state = getStoredEvidenceSelectState(lesson.id, slideIdx);
-    const selectedIds = state.value;
+    const state = getStoredEvidenceSelectState(lesson.id, slideId);
+    const selectedSet = new Set(state.value);
     const selectionLimit = Number(slide.selectionLimit || (slide.purpose === "challenge" ? 2 : 0));
-    const selectedSet = new Set(selectedIds);
-    const canSelectMore = selectedIds.length < selectionLimit;
-    const canCheck = selectedIds.length === selectionLimit && !state.checked;
-    const scoreEarned = selectedIds.reduce((sum, statementId)=>{
+    const canSelectMore = state.value.length < selectionLimit;
+    const canCheck = state.value.length===selectionLimit && !state.checked;
+    const scoreEarned = state.value.reduce((sum, statementId)=>{
       const statement = slide.statements.find(item=>item.id===statementId);
       return sum + Number(statement?.score || 0);
     }, 0);
-    const maxScore = selectionLimit * 2;
 
     return `
       <h4 class="slideHeading">${slide.heading}</h4>
@@ -10048,16 +10099,16 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
         }).join("")}
       </div>
       <div class="row" style="margin-top:10px">
-        <button class="btn primary" id="evidenceSelectCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check</button>
+        <button class="btn primary" id="evidenceSelectCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check evidence</button>
       </div>
-      ${state.checked ? `<div class="quickCheckFeedback" style="margin-top:10px">You scored ${scoreEarned} / ${maxScore}</div>` : ""}
+      ${state.checked ? `<div class="quickCheckFeedback" style="margin-top:10px">Evidence score: ${scoreEarned} / ${selectionLimit * 2}</div>` : ""}
     `;
   }
 
   if(slide.type === "judgement"){
-    const state = getStoredJudgementState(lesson.id, slideIdx);
-    const selectedOption = state.optionIndex;
-    const optionCanCheck = Number.isInteger(selectedOption) && !state.optionChecked;
+    const state = getStoredJudgementState(lesson.id, slideId);
+    const selectedOption = Number.isInteger(state.optionIndex) ? state.optionIndex : null;
+    const optionCanCheck = selectedOption!==null && !state.optionChecked;
     const optionFeedback = !state.optionChecked
       ? ""
       : (selectedOption===slide.bestIndex ? slide.feedbackCorrect : slide.feedbackWrong);
@@ -10122,7 +10173,7 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
 
   if(slide.type !== "quick-check") return `<h4 class="slideHeading">${slide.heading}</h4><div>${slide.text}</div>`;
 
-  const storedAnswer = getStoredQuickCheckAnswer(lesson.id, slideIdx);
+  const storedAnswer = getStoredQuickCheckAnswer(lesson.id, slideId);
   const selected = Number.isInteger(storedAnswer) ? storedAnswer : null;
   const feedback = selected===null ? "" : (slide.feedback?.[selected] || "");
 
