@@ -12676,7 +12676,7 @@ function LessonHero(lesson){
 }
 function LessonSectionHeading(text){ return `<h2 class='lessonSectionHeading'>${text}</h2>`; }
 function InsetTaskCard(title, instruction, hint){ return `<section class='insetTaskCard'><h3 class='insetTaskTitle'>${title}</h3><p class='lessonBodyText'>${instruction}</p>${hint?`<div class='hintStrip'>${hint}</div>`:""}</section>`; }
-function ChoicePills(items, cls){ return `<div class='choicePills'>${items.map(item=>`<button class='choicePill ${cls||""}' data-id='${item.id}'>${item.text}</button>`).join("")}</div>`; }
+function ChoicePills(items, cls){ return `<div class='choicePills'>${items.map(item=>`<button type='button' class='choicePill ${cls||""}' data-id='${item.id}'>${item.text}</button>`).join("")}</div>`; }
 function BottomNav(canPrev, canNext, active){ return `<div class='lessonBottomNav'><button class='btn lessonSlideBtn' id='lessonSlidePrevBtn' ${canPrev?"":"disabled"}>Previous</button><div class='lessonSlideDots'>${[1,2,3,4].map(i=>`<span class='lessonSlideDot ${i===active?"isActive":""}'></span>`).join("")}</div><button class='btn primary lessonSlideBtn' id='lessonSlideNextBtn' ${canNext?"":"disabled"}>Next</button></div>`; }
 
 function renderLessonPlayer(lessonId){
@@ -12771,24 +12771,34 @@ function drawLessonSection(){
   $("lessonSlideNextBtn").onclick=()=>{ if(canNext){ lessonsNavState.idx++; drawLessonSection(); } };
   if($("nextSec")) $("nextSec").onclick=()=>{ lessonsNavState.slideGate[st.idx]=true; lessonsNavState.idx++; drawLessonSection(); };
 
-  if($("opts") && $("checkSel")){
+  const optsWrap = root.querySelector("#opts");
+  const checkSelBtn = root.querySelector("#checkSel");
+  const selCountEl = root.querySelector("#selCount");
+  const selFbEl = root.querySelector("#selFb");
+  if(optsWrap && checkSelBtn){
     const selected=new Set();
     const limit=sec.limit||sec.correctIds?.length||1;
-    root.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
+    optsWrap.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
       const id=btn.dataset.id;
-      if(selected.has(id)){ selected.delete(id); btn.classList.remove('isSelected'); }
-      else { if(limit && selected.size>=limit) return; selected.add(id); btn.classList.add('isSelected'); }
-      if($("selCount")) $("selCount").textContent=`Selected: ${selected.size}/${limit}`;
-      $("checkSel").disabled=selected.size!==limit;
+      if(selected.has(id)){
+        selected.delete(id);
+        btn.classList.remove('isSelected');
+      } else {
+        if(limit && selected.size>=limit) return;
+        selected.add(id);
+        btn.classList.add('isSelected');
+      }
+      if(selCountEl) selCountEl.textContent=`Selected: ${selected.size}/${limit}`;
+      checkSelBtn.disabled=selected.size!==limit;
     });
-    $("checkSel").onclick=()=>{
+    checkSelBtn.onclick=()=>{
       let gained=0;
       if(sec.phase==="SF"){
         const validIds = (sec.correctIds || []).map(id=>String(id));
         const correct=[...selected].filter(x=>validIds.includes(String(x))).length;
         lessonsNavState.sfScore+=correct;
         lessonsNavState.sfTotal+=sec.correctIds.length;
-        $("selFb").textContent=correct===sec.correctIds.length?"Good pick — this is the core tension sentence.":"Not quite — here’s why: focus on the statement that directly links authority and reform.";
+        if(selFbEl) selFbEl.textContent=correct===sec.correctIds.length?"Good pick — this is the core tension sentence.":"Not quite — here’s why: focus on the statement that directly links authority and reform.";
       } else if(sec.phase==="M"){
         gained=scoreSelections([...selected],sec.mode,sec.statementBank);
         lessonsNavState.masteryScore+=Math.max(0,gained);
@@ -12796,14 +12806,15 @@ function drawLessonSection(){
         lessonsNavState.contra=(lessonsNavState.contra||0)+[...selected].filter(id=>(sec.statementBank.find(s=>s.id===id)?.[sec.mode+"Weight"]||0)<0).length;
         lessonsNavState.structMiss=(lessonsNavState.structMiss||false) || ![...selected].some(id=>["executive_power","coercion"].some(t=>(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes(t)));
         lessonsNavState.contextOver=(lessonsNavState.contextOver||false) || [...selected].every(id=>(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("context")||(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("neutral"));
-        $("selFb").textContent=`Score added: ${Math.max(0,gained)}. Build the next step.`;
+        if(selFbEl) selFbEl.textContent=`Score added: ${Math.max(0,gained)}. Build the next step.`;
       } else {
         const validIds = (sec.correctIds || []).map(id=>String(id));
         const correct=[...selected].filter(x=>validIds.includes(String(x))).length;
-        $("selFb").textContent=`Good weighting: ${correct} strong choices.`;
+        if(selFbEl) selFbEl.textContent=`Good weighting: ${correct} strong choices.`;
       }
       lessonsNavState.slideGate[st.idx]=true;
-      $("lessonSlideNextBtn").disabled=false;
+      const nextBtn = root.querySelector("#lessonSlideNextBtn") || $("lessonSlideNextBtn");
+      if(nextBtn) nextBtn.disabled=false;
     };
   }
 
