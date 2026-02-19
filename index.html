@@ -9095,6 +9095,19 @@ function getStoredEvidenceSelectState(lessonId, slideIdx){
   return { value:selectedIds, checked:!!value.checked };
 }
 
+function getStoredJudgementState(lessonId, slideIdx){
+  const value = lessonsNav.answers?.[lessonId]?.[slideIdx];
+  if(!value || typeof value !== "object" || Array.isArray(value)){
+    return { optionIndex:null, optionChecked:false, evidenceValue:[], evidenceChecked:false };
+  }
+  return {
+    optionIndex: Number.isInteger(value.optionIndex) ? value.optionIndex : null,
+    optionChecked: !!value.optionChecked,
+    evidenceValue: Array.isArray(value.evidenceValue) ? value.evidenceValue : [],
+    evidenceChecked: !!value.evidenceChecked
+  };
+}
+
 const lessonsData = [
   {
     id:"topic1",
@@ -9177,6 +9190,7 @@ const lessonsData = [
               },
               {
                 type:"evidence-select",
+                purpose:"support",
                 heading:"Select evidence to support this view",
                 prompt:"Select 3 statements that best support Interpretation A.",
                 selectionLimit:3,
@@ -9191,6 +9205,22 @@ const lessonsData = [
                   { id:"a8", text:"The Fundamental Laws gave the Tsar powers over ministers, the executive, and dissolution.", score:0, feedback:"Factually important, but used alone it supports a different interpretation more strongly." },
                   { id:"a9", text:"Nicholas II accepted binding parliamentary sovereignty and stopped dissolving the Duma after 1905.", score:-1, feedback:"Misleading: the Tsar retained key powers and did dissolve Dumas." },
                   { id:"a10", text:"The June 1907 electoral changes broadened mass representation and reduced executive influence.", score:-1, feedback:"Incorrect direction: 1907 was designed to limit representation and strengthen regime control." }
+                ]
+              },
+              {
+                type:"evidence-select",
+                purpose:"challenge",
+                heading:"Challenge this interpretation",
+                prompt:"Select 2 statements that most undermine Interpretation A.",
+                statements:[
+                  { id:"ac1", text:"The Fundamental Laws (1906) reasserted the Tsar's supremacy and restricted the Duma's authority.", score:2, feedback:"Strong counter-evidence: this directly undermines claims of lasting constitutional constraint." },
+                  { id:"ac2", text:"Nicholas II retained control over ministers and repeatedly dissolved uncooperative Dumas.", score:2, feedback:"Powerful challenge: executive dominance remained in the Tsar's hands." },
+                  { id:"ac3", text:"The June 1907 electoral law narrowed representation and reduced radical influence.", score:2, feedback:"Strong challenge: it shows the regime redesigning rules to protect autocratic control." },
+                  { id:"ac4", text:"Stolypin used emergency courts and coercion to restore order after 1905.", score:1, feedback:"Useful challenge evidence, though less constitutional than legal powers evidence." },
+                  { id:"ac5", text:"Opposition groups stayed divided, making coordinated resistance harder.", score:1, feedback:"Generic challenge: this helps explain why autocracy recovered leverage." },
+                  { id:"ac6", text:"Some industrial sectors expanded before 1914.", score:0, feedback:"Neutral: economic growth does not directly undermine Interpretation A's constitutional claim." },
+                  { id:"ac7", text:"Russia remained a geographically vast and socially diverse empire.", score:0, feedback:"Neutral background context; this does not directly challenge the interpretation." },
+                  { id:"ac8", text:"After 1905, ministers became fully responsible to the Duma rather than the Tsar.", score:-1, feedback:"Misleading: this is inaccurate and does not undermine Interpretation A reliably." }
                 ]
               },
               {
@@ -9216,6 +9246,7 @@ const lessonsData = [
               },
               {
                 type:"evidence-select",
+                purpose:"support",
                 heading:"Select evidence to support this view",
                 prompt:"Select 3 statements that best support Interpretation B.",
                 selectionLimit:3,
@@ -9233,21 +9264,46 @@ const lessonsData = [
                 ]
               },
               {
-                type:"build-answer",
-                heading:"Build an exam answer",
-                prompt:"Select 3 statements that best support the judgement: \"1905 weakened autocracy only partially.\"",
-                selectionLimit:3,
+                type:"evidence-select",
+                purpose:"challenge",
+                heading:"Challenge this interpretation",
+                prompt:"Select 2 statements that most undermine Interpretation B.",
                 statements:[
-                  { id:"s1", text:"The October Manifesto conceded a Duma and civil liberties, showing the regime could be forced into reform.", score:2, feedback:"Strong support: this is direct evidence that autocracy had to retreat under pressure." },
-                  { id:"s2", text:"The Fundamental Laws (1906) reasserted the Tsar's authority, limiting how far constitutional change went.", score:2, feedback:"Excellent: this explains why weakening was only partial, not total." },
-                  { id:"s3", text:"Stolypin's repression after 1906 helped restore order and preserve Romanov control.", score:2, feedback:"Directly relevant: coercion helped autocracy survive after the crisis." },
-                  { id:"s4", text:"Political parties and public debate became more significant after 1905.", score:1, feedback:"Useful but broad: this supports change, though it needs tighter linkage to partial weakening." },
-                  { id:"s5", text:"Revolutionary unrest in 1905 exposed social and political dissatisfaction with the regime.", score:1, feedback:"Relevant context, but stronger answers pair this with constitutional and coercive evidence." },
-                  { id:"s6", text:"Russia's rail network expanded in the late nineteenth century.", score:0, feedback:"True, but it does not directly support this judgement about political authority after 1905." },
-                  { id:"s7", text:"Nicholas II immediately accepted full parliamentary sovereignty in 1905.", score:-1, feedback:"Inaccurate: the Tsar retained major powers and restricted the Duma's influence." },
-                  { id:"s8", text:"The 1905 crisis happened in exactly the same way across every region of the empire.", score:-1, feedback:"Overstated and inaccurate; regional patterns varied and this does not build a secure judgement." },
-                  { id:"s9", text:"Autocracy remained under pressure right up to 1917, despite surviving 1905.", score:1, feedback:"Helpful extension point, though less precise than direct evidence from 1905–06 institutions." }
+                  { id:"bc1", text:"The October Manifesto created a Duma and recognised civil liberties under mass pressure.", score:2, feedback:"Strong counter-evidence: this shows genuine concessions that challenged pure executive control." },
+                  { id:"bc2", text:"Legal political parties and election campaigns became lasting features after 1905.", score:2, feedback:"Powerful challenge: organised politics persisted rather than disappearing." },
+                  { id:"bc3", text:"Public debate widened through newspapers, associations, and parliamentary discussion.", score:2, feedback:"Strong challenge evidence: political culture changed in ways hard to reverse completely." },
+                  { id:"bc4", text:"Ministers increasingly had to manage Duma blocs and public criticism.", score:1, feedback:"Generic but relevant challenge: governing practice became less purely command-driven." },
+                  { id:"bc5", text:"The 1905 upheaval exposed deep social dissatisfaction with autocratic rule.", score:1, feedback:"Useful contextual challenge, though less direct than institutional evidence." },
+                  { id:"bc6", text:"Railway mileage had expanded since the late nineteenth century.", score:0, feedback:"Neutral: infrastructure change does not directly undermine Interpretation B." },
+                  { id:"bc7", text:"Russia remained a vast, multi-ethnic empire before 1914.", score:0, feedback:"Neutral context only; not direct counter-evidence." },
+                  { id:"bc8", text:"The Fundamental Laws transferred executive sovereignty to parliament.", score:-1, feedback:"Misleading and inaccurate, so it does not provide valid challenge evidence." }
                 ]
+              },
+              {
+                type:"judgement",
+                heading:"Build your final judgement",
+                prompt:"Which overall judgement is strongest on how far 1905 weakened autocracy?",
+                options:[
+                  "1905 destroyed autocracy immediately by transferring sovereignty to parliament.",
+                  "1905 caused no lasting political change because concessions were entirely cosmetic.",
+                  "1905 weakened autocracy partially: concessions changed politics, but executive and coercive power remained strong.",
+                  "1905 weakened autocracy mainly because rapid economic growth removed political pressure."
+                ],
+                bestIndex:2,
+                feedbackCorrect:"Correct: this balances constitutional change with continued executive power and coercion.",
+                feedbackWrong:"Not quite: the strongest judgement weighs both real concessions and the limits of change.",
+                evidencePick:{
+                  selectionLimit:2,
+                  statements:[
+                    { id:"j1", text:"The October Manifesto conceded a Duma and civil liberties under pressure.", score:2, feedback:"Strong justification: clear evidence of real political concession." },
+                    { id:"j2", text:"The Fundamental Laws (1906) reaffirmed the Tsar's executive supremacy.", score:2, feedback:"Strong justification: this explains why weakening was limited, not total." },
+                    { id:"j3", text:"Stolypin's repression and emergency courts helped restore order after 1905.", score:2, feedback:"Strong justification: coercion remained central to regime survival." },
+                    { id:"j4", text:"Political parties and public debate expanded after 1905.", score:1, feedback:"Relevant support, but it is broader than direct constitutional evidence." },
+                    { id:"j5", text:"Russia remained under pressure up to 1917 despite surviving 1905.", score:1, feedback:"Useful extension, though less precise for immediate post-1905 judgement." },
+                    { id:"j6", text:"Railways expanded in the late nineteenth century.", score:0, feedback:"Neutral: this does not directly justify the judgement." },
+                    { id:"j7", text:"Nicholas II accepted full parliamentary sovereignty in 1905.", score:-1, feedback:"Misleading and inaccurate, so this weakens the justification." }
+                  ]
+                }
               },
               { type:"quick-check", heading:"Quick Check", text:"Which is the strongest conclusion?", options:["1905 permanently ended autocracy.","1905 weakened autocracy but did not destroy it before 1917.","1905 had no effect because no institutions changed."], correctIndex:1, feedback:["Incorrect: the Romanov system continued.","Correct: concessions and repression coexisted, producing partial weakening.","Incorrect: the Duma and political parties became central features." ] },
               { type:"next-steps", heading:"Next steps", text:"This helps with balanced argumentation on continuity and change between 1905 and 1917." }
@@ -9504,11 +9560,13 @@ function renderLessonPlayer(root){
   const buildAnswerChecked = slide.type === "build-answer" ? getStoredBuildAnswerChecked(lesson.id, idx) : false;
   const argIdentifyState = slide.type === "arg-identify" ? getStoredArgIdentifyState(lesson.id, idx) : { checked:false };
   const evidenceSelectState = slide.type === "evidence-select" ? getStoredEvidenceSelectState(lesson.id, idx) : { checked:false };
+  const judgementState = slide.type === "judgement" ? getStoredJudgementState(lesson.id, idx) : { optionChecked:false, evidenceChecked:false };
   const nextDisabled = idx===total-1
     || (slide.type === "quick-check" && !Number.isInteger(storedAnswer))
     || (slide.type === "build-answer" && !buildAnswerChecked)
     || (slide.type === "arg-identify" && !argIdentifyState.checked)
-    || (slide.type === "evidence-select" && !evidenceSelectState.checked);
+    || (slide.type === "evidence-select" && !evidenceSelectState.checked)
+    || (slide.type === "judgement" && (!judgementState.optionChecked || !judgementState.evidenceChecked));
 
   root.innerHTML = `
     <div class="card">
@@ -9630,7 +9688,7 @@ function renderLessonPlayer(root){
     root.querySelectorAll('[data-action="evidence-select-option"]').forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const statementId = btn.dataset.statementId;
-        const limit = Number(slide.selectionLimit || 0);
+        const limit = Number(slide.selectionLimit || (slide.purpose === "challenge" ? 2 : 0));
         const state = getStoredEvidenceSelectState(lesson.id, idx);
         if(!statementId || state.checked) return;
         if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
@@ -9651,10 +9709,85 @@ function renderLessonPlayer(root){
     if(checkBtn){
       checkBtn.addEventListener("click", ()=>{
         const state = getStoredEvidenceSelectState(lesson.id, idx);
-        const limit = Number(slide.selectionLimit || 0);
+        const limit = Number(slide.selectionLimit || (slide.purpose === "challenge" ? 2 : 0));
         if(state.value.length !== limit) return;
         if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
         lessonsNav.answers[lesson.id][idx] = { value:state.value, checked:true };
+        renderLessons();
+      });
+    }
+  }
+
+  if(slide.type === "judgement"){
+    root.querySelectorAll('[data-action="judgement-option"]').forEach((btn,i)=>{
+      btn.addEventListener("click", ()=>{
+        const state = getStoredJudgementState(lesson.id, idx);
+        if(state.optionChecked) return;
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        lessonsNav.answers[lesson.id][idx] = {
+          optionIndex:i,
+          optionChecked:false,
+          evidenceValue:state.evidenceValue,
+          evidenceChecked:false
+        };
+        renderLessons();
+      });
+    });
+
+    root.querySelectorAll('[data-action="judgement-evidence-option"]').forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const statementId = btn.dataset.statementId;
+        const state = getStoredJudgementState(lesson.id, idx);
+        const limit = Number(slide.evidencePick?.selectionLimit || 0);
+        if(!statementId || !state.optionChecked || state.evidenceChecked) return;
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        const selectedIds = state.evidenceValue;
+        const isSelected = selectedIds.includes(statementId);
+        let nextSelection = selectedIds;
+        if(isSelected){
+          nextSelection = selectedIds.filter(id=>id!==statementId);
+        }else if(selectedIds.length < limit){
+          nextSelection = [...selectedIds, statementId];
+        }
+        lessonsNav.answers[lesson.id][idx] = {
+          optionIndex:state.optionIndex,
+          optionChecked:true,
+          evidenceValue:nextSelection,
+          evidenceChecked:false
+        };
+        renderLessons();
+      });
+    });
+
+    const optionCheckBtn = $("judgementOptionCheckBtn");
+    if(optionCheckBtn){
+      optionCheckBtn.addEventListener("click", ()=>{
+        const state = getStoredJudgementState(lesson.id, idx);
+        if(!Number.isInteger(state.optionIndex)) return;
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        lessonsNav.answers[lesson.id][idx] = {
+          optionIndex:state.optionIndex,
+          optionChecked:true,
+          evidenceValue:state.evidenceValue,
+          evidenceChecked:state.evidenceChecked
+        };
+        renderLessons();
+      });
+    }
+
+    const evidenceCheckBtn = $("judgementEvidenceCheckBtn");
+    if(evidenceCheckBtn){
+      evidenceCheckBtn.addEventListener("click", ()=>{
+        const state = getStoredJudgementState(lesson.id, idx);
+        const limit = Number(slide.evidencePick?.selectionLimit || 0);
+        if(!state.optionChecked || state.evidenceValue.length !== limit) return;
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        lessonsNav.answers[lesson.id][idx] = {
+          optionIndex:state.optionIndex,
+          optionChecked:true,
+          evidenceValue:state.evidenceValue,
+          evidenceChecked:true
+        };
         renderLessons();
       });
     }
@@ -9707,32 +9840,64 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
       };
     }, { earned:0, max:0 });
 
-    const evidenceTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
-      if(currentSlide.type !== "evidence-select") return totals;
+    const supportEvidenceTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+      if(currentSlide.type !== "evidence-select" || currentSlide.purpose === "challenge") return totals;
       const state = getStoredEvidenceSelectState(lesson.id, currentIdx);
       const scoreEarned = state.value.reduce((sum, statementId)=>{
         const statement = currentSlide.statements.find(item=>item.id===statementId);
         return sum + Number(statement?.score || 0);
       }, 0);
+      const limit = Number(currentSlide.selectionLimit || (currentSlide.purpose === "challenge" ? 2 : 0));
       return {
         earned: totals.earned + scoreEarned,
-        max: totals.max + (Number(currentSlide.selectionLimit || 0) * 2)
+        max: totals.max + (limit * 2)
+      };
+    }, { earned:0, max:0 });
+
+    const challengeEvidenceTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+      if(currentSlide.type !== "evidence-select" || currentSlide.purpose !== "challenge") return totals;
+      const state = getStoredEvidenceSelectState(lesson.id, currentIdx);
+      const scoreEarned = state.value.reduce((sum, statementId)=>{
+        const statement = currentSlide.statements.find(item=>item.id===statementId);
+        return sum + Number(statement?.score || 0);
+      }, 0);
+      const limit = Number(currentSlide.selectionLimit || 2);
+      return {
+        earned: totals.earned + scoreEarned,
+        max: totals.max + (limit * 2)
+      };
+    }, { earned:0, max:0 });
+
+    const judgementTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+      if(currentSlide.type !== "judgement") return totals;
+      const state = getStoredJudgementState(lesson.id, currentIdx);
+      const optionEarned = state.optionChecked && state.optionIndex===currentSlide.bestIndex ? 2 : 0;
+      const evidenceEarned = state.evidenceValue.reduce((sum, statementId)=>{
+        const statement = currentSlide.evidencePick?.statements?.find(item=>item.id===statementId);
+        return sum + Number(statement?.score || 0);
+      }, 0);
+      const evidenceLimit = Number(currentSlide.evidencePick?.selectionLimit || 2);
+      return {
+        earned: totals.earned + optionEarned + evidenceEarned,
+        max: totals.max + 2 + (evidenceLimit * 2)
       };
     }, { earned:0, max:0 });
 
     const componentPercents = {
       quickCheck: totalQuickChecks ? Math.round((correctCount / totalQuickChecks) * 100) : 0,
-      buildAnswer: buildTotals.max ? Math.round((buildTotals.earned / buildTotals.max) * 100) : 0,
       argIdentify: argIdentifyTotals.max ? Math.round((argIdentifyTotals.earned / argIdentifyTotals.max) * 100) : 0,
-      evidenceSelect: evidenceTotals.max ? Math.round((evidenceTotals.earned / evidenceTotals.max) * 100) : 0
+      supportEvidence: supportEvidenceTotals.max ? Math.round((supportEvidenceTotals.earned / supportEvidenceTotals.max) * 100) : 0,
+      challengeEvidence: challengeEvidenceTotals.max ? Math.round((challengeEvidenceTotals.earned / challengeEvidenceTotals.max) * 100) : 0,
+      judgement: judgementTotals.max ? Math.round((judgementTotals.earned / judgementTotals.max) * 100) : 0
     };
 
-    const baseWeights = { quickCheck:40, buildAnswer:20, argIdentify:20, evidenceSelect:20 };
+    const baseWeights = { quickCheck:30, argIdentify:20, supportEvidence:20, challengeEvidence:20, judgement:10 };
     const availableComponents = Object.keys(baseWeights).filter(key=>{
-      if(key === "buildAnswer") return buildTotals.max > 0;
       if(key === "quickCheck") return totalQuickChecks > 0;
       if(key === "argIdentify") return argIdentifyTotals.max > 0;
-      if(key === "evidenceSelect") return evidenceTotals.max > 0;
+      if(key === "supportEvidence") return supportEvidenceTotals.max > 0;
+      if(key === "challengeEvidence") return challengeEvidenceTotals.max > 0;
+      if(key === "judgement") return judgementTotals.max > 0;
       return false;
     });
     const availableWeightTotal = availableComponents.reduce((sum, key)=>sum + baseWeights[key], 0);
@@ -9751,9 +9916,10 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
       <h4 class="slideHeading">Results</h4>
       <div class="quickCheckFeedback" style="margin-top:10px">
         <div><strong>Quick-check:</strong> ${correctCount} / ${totalQuickChecks}</div>
-        ${buildTotals.max ? `<div><strong>Build-answer:</strong> ${buildTotals.earned} / ${buildTotals.max}</div>` : ""}
-        <div><strong>Main argument identified:</strong> ${argIdentifyTotals.earned} / ${argIdentifyTotals.max}</div>
-        <div><strong>Evidence selection:</strong> ${evidenceTotals.earned} / ${evidenceTotals.max}</div>
+                <div><strong>Main arguments identified:</strong> ${argIdentifyTotals.earned} / ${argIdentifyTotals.max}</div>
+        <div><strong>Support evidence:</strong> ${supportEvidenceTotals.earned} / ${supportEvidenceTotals.max}</div>
+        <div><strong>Challenge evidence:</strong> ${challengeEvidenceTotals.earned} / ${challengeEvidenceTotals.max}</div>
+        <div><strong>Judgement:</strong> ${judgementTotals.earned} / ${judgementTotals.max}</div>
         <div><strong>Final score:</strong> ${finalPercent}%</div>
       </div>
       <div class="quickCheckFeedback" style="margin-top:10px">${feedback}</div>
@@ -9765,7 +9931,7 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
 
   if(slide.type === "build-answer"){
     const selectedIds = getStoredBuildAnswerSelection(lesson.id, slideIdx);
-    const selectionLimit = Number(slide.selectionLimit || 0);
+    const selectionLimit = Number(slide.selectionLimit || (slide.purpose === "challenge" ? 2 : 0));
     const isChecked = getStoredBuildAnswerChecked(lesson.id, slideIdx);
     const selectedSet = new Set(selectedIds);
     const canSelectMore = selectedIds.length < selectionLimit;
@@ -9851,7 +10017,7 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
   if(slide.type === "evidence-select"){
     const state = getStoredEvidenceSelectState(lesson.id, slideIdx);
     const selectedIds = state.value;
-    const selectionLimit = Number(slide.selectionLimit || 0);
+    const selectionLimit = Number(slide.selectionLimit || (slide.purpose === "challenge" ? 2 : 0));
     const selectedSet = new Set(selectedIds);
     const canSelectMore = selectedIds.length < selectionLimit;
     const canCheck = selectedIds.length === selectionLimit && !state.checked;
@@ -9864,7 +10030,7 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
     return `
       <h4 class="slideHeading">${slide.heading}</h4>
       <div>${slide.prompt}</div>
-      <div class="note" style="margin-top:8px">Select exactly ${selectionLimit} statements.</div>
+      <div class="note" style="margin-top:8px">Select exactly ${selectionLimit} statements${slide.purpose === "challenge" ? " that challenge the interpretation" : ""}.</div>
       <div class="quickCheckOptions">
         ${slide.statements.map(statement=>{
           const isSelected = selectedSet.has(statement.id);
@@ -9885,6 +10051,72 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
         <button class="btn primary" id="evidenceSelectCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check</button>
       </div>
       ${state.checked ? `<div class="quickCheckFeedback" style="margin-top:10px">You scored ${scoreEarned} / ${maxScore}</div>` : ""}
+    `;
+  }
+
+  if(slide.type === "judgement"){
+    const state = getStoredJudgementState(lesson.id, slideIdx);
+    const selectedOption = state.optionIndex;
+    const optionCanCheck = Number.isInteger(selectedOption) && !state.optionChecked;
+    const optionFeedback = !state.optionChecked
+      ? ""
+      : (selectedOption===slide.bestIndex ? slide.feedbackCorrect : slide.feedbackWrong);
+
+    const evidenceLimit = Number(slide.evidencePick?.selectionLimit || 2);
+    const selectedEvidence = state.evidenceValue;
+    const selectedSet = new Set(selectedEvidence);
+    const canSelectMore = selectedEvidence.length < evidenceLimit;
+    const evidenceCanCheck = state.optionChecked && selectedEvidence.length===evidenceLimit && !state.evidenceChecked;
+    const evidenceScore = selectedEvidence.reduce((sum, statementId)=>{
+      const statement = slide.evidencePick?.statements?.find(item=>item.id===statementId);
+      return sum + Number(statement?.score || 0);
+    }, 0);
+
+    return `
+      <h4 class="slideHeading">${slide.heading}</h4>
+      <div>${slide.prompt}</div>
+      <div class="quickCheckOptions" style="margin-top:10px">
+        ${slide.options.map((opt,i)=>{
+          const active = selectedOption===i;
+          let style = "";
+          if(state.optionChecked){
+            if(i===slide.bestIndex){
+              style = "border-color:rgba(126,185,170,.8);";
+            }else if(active){
+              style = "border-color:rgba(183,142,161,.8);";
+            }
+          }else if(active){
+            style = "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);";
+          }
+          return `<button class="btn" data-action="judgement-option" type="button" style="text-align:left;justify-content:flex-start;${style}" ${state.optionChecked ? "disabled" : ""}>${opt}</button>`;
+        }).join("")}
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="judgementOptionCheckBtn" type="button" ${optionCanCheck ? "" : "disabled"}>Check judgement</button>
+      </div>
+      ${state.optionChecked ? `<div class="quickCheckFeedback" style="margin-top:10px">${optionFeedback}</div>` : ""}
+
+      <div class="note" style="margin-top:12px">Now justify your judgement with exactly ${evidenceLimit} pieces of evidence.</div>
+      <div class="quickCheckOptions">
+        ${(slide.evidencePick?.statements || []).map(statement=>{
+          const isSelected = selectedSet.has(statement.id);
+          const isDisabled = !state.optionChecked || state.evidenceChecked || (!isSelected && !canSelectMore);
+          const optionStyle = isSelected ? "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);" : "";
+          const feedbackHtml = state.evidenceChecked && isSelected
+            ? `<div class="quickCheckFeedback" style="margin-top:6px">${statement.feedback}</div>`
+            : "";
+          return `
+            <div>
+              <button class="btn" data-action="judgement-evidence-option" data-statement-id="${statement.id}" type="button" style="text-align:left;justify-content:flex-start;${optionStyle}" ${isDisabled ? "disabled" : ""}>${statement.text}</button>
+              ${feedbackHtml}
+            </div>
+          `;
+        }).join("")}
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="judgementEvidenceCheckBtn" type="button" ${evidenceCanCheck ? "" : "disabled"}>Check evidence</button>
+      </div>
+      ${state.evidenceChecked ? `<div class="quickCheckFeedback" style="margin-top:10px">Evidence score: ${evidenceScore} / ${evidenceLimit * 2}</div>` : ""}
     `;
   }
 
