@@ -769,6 +769,18 @@
     .lessonSlideList li::before{content:"";width:8px;height:8px;border-radius:999px;margin-top:6px;flex:0 0 auto;background:var(--accent)}
     .lessonSlideList[data-tone="continuity"] li::before{background:#97a8c5}
     .lessonSlideList[data-tone="exam"] li::before{background:#6484b6}
+    .lessonSlideInteractive{margin-top:12px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:14px;padding:10px;background:rgba(255,255,255,.78)}
+    .lessonSlideInteractiveTitle{font-size:13px;font-weight:900;color:var(--textStrong)}
+    .lessonSlideInteractivePrompt{margin:6px 0 0;font-size:13px;line-height:1.45;color:var(--text)}
+    .lessonQuickCheck{margin-top:10px;padding:8px;border-radius:12px;background:rgba(237,244,252,.72);border:1px solid color-mix(in srgb, var(--line) 58%, var(--accent2) 42%)}
+    .lessonQuickCheckQ{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:7px}
+    .lessonQuickCheckChoices{display:grid;gap:6px}
+    .lessonQuickCheckBtn{width:100%;text-align:left;border:1px solid color-mix(in srgb, var(--line) 64%, var(--accent2) 36%);background:#fff;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer}
+    .lessonQuickCheckBtn.isCorrect{border-color:rgba(76,144,125,.65);background:rgba(126,185,170,.2)}
+    .lessonQuickCheckBtn.isWrong{border-color:rgba(168,115,141,.6);background:rgba(183,142,161,.18)}
+    .lessonQuickCheckFeedback{font-size:12px;line-height:1.4;color:var(--muted);margin-top:7px;min-height:17px}
+    .lessonSupportRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .lessonSupportText{margin:8px 0 0;padding:8px;border-radius:10px;background:rgba(237,244,252,.75);font-size:12px;line-height:1.45;color:var(--text)}
     .lessonSlideControls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
     .lessonSlideDots{display:flex;gap:6px;align-items:center}
     .lessonSlideDot{width:8px;height:8px;border-radius:999px;background:color-mix(in srgb, var(--line) 60%, #d6e1ef 40%);border:0;padding:0}
@@ -8549,6 +8561,7 @@ let lessonScore = 0;
 let lessonAnsweredCurrent = false;
 let lessonSlides = [];
 let lessonSlideIndex = 0;
+let lessonSlideInteractions = {};
 let lessonQuizQuestions = [];
 const LESSON_SLIDE_IMAGES = [
   "./topic1.png?v=1",
@@ -8617,47 +8630,79 @@ function getLessonSlideImage(lesson){
 
 function buildLessonSlides(lesson){
   const parsed = parseLessonBriefing(lesson?.briefing || "");
-  const defaultIntro = "Read this section to lock in the narrative before attempting the questions.";
+  const defaultIntro = "Read this short summary first. It gives you the story before the quiz.";
   return [
     {
       tag:"Overview",
       visualTitle:lesson?.title || "Lesson overview",
       visualSub:(lesson?.block && lesson?.theme) ? `${lesson.block} • ${lesson.theme}` : "",
-      heading:"Big picture focus",
+      heading:"Big picture idea",
       lead:parsed.focus || defaultIntro,
       bullets:[],
       tone:"overview",
-      image:getLessonSlideImage(lesson)
+      image:getLessonSlideImage(lesson),
+      interactive:{
+        title:"Quick connect",
+        prompt:"Say this in your own words: What is this lesson mostly about?",
+        support:"Tip: Start with ‘This lesson is about…’ and add one key word (power, control, reform, or change)."
+      }
     },
     {
       tag:"Change",
       visualTitle:"How the period changed",
-      visualSub:"Trace developments with specific policy evidence.",
+      visualSub:"Find what became different over time.",
       heading:"What changed?",
-      lead:"Identify what shifted and explain the significance of each change.",
+      lead:"Look for things that became new or different.",
       bullets:parsed.changes.length ? parsed.changes : ["No key changes listed yet."],
       tone:"change",
-      image:getLessonSlideImage(lesson)
+      image:getLessonSlideImage(lesson),
+      interactive:{
+        title:"Pick the best definition",
+        check:{
+          question:"In history, a ‘change’ means…",
+          choices:["something that stayed the same","something that became different","a random fact with no time link"],
+          answerIndex:1,
+          success:"Yes. A change is something that became different over time.",
+          retry:"Try again. Think about what is different, not what stayed stable."
+        },
+        support:"Sentence stem: ‘One change was ___ because before this, ___ but after this, ___.’"
+      }
     },
     {
       tag:"Continuity",
       visualTitle:"What remained durable",
-      visualSub:"Prioritise long-term structures that resisted reform.",
+      visualSub:"Spot patterns that stayed in place.",
       heading:"What stayed the same?",
-      lead:"Anchor your judgement in continuities that persisted across the period.",
+      lead:"Find ideas or systems that continued across the period.",
       bullets:parsed.continuities.length ? parsed.continuities : ["No key continuities listed yet."],
       tone:"continuity",
-      image:getLessonSlideImage(lesson)
+      image:getLessonSlideImage(lesson),
+      interactive:{
+        title:"Spot continuity",
+        check:{
+          question:"A ‘continuity’ is best described as…",
+          choices:["a key feature that stayed over time","a one-off event","a guess without evidence"],
+          answerIndex:0,
+          success:"Correct. Continuity means something that carried on.",
+          retry:"Not yet. Look for what continued across years, not a single moment."
+        },
+        support:"Sentence stem: ‘A continuity was ___ and this mattered because ___.’"
+      }
     },
     {
       tag:"Exam",
       visualTitle:"Use this in the 25-mark essay",
-      visualSub:"Turn content into argument and judgement.",
+      visualSub:"Turn your notes into a clear argument.",
       heading:"Exam-ready thinking",
-      lead:parsed.examTip || "Build a balanced judgement: explain which factor mattered most and why.",
-      bullets:["Support each point with precise dates, named policies, and clear consequences.","Compare change and continuity directly so your conclusion weighs relative importance."],
+      lead:parsed.examTip || "Build a balanced answer: decide what mattered most and explain why.",
+      bullets:["Use short evidence: date + policy/person + impact.","Compare change and continuity, then make a clear final judgement."],
       tone:"exam",
-      image:getLessonSlideImage(lesson)
+      image:getLessonSlideImage(lesson),
+      interactive:{
+        title:"Explain your judgement",
+        prompt:"Finish this sentence: ‘The most important factor was ___ because ___.’",
+        support:"Tip: Use one date and one clear effect in your explanation."
+      }
     }
   ];
 }
@@ -8680,8 +8725,28 @@ function renderLessonSlide(){
   }
 
   const slide = lessonSlides[lessonSlideIndex] || lessonSlides[0];
-  const bullets = (slide.bullets || []).map(item=>`<li>${item}</li>`).join("");
+  const bullets = (slide.bullets || []).map(item=>`<li>${escapeHtml(item)}</li>`).join("");
   const listTone = slide.tone === "continuity" ? "continuity" : (slide.tone === "exam" ? "exam" : "change");
+  const interactive = slide.interactive || null;
+  const quickState = lessonSlideInteractions[lessonSlideIndex] || null;
+
+  const quickCheckHtml = interactive?.check ? `
+    <div class="lessonQuickCheck" data-quick-check="${lessonSlideIndex}">
+      <div class="lessonQuickCheckQ">${escapeHtml(interactive.check.question)}</div>
+      <div class="lessonQuickCheckChoices">
+        ${interactive.check.choices.map((choice, idx)=>{
+          const stateClass = quickState && quickState.selectedIndex === idx
+            ? (quickState.correct ? "isCorrect" : "isWrong")
+            : "";
+          return `<button type="button" class="lessonQuickCheckBtn ${stateClass}" data-quick-choice="${idx}">${escapeHtml(choice)}</button>`;
+        }).join("")}
+      </div>
+      <div class="lessonQuickCheckFeedback">${quickState ? escapeHtml(quickState.feedback || "") : "Choose one answer."}</div>
+    </div>
+  ` : "";
+
+  const supportHtml = interactive?.support ? `<p class="lessonSupportText">${escapeHtml(interactive.support)}</p>` : "";
+  const promptHtml = interactive?.prompt ? `<p class="lessonSlideInteractivePrompt">${escapeHtml(interactive.prompt)}</p>` : "";
 
   structured.innerHTML = `
     <div class="lessonSlideShell">
@@ -8697,12 +8762,38 @@ function renderLessonSlide(){
         </div>
       </div>
       <div class="lessonSlideBody">
-        <h3 class="lessonSlideHeading">${slide.heading || "Section"}</h3>
-        ${slide.lead ? `<p class="lessonSlideLead">${slide.lead}</p>` : ""}
+        <h3 class="lessonSlideHeading">${escapeHtml(slide.heading || "Section")}</h3>
+        ${slide.lead ? `<p class="lessonSlideLead">${escapeHtml(slide.lead)}</p>` : ""}
         ${bullets ? `<ul class="lessonSlideList" data-tone="${listTone}">${bullets}</ul>` : ""}
+        ${interactive ? `
+          <div class="lessonSlideInteractive">
+            <div class="lessonSlideInteractiveTitle">${escapeHtml(interactive.title || "Try this")}</div>
+            ${promptHtml}
+            ${quickCheckHtml}
+            ${supportHtml}
+          </div>
+        ` : ""}
       </div>
     </div>
   `;
+
+  structured.querySelectorAll("[data-quick-check]").forEach(checkEl=>{
+    const checkIndex = Number(checkEl.dataset.quickCheck);
+    const checkConfig = lessonSlides[checkIndex]?.interactive?.check;
+    if(!checkConfig) return;
+    checkEl.querySelectorAll("[data-quick-choice]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const picked = Number(btn.dataset.quickChoice);
+        const correct = picked === checkConfig.answerIndex;
+        lessonSlideInteractions[checkIndex] = {
+          selectedIndex:picked,
+          correct,
+          feedback:correct ? checkConfig.success : checkConfig.retry
+        };
+        renderLessonSlide();
+      });
+    });
+  });
 
   dots.innerHTML = lessonSlides.map((_, idx)=>`<button type="button" class="lessonSlideDot ${idx===lessonSlideIndex ? "isActive" : ""}" data-slide-index="${idx}" aria-label="Open slide ${idx+1}"></button>`).join("");
   dots.querySelectorAll("[data-slide-index]").forEach(btn=>{
@@ -8722,6 +8813,7 @@ function renderLessonSlide(){
 function renderLessonBriefing(lesson){
   lessonSlides = buildLessonSlides(lesson);
   lessonSlideIndex = 0;
+  lessonSlideInteractions = {};
   renderLessonSlide();
 }
 
