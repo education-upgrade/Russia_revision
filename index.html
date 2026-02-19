@@ -2820,8 +2820,10 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .slideHeading{ margin:0 0 8px; font-size:18px; font-weight:900; }
 #lessonsRoot .quickCheckOptions{ display:grid; gap:8px; margin-top:8px; }
 #lessonsRoot .quickCheckFeedback{ margin-top:8px; font-weight:700; }
-#lessonsRoot .playerFooter{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px; }
-#lessonsRoot .slideDots{ display:flex; gap:6px; align-items:center; }
+#lessonsRoot .playerFooter{ display:flex; align-items:center; gap:8px; margin-top:12px; }
+#lessonsRoot .playerFooter .btn{ flex:0 0 auto; }
+#lessonsRoot .slideDots{ display:flex; gap:6px; align-items:center; flex:1 1 auto; min-width:0; overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none; }
+#lessonsRoot .slideDots::-webkit-scrollbar{ display:none; }
 #lessonsRoot .slideDot{ width:8px; height:8px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.9); }
 #lessonsRoot .slideDot.active{ background:var(--accent); border-color:var(--accent); }
 
