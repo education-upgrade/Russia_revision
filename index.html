@@ -773,76 +773,54 @@
     .lessonListCard{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;padding:12px;background:rgba(248,252,255,.92);display:grid;gap:8px;box-shadow:0 3px 10px rgba(20,50,90,.08)}
     .lessonListCard .btn{width:100%}
     .lessonOutcome{font-size:13px;line-height:1.4;color:var(--text);padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.88);border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%)}
-    .lessonBriefingTitle{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px}
-    .lessonSlideShell{margin-top:12px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:16px;padding:12px;background:linear-gradient(175deg, rgba(250,252,255,.95), rgba(232,241,251,.82))}
-    .lessonSlideMeta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
-    .lessonSlideCounter{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.3px;text-transform:uppercase}
-    .lessonSlideTag{font-size:12px;font-weight:900;padding:5px 10px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 65%, var(--accent2) 35%);background:rgba(255,255,255,.84)}
-    .lessonSlideVisual{margin-top:10px;border:1px solid color-mix(in srgb, var(--line) 65%, var(--accent2) 35%);border-radius:14px;overflow:hidden;position:relative;min-height:148px;background:#edf3fb}
-    .lessonSlideVisual img{display:block;width:100%;height:158px;object-fit:cover;filter:saturate(.87) brightness(1.02)}
-    .lessonSlideOverlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(12,24,40,.2), rgba(12,24,40,.58));display:flex;flex-direction:column;justify-content:flex-end;padding:12px;color:#fff}
-    .lessonSlideOverlayTitle{font-size:15px;font-weight:900;line-height:1.25}
-    .lessonSlideOverlaySub{font-size:12px;line-height:1.35;opacity:.93;margin-top:3px}
-    .lessonSlideBody{margin-top:12px}
-    .lessonSlideHeading{margin:0;font-size:18px;line-height:1.25;font-weight:900;color:var(--textStrong)}
-    .lessonSlideLead{margin:8px 0 0;font-size:14px;line-height:1.5;color:var(--text)}
-    .lessonSlideList{margin:10px 0 0;padding:0;list-style:none;display:grid;gap:8px}
-    .lessonSlideList li{display:flex;gap:8px;align-items:flex-start;font-size:13px;line-height:1.45}
-    .lessonSlideList li::before{content:"";width:8px;height:8px;border-radius:999px;margin-top:6px;flex:0 0 auto;background:var(--accent)}
-    .lessonSlideList[data-tone="continuity"] li::before{background:#97a8c5}
-    .lessonSlideList[data-tone="exam"] li::before{background:#6484b6}
-    .lessonSlideInteractive{margin-top:12px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:14px;padding:10px;background:rgba(255,255,255,.78)}
-    .lessonSlideInteractiveTitle{font-size:13px;font-weight:900;color:var(--textStrong)}
-    .lessonSlideInteractivePrompt{margin:6px 0 0;font-size:13px;line-height:1.45;color:var(--text)}
-    .lessonQuickCheck{margin-top:10px;padding:8px;border-radius:12px;background:rgba(237,244,252,.72);border:1px solid color-mix(in srgb, var(--line) 58%, var(--accent2) 42%)}
-    .lessonQuickCheckQ{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:7px}
-    .lessonQuickCheckChoices{display:grid;gap:6px}
-    .lessonQuickCheckBtn{width:100%;text-align:left;border:1px solid color-mix(in srgb, var(--line) 64%, var(--accent2) 36%);background:#fff;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:700;color:var(--text);cursor:pointer}
-    .lessonQuickCheckBtn.isCorrect{border-color:rgba(76,144,125,.65);background:rgba(126,185,170,.2)}
-    .lessonQuickCheckBtn.isWrong{border-color:rgba(168,115,141,.6);background:rgba(183,142,161,.18)}
-    .lessonQuickCheckFeedback{font-size:12px;line-height:1.4;color:var(--muted);margin-top:7px;min-height:17px}
-    .lessonSupportRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .lessonSupportText{margin:8px 0 0;padding:8px;border-radius:10px;background:rgba(237,244,252,.75);font-size:12px;line-height:1.45;color:var(--text)}
-    .lessonSlideControls{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:12px}
-    .lessonSlideDots{display:flex;gap:6px;align-items:center}
-    .lessonSlideDot{width:8px;height:8px;border-radius:999px;background:color-mix(in srgb, var(--line) 60%, #d6e1ef 40%);border:0;padding:0}
-    .lessonSlideDot.isActive{width:20px;border-radius:999px;background:var(--accent)}
-    .lessonSlideBtn{min-width:86px}
-    .lessonFocusBand{
-      margin-top:12px;
-      border:1px solid color-mix(in srgb, var(--line) 74%, var(--accent2) 26%);
-      border-radius:14px;
-      padding:10px 12px;
-      background:linear-gradient(135deg, rgba(250,252,255,.85), rgba(230,239,250,.72));
+        .lessonPlayerWrap{margin-top:12px}
+    .lessonCard{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:var(--card);
+      box-shadow:var(--shadow);
+      padding:16px;
+      display:grid;
+      gap:14px;
     }
-    .lessonFocusLabel{font-size:11px;text-transform:uppercase;letter-spacing:.8px;font-weight:900;color:var(--muted)}
-    .lessonFocusText{margin-top:4px;font-size:14px;font-weight:700;line-height:1.4;color:var(--textStrong)}
-    .lessonChunkGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
-    .lessonChunkCard{border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(255,255,255,.72)}
-    .lessonChunkCard h4{margin:0;font-size:13px;font-weight:900;letter-spacing:.2px;color:var(--textStrong)}
-    .lessonPointList{margin:8px 0 0;padding:0;list-style:none;display:grid;gap:7px}
-    .lessonPointList li{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.45;color:var(--text)}
-    .lessonPointList li::before{content:"";width:8px;height:8px;border-radius:999px;margin-top:6px;flex:0 0 auto;background:var(--accent)}
-    .lessonPointList.isContinuity li::before{background:#97a8c5}
-    .lessonExamTip{
-      margin-top:12px;
-      border-left:4px solid color-mix(in srgb, var(--accent) 72%, #6f8fbd 28%);
-      background:rgba(243,248,255,.84);
-      border-radius:12px;
-      padding:10px 12px;
-      font-size:13px;
-      line-height:1.45;
-      color:var(--textStrong);
-    }
-    .lessonBriefingFallback{margin-top:10px;white-space:pre-line;font-size:13px;line-height:1.5}
+    .lessonCardTop{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+    .lessonCardTitle{font-size:clamp(30px,5.4vw,38px);line-height:1.03;font-weight:950;color:var(--textStrong);margin:0}
+    .lessonMetaSticky{position:sticky;top:0;z-index:2;background:color-mix(in srgb,var(--card) 94%, #fff 6%);border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+    .lessonSlideCounter{font-size:12px;font-weight:900;color:var(--muted);letter-spacing:.9px;text-transform:uppercase}
+    .lessonPillRow{display:flex;align-items:center;gap:8px}
+    .lessonPillBtn{border:1px solid var(--line);border-radius:999px;background:#fff;padding:6px 12px;font-size:12px;font-weight:900;color:var(--textStrong)}
+    .lessonPillBtn.isActive{background:var(--accent3)}
+    .lessonHero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:18px;min-height:182px;background:var(--accent3)}
+    .lessonHero img{width:100%;height:210px;object-fit:cover;display:block;filter:saturate(.85) brightness(.9)}
+    .lessonHeroOverlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(8,16,26,.12), rgba(8,16,26,.76));display:flex;flex-direction:column;justify-content:flex-end;padding:14px;color:#fff}
+    .lessonHeroTitle{font-size:clamp(20px,5vw,42px);font-weight:900;line-height:1.08;max-width:90%}
+    .lessonHeroSub{margin-top:4px;font-size:14px;opacity:.94}
+    .lessonBody{display:grid;gap:12px;padding-bottom:96px}
+    .lessonSectionHeading{font-size:clamp(26px,4.5vw,34px);line-height:1.06;font-weight:950;color:var(--textStrong);margin:0}
+    .lessonBodyText{font-size:16px;line-height:1.55;color:var(--text);margin:0;max-width:58ch}
+    .lessonBulletList{margin:0;padding-left:20px;display:grid;gap:8px;font-size:16px;line-height:1.5}
+    .insetTaskCard{border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.9);padding:14px;display:grid;gap:8px}
+    .insetTaskTitle{margin:0;font-size:20px;font-weight:900;color:var(--textStrong)}
+    .hintStrip{background:var(--accent4);border-radius:12px;padding:9px 10px;font-size:13px;line-height:1.4;color:var(--textStrong)}
+    .choicePills{display:grid;gap:9px}
+    .choicePill{width:100%;text-align:left;border:1px solid var(--line);border-radius:999px;background:#fff;padding:12px 14px;font-size:15px;line-height:1.35;font-weight:700;color:var(--text)}
+    .choicePill.isSelected{border-color:var(--accent);background:color-mix(in srgb,var(--accent2) 32%, #fff 68%)}
+    .lessonCounter{font-size:13px;color:var(--muted);font-weight:800}
+    .lessonFeedback{font-size:14px;line-height:1.45;color:var(--textStrong)}
+    .lessonFeedback.isBad{color:#7b2c2c}
+    .lessonOutputBox{border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.8);padding:12px;font-size:15px;line-height:1.5}
+    .lessonBottomNav{position:sticky;bottom:0;z-index:3;padding:10px calc(8px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left));border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--card) 96%, #fff 4%);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;box-shadow:var(--shadow)}
+    .lessonBottomNav .btn{min-height:50px;border-radius:14px;font-size:15px;font-weight:900}
+    .lessonBottomNav .btn:last-child{justify-self:end}
+    .lessonSlideDots{display:flex;gap:8px;justify-content:center}
+    .lessonSlideDot{width:10px;height:10px;border-radius:50%;background:color-mix(in srgb,var(--line) 75%, #fff 25%)}
+    .lessonSlideDot.isActive{width:24px;border-radius:999px;background:var(--accent)}
+    .visuallyHidden{position:absolute;left:-9999px}
     @media(max-width:720px){
-      .lessonHeaderCard{padding:12px}
-      .lessonHeaderTopTitle{font-size:14px;gap:6px}
-      .lessonHeaderTopTitle svg{width:18px;height:18px}
-      .lessonTitleMain{font-size:12px;line-height:1.35}
-      .lessonChunkGrid{grid-template-columns:1fr}
-      .lessonSlideShell{padding:10px}
-      .lessonSlideVisual img{height:146px}
+      .lessonCard{padding:12px}
+      .lessonHero img{height:188px}
+      .lessonSectionHeading{font-size:31px}
+      .lessonCardTop{align-items:center}
     }
 
     /* =========================
@@ -12674,25 +12652,168 @@ function renderThemeView(topicId,themeId){
 }
 
 function scoreSelections(selected, mode, bank){ return selected.reduce((sum,id)=> sum + (bank.find(s=>s.id===id)?.[mode+"Weight"] || 0),0); }
-function renderLessonPlayer(lessonId){ const lesson=LESSONS_V2.find(l=>l.id===lessonId); if(!lesson) return; const sections=generateLessonSections(lesson); lessonsNavState={...lessonsNavState,view:"player",lessonId,idx:0,sfScore:0,sfTotal:0,masteryScore:0,judgementScore:0,done:{},sections}; drawLessonSection(); }
+function LessonCard(inner){ return `<div class='lessonPlayerWrap'><div class='lessonCard'>${inner}</div></div>`; }
+function LessonHero(lesson){
+  const src=lesson.heroImage||"section-bg.jpg";
+  return `<div class='lessonHero'><img src='${src}' alt='Lesson hero image'><div class='lessonHeroOverlay'><div class='lessonHeroTitle'>${lesson.timeframe} | ${lesson.themeTitle}: ${lesson.contentPack.keyQuestion}</div><div class='lessonHeroSub'>${lesson.timeframe} • ${lesson.themeTitle}</div></div></div>`;
+}
+function LessonSectionHeading(text){ return `<h2 class='lessonSectionHeading'>${text}</h2>`; }
+function InsetTaskCard(title, instruction, hint){ return `<section class='insetTaskCard'><h3 class='insetTaskTitle'>${title}</h3><p class='lessonBodyText'>${instruction}</p>${hint?`<div class='hintStrip'>${hint}</div>`:""}</section>`; }
+function ChoicePills(items, cls){ return `<div class='choicePills'>${items.map(item=>`<button class='choicePill ${cls||""}' data-id='${item.id}'>${item.text}</button>`).join("")}</div>`; }
+function BottomNav(canPrev, canNext, active){ return `<div class='lessonBottomNav'><button class='btn lessonSlideBtn' id='lessonSlidePrevBtn' ${canPrev?"":"disabled"}>Previous</button><div class='lessonSlideDots'>${[1,2,3,4].map(i=>`<span class='lessonSlideDot ${i===active?"isActive":""}'></span>`).join("")}</div><button class='btn primary lessonSlideBtn' id='lessonSlideNextBtn' ${canNext?"":"disabled"}>Next</button></div>`; }
 
-function drawLessonSection(){ const st=lessonsNavState, sec=st.sections[st.idx], root=$("lessonsRoot"); if(!sec) return renderThemeView(LESSONS_V2.find(l=>l.id===st.lessonId).topicId, LESSONS_V2.find(l=>l.id===st.lessonId).themeId); const prog=Math.round(((st.idx+1)/st.sections.length)*100); let html=`<div class='card'><button class='btn' id='lpBack'>← Theme</button><div class='note'>Progress ${prog}%</div><div class='lessonProgressTrack'><div class='lessonProgressFill' style='width:${prog}%'></div></div></div>`;
-  if(sec.type==="briefing") html+=`<div class='card'><div style='font-weight:900'>${sec.phase==="SF"?"Strong Foundations":sec.phase==="A"?"Ambition":"Section"}</div><p>${sec.text}</p><button class='btn primary' id='nextSec'>Continue</button></div>`;
-  if(sec.type==="select"||sec.type==="rank") html+=`<div class='card'><div style='font-weight:900'>${sec.prompt}</div><div id='opts'>${(sec.statementBank||sec.options.map((t,i)=>({id:String(i),text:t}))).map(o=>`<button class='btn opt' data-id='${o.id}' style='width:100%;text-align:left;margin-top:8px'>${o.text}</button>`).join("")}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='note' id='selFb'></div></div>`;
-  if(sec.type==="interpretation") html+=`<div class='card'><div style='font-weight:900'>Interpretation duel</div><div class='note'>A: ${sec.a}</div><div class='note'>B: ${sec.b}</div><button class='btn primary' id='nextSec'>Continue</button></div>`;
-  if(sec.type==="judgement") html+=`<div class='card'><div style='font-weight:900'>Judgement Builder</div>${Object.entries(sec.options).map(([k,v])=>`<button class='btn jopt' data-k='${k}' style='width:100%;text-align:left;margin-top:7px'>${k}. ${v}</button>`).join("")}<div id='eviWrap' class='hidden' style='margin-top:10px'></div><button class='btn primary hidden' id='judgeDone'>Submit judgement</button><div class='note' id='judgeFb'></div></div>`;
-  if(sec.type==="feedback"){ const total=st.masteryScore+st.judgementScore; const pct=Math.max(0,Math.round((total/34)*100)); const band=pct>=85?"Level 5 Evaluator":pct>=65?"Level 4 Evaluator":pct>=45?"Developing Evaluation":"Surface Engagement"; const weak=[]; if(st.neutral>2) weak.push("too many neutral selections"); if(st.contra>1) weak.push("contradictions while strengthening"); if(st.structMiss) weak.push("missing structural/executive/coercion evidence"); if(st.contextOver) weak.push("over-reliance on contextual atmosphere"); html+=`<div class='card'><div style='font-weight:900'>Lesson feedback</div><div class='note'>Score: ${pct}% (${band})</div><div class='note'>Diagnostics: ${(weak.join('; ')||'Balanced evidence use')}.</div><div class='note'>Next step: revisit Strong Foundations card 1.</div><button class='btn primary' id='finishLesson'>Finish lesson</button></div>`; lessonProgressV2[st.lessonId]={completion:true,lastAttemptDate:new Date().toISOString(),lastScorePct:pct,bestScorePct:Math.max(pct,getLessonProgressV2(st.lessonId).bestScorePct||0),weakSignals:weak}; saveLessonProgressV2(); }
-  root.innerHTML=html; $("lpBack").onclick=()=>{ const l=LESSONS_V2.find(x=>x.id===st.lessonId); renderThemeView(l.topicId,l.themeId); };
-  if($("nextSec")) $("nextSec").onclick=()=>{ lessonsNavState.idx++; drawLessonSection(); };
-  if($("opts")){
-    const selected=new Set(); root.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{ const id=b.dataset.id; if(selected.has(id)){selected.delete(id); b.style.borderColor='';} else { if(sec.limit && selected.size>=sec.limit) return; selected.add(id); b.style.borderColor='var(--accent)'; } $("checkSel").disabled=selected.size!==(sec.limit||sec.correctIds.length); });
-    $("checkSel").onclick=()=>{ let gained=0; if(sec.phase==="SF"){ const correct=[...selected].filter(x=>sec.correctIds.includes(Number(x))).length; lessonsNavState.sfScore+=correct; lessonsNavState.sfTotal+=sec.correctIds.length; $("selFb").textContent=`Readiness check logged (${correct}/${sec.correctIds.length}).`; }
-      else if(sec.phase==="M"){ gained=scoreSelections([...selected],sec.mode,sec.statementBank); lessonsNavState.masteryScore+=Math.max(0,gained); lessonsNavState.neutral=(lessonsNavState.neutral||0)+[...selected].filter(id=>(sec.statementBank.find(s=>s.id===id)?.[sec.mode+"Weight"]||0)===0).length; lessonsNavState.contra=(lessonsNavState.contra||0)+[...selected].filter(id=>(sec.statementBank.find(s=>s.id===id)?.[sec.mode+"Weight"]||0)<0).length; lessonsNavState.structMiss=(lessonsNavState.structMiss||false) || ![...selected].some(id=>["executive_power","coercion"].some(t=>(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes(t))); lessonsNavState.contextOver=(lessonsNavState.contextOver||false) || [...selected].every(id=>(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("context")|| (sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("neutral")); $("selFb").textContent=`Task score: ${Math.max(0,gained)}.`; }
-      else { const correct=[...selected].filter(x=>sec.correctIds.includes(Number(x))).length; $("selFb").textContent=`Good weighting: ${correct} strong choices.`; }
-      setTimeout(()=>{lessonsNavState.idx++; drawLessonSection();},500);
+function renderLessonPlayer(lessonId){
+  const lesson=LESSONS_V2.find(l=>l.id===lessonId);
+  if(!lesson) return;
+  const sections=generateLessonSections(lesson);
+  lessonsNavState={...lessonsNavState,view:"player",lessonId,idx:0,sfScore:0,sfTotal:0,masteryScore:0,judgementScore:0,done:{},sections,examPlus:false,slideGate:{}};
+  drawLessonSection();
+}
+
+function lessonSlideFromSection(sec){
+  if(!sec) return 1;
+  if(sec.phase==="SF") return 1;
+  if(sec.phase==="A") return 2;
+  if(sec.phase==="M") return 3;
+  return 4;
+}
+
+function drawLessonSection(){
+  const st=lessonsNavState;
+  const sec=st.sections[st.idx];
+  const root=$("lessonsRoot");
+  if(!sec) return renderThemeView(LESSONS_V2.find(l=>l.id===st.lessonId).topicId, LESSONS_V2.find(l=>l.id===st.lessonId).themeId);
+  const lesson=LESSONS_V2.find(l=>l.id===st.lessonId);
+  const slide=lessonSlideFromSection(sec);
+  const simple=!st.examPlus;
+  const canPrev=st.idx>0;
+  const canNext=!!st.slideGate[st.idx] || sec.type==="briefing" || sec.type==="interpretation";
+  let body="";
+
+  if(slide===1){
+    const opts=(sec.statementBank||sec.options?.map((t,i)=>({id:String(i),text:t}))||[]);
+    body+=LessonSectionHeading("Big picture idea");
+    body+=`<p class='lessonBodyText'>${lesson.contentPack.conceptLine}</p>`;
+    body+=InsetTaskCard("Frame the historical problem","Pick the tension sentence that best captures reform and continuity in political authority.",simple?"A-level move: frame it as tension between reform method and autocratic purpose.":"A-level move: define the mechanism of reform, then test whether executive power actually shifted.");
+    if(opts.length){
+      body+=`<div><div class='lessonCounter'>Choose 1 statement</div><div id='opts'>${ChoicePills(opts.map(o=>({id:o.id,text:o.text}),'opt'))}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='lessonFeedback' id='selFb'></div></div>`;
+    } else {
+      body+=`<button class='btn primary' id='nextSec'>Continue</button>`;
+    }
+  }
+
+  if(slide===2){
+    body+=LessonSectionHeading("Micro-briefing");
+    body+=`<ul class='lessonBulletList'>${lesson.contentPack.knowledge.slice(0,5).map(item=>`<li>${item}</li>`).join("")}</ul>`;
+    if(sec.type==="select"||sec.type==="rank"){
+      const opts=(sec.statementBank||sec.options.map((t,i)=>({id:String(i),text:t})));
+      body+=InsetTaskCard("Check understanding","Pick the best answer(s) before moving on.",simple?"Use one concrete phrase from the briefing in your reason.":"Add one precise contextual marker (year, policy, institution) in your reason.");
+      body+=`<div><p class='lessonBodyText'>${sec.prompt}</p><div id='opts'>${ChoicePills(opts,'opt')}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='lessonFeedback' id='selFb'></div></div>`;
+    } else {
+      body+=`<button class='btn primary' id='nextSec'>Continue</button>`;
+    }
+  }
+
+  if(slide===3){
+    body+=LessonSectionHeading("Exam skill build");
+    if(sec.type==="interpretation") body+=`<p class='lessonBodyText'>${sec.text}</p><div class='hintStrip'>Choose evidence that directly builds or weakens the claim.</div><button class='btn primary' id='nextSec'>Continue</button>`;
+    if(sec.type==="select"){
+      const opts=sec.statementBank||[];
+      body+=`<p class='lessonBodyText'>${sec.prompt}</p><div class='lessonCounter' id='selCount'>Selected: 0/${sec.limit||sec.correctIds.length}</div><div id='opts'>${ChoicePills(opts,'opt')}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Build & score</button><div class='lessonFeedback' id='selFb'></div>`;
+    }
+  }
+
+  if(slide===4){
+    if(sec.type==="judgement"){
+      body+=LessonSectionHeading("Exam-ready output");
+      body+=`<p class='lessonBodyText'>Choose a judgement, then pick evidence to build your answer.</p><div id='opts'>${ChoicePills(Object.entries(sec.options).map(([k,v])=>({id:k,text:`${k}. ${v}`}),'jopt'))}</div><div id='eviWrap' class='hidden'></div><button class='btn primary hidden' id='judgeDone' style='margin-top:10px'>Build answer</button><div class='lessonFeedback' id='judgeFb'></div>`;
+    }
+    if(sec.type==="feedback"){
+      const total=st.masteryScore+st.judgementScore;
+      const pct=Math.max(0,Math.round((total/34)*100));
+      const weak=[];
+      if(st.neutral>2) weak.push("Too many neutral selections.");
+      if(st.contra>1) weak.push("A few selected statements contradicted your argument.");
+      if(st.structMiss) weak.push("Add explicit executive/coercion evidence.");
+      if(st.contextOver) weak.push("Balance context with institutional evidence.");
+      body+=LessonSectionHeading("Your answer build");
+      body+=`<div class='lessonOutputBox'>${Object.values(lesson.contentPack.judgementOptions).join(" ")}</div><div class='lessonBodyText'><strong>Score:</strong> ${pct}/100</div><ul class='lessonBulletList'><li>What you did well: you completed every stage of argument build.</li><li>What you did well: you engaged interpretation and evidence selection.</li></ul><div class='hintStrip'>Upgrade target: ${weak[0]||"Push precision with one named institution or policy."} ${simple?"": "Add precise evidence: use one dated policy example in your opening line."}</div><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px'><button class='btn' id='retrySlide'>Retry this slide</button><button class='btn primary' id='finishLesson'>Mark as complete</button></div>`;
+      lessonProgressV2[st.lessonId]={completion:true,lastAttemptDate:new Date().toISOString(),lastScorePct:pct,bestScorePct:Math.max(pct,getLessonProgressV2(st.lessonId).bestScorePct||0),weakSignals:weak};
+      saveLessonProgressV2();
+    }
+  }
+
+  const header=`<div class='lessonCardTop'><h1 class='lessonCardTitle'>Lesson briefing</h1><button class='btn' id='lpBack'>← Theme</button></div><div class='lessonMetaSticky'><div class='lessonSlideCounter'>SLIDE ${slide} OF 4</div><div class='lessonPillRow'><button class='lessonPillBtn'>Overview</button><button class='lessonPillBtn ${simple?"isActive":""}' id='simpleModeBtn'>Simple</button><button class='lessonPillBtn ${!simple?"isActive":""}' id='examModeBtn'>Exam+</button></div></div>`;
+  root.innerHTML=LessonCard(`${header}${LessonHero(lesson)}<div class='lessonBody'>${body}</div>${BottomNav(canPrev,canNext,slide)}`);
+
+  $("lpBack").onclick=()=>renderThemeView(lesson.topicId,lesson.themeId);
+  $("simpleModeBtn").onclick=()=>{ lessonsNavState.examPlus=false; drawLessonSection(); };
+  $("examModeBtn").onclick=()=>{ lessonsNavState.examPlus=true; drawLessonSection(); };
+  $("lessonSlidePrevBtn").onclick=()=>{ if(st.idx>0){ lessonsNavState.idx--; drawLessonSection(); } };
+  $("lessonSlideNextBtn").onclick=()=>{ if(canNext){ lessonsNavState.idx++; drawLessonSection(); } };
+  if($("nextSec")) $("nextSec").onclick=()=>{ lessonsNavState.slideGate[st.idx]=true; lessonsNavState.idx++; drawLessonSection(); };
+
+  if($("opts") && $("checkSel")){
+    const selected=new Set();
+    const limit=sec.limit||sec.correctIds?.length||1;
+    root.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
+      const id=btn.dataset.id;
+      if(selected.has(id)){ selected.delete(id); btn.classList.remove('isSelected'); }
+      else { if(limit && selected.size>=limit) return; selected.add(id); btn.classList.add('isSelected'); }
+      if($("selCount")) $("selCount").textContent=`Selected: ${selected.size}/${limit}`;
+      $("checkSel").disabled=selected.size!==limit;
+    });
+    $("checkSel").onclick=()=>{
+      let gained=0;
+      if(sec.phase==="SF"){
+        const correct=[...selected].filter(x=>sec.correctIds.includes(Number(x))).length;
+        lessonsNavState.sfScore+=correct;
+        lessonsNavState.sfTotal+=sec.correctIds.length;
+        $("selFb").textContent=correct===sec.correctIds.length?"Good pick — this is the core tension sentence.":"Not quite — here’s why: focus on the statement that directly links authority and reform.";
+      } else if(sec.phase==="M"){
+        gained=scoreSelections([...selected],sec.mode,sec.statementBank);
+        lessonsNavState.masteryScore+=Math.max(0,gained);
+        lessonsNavState.neutral=(lessonsNavState.neutral||0)+[...selected].filter(id=>(sec.statementBank.find(s=>s.id===id)?.[sec.mode+"Weight"]||0)===0).length;
+        lessonsNavState.contra=(lessonsNavState.contra||0)+[...selected].filter(id=>(sec.statementBank.find(s=>s.id===id)?.[sec.mode+"Weight"]||0)<0).length;
+        lessonsNavState.structMiss=(lessonsNavState.structMiss||false) || ![...selected].some(id=>["executive_power","coercion"].some(t=>(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes(t)));
+        lessonsNavState.contextOver=(lessonsNavState.contextOver||false) || [...selected].every(id=>(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("context")||(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("neutral"));
+        $("selFb").textContent=`Score added: ${Math.max(0,gained)}. Build the next step.`;
+      } else {
+        const correct=[...selected].filter(x=>sec.correctIds.includes(Number(x))).length;
+        $("selFb").textContent=`Good weighting: ${correct} strong choices.`;
+      }
+      lessonsNavState.slideGate[st.idx]=true;
+      $("lessonSlideNextBtn").disabled=false;
     };
   }
-  if(root.querySelectorAll('.jopt').length){ let chosen=null; root.querySelectorAll('.jopt').forEach(b=>b.onclick=()=>{chosen=b.dataset.k; root.querySelectorAll('.jopt').forEach(x=>x.style.borderColor=''); b.style.borderColor='var(--accent)'; const bank=st.sections.find(s=>s.type==="interpretation").bank; $("eviWrap").classList.remove('hidden'); $("eviWrap").innerHTML=bank.slice(0,6).map(s=>`<button class='btn evi' data-id='${s.id}' style='width:100%;text-align:left;margin-top:7px'>${s.text}</button>`).join(''); $("judgeDone").classList.remove('hidden'); const ev=new Set(); root.querySelectorAll('.evi').forEach(x=>x.onclick=()=>{const id=x.dataset.id; if(ev.has(id)){ev.delete(id);x.style.borderColor='';} else {if(ev.size>=2)return; ev.add(id);x.style.borderColor='var(--accent)';}}); $("judgeDone").onclick=()=>{ lessonsNavState.judgementScore=(chosen===sec.best?2:0)+(2); lessonsNavState.idx++; drawLessonSection(); }; }); }
+
+  if(root.querySelectorAll('.jopt').length){
+    let chosen=null;
+    root.querySelectorAll('.jopt').forEach(btn=>btn.onclick=()=>{
+      chosen=btn.dataset.id;
+      root.querySelectorAll('.jopt').forEach(x=>x.classList.remove('isSelected'));
+      btn.classList.add('isSelected');
+      const bank=st.sections.find(s=>s.type==="interpretation").bank;
+      $("eviWrap").classList.remove('hidden');
+      $("eviWrap").innerHTML=`<div class='lessonCounter'>Choose 2 supporting statements</div>${ChoicePills(bank.slice(0,6).map(s=>({id:s.id,text:s.text}),'evi'))}`;
+      $("judgeDone").classList.remove('hidden');
+      const ev=new Set();
+      root.querySelectorAll('.evi').forEach(x=>x.onclick=()=>{
+        const id=x.dataset.id;
+        if(ev.has(id)){ev.delete(id);x.classList.remove('isSelected');}
+        else {if(ev.size>=2)return;ev.add(id);x.classList.add('isSelected');}
+      });
+      $("judgeDone").onclick=()=>{
+        lessonsNavState.judgementScore=(chosen===sec.best?2:0)+2;
+        $("judgeFb").textContent="Answer build generated. Move to final feedback.";
+        lessonsNavState.slideGate[st.idx]=true;
+        $("lessonSlideNextBtn").disabled=false;
+      };
+    });
+  }
+
+  if($("retrySlide")) $("retrySlide").onclick=()=>{ lessonsNavState.idx=Math.max(0,st.idx-1); drawLessonSection(); };
+  if($("finishLesson")) $("finishLesson").onclick=()=>{ renderThemeView(lesson.topicId,lesson.themeId); };
 }
 
 function renderLessonLibrary(){ renderLessonsHome(); }
