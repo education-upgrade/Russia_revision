@@ -754,6 +754,24 @@
     .lessonHeaderTopTitle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     .lessonHeaderCard .lessonMeta{font-size:12px;letter-spacing:.2px;text-transform:uppercase;margin-top:2px}
     .lessonTitleMain{font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.2px;line-height:1.35}
+    .lessonHubIntro{display:grid;gap:10px}
+    .lessonSuggestion{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid color-mix(in srgb, var(--line) 66%, var(--accent2) 34%);border-radius:14px;background:rgba(255,255,255,.78)}
+    .lessonSuggestionLabel{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
+    .lessonSuggestionTitle{font-size:15px;font-weight:900;color:var(--textStrong);line-height:1.3;margin-top:3px}
+    .lessonNavGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+    .lessonNavCard{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;padding:12px;background:linear-gradient(170deg, rgba(250,252,255,.95), rgba(232,242,251,.82));display:grid;gap:9px;text-align:left;color:inherit}
+    .lessonNavCard[data-topic]{cursor:pointer}
+    .lessonNavTop{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+    .lessonNavTitle{font-size:15px;font-weight:900;line-height:1.3;color:var(--textStrong)}
+    .lessonNavMeta{font-size:12px;color:var(--muted);line-height:1.4}
+    .lessonStatusPill{display:inline-flex;align-items:center;justify-content:center;min-height:24px;padding:4px 9px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);font-size:11px;font-weight:900;background:rgba(255,255,255,.82);white-space:nowrap}
+    .tone-new{background:rgba(222,231,241,.6)}
+    .tone-track{background:rgba(126,185,170,.22)}
+    .tone-due{background:rgba(183,142,161,.2)}
+    .lessonProgressTrack--soft{height:10px;background:rgba(220,231,243,.56);border:1px solid color-mix(in srgb, var(--line) 52%, var(--accent2) 48%)}
+    .lessonList{display:grid;gap:10px;margin-top:10px}
+    .lessonListCard{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;padding:12px;background:linear-gradient(172deg, rgba(250,252,255,.95), rgba(232,241,251,.78));display:grid;gap:9px}
+    .lessonOutcome{font-size:13px;line-height:1.45;color:var(--text);padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.76);border:1px solid color-mix(in srgb, var(--line) 58%, var(--accent2) 42%)}
     .lessonBriefingTitle{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px}
     .lessonSlideShell{margin-top:12px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:16px;padding:12px;background:linear-gradient(175deg, rgba(250,252,255,.95), rgba(232,241,251,.82))}
     .lessonSlideMeta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
@@ -12508,9 +12526,151 @@ function generateLessonSections(lesson){
   return [...sf,...amb,{type:"interpretation",phase:"M",label:"Interpretation A",text:interpA,bank},{type:"select",phase:"M",mode:"supportA",prompt:"Strengthen Interpretation A (select 3)",limit:3,statementBank:bank},{type:"select",phase:"M",mode:"challengeA",prompt:"Weaken Interpretation A (select 2)",limit:2,statementBank:bank},{type:"interpretation",phase:"M",label:"Interpretation B",text:interpB,bank},{type:"select",phase:"M",mode:"supportB",prompt:"Strengthen Interpretation B (select 3)",limit:3,statementBank:bank},{type:"select",phase:"M",mode:"challengeB",prompt:"Weaken Interpretation B (select 2)",limit:2,statementBank:bank},{type:"judgement",phase:"J",options:lesson.contentPack.judgementOptions,best:lesson.contentPack.judgementBest,evidencePick:{prompt:"Choose the best 2 evidence statements.",limit:2,fromStatementBank:true}},{type:"feedback",phase:"F"}];
 }
 
-function renderLessonsHome(){ const root=$("lessonsRoot"); if(!root) return; lessonsNavState.view="home"; root.innerHTML=`<div class="card"><div class="quizPanelTitleText">Lessons Home</div><div class="note">Exam-aligned lesson pathway.</div></div><div class="topicDash">${lessonsData.topics.map(t=>{const lessons=t.themes.flatMap(x=>x.lessons); const done=lessons.filter(l=>getLessonProgressV2(l.id).completion).length; return `<button class='topicTile' data-topic='${t.id}'><div class='topicTileName'>${t.title}</div><div class='topicTileMeta'>${t.years}</div><div class='topicTileMeta'>${done}/${lessons.length} complete</div></button>`}).join("")}</div>`; root.querySelectorAll("[data-topic]").forEach(b=>b.onclick=()=>renderTopicView(b.dataset.topic)); }
-function renderTopicView(topicId){ const t=lessonsData.topics.find(x=>x.id===topicId); if(!t) return; lessonsNavState={...lessonsNavState,view:"topic",topicId}; const root=$("lessonsRoot"); root.innerHTML=`<div class='card'><button class='btn' id='lhBack'>← Lessons Home</button><div class='divider'></div><div style='font-weight:900'>${t.title}</div></div>${t.themes.map(th=>`<div class='card'><div style='font-weight:900'>${th.icon} ${th.title}</div><div class='note'>${th.lessons.length} lessons</div><button class='btn primary' data-theme='${th.id}'>Open Theme</button></div>`).join("")}`; $("lhBack").onclick=renderLessonsHome; root.querySelectorAll("[data-theme]").forEach(b=>b.onclick=()=>renderThemeView(topicId,b.dataset.theme)); }
-function renderThemeView(topicId,themeId){ const t=lessonsData.topics.find(x=>x.id===topicId); const th=t?.themes.find(x=>x.id===themeId); if(!th) return; lessonsNavState={...lessonsNavState,view:"theme",topicId,themeId}; const root=$("lessonsRoot"); root.innerHTML=`<div class='card'><button class='btn' id='tvBack'>← Topic</button><div class='divider'></div><div style='font-weight:900'>${th.title}</div></div>${th.lessons.map(l=>{const p=getLessonProgressV2(l.id); const due=lessonDue(p); const status=!p.completion?"Start":due?"Review":"Continue"; return `<div class='card'><div style='font-weight:800'>${l.title}</div><div class='note'>${l.timeframe} • ${l.examSkillFocus}</div><div class='note'>Last score: ${p.lastScorePct||0}% ${due?"• Due":""}</div><button class='btn primary' data-lesson='${l.id}'>${status}</button></div>`}).join("")}`; $("tvBack").onclick=()=>renderTopicView(topicId); root.querySelectorAll("[data-lesson]").forEach(b=>b.onclick=()=>renderLessonPlayer(b.dataset.lesson)); }
+function getLessonStatusMeta(progress){
+  if(!progress.completion) return {label:"New", action:"Start lesson", tone:"new"};
+  if(lessonDue(progress)) return {label:"Review due", action:"Review lesson", tone:"due"};
+  return {label:"On track", action:"Continue", tone:"track"};
+}
+
+function getTopicProgress(topic){
+  const lessons = topic.themes.flatMap(theme=>theme.lessons);
+  const completed = lessons.filter(lesson=>getLessonProgressV2(lesson.id).completion).length;
+  return {
+    completed,
+    total: lessons.length,
+    pct: lessons.length ? Math.round((completed/lessons.length)*100) : 0
+  };
+}
+
+function getSuggestedLesson(){
+  const allLessons = LESSONS_V2.map(lesson=>({ lesson, progress:getLessonProgressV2(lesson.id) }));
+  const dueLesson = allLessons.find(entry=>entry.progress.completion && lessonDue(entry.progress));
+  if(dueLesson) return { ...dueLesson.lesson, cue:"Review priority" };
+  const newLesson = allLessons.find(entry=>!entry.progress.completion);
+  if(newLesson) return { ...newLesson.lesson, cue:"Best next step" };
+  return null;
+}
+
+function renderLessonsHome(){
+  const root=$("lessonsRoot");
+  if(!root) return;
+  lessonsNavState.view="home";
+
+  const topicCards = lessonsData.topics.map(topic=>{
+    const progress = getTopicProgress(topic);
+    return `
+      <button class='lessonNavCard' data-topic='${topic.id}'>
+        <div class='lessonNavTop'>
+          <div>
+            <div class='lessonNavTitle'>${topic.title}</div>
+            <div class='lessonNavMeta'>${topic.years}</div>
+          </div>
+          <div class='lessonStatusPill'>${progress.completed}/${progress.total}</div>
+        </div>
+        <div class='lessonProgressTrack lessonProgressTrack--soft'>
+          <div class='lessonProgressFill' style='width:${progress.pct}%'></div>
+        </div>
+        <div class='lessonNavMeta'>${progress.pct}% complete • ${topic.themes.length} themes</div>
+      </button>`;
+  }).join("");
+
+  const suggested = getSuggestedLesson();
+  const suggestedHtml = suggested ? `
+    <div class='lessonSuggestion'>
+      <div>
+        <div class='lessonSuggestionLabel'>${suggested.cue}</div>
+        <div class='lessonSuggestionTitle'>${suggested.title}</div>
+        <div class='lessonNavMeta'>${suggested.topicTitle} • ${suggested.timeframe}</div>
+      </div>
+      <button class='btn primary' data-quick-lesson='${suggested.id}'>Open</button>
+    </div>` : "";
+
+  root.innerHTML=`
+    <div class='card lessonHubIntro'>
+      <div class='quizPanelTitleText'>Lessons Hub</div>
+      <div class='note'>Short, structured pathways with retrieval, judgement, and feedback in each lesson.</div>
+      ${suggestedHtml}
+    </div>
+    <div class='lessonNavGrid'>${topicCards}</div>`;
+
+  root.querySelectorAll("[data-topic]").forEach(button=>button.onclick=()=>renderTopicView(button.dataset.topic));
+  if(root.querySelector("[data-quick-lesson]")) root.querySelector("[data-quick-lesson]").onclick=(e)=>renderLessonPlayer(e.currentTarget.dataset.quickLesson);
+}
+
+function renderTopicView(topicId){
+  const topic=lessonsData.topics.find(item=>item.id===topicId);
+  if(!topic) return;
+  lessonsNavState={...lessonsNavState,view:"topic",topicId};
+  const root=$("lessonsRoot");
+
+  const progress = getTopicProgress(topic);
+  root.innerHTML=`
+    <div class='card'>
+      <button class='btn' id='lhBack'>← Lessons Home</button>
+      <div class='divider'></div>
+      <div class='lessonNavTitle'>${topic.title}</div>
+      <div class='lessonNavMeta'>${topic.years} • ${progress.completed}/${progress.total} completed</div>
+      <div class='lessonProgressTrack lessonProgressTrack--soft'>
+        <div class='lessonProgressFill' style='width:${progress.pct}%'></div>
+      </div>
+    </div>
+    <div class='lessonNavGrid'>
+      ${topic.themes.map(theme=>{
+        const done = theme.lessons.filter(lesson=>getLessonProgressV2(lesson.id).completion).length;
+        const pct = Math.round((done/theme.lessons.length)*100);
+        return `<div class='lessonNavCard'>
+          <div class='lessonNavTop'>
+            <div class='lessonNavTitle'>${theme.icon} ${theme.title}</div>
+            <div class='lessonStatusPill'>${done}/${theme.lessons.length}</div>
+          </div>
+          <div class='lessonProgressTrack lessonProgressTrack--soft'><div class='lessonProgressFill' style='width:${pct}%'></div></div>
+          <div class='lessonNavMeta'>${pct}% complete</div>
+          <button class='btn primary' data-theme='${theme.id}'>Open theme</button>
+        </div>`;
+      }).join("")}
+    </div>`;
+
+  $("lhBack").onclick=renderLessonsHome;
+  root.querySelectorAll("[data-theme]").forEach(button=>button.onclick=()=>renderThemeView(topicId,button.dataset.theme));
+}
+
+function renderThemeView(topicId,themeId){
+  const topic=lessonsData.topics.find(item=>item.id===topicId);
+  const theme=topic?.themes.find(item=>item.id===themeId);
+  if(!theme) return;
+  lessonsNavState={...lessonsNavState,view:"theme",topicId,themeId};
+  const root=$("lessonsRoot");
+
+  root.innerHTML=`
+    <div class='card'>
+      <button class='btn' id='tvBack'>← Topic</button>
+      <div class='divider'></div>
+      <div class='lessonNavTitle'>${theme.icon} ${theme.title}</div>
+      <div class='lessonNavMeta'>${theme.lessons.length} lessons • ${topic.title}</div>
+    </div>
+    <div class='lessonList'>
+      ${theme.lessons.map(lesson=>{
+        const progress=getLessonProgressV2(lesson.id);
+        const status=getLessonStatusMeta(progress);
+        const score=progress.lastScorePct||0;
+        return `<article class='lessonListCard'>
+          <div class='lessonNavTop'>
+            <div>
+              <div class='lessonNavTitle'>${lesson.title}</div>
+              <div class='lessonNavMeta'>${lesson.timeframe} • ${lesson.examSkillFocus}</div>
+            </div>
+            <span class='lessonStatusPill tone-${status.tone}'>${status.label}</span>
+          </div>
+          <div class='lessonOutcome'>${lesson.enquiryQuestion}</div>
+          <div class='lessonNavMeta'>Last score: ${score}%${lessonDue(progress)?" • revisit this week":""}</div>
+          <button class='btn primary' data-lesson='${lesson.id}'>${status.action}</button>
+        </article>`;
+      }).join("")}
+    </div>`;
+
+  $("tvBack").onclick=()=>renderTopicView(topicId);
+  root.querySelectorAll("[data-lesson]").forEach(button=>button.onclick=()=>renderLessonPlayer(button.dataset.lesson));
+}
 
 function scoreSelections(selected, mode, bank){ return selected.reduce((sum,id)=> sum + (bank.find(s=>s.id===id)?.[mode+"Weight"] || 0),0); }
 function renderLessonPlayer(lessonId){ const lesson=LESSONS_V2.find(l=>l.id===lessonId); if(!lesson) return; const sections=generateLessonSections(lesson); lessonsNavState={...lessonsNavState,view:"player",lessonId,idx:0,sfScore:0,sfTotal:0,masteryScore:0,judgementScore:0,done:{},sections}; drawLessonSection(); }
@@ -12518,7 +12678,7 @@ function renderLessonPlayer(lessonId){ const lesson=LESSONS_V2.find(l=>l.id===le
 function drawLessonSection(){ const st=lessonsNavState, sec=st.sections[st.idx], root=$("lessonsRoot"); if(!sec) return renderThemeView(LESSONS_V2.find(l=>l.id===st.lessonId).topicId, LESSONS_V2.find(l=>l.id===st.lessonId).themeId); const prog=Math.round(((st.idx+1)/st.sections.length)*100); let html=`<div class='card'><button class='btn' id='lpBack'>← Theme</button><div class='note'>Progress ${prog}%</div><div class='lessonProgressTrack'><div class='lessonProgressFill' style='width:${prog}%'></div></div></div>`;
   if(sec.type==="briefing") html+=`<div class='card'><div style='font-weight:900'>${sec.phase==="SF"?"Strong Foundations":sec.phase==="A"?"Ambition":"Section"}</div><p>${sec.text}</p><button class='btn primary' id='nextSec'>Continue</button></div>`;
   if(sec.type==="select"||sec.type==="rank") html+=`<div class='card'><div style='font-weight:900'>${sec.prompt}</div><div id='opts'>${(sec.statementBank||sec.options.map((t,i)=>({id:String(i),text:t}))).map(o=>`<button class='btn opt' data-id='${o.id}' style='width:100%;text-align:left;margin-top:8px'>${o.text}</button>`).join("")}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='note' id='selFb'></div></div>`;
-  if(sec.type==="interpretation") html+=`<div class='card'><div style='font-weight:900'>${sec.label}</div><p>${sec.text}</p><button class='btn primary' id='nextSec'>Continue</button></div>`;
+  if(sec.type==="interpretation") html+=`<div class='card'><div style='font-weight:900'>Interpretation duel</div><div class='note'>A: ${sec.a}</div><div class='note'>B: ${sec.b}</div><button class='btn primary' id='nextSec'>Continue</button></div>`;
   if(sec.type==="judgement") html+=`<div class='card'><div style='font-weight:900'>Judgement Builder</div>${Object.entries(sec.options).map(([k,v])=>`<button class='btn jopt' data-k='${k}' style='width:100%;text-align:left;margin-top:7px'>${k}. ${v}</button>`).join("")}<div id='eviWrap' class='hidden' style='margin-top:10px'></div><button class='btn primary hidden' id='judgeDone'>Submit judgement</button><div class='note' id='judgeFb'></div></div>`;
   if(sec.type==="feedback"){ const total=st.masteryScore+st.judgementScore; const pct=Math.max(0,Math.round((total/34)*100)); const band=pct>=85?"Level 5 Evaluator":pct>=65?"Level 4 Evaluator":pct>=45?"Developing Evaluation":"Surface Engagement"; const weak=[]; if(st.neutral>2) weak.push("too many neutral selections"); if(st.contra>1) weak.push("contradictions while strengthening"); if(st.structMiss) weak.push("missing structural/executive/coercion evidence"); if(st.contextOver) weak.push("over-reliance on contextual atmosphere"); html+=`<div class='card'><div style='font-weight:900'>Lesson feedback</div><div class='note'>Score: ${pct}% (${band})</div><div class='note'>Diagnostics: ${(weak.join('; ')||'Balanced evidence use')}.</div><div class='note'>Next step: revisit Strong Foundations card 1.</div><button class='btn primary' id='finishLesson'>Finish lesson</button></div>`; lessonProgressV2[st.lessonId]={completion:true,lastAttemptDate:new Date().toISOString(),lastScorePct:pct,bestScorePct:Math.max(pct,getLessonProgressV2(st.lessonId).bestScorePct||0),weakSignals:weak}; saveLessonProgressV2(); }
   root.innerHTML=html; $("lpBack").onclick=()=>{ const l=LESSONS_V2.find(x=>x.id===st.lessonId); renderThemeView(l.topicId,l.themeId); };
