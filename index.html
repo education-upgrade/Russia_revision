@@ -12506,6 +12506,37 @@ function getLessonProgressV2(id){ return lessonProgressV2[id] || {completion:fal
 
 function lessonDue(p){ if(!p.lastAttemptDate) return true; const days=(Date.now()-new Date(p.lastAttemptDate).getTime())/86400000; return days>7 || (p.lastScorePct||0)<65; }
 
+function buildBriefingCard(sec){
+  const heading = sec.phase==="SF" ? "Strong Foundations" : sec.phase==="A" ? "Ambition" : "Section";
+  const cards = (sec.cards||[]).map(card=>`<article class='lessonChunkCard'><h4>${card.title}</h4><ul class='lessonPointList'>${(card.points||[]).map(point=>`<li>${point}</li>`).join("")}</ul></article>`).join("");
+  return `<div class='card'>
+    <div style='font-weight:900'>${heading}</div>
+    ${sec.lead ? `<p class='lessonSlideLead'>${sec.lead}</p>` : ""}
+    ${cards ? `<div class='lessonChunkGrid'>${cards}</div>` : `<p class='lessonBriefingFallback'>${sec.text||""}</p>`}
+    ${sec.examTip ? `<div class='lessonExamTip'>📝 ${sec.examTip}</div>` : ""}
+    <button class='btn primary' id='nextSec'>Continue</button>
+  </div>`;
+}
+
+function buildInterpretationCard(sec){
+  return `<div class='card'>
+    <div style='font-weight:900'>${sec.label}</div>
+    <p class='lessonSlideLead'>${sec.text}</p>
+    <div class='lessonChunkGrid'>
+      <article class='lessonChunkCard'>
+        <h4>Evidence that supports this view</h4>
+        <ul class='lessonPointList'>${(sec.support||[]).map(point=>`<li>${point}</li>`).join("")}</ul>
+      </article>
+      <article class='lessonChunkCard'>
+        <h4>Evidence that challenges this view</h4>
+        <ul class='lessonPointList isContinuity'>${(sec.challenge||[]).map(point=>`<li>${point}</li>`).join("")}</ul>
+      </article>
+    </div>
+    ${sec.examTip ? `<div class='lessonExamTip'>🎯 ${sec.examTip}</div>` : ""}
+    <button class='btn primary' id='nextSec'>Continue</button>
+  </div>`;
+}
+
 function generateLessonSections(lesson){
   const bank = lesson.contentPack.knowledge.slice(0,4).map((k,i)=>({id:`s${i+1}`,text:k,supportAWeight:3-i%2,challengeAWeight:i%2?2:-1,supportBWeight:i%2?2:-1,challengeBWeight:3-i%2,tags:["executive_power","coercion","legitimacy","economic_pressure"][i%4]}));
   bank.push({id:"s5",text:"Regional implementation gaps weakened centre-to-local authority.",supportAWeight:0,challengeAWeight:2,supportBWeight:2,challengeBWeight:0,tags:["party_control"]});
@@ -12518,13 +12549,13 @@ function generateLessonSections(lesson){
   bank.push({id:"s12",text:"No institutions mattered because everything was random.",supportAWeight:-1,challengeAWeight:-1,supportBWeight:-1,challengeBWeight:-1,tags:["contradict"]});
 
   const sf = lesson.contentPack.knowledge.slice(0,3).flatMap((k,i)=>[
-    {type:"briefing",phase:"SF",text:`${k} This matters for thematic breadth because it links political authority to social conditions and institutional practice. For Section A evaluation, use this as tested context before judging interpretations. Keep focus on scale, timing, and whether change was structural or superficial.`},
+    {type:"briefing",phase:"SF",lead:`Focus idea ${i+1}: ${k}`,cards:[{title:"Break it down",points:["What changed (or stayed the same)?","Who gained or lost power?","How far was this true across Russia?"]},{title:"Use this in your answer",points:["Write one short factual line as evidence.","Link it to power, control, or legitimacy.","Then state whether this is short-term or structural."]}],examTip:"Aim for clear Point → Evidence → Link rather than long description."},
     {type:"select",phase:"SF",prompt:`Context check ${i+1}: Which statement best captures the key context?`,options:[k,"This factor had no impact on authority.","Only ideology mattered, not institutions."],correctIds:[0]}
   ]);
-  const amb = [{type:"briefing",phase:"A",text:`${lesson.contentPack.ambition[0]} In exam terms, weigh causation by ranking immediate triggers against deep structures. Prioritise evidence that directly engages executive power, coercive capacity, and legitimacy.`},{type:"rank",phase:"A",prompt:"Pick the best two causal priorities.",options:["Structural authority/capacity","Contextual atmosphere","Leadership and elite alignment","Pure chance"] ,correctIds:[0,2]}];
-  const interpA=`${lesson.contentPack.interpretationAThesis} Supporters argue that continuity in executive power, coercive institutions, and administrative control gave the regime real resilience. They note that reforms, where present, were often managed from above and designed to preserve command rather than surrender it. Even when crises appeared severe, authority structures could absorb shock through repression, legal engineering, or selective concession. From an extract-evaluation angle, this interpretation is strongest when evidence shows institutions still functioning, elites still aligned, and social discontent fragmented.`;
-  const interpB=`${lesson.contentPack.interpretationBThesis} This view stresses that visible authority masked accumulating structural weakness. It highlights pressure from war, economic imbalance, social expectations, or policy contradictions that eroded legitimacy over time. Even where coercion delivered short-term order, it could intensify long-run instability by blocking adaptation and widening opposition. For Section A judgement, this interpretation gains force when evidence shows executive overstretch, breakdown in coercive loyalty, or widening gaps between legal form and political reality.`;
-  return [...sf,...amb,{type:"interpretation",phase:"M",label:"Interpretation A",text:interpA,bank},{type:"select",phase:"M",mode:"supportA",prompt:"Strengthen Interpretation A (select 3)",limit:3,statementBank:bank},{type:"select",phase:"M",mode:"challengeA",prompt:"Weaken Interpretation A (select 2)",limit:2,statementBank:bank},{type:"interpretation",phase:"M",label:"Interpretation B",text:interpB,bank},{type:"select",phase:"M",mode:"supportB",prompt:"Strengthen Interpretation B (select 3)",limit:3,statementBank:bank},{type:"select",phase:"M",mode:"challengeB",prompt:"Weaken Interpretation B (select 2)",limit:2,statementBank:bank},{type:"judgement",phase:"J",options:lesson.contentPack.judgementOptions,best:lesson.contentPack.judgementBest,evidencePick:{prompt:"Choose the best 2 evidence statements.",limit:2,fromStatementBank:true}},{type:"feedback",phase:"F"}];
+  const amb = [{type:"briefing",phase:"A",lead:lesson.contentPack.ambition[0],cards:[{title:"Think like an examiner",points:["Prioritise arguments with specific evidence.","Compare immediate triggers with deeper structures.","Decide which factor had the bigger long-term effect."]},{title:"Sentence starter",points:["A stronger explanation is...","This is convincing because...","However, this is limited since..."]}],examTip:"Use comparative language: more significant, less convincing, partially true."},{type:"rank",phase:"A",prompt:"Pick the best two causal priorities.",options:["Structural authority/capacity","Contextual atmosphere","Leadership and elite alignment","Pure chance"] ,correctIds:[0,2]}];
+  const interpA=`${lesson.contentPack.interpretationAThesis} This interpretation sees the regime as resilient: pressure existed, but institutions usually kept control.`;
+  const interpB=`${lesson.contentPack.interpretationBThesis} This interpretation sees apparent strength as fragile: problems accumulated until control looked more superficial than secure.`;
+  return [...sf,...amb,{type:"interpretation",phase:"M",label:"Interpretation A",text:interpA,support:["Coercive and administrative structures still functioned.","Elites often stayed aligned with central authority.","Crises were managed through selective reform or repression."],challenge:["Control could rely on fear rather than legitimacy.","Implementation gaps weakened policy impact regionally.","Social and economic pressures built beneath surface order."],examTip:"When evaluating, quote one precise fact and explain why it supports or limits the interpretation.",bank},{type:"select",phase:"M",mode:"supportA",prompt:"Strengthen Interpretation A (select 3)",limit:3,statementBank:bank},{type:"select",phase:"M",mode:"challengeA",prompt:"Weaken Interpretation A (select 2)",limit:2,statementBank:bank},{type:"interpretation",phase:"M",label:"Interpretation B",text:interpB,support:["War, economic, or social pressures eroded confidence over time.","Reforms sometimes raised expectations faster than delivery.","Short-term coercion could deepen long-term instability."],challenge:["State structures could still absorb many shocks.","Opposition was often fragmented and inconsistent.","Some reforms improved capacity and delayed breakdown."],examTip:"Balance your judgement: what is strongest in this view, and what evidence clearly weakens it?",bank},{type:"select",phase:"M",mode:"supportB",prompt:"Strengthen Interpretation B (select 3)",limit:3,statementBank:bank},{type:"select",phase:"M",mode:"challengeB",prompt:"Weaken Interpretation B (select 2)",limit:2,statementBank:bank},{type:"judgement",phase:"J",options:lesson.contentPack.judgementOptions,best:lesson.contentPack.judgementBest,evidencePick:{prompt:"Choose the best 2 evidence statements.",limit:2,fromStatementBank:true}},{type:"feedback",phase:"F"}];
 }
 
 function getLessonStatusMeta(progress){
@@ -12677,9 +12708,9 @@ function scoreSelections(selected, mode, bank){ return selected.reduce((sum,id)=
 function renderLessonPlayer(lessonId){ const lesson=LESSONS_V2.find(l=>l.id===lessonId); if(!lesson) return; const sections=generateLessonSections(lesson); lessonsNavState={...lessonsNavState,view:"player",lessonId,idx:0,sfScore:0,sfTotal:0,masteryScore:0,judgementScore:0,done:{},sections}; drawLessonSection(); }
 
 function drawLessonSection(){ const st=lessonsNavState, sec=st.sections[st.idx], root=$("lessonsRoot"); if(!sec) return renderThemeView(LESSONS_V2.find(l=>l.id===st.lessonId).topicId, LESSONS_V2.find(l=>l.id===st.lessonId).themeId); const prog=Math.round(((st.idx+1)/st.sections.length)*100); let html=`<div class='card'><button class='btn' id='lpBack'>← Theme</button><div class='note'>Progress ${prog}%</div><div class='lessonProgressTrack'><div class='lessonProgressFill' style='width:${prog}%'></div></div></div>`;
-  if(sec.type==="briefing") html+=`<div class='card'><div style='font-weight:900'>${sec.phase==="SF"?"Strong Foundations":sec.phase==="A"?"Ambition":"Section"}</div><p>${sec.text}</p><button class='btn primary' id='nextSec'>Continue</button></div>`;
+  if(sec.type==="briefing") html+=buildBriefingCard(sec);
   if(sec.type==="select"||sec.type==="rank") html+=`<div class='card'><div style='font-weight:900'>${sec.prompt}</div><div id='opts'>${(sec.statementBank||sec.options.map((t,i)=>({id:String(i),text:t}))).map(o=>`<button class='btn opt' data-id='${o.id}' style='width:100%;text-align:left;margin-top:8px'>${o.text}</button>`).join("")}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='note' id='selFb'></div></div>`;
-  if(sec.type==="interpretation") html+=`<div class='card'><div style='font-weight:900'>Interpretation duel</div><div class='note'>A: ${sec.a}</div><div class='note'>B: ${sec.b}</div><button class='btn primary' id='nextSec'>Continue</button></div>`;
+  if(sec.type==="interpretation") html+=buildInterpretationCard(sec);
   if(sec.type==="judgement") html+=`<div class='card'><div style='font-weight:900'>Judgement Builder</div>${Object.entries(sec.options).map(([k,v])=>`<button class='btn jopt' data-k='${k}' style='width:100%;text-align:left;margin-top:7px'>${k}. ${v}</button>`).join("")}<div id='eviWrap' class='hidden' style='margin-top:10px'></div><button class='btn primary hidden' id='judgeDone'>Submit judgement</button><div class='note' id='judgeFb'></div></div>`;
   if(sec.type==="feedback"){ const total=st.masteryScore+st.judgementScore; const pct=Math.max(0,Math.round((total/34)*100)); const band=pct>=85?"Level 5 Evaluator":pct>=65?"Level 4 Evaluator":pct>=45?"Developing Evaluation":"Surface Engagement"; const weak=[]; if(st.neutral>2) weak.push("too many neutral selections"); if(st.contra>1) weak.push("contradictions while strengthening"); if(st.structMiss) weak.push("missing structural/executive/coercion evidence"); if(st.contextOver) weak.push("over-reliance on contextual atmosphere"); html+=`<div class='card'><div style='font-weight:900'>Lesson feedback</div><div class='note'>Score: ${pct}% (${band})</div><div class='note'>Diagnostics: ${(weak.join('; ')||'Balanced evidence use')}.</div><div class='note'>Next step: revisit Strong Foundations card 1.</div><button class='btn primary' id='finishLesson'>Finish lesson</button></div>`; lessonProgressV2[st.lessonId]={completion:true,lastAttemptDate:new Date().toISOString(),lastScorePct:pct,bestScorePct:Math.max(pct,getLessonProgressV2(st.lessonId).bestScorePct||0),weakSignals:weak}; saveLessonProgressV2(); }
   root.innerHTML=html; $("lpBack").onclick=()=>{ const l=LESSONS_V2.find(x=>x.id===st.lessonId); renderThemeView(l.topicId,l.themeId); };
