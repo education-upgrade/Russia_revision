@@ -12411,7 +12411,23 @@ if($("btnReset")){
 const LESSON_PROGRESS_V2_KEY = "russia_revision_lessons_v2";
 
 function makeLesson(id,title,theme,enquiry,timeframe,knowledge,ambition,a,b,judgementOptions,judgementBest){
-  return { id, title, enquiryQuestion:enquiry, timeframe, examSkillFocus:theme, contentPack:{knowledge, ambition:[ambition], interpretationAThesis:a, interpretationBThesis:b, judgementOptions, judgementBest} };
+  return {
+    id,
+    title,
+    enquiryQuestion:enquiry,
+    timeframe,
+    examSkillFocus:theme,
+    contentPack:{
+      keyQuestion: enquiry,
+      conceptLine: ambition,
+      knowledge,
+      ambition:[ambition],
+      interpretationAThesis:a,
+      interpretationBThesis:b,
+      judgementOptions,
+      judgementBest
+    }
+  };
 }
 
 const lessonsData = { topics:[
@@ -12655,7 +12671,8 @@ function scoreSelections(selected, mode, bank){ return selected.reduce((sum,id)=
 function LessonCard(inner){ return `<div class='lessonPlayerWrap'><div class='lessonCard'>${inner}</div></div>`; }
 function LessonHero(lesson){
   const src=lesson.heroImage||"section-bg.jpg";
-  return `<div class='lessonHero'><img src='${src}' alt='Lesson hero image'><div class='lessonHeroOverlay'><div class='lessonHeroTitle'>${lesson.timeframe} | ${lesson.themeTitle}: ${lesson.contentPack.keyQuestion}</div><div class='lessonHeroSub'>${lesson.timeframe} • ${lesson.themeTitle}</div></div></div>`;
+  const keyQuestion = lesson.contentPack?.keyQuestion || lesson.enquiryQuestion || lesson.title;
+  return `<div class='lessonHero'><img src='${src}' alt='Lesson hero image'><div class='lessonHeroOverlay'><div class='lessonHeroTitle'>${lesson.timeframe} | ${lesson.themeTitle}: ${keyQuestion}</div><div class='lessonHeroSub'>${lesson.timeframe} • ${lesson.themeTitle}</div></div></div>`;
 }
 function LessonSectionHeading(text){ return `<h2 class='lessonSectionHeading'>${text}</h2>`; }
 function InsetTaskCard(title, instruction, hint){ return `<section class='insetTaskCard'><h3 class='insetTaskTitle'>${title}</h3><p class='lessonBodyText'>${instruction}</p>${hint?`<div class='hintStrip'>${hint}</div>`:""}</section>`; }
@@ -12693,7 +12710,8 @@ function drawLessonSection(){
   if(slide===1){
     const opts=(sec.statementBank||sec.options?.map((t,i)=>({id:String(i),text:t}))||[]);
     body+=LessonSectionHeading("Big picture idea");
-    body+=`<p class='lessonBodyText'>${lesson.contentPack.conceptLine}</p>`;
+    const conceptLine = lesson.contentPack?.conceptLine || lesson.contentPack?.ambition?.[0] || "Use the key debate to frame your opening judgement.";
+    body+=`<p class='lessonBodyText'>${conceptLine}</p>`;
     body+=InsetTaskCard("Frame the historical problem","Pick the tension sentence that best captures reform and continuity in political authority.",simple?"A-level move: frame it as tension between reform method and autocratic purpose.":"A-level move: define the mechanism of reform, then test whether executive power actually shifted.");
     if(opts.length){
       body+=`<div><div class='lessonCounter'>Choose 1 statement</div><div id='opts'>${ChoicePills(opts.map(o=>({id:o.id,text:o.text}),'opt'))}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='lessonFeedback' id='selFb'></div></div>`;
@@ -12766,7 +12784,8 @@ function drawLessonSection(){
     $("checkSel").onclick=()=>{
       let gained=0;
       if(sec.phase==="SF"){
-        const correct=[...selected].filter(x=>sec.correctIds.includes(Number(x))).length;
+        const validIds = (sec.correctIds || []).map(id=>String(id));
+        const correct=[...selected].filter(x=>validIds.includes(String(x))).length;
         lessonsNavState.sfScore+=correct;
         lessonsNavState.sfTotal+=sec.correctIds.length;
         $("selFb").textContent=correct===sec.correctIds.length?"Good pick — this is the core tension sentence.":"Not quite — here’s why: focus on the statement that directly links authority and reform.";
@@ -12779,7 +12798,8 @@ function drawLessonSection(){
         lessonsNavState.contextOver=(lessonsNavState.contextOver||false) || [...selected].every(id=>(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("context")||(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("neutral"));
         $("selFb").textContent=`Score added: ${Math.max(0,gained)}. Build the next step.`;
       } else {
-        const correct=[...selected].filter(x=>sec.correctIds.includes(Number(x))).length;
+        const validIds = (sec.correctIds || []).map(id=>String(id));
+        const correct=[...selected].filter(x=>validIds.includes(String(x))).length;
         $("selFb").textContent=`Good weighting: ${correct} strong choices.`;
       }
       lessonsNavState.slideGate[st.idx]=true;
