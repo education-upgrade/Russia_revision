@@ -9059,7 +9059,18 @@ window.addEventListener("DOMContentLoaded", ()=>{
 /* ==========================================================
    LESSONS (basic SPA + player)
    ========================================================== */
-const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, selectedOptionIndex:null };
+const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, selectedOptionIndex:null, answers:{} };
+
+function getLessonSlides(lesson){
+  if(!lesson) return [];
+  const hasResults = lesson.slides.some(slide=>slide.type === "results");
+  if(hasResults) return lesson.slides;
+  return [...lesson.slides, { type:"results", heading:"Results" }];
+}
+
+function getStoredQuickCheckAnswer(lessonId, slideIdx){
+  return lessonsNav.answers?.[lessonId]?.[slideIdx];
+}
 
 const lessonsData = [
   {
@@ -9366,10 +9377,13 @@ function renderLessonPlayer(root){
   const lesson = getLesson();
   if(!lesson){ lessonsNav.view = "lessons"; return renderLessons(); }
 
-  const total = lesson.slides.length;
+  const slides = getLessonSlides(lesson);
+  const total = slides.length;
   const idx = Math.max(0, Math.min(lessonsNav.slideIdx, total-1));
   lessonsNav.slideIdx = idx;
-  const slide = lesson.slides[idx];
+  const slide = slides[idx];
+  const storedAnswer = slide.type === "quick-check" ? getStoredQuickCheckAnswer(lesson.id, idx) : null;
+  const nextDisabled = idx===total-1 || (slide.type === "quick-check" && !Number.isInteger(storedAnswer));
 
   root.innerHTML = `
     <div class="card">
@@ -9390,12 +9404,12 @@ function renderLessonPlayer(root){
         </div>
       </div>
       <div class="slideBody">
-        ${renderLessonSlideBody(slide)}
+        ${renderLessonSlideBody(slide, lesson, idx, slides)}
       </div>
       <div class="playerFooter">
         <button class="btn" id="lessonPrevBtn" type="button" ${idx===0 ? "disabled" : ""}>Previous</button>
-        <div class="slideDots">${lesson.slides.map((_,i)=>`<span class="slideDot ${i===idx?"active":""}"></span>`).join("")}</div>
-        <button class="btn primary" id="lessonNextBtn" type="button" ${idx===total-1 ? "disabled" : ""}>Next</button>
+        <div class="slideDots">${slides.map((_,i)=>`<span class="slideDot ${i===idx?"active":""}"></span>`).join("")}</div>
+        <button class="btn primary" id="lessonNextBtn" type="button" ${nextDisabled ? "disabled" : ""}>Next</button>
       </div>
     </div>`;
 
@@ -9426,17 +9440,60 @@ function renderLessonPlayer(root){
   if(slide.type === "quick-check"){
     root.querySelectorAll('[data-action="quick-option"]').forEach((btn,i)=>{
       btn.addEventListener("click", ()=>{
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        lessonsNav.answers[lesson.id][idx] = i;
         lessonsNav.selectedOptionIndex = i;
         renderLessons();
       });
     });
   }
+
+  if(slide.type === "results"){
+    const retryBtn = $("lessonRetryBtn");
+    if(retryBtn){
+      retryBtn.addEventListener("click", ()=>{
+        lessonsNav.answers[lesson.id] = {};
+        lessonsNav.slideIdx = 0;
+        lessonsNav.selectedOptionIndex = null;
+        renderLessons();
+      });
+    }
+  }
 }
 
-function renderLessonSlideBody(slide){
+function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
+  if(slide.type === "results"){
+    const quickCheckSlides = allSlides.filter(s=>s.type === "quick-check");
+    const totalQuickChecks = quickCheckSlides.length;
+    const correctCount = allSlides.reduce((count, currentSlide, currentIdx)=>{
+      if(currentSlide.type !== "quick-check") return count;
+      const answer = getStoredQuickCheckAnswer(lesson.id, currentIdx);
+      return count + (answer===currentSlide.correctIndex ? 1 : 0);
+    }, 0);
+    const score = totalQuickChecks ? Math.round((correctCount / totalQuickChecks) * 100) : 0;
+    const feedback = score >= 80
+      ? "Exam ready – you’re selecting evidence precisely."
+      : score >= 50
+        ? "Nearly there – tighten evidence and link back to the question."
+        : "Rebuild foundations – re-read micro-briefings and retry.";
+
+    return `
+      <h4 class="slideHeading">Results</h4>
+      <div class="quickCheckFeedback" style="margin-top:10px">
+        <div><strong>Score:</strong> ${score}%</div>
+        <div><strong>Correct:</strong> ${correctCount} / ${totalQuickChecks}</div>
+      </div>
+      <div class="quickCheckFeedback" style="margin-top:10px">${feedback}</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" id="lessonRetryBtn" type="button">Retry quick checks</button>
+      </div>
+    `;
+  }
+
   if(slide.type !== "quick-check") return `<h4 class="slideHeading">${slide.heading}</h4><div>${slide.text}</div>`;
 
-  const selected = Number.isInteger(lessonsNav.selectedOptionIndex) ? lessonsNav.selectedOptionIndex : null;
+  const storedAnswer = getStoredQuickCheckAnswer(lesson.id, slideIdx);
+  const selected = Number.isInteger(storedAnswer) ? storedAnswer : null;
   const feedback = selected===null ? "" : (slide.feedback?.[selected] || "");
 
   return `
