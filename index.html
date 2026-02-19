@@ -2781,6 +2781,21 @@ section#games.gamePaneActive .gamesHeroCard{
   }
 }
 
+
+
+/* Lessons 2.0 scoped styles */
+#lessonsRoot .viewTitle{font-size:34px;font-weight:900;margin:8px 0 14px}
+#lessonsRoot .lesson-pill-row{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0}
+#lessonsRoot .heroCard{border-radius:18px;overflow:hidden;min-height:180px;background:linear-gradient(160deg,var(--accent2),#25335a);position:relative;box-shadow:var(--shadow)}
+#lessonsRoot .heroOverlay{position:absolute;inset:auto 0 0 0;padding:16px;background:linear-gradient(to top,rgba(0,0,0,.55),transparent);color:#fff}
+#lessonsRoot .taskCard{margin-top:12px;border:1px solid var(--line);border-radius:16px;padding:14px;background:#fff;box-shadow:var(--shadow)}
+#lessonsRoot .tileGrid{display:grid;grid-template-columns:1fr;gap:8px;margin:10px 0}
+#lessonsRoot .statement-tile{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:left;background:#fff}
+#lessonsRoot .statement-tile.isSelected{border-color:var(--accent);background:color-mix(in srgb,var(--accent2) 24%, #fff 76%)}
+#lessonsRoot .lesson-slide-dots{display:flex;gap:6px;align-items:center}
+#lessonsRoot .lesson-slide-dots .dot{width:7px;height:7px;border-radius:99px;background:var(--line)}
+#lessonsRoot .lesson-slide-dots .dot.active{background:var(--accent)}
+
 </style>
 </head>
 
@@ -12409,462 +12424,315 @@ if($("btnReset")){
    LESSONS 2.0 (exam-aligned)
    ========================================================== */
 const LESSON_PROGRESS_V2_KEY = "russia_revision_lessons_v2";
+const LESSON_NAV_V2_KEY = "russia_revision_lessons_nav_v2";
 
-function makeLesson(id,title,theme,enquiry,timeframe,knowledge,ambition,a,b,judgementOptions,judgementBest){
+const lessonsNavState = {
+  view:"home", topicId:null, themeId:null, lessonId:null, slideIdx:0, mode:"exam"
+};
+
+const THEME_LABELS = {
+  political:"Political Authority",
+  economic:"Economic Development",
+  opposition:"Opposition & Control",
+  social:"Social & Cultural Change"
+};
+
+const topicSpecs = [
+  {id:"topic1",title:"Topic 1: The Crisis of Tsarism, 1855–1894",themes:{
+    political:[
+      [1,"How secure was autocracy in 1855?","1855"],
+      [2,"How far did Alexander II’s reforms weaken autocracy?","1861–1881"],
+      [3,"Did reaction restore autocracy under Alexander III?","1881–1894"]
+    ],
+    economic:[
+      [4,"Did emancipation modernise the Russian economy?","1861–1894"],
+      [5,"How far did economic change destabilise Tsarist authority?","1861–1894"]
+    ],
+    opposition:[
+      [6,"How serious was opposition to Alexander II?","1855–1881"],
+      [7,"How effectively did Alexander III suppress opposition?","1881–1894"]
+    ],
+    social:[
+      [8,"How far did emancipation transform peasant society?","1861–1894"],
+      [9,"Did Russification strengthen or weaken the regime?","1860s–1894"]
+    ]
+  }},
+  {id:"topic2",title:"Topic 2: The End of Romanov Rule, 1894–1917",themes:{
+    political:[[10,"How far did industrialisation challenge autocracy? (c1890–1905)","c1890–1905"],[11,"How far did the 1905 Revolution weaken autocracy?","1905–1914"],[12,"Why did Nicholas II lose authority in 1917?","1914–1917"]],
+    economic:[[13,"How transformative was Witte’s industrialisation?","1890s–1903"],[14,"How serious were Russia’s economic weaknesses by 1914?","1906–1914"],[15,"How far did war destabilise the Russian economy?","1914–1917"]],
+    opposition:[[16,"How effectively did Nicholas II manage opposition before 1914?","1894–1914"],[17,"Why did opposition succeed in February 1917?","1916–1917"]],
+    social:[[18,"How did industrialisation reshape Russian society?","1890–1914"],[19,"Was Russian society on the brink of collapse by 1917?","1914–1917"]]
+  }},
+  {id:"topic3",title:"Topic 3: Bolshevik Consolidation of Power, 1917–1924",themes:{
+    political:[[20,"How far did Lenin create a new political system?","1917–1924"],[21,"Was Bolshevik rule dependent on coercion?","1918–1924"]],
+    economic:[[22,"Why did War Communism fail?","1918–1921"],[23,"Did the NEP represent a retreat from socialism?","1921–1924"]],
+    opposition:[[24,"How effectively did Lenin secure power during the Civil War?","1918–1921"]],
+    social:[[25,"Did 1917 bring social liberation?","1917–1924"]]
+  }},
+  {id:"topic4",title:"Topic 4: Stalin’s USSR, 1924–1953",themes:{
+    political:[[26,"How did Stalin establish personal dictatorship?","1924–1939"],[27,"Did Stalin create a new form of autocracy?","1928–1953"]],
+    economic:[[28,"How far did collectivisation transform rural Russia?","1929–1941"],[29,"How successful were the Five-Year Plans?","1928–1941"],[30,"How strong was the Soviet economy by 1941?","1928–1941"]],
+    opposition:[[31,"Why were the Purges launched?","1934–1938"],[32,"How central was terror to Stalin’s rule?","1930s–1953"]],
+    social:[[33,"How far did Stalin transform Soviet society?","1928–1953"],[34,"Did war change Soviet society (1941–45)?","1941–1945"]]
+  }},
+  {id:"topic5",title:"Topic 5: Khrushchev and Reform, 1953–1964",themes:{
+    political:[[35,"How far did Khrushchev reduce centralised control?","1953–1964"]],
+    economic:[[36,"Did Khrushchev solve the economic weaknesses of Stalinism?","1953–1964"]],
+    opposition:[[37,"Was opposition weaker under Khrushchev?","1953–1964"]],
+    social:[[38,"Was the Khrushchev Thaw a genuine transformation?","1953–1964"]]
+  }}
+];
+
+function wordyInterpretation(lesson, angle){
+  const base = angle === "A"
+    ? `${lesson.title} can be explained primarily through state capacity. Across ${lesson.timeframe}, policy worked when rulers aligned the bureaucracy, coercive institutions and fiscal priorities behind a coherent objective. Even where outcomes were uneven, elite control over appointments, censorship, and policing repeatedly limited the ability of challengers to convert grievances into regime-threatening organisation. This interpretation therefore stresses structural command and administrative reach: reform and repression were not opposites, but complementary tools used to preserve strategic authority.`
+    : `${lesson.title} is better understood as a story of accumulated fragility. In ${lesson.timeframe}, apparent control often masked implementation gaps, local resistance, and social strains generated by war, economic pressure, or rapid policy change. Opposition forces did not need immediate victory; they only had to expose inconsistencies between official claims and lived experience. This view emphasises the limits of coercion and the political cost of partial reform, arguing that instability emerged when the regime could no longer absorb pressure without eroding legitimacy.`;
+  return base;
+}
+
+function makeStatementBank(lesson){
+  return [
+    {id:"s1",text:`Executive institutions remained decisive in shaping outcomes during ${lesson.timeframe}.`,supportA:3,challengeA:-1,supportB:0,challengeB:2,tags:["executive_power","core"]},
+    {id:"s2",text:"Coercive instruments deterred open resistance but imposed long-term political costs.",supportA:2,challengeA:0,supportB:2,challengeB:0,tags:["coercion","core"]},
+    {id:"s3",text:"Local officials often distorted central policy in implementation.",supportA:-1,challengeA:3,supportB:2,challengeB:0,tags:["administration","core"]},
+    {id:"s4",text:"Fiscal and transport constraints limited what the state could achieve.",supportA:0,challengeA:2,supportB:3,challengeB:-1,tags:["economic","context"]},
+    {id:"s5",text:"Elite consensus around order helped sustain authority.",supportA:3,challengeA:-1,supportB:0,challengeB:2,tags:["elite","core"]},
+    {id:"s6",text:"Social mobility and urban growth created new pressures on governance.",supportA:0,challengeA:2,supportB:3,challengeB:-1,tags:["social_change","context"]},
+    {id:"s7",text:"Opposition networks were fragmented and intermittently repressed.",supportA:2,challengeA:0,supportB:1,challengeB:0,tags:["opposition","context"]},
+    {id:"s8",text:"Policy reversals damaged regime credibility over time.",supportA:-1,challengeA:3,supportB:2,challengeB:0,tags:["policy","core"]},
+    {id:"s9",text:"Military or security shocks exposed institutional weakness.",supportA:0,challengeA:2,supportB:3,challengeB:-1,tags:["war","context"]},
+    {id:"s10",text:"The role of personality mattered more than structural factors.",supportA:0,challengeA:0,supportB:0,challengeB:0,tags:["neutral"]},
+    {id:"s11",text:"Atmosphere and rumours were the primary drivers of political change.",supportA:0,challengeA:0,supportB:0,challengeB:0,tags:["atmosphere","neutral"]},
+    {id:"s12",text:"Mass support for radical change was consistently high.",supportA:-1,challengeA:2,supportB:1,challengeB:0,tags:["contradict"]}
+  ];
+}
+
+function buildLesson(topicId, themeId, lessonNo, title, timeframe){
+  const bigPicture = `This lesson tests whether ${title.toLowerCase().replace("?","")} was driven more by durable structures of power or by cumulative pressure that exposed limits in state control.`;
+  const sfBriefings = [
+    `${timeframe} provides the essential context for this enquiry. Political outcomes were shaped by the relationship between central government, provincial administration, and social groups experiencing change. A-Level judgement depends on tracking who had institutional leverage, who bore policy costs, and where implementation diverged from policy intent. The regime frequently combined reform language with coercive practice, which requires careful distinction between announced goals and measurable effects. This context prevents simplistic claims that either continuity or crisis alone explains developments.`,
+    `A second foundation is capacity: decision-making at the centre did not guarantee effective execution on the ground. Bureaucratic quality, communication networks, and fiscal constraints conditioned the reach of authority. Even where legal powers were extensive, results varied across regions and social estates. Historians therefore assess security of rule by asking whether pressure could be absorbed without forcing destabilising concessions. This is why evidence about policing, taxation, and local governance is central to the enquiry.`,
+    `Finally, political stability depended on legitimacy as well as force. Elite cooperation, Church influence, and public expectations all mediated the impact of policy. When reforms were partial, they could widen rather than close grievances by raising expectations that institutions could not satisfy. Conversely, when repression was effective, it could postpone rather than resolve structural tensions. The strongest essays integrate these dynamics and avoid treating single events as self-explanatory turning points.`
+  ];
+  const sfChecks = [
+    {prompt:"Which factor best explains why strong legal authority could still produce weak outcomes?",options:["Implementation constraints in local administration","The absence of any opposition","Complete economic stability","No need for fiscal resources"],correct:[0]},
+    {prompt:"Why is provincial evidence essential in this enquiry?",options:["Because it shows whether central policy was actually delivered","Because central records are irrelevant","Because elites never mattered","Because ideology replaced administration"],correct:[0]},
+    {prompt:"Which statement reflects secure A-Level judgement?",options:["Force or reform alone explains everything","Legitimacy and coercion interacted over time","Only personalities mattered","Economic factors can be ignored"],correct:[1]}
+  ];
+  const bank = makeStatementBank({title,timeframe});
   return {
-    id,
-    title,
-    enquiryQuestion:enquiry,
-    timeframe,
-    examSkillFocus:theme,
-    contentPack:{
-      keyQuestion: enquiry,
-      conceptLine: ambition,
-      knowledge,
-      ambition:[ambition],
-      interpretationAThesis:a,
-      interpretationBThesis:b,
-      judgementOptions,
-      judgementBest
+    id:`L${lessonNo}`,
+    lessonNo,
+    topicId,themeId,title,timeframe,
+    bigPicture,
+    sfBriefings,sfChecks,
+    ambitionBriefings:[
+      `To move beyond description, rank causal weight. Separate immediate triggers from underlying structures and test whether short-term shocks had lasting consequences.`,
+      `Significance is comparative: identify which mechanism changed the balance of power most decisively and defend that hierarchy with precise evidence.`
+    ],
+    ambitionTask:{type:"pick2",prompt:"Pick the two strongest drivers for the enquiry judgement.",options:["Executive control and coercive reach","Administrative implementation gaps","Economic and fiscal constraints","Social pressure and legitimacy erosion"],correct:[0,1]},
+    interpretationA:wordyInterpretation({title,timeframe},"A"),
+    interpretationB:wordyInterpretation({title,timeframe},"B"),
+    statementBank:bank,
+    judgement:{
+      prompt:`Best overall judgement for "${title}"?`,
+      options:[
+        {id:"A",text:"State structures remained resilient; pressures were managed more often than not.",strength:"plausible"},
+        {id:"B",text:"The core issue was persistent implementation weakness that converted pressure into fragility.",strength:"strongest"},
+        {id:"C",text:"Outcomes were mixed, but coercion and reform repeatedly interacted to preserve short-term control.",strength:"plausible"},
+        {id:"D",text:"No meaningful judgement can be made because evidence is contradictory.",strength:"weak"}
+      ],
+      best:"B"
     }
   };
 }
 
-const lessonsData = { topics:[
-{ id:"topic1", title:"Topic 1: The Crisis of Tsarism", years:"1855–1894", themes:[
-  {id:"pa", title:"Political Authority", icon:"🏛️", lessons:[
-    makeLesson("L1","How secure was autocracy in 1855?","Thematic breadth + change/continuity","How secure was autocracy in 1855?","1855",["Tsarist authority rested on ruler, bureaucracy, army and Church; legal restraint was limited.","Crimean defeat exposed corruption, inefficiency and weak administration.","Centralisation looked strong but depended on local nobles and inconsistent implementation.","Censorship and police constrained dissent, but educated critics questioned backwardness."],"Autocracy looked strong but was vulnerable under war shock and modernisation pressure.","Autocracy in 1855 was fundamentally secure because coercion, tradition and administrative centralisation kept political authority intact.","Autocracy in 1855 was already fragile because Crimean defeat revealed deep structural weakness and created a reform imperative.",{A:"Autocracy was secure: coercion + tradition outweighed pressures.",B:"Autocracy was insecure: defeat and institutional weakness made reform unavoidable.",C:"Autocracy was secure but only because opposition was undeveloped.",D:"Autocracy’s security is unknowable because evidence is too limited."},"C"),
-    makeLesson("L2","How far did Alexander II’s reforms weaken autocracy?","Judgement + causation","How far did reforms weaken autocracy?","1861–1881",["Emancipation sought modernisation and order but kept peasant constraints through redemption and mir control.","Zemstva and municipal reforms widened participation but under elite dominance and oversight.","Judicial reform improved rule of law, though political cases remained constrained.","Army reform improved capacity; after 1866 repression tightened again."],"Reforms raised capacity but also raised expectations the regime struggled to satisfy.","Reforms modernised autocracy and strengthened it by improving state capacity while keeping ultimate authority with the Tsar.","Reforms weakened autocracy by creating legal participation and expectations the regime could not satisfy, fuelling opposition.",{A:"Reforms strengthened autocracy overall by modernising government.",B:"Reforms weakened autocracy overall by opening political space.",C:"Reforms had mixed impact: capacity rose but legitimacy fell.",D:"Reforms mattered little because coercion remained unchanged."},"C"),
-    makeLesson("L3","Did reaction restore autocracy under Alexander III?","Change over time","Did reaction restore autocracy?","1881–1894",["Temporary Regulations, Okhrana powers, censorship and university controls intensified repression.","Land Captains and tighter control over zemstva strengthened noble-state supervision.","Russification promoted unity but repressed minorities and increased resentment.","Industrialisation accelerated and created social pressures reaction could not resolve."],"Reaction restored short-term order but generated longer-term tensions.","Alexander III successfully restored autocracy through repression, centralisation and controlled local governance.","Reaction restored surface control but failed to address economic and social change that undermined autocracy in the long term.",{A:"Reaction restored autocracy decisively.",B:"Reaction failed; opposition and instability grew immediately.",C:"Reaction restored control short-term but stored up longer-term problems.",D:"Reaction was irrelevant compared to economic forces."},"C")
-  ]},
-  {id:"ed", title:"Economic Development", icon:"📈", lessons:[
-    makeLesson("L4","Did emancipation modernise the Russian economy?","Significance","Did emancipation modernise the economy?","1861–1894",["Ending serfdom increased legal mobility but mir rules and payments constrained movement and investment.","Small allotments and arrears limited productivity and increased insecurity.","The state prioritised tax stability, keeping peasants tied to communes.","Markets widened in places, but agrarian overpopulation remained."],"Legal change did not automatically deliver structural productivity gains.","Emancipation modernised Russia by enabling labour markets and creating foundations for later industrial growth.","Emancipation failed to modernise because peasant constraints, redemption and the mir preserved an inefficient agrarian system.",{A:"Emancipation modernised decisively.",B:"Emancipation modernised only marginally; constraints dominated.",C:"Emancipation modernised peasants’ lives immediately.",D:"Emancipation did not matter economically."},"B"),
-    makeLesson("L5","How far did economic change destabilise Tsarist authority?","Causation","How far did economic change destabilise authority?","c1860–1894",["Railway and industrial growth expanded an urban workforce under harsh conditions.","Middle classes and professionals grew and sought more influence.","State-led modernisation raised expectations without matching political reform.","Peasant land hunger and taxation pressures continued unrest risk."],"Economic change created pressure but did not automatically destroy authority.","Economic change destabilised authority by creating new social forces and grievances the autocracy could not absorb.","Economic change did not seriously destabilise authority before 1894 because repression and traditional structures contained unrest.",{A:"Economic change destabilised significantly.",B:"Economic change destabilised only after 1894.",C:"Economic change created pressures but authority remained resilient.",D:"Economic change strengthened authority through state capacity."},"C")
-  ]},
-  {id:"oc", title:"Opposition & Control", icon:"🛡️", lessons:[
-    makeLesson("L6","How serious was opposition to Alexander II?","Judgement","How serious was opposition?","1860s–1881",["Liberals, radicals and populists developed competing critiques.","People’s Will used terrorism and assassinated Alexander II.","Opposition remained socially narrow and lacked peasant mass backing.","Repression was often effective despite high-profile violence."],"Serious intent did not equal broad revolutionary capacity.","Opposition was serious because radical networks turned to terrorism and exposed regime vulnerability.","Opposition was limited because it lacked mass support and was contained until exceptional acts like 1881.",{A:"Opposition was serious and near-revolutionary.",B:"Opposition was limited; terrorism exaggerated its strength.",C:"Opposition was serious in intent but limited in mass support.",D:"Opposition was irrelevant."},"C"),
-    makeLesson("L7","How effectively did Alexander III suppress opposition?","Control vs consequence","How effective was suppression?","1881–1894",["Okhrana expansion, censorship and exile constrained radical networks.","Temporary Regulations increased arbitrary executive powers.","Opposition fragmented and terrorism declined in the short term.","Underlying social and economic grievances persisted."],"Short-term control could coexist with long-term instability.","Suppression was highly effective: opposition was crushed and stability restored.","Suppression was only superficially effective: it pushed opposition underground and preserved long-term grievances.",{A:"Highly effective in both short and long term.",B:"Effective short-term, but stored up future problems.",C:"Ineffective; opposition grew stronger.",D:"Effective only because society was passive."},"B")
-  ]},
-  {id:"sc", title:"Social & Cultural Change", icon:"🧭", lessons:[
-    makeLesson("L8","How far did emancipation transform peasant society?","Change and continuity","How far was peasant life transformed?","1861–1894",["Serfdom ended legally, but commune authority stayed strong.","Redemption and land hunger restricted mobility and autonomy.","Education improved slowly while poverty remained widespread.","Traditional norms endured alongside gradual legal change."],"Legal liberation and social transformation moved at different speeds.","Emancipation transformed peasant society by ending serfdom and enabling gradual social mobility.","Emancipation changed legal status but left peasant life fundamentally constrained and impoverished.",{A:"Transformation was profound and rapid.",B:"Transformation was limited; continuity dominated.",C:"Transformation was mainly political, not social.",D:"No transformation occurred."},"B"),
-    makeLesson("L9","Did Russification strengthen or weaken the regime?","AO3 interpretation","Did Russification strengthen or weaken the regime?","1880s–1890s",["Russification imposed language, education and Orthodox priorities.","It offered short-term administrative control in borderlands.","Minority resentment and nationalist resistance increased.","Imperial cohesion was strained by coercive integration."],"Policies that enforce unity can also produce disloyalty.","Russification strengthened the regime by reinforcing imperial identity and central control.","Russification weakened the regime by provoking nationalism and alienating key regions.",{A:"Strengthened overall through unity.",B:"Weakened overall through backlash and nationalism.",C:"Strengthened short-term, weakened long-term.",D:"Had little impact compared to economic change."},"C")
-  ]}
-]},
-{ id:"topic2", title:"Topic 2: End of Romanov Rule", years:"1894–1917", themes:[
-  {id:"pa", title:"Political Authority", icon:"🏛️", lessons:[
-    makeLesson("L10","How far did industrialisation challenge autocracy?","Causation","How far did industrialisation challenge autocracy?","c1890–1905",["State-led industrialisation expanded urban workers and strike risk.","Middle-class and zemstvo liberal demands for representation grew.","Repression persisted and reform lagged behind social change.","War crisis in 1904–05 intensified existing pressures."],"Economic modernisation and political rigidity clashed.","Industrialisation challenged autocracy by creating social forces and grievances that turned economic discontent into political pressure.","Industrialisation posed limited challenge until war shock; autocracy contained unrest through repression and concessions were avoidable.",{A:"Industrialisation seriously challenged autocracy before 1905.",B:"Industrialisation only mattered because of war and state failure.",C:"Industrialisation created pressure but autocracy remained dominant.",D:"Industrialisation strengthened autocracy through modernisation."},"C"),
-    makeLesson("L11","How far did the 1905 Revolution weaken autocracy?","Executive power judgement","How far did 1905 weaken autocracy?","1905–1914",["October Manifesto promised liberties and a Duma after mass unrest.","Fundamental Laws preserved Tsarist executive supremacy and veto powers.","Early Dumas were dissolved; electoral rules were manipulated in 1907.","Stolypin combined repression and reform to stabilise a brittle system."],"Constitutional form did not eliminate autocratic substance.","1905 created real constitutional constraint and changed political culture into negotiated authority.","1905 preserved autocracy through tactical concession; executive power remained intact beneath reform.",{A:"1905 fundamentally ended autocracy.",B:"1905 preserved autocracy with only superficial change.",C:"1905 produced mixed change: political culture shifted but executive power remained.",D:"1905 strengthened autocracy."},"C"),
-    makeLesson("L12","Why did Nicholas II lose authority in 1917?","Rank causes","Why did authority collapse in 1917?","1914–1917",["War brought defeats, casualties, inflation and supply breakdown.","Nicholas taking command linked him directly to military failure.","Elite support ebbed as ministerial instability deepened.","Garrison mutiny ended coercive reliability and forced abdication."],"Collapse came from interaction between war stress and regime failure.","War pressures made collapse inevitable by breaking economy, morale and legitimacy.","Leadership failures and elite withdrawal were decisive; war was the context, not the direct cause.",{A:"War was overwhelmingly decisive.",B:"Nicholas’ leadership failures were overwhelmingly decisive.",C:"Collapse resulted from war interacting with leadership and elite/army withdrawal.",D:"Revolutionaries caused abdication through planning."},"C")
-  ]},
-  {id:"ed", title:"Economic Development", icon:"📈", lessons:[
-    makeLesson("L13","How transformative was Witte’s industrialisation?","Significance","How transformative was Witte's model?","1890s–1905",["Rail expansion and foreign investment drove heavy-industry growth.","State tariffs and direction produced rapid but uneven development.","Dependence on external capital created vulnerability.","Worker concentration intensified social conflict."],"Transformation can be real yet politically destabilising.","Witte’s policies were transformative, rapidly modernising industry and state capacity.","Industrialisation was limited and destabilising: uneven growth, foreign dependence, social unrest.",{A:"Transformative modernisation overall.",B:"Limited and imbalanced; created instability.",C:"Transformative economically but politically dangerous.",D:"Not transformative; Russia remained agrarian."},"C"),
-    makeLesson("L14","How serious were Russia’s economic weaknesses by 1914?","Breadth judgement","How serious were weaknesses pre-war?","1900–1914",["Agrarian poverty, land hunger and low productivity persisted.","Industry grew in bursts but remained uneven and volatile.","Urban poverty and infrastructure gaps limited resilience.","State finance relied heavily on foreign capital."],"Growth trends coexisted with structural fragility.","By 1914, weaknesses were serious: agrarian poverty and uneven industrialisation created instability.","Weaknesses were manageable: growth trends and reforms showed resilience before war.",{A:"Weaknesses were severe and destabilising.",B:"Weaknesses existed but were not fatal pre-war.",C:"Weaknesses were irrelevant compared to politics.",D:"There were no serious weaknesses."},"B"),
-    makeLesson("L15","How far did war destabilise the Russian economy?","Causal chain","How far did war destabilise the economy?","1914–1917",["Inflation, shortages and transport failures intensified hardship.","Military priorities disrupted civilian supply and production.","Strikes and urban unrest expanded under rationing failures.","State credibility fell as grain marketing and currency confidence declined."],"War magnified pre-existing weaknesses into system crisis.","War profoundly destabilised economy and made political collapse likely.","Economic problems existed earlier; war accelerated rather than created instability.",{A:"War created the economic crisis.",B:"War accelerated existing weaknesses into crisis.",C:"War had limited impact economically.",D:"Economic crisis was caused by revolutionaries."},"B")
-  ]},
-  {id:"oc", title:"Opposition & Control", icon:"🛡️", lessons:[
-    makeLesson("L16","How effectively did Nicholas II manage opposition before 1914?","Effectiveness","How effectively was opposition managed?","1906–1914",["Regime combined repression with constrained constitutionalism.","Duma politics were managed through dissolution and franchise manipulation.","Opposition remained divided between legal and underground actors.","Renewed unrest from 1912 suggested fragility."],"Containment success was real but increasingly brittle.","Nicholas managed opposition effectively through repression and controlled constitutionalism.","Management failed because reforms lacked legitimacy and repression fuelled radicalisation.",{A:"Highly effective; opposition contained.",B:"Partly effective but increasingly brittle by 1912–14.",C:"Ineffective; opposition dominated politics.",D:"Opposition was too weak to matter."},"B"),
-    makeLesson("L17","Why did opposition succeed in February 1917?","Rank interacting causes","Why did February succeed?","Feb 1917",["Mass strikes and bread protests widened rapidly in Petrograd.","Duma leaders broke from the regime and formed alternatives.","Soldiers refused repression and mutinied.","Revolutionary parties were not initial orchestrators."],"Success required both street mobilisation and collapse of elite coercion.","Opposition succeeded because mass action overwhelmed a collapsing regime.","Opposition succeeded because elites and army withdrew support, making mass protest decisive.",{A:"Mass protest was key.",B:"Elite/army withdrawal was key.",C:"Success came from interaction of mass protest with elite/army withdrawal.",D:"Bolshevik planning caused success."},"C")
-  ]},
-  {id:"sc", title:"Social & Cultural Change", icon:"🧭", lessons:[
-    makeLesson("L18","How did industrialisation reshape Russian society?","Theme breadth","How did industrialisation reshape society?","1890s–1914",["Urbanisation expanded factory labour and collective identities.","Middle classes and educated groups expanded.","Literacy and political awareness rose.","Peasantry remained numerically dominant and tradition remained powerful."],"New social actors emerged without erasing old structures.","Industrialisation reshaped society by creating new classes and political pressures.","Social change was limited because peasantry remained dominant and traditional structures persisted.",{A:"Reshaped society profoundly.",B:"Reshaped partly; new classes grew but peasantry remained central.",C:"Did not reshape society.",D:"Reshaped only elite culture."},"B"),
-    makeLesson("L19","Was Russian society on the brink of collapse by 1917?","Judgement","Was society collapsing by 1917?","1916–1917",["Wartime hardship and shortages deepened unrest.","Class and urban-rural tensions intensified.","Trust in regime authority eroded.","Final collapse still depended on state and military breakdown."],"Social crisis mattered, but political coercion failure was decisive.","Society was near collapse due to war-driven hardship and unrest.","Society was strained but not doomed; collapse came from state and military breakdown.",{A:"Yes, society was collapsing.",B:"No, society was strained but collapse required state failure.",C:"Society was stable; politics alone caused collapse.",D:"Society’s condition cannot be assessed."},"B")
-  ]}
-]},
-{ id:"topic3", title:"Topic 3: Bolshevik Consolidation", years:"1917–1924", themes:[
-  {id:"pa", title:"Political Authority", icon:"🏛️", lessons:[makeLesson("L20","How far did Lenin create a new political system?","Change/continuity","How new was Lenin's system?","1917–1924",["Sovnarkom and decree rule displaced pluralist institutions.","Constituent Assembly was dissolved and one-party rule entrenched.","Cheka coercion and Civil War centralisation expanded executive control.","Soviet forms remained but party command dominated practice."],"Institutional novelty coexisted with authoritarian continuity.","Lenin created a fundamentally new system: ideological one-party state replacing autocracy.","Lenin recreated old patterns of authoritarian rule: centralisation and coercion dominated despite new labels.",{A:"Fundamentally new.",B:"Mostly continuity.",C:"New structures but authoritarian practice; mixed.",D:"No meaningful change."},"C"),makeLesson("L21","Was Bolshevik rule dependent on coercion?","Causation","Was coercion decisive?","1918–1924",["Red Terror, Cheka and party suppression expanded coercive capacity.","War Communism requisitioning deepened social conflict.","Land and peace slogans gave selective legitimacy.","Kronstadt and strikes showed the limits of consent."],"Coercion and consent interacted unevenly across the period.","Coercion was essential; Bolsheviks survived by force against opponents and society.","Coercion mattered but survival also relied on policy appeal, propaganda and Civil War dynamics.",{A:"Primarily coercion.",B:"Primarily consent.",C:"Coercion dominant but reinforced by selective consent.",D:"Neither coercion nor consent mattered."},"C")]},
-  {id:"ed", title:"Economic Development", icon:"📈", lessons:[makeLesson("L22","Why did War Communism fail?","Mechanism analysis","Why did War Communism fail?","1918–1921",["Requisitioning destroyed incentives and reduced grain supply.","Production collapsed amid war damage and transport breakdown.","Famine and urban depopulation undermined state legitimacy.","Kronstadt crisis triggered the shift to NEP."],"Failure came from policy design interacting with wartime devastation.","War Communism failed because coercive requisitioning destroyed incentives and production.","War Communism failed mainly due to Civil War devastation and structural weakness, not policy alone.",{A:"Policy incentives failure.",B:"War damage primary.",C:"Interaction of coercive policy with war devastation.",D:"It did not fail."},"C"),makeLesson("L23","Did the NEP represent a retreat from socialism?","Interpretive balance","Was NEP retreat or strategy?","1921–1928 legacy",["Tax in kind and market exchange revived trade and output.","Party retained control of commanding heights.","NEP tolerated private actors while preserving one-party rule.","Later procurement tensions exposed unresolved contradictions."],"Economic retreat did not require political retreat.","NEP was a retreat: reintroduced capitalism and undermined socialist goals.","NEP was pragmatic consolidation: maintained Party control while rebuilding economy.",{A:"Clear retreat.",B:"Not a retreat; pragmatic socialist strategy.",C:"Retreat economically but not politically.",D:"No meaningful change."},"C")]},
-  {id:"oc", title:"Opposition & Control", icon:"🛡️", lessons:[makeLesson("L24","How effectively did Lenin secure power during the Civil War?","Weigh factors","How effectively was power secured?","1918–1921",["Red Army organisation and central command improved Bolshevik capacity.","Cheka and propaganda strengthened internal control.","Whites were divided and foreign intervention lacked coherence.","War Communism mobilised resources but generated backlash."],"Victory reflected both Bolshevik method and opponent weakness.","Lenin secured power effectively through organisation, coercion and mobilisation.","Bolshevik success owed as much to opponents’ failures and context as Leninist effectiveness.",{A:"Bolsheviks’ methods decisive.",B:"Opponents’ weakness decisive.",C:"Both: Bolshevik control + opponents’ failures.",D:"Neither; victory was accidental."},"C")]},
-  {id:"sc", title:"Social & Cultural Change", icon:"🧭", lessons:[makeLesson("L25","Did 1917 bring social liberation?","Interpretive evaluation","Did 1917 bring liberation?","1917–1924",["Early legal reforms widened rights in family and secular policy.","Civil War hardship and coercive politics restricted lived freedoms.","Education campaigns expanded while propaganda intensified.","Church authority declined under state pressure."],"Legal experimentation was constrained by coercive context.","1917 brought genuine social liberation through radical reforms and new rights.","Liberation was limited: coercion, hardship and Party control restricted real freedom.",{A:"Genuine liberation.",B:"Mostly illusion; coercion dominated.",C:"Liberation in law/ideology but limited in practice.",D:"No social change."},"C")]}
-]},
-{ id:"topic4", title:"Topic 4: Stalin’s USSR", years:"1924–1953", themes:[
-  {id:"pa", title:"Political Authority", icon:"🏛️", lessons:[makeLesson("L26","How did Stalin establish personal dictatorship?","Rank mechanisms","How was dictatorship built?","1924–1939",["Control over appointments and party machine built patronage power.","Rivals were isolated through tactical ideological shifts.","Cult and propaganda personalised authority.","Security apparatus and purges locked in compliance."],"Party control and coercion reinforced each other.","Stalin’s mastery of the party machine and patronage was decisive in creating dictatorship.","Coercion and fear were decisive; dictatorship depended on repression more than party skill.",{A:"Party machine most decisive.",B:"Coercion most decisive.",C:"Combination: party control enabled coercion-driven dictatorship.",D:"Dictatorship emerged accidentally."},"C"),makeLesson("L27","Did Stalin create a new form of autocracy?","Change/continuity AO3","Was Stalinist autocracy new?","1928–1953",["One-party framework became personalised through terror and purges.","Propaganda and surveillance extended control into everyday life.","Constitutional language masked executive dominance.","Continuities with Tsarism coexisted with ideological and totalising reach."],"New scale and ideology sat atop old coercive logics.","Stalin created a new autocracy: ideological, mass-based, and penetrating society more deeply than Tsarism.","Stalin’s rule was autocracy in familiar form: centralised coercion and personal power, despite socialist language.",{A:"Entirely new form.",B:"Mostly continuity with Tsarist autocracy.",C:"New in scale/reach but continuous in coercive essence.",D:"Not autocratic."},"C")]},
-  {id:"ed", title:"Economic Development", icon:"📈", lessons:[makeLesson("L28","How far did collectivisation transform rural Russia?","Significance judgement","How far did collectivisation transform rural Russia?","1929–1933+",["Forced collectivisation and dekulakisation broke peasant autonomy.","Resistance and famine exposed severe human costs.","State grain extraction and surveillance increased control.","Long-term productivity remained weak despite mechanisation goals."],"Transformation in control did not equal economic success.","Collectivisation transformed countryside by bringing peasants under direct state control.","Transformation was destructive and inefficient; control came at catastrophic cost and undermined productivity.",{A:"Transformative and successful.",B:"Transformative but disastrous.",C:"Not transformative; peasants retained autonomy.",D:"Irrelevant."},"B"),makeLesson("L29","How successful were the Five-Year Plans?","Criteria-based judgement","How successful were FYPs?","1928–1941",["Heavy industry output rose quickly with major flagship projects.","Consumer goods and quality were neglected.","Labour coercion and gulag systems underpinned output drives.","Military-industrial capacity strengthened before war."],"Success depends on whether output or human cost is prioritised.","FYPs were successful in building heavy industry and state power, enabling later war resilience.","FYPs were inefficient and unsustainable; achievements were overstated and came at immense cost.",{A:"Highly successful overall.",B:"Mostly unsuccessful.",C:"Successful in heavy industry/state power but costly and imbalanced.",D:"Not assessable."},"C"),makeLesson("L30","How strong was the Soviet economy by 1941?","War capacity evaluation","How strong was the economy by 1941?","1941",["Heavy industry and armament sectors were greatly expanded.","Agriculture remained weak and vulnerable.","Consumer living standards were low and shortages persistent.","Transport and logistics showed persistent inefficiencies."],"War strength in one sector can mask systemic weakness elsewhere.","By 1941 the USSR was economically strong in heavy industry and war production capacity.","Strength was superficial: agriculture and consumer weakness undermined overall economic resilience.",{A:"Strong overall.",B:"Weak overall.",C:"Strong in war industries, weak in agriculture/consumption.",D:"No change from 1928."},"C")]},
-  {id:"oc", title:"Opposition & Control", icon:"🛡️", lessons:[makeLesson("L31","Why were the Purges launched?","Rank motive","Why were purges launched?","1930s",["Show trials and NKVD campaigns eliminated real and imagined rivals.","Regime framed crises through 'enemies within' narratives.","Security fears, ideological paranoia and policy failures interacted.","Purges produced compliance but institutional disruption."],"Power consolidation and systemic insecurity reinforced each other.","Purges were driven mainly by Stalin’s desire to eliminate rivals and secure personal power.","Purges were driven by systemic insecurity: ideological paranoia, perceived threats, and governance crises.",{A:"Power consolidation primary.",B:"Security/ideological paranoia primary.",C:"Both: power aims intensified by systemic insecurity.",D:"Purges were accidental."},"C"),makeLesson("L32","How central was terror to Stalin’s rule?","AO3 evaluation","How central was terror?","1930s–1953",["Arrests, gulag and surveillance created fear-based compliance.","Denunciation culture widened social discipline.","Propaganda and incentives also mobilised support.","Terror intensity varied but coercion remained embedded."],"Terror was central but not the only operating mechanism.","Terror was central and foundational; fear ensured compliance across party and society.","Terror mattered but rule also relied on mobilisation, ideology, and material incentives.",{A:"Terror overwhelmingly central.",B:"Terror minor compared with propaganda.",C:"Terror central but reinforced by incentives and ideology.",D:"No terror existed."},"C")]},
-  {id:"sc", title:"Social & Cultural Change", icon:"🧭", lessons:[makeLesson("L33","How far did Stalin transform Soviet society?","Change + continuity","How far was society transformed?","1928–1953",["Education and technical training expanded social mobility.","Women entered work in larger numbers but family conservatism returned.","Culture was tightly controlled through socialist realism.","Hierarchy and nomenklatura privilege persisted."],"Modernisation and coercive hierarchy developed together.","Stalin transformed society through education, urbanisation and new social mobility.","Transformation produced a controlled, hierarchical society; modernisation came with repression and inequality.",{A:"Transformative liberation.",B:"Transformative but authoritarian and unequal.",C:"Little change from Tsarism.",D:"No evidence."},"B"),makeLesson("L34","Did war change Soviet society (1941–45)?","Extent judgement","Did war change society?","1941–1945",["Total war mobilisation reshaped gender roles and labour deployment.","Evacuation and sacrifice deepened social hardship.","Patriotism and Russian nationalism were promoted.","Post-war control tightened again despite raised expectations."],"War changed experience significantly, but political fundamentals persisted.","War changed society by mobilising populations, shifting roles and encouraging nationalism.","War altered circumstances but not fundamentals; control and hardship dominated, and repression returned post-war.",{A:"War changed society fundamentally.",B:"War changed society partially but fundamentals remained.",C:"War caused no change.",D:"War liberated society."},"B")]}
-]},
-{ id:"topic5", title:"Topic 5: Khrushchev and Reform", years:"1953–1964", themes:[
-  {id:"pa", title:"Political Authority", icon:"🏛️", lessons:[makeLesson("L35","How far did Khrushchev reduce centralised control?","Continuity and change","How far was control reduced?","1953–1964",["De-Stalinisation reduced terror and released many prisoners.","Reforms attempted administrative decentralisation.","Party monopoly and one-party authority remained intact.","Hungary and domestic clampdowns showed hard limits."],"Reform modified methods more than regime structure.","Khrushchev reduced centralised control by dismantling terror and reforming party governance.","Centralised control remained; reforms were inconsistent and the party-state stayed authoritarian.",{A:"Reduced control substantially.",B:"Reduced terror but maintained authoritarian control.",C:"Made control harsher than Stalin.",D:"Ended one-party rule."},"B")]},
-  {id:"ed", title:"Economic Development", icon:"📈", lessons:[makeLesson("L36","Did Khrushchev solve the economic weaknesses of Stalinism?","Judgement","Did Khrushchev solve economic weaknesses?","1953–1964",["Virgin Lands and maize drives sought agricultural breakthroughs.","Sovnarkhozy decentralisation created coordination problems.","Consumer output rose in some sectors but shortages persisted.","Planning inefficiencies remained structural."],"Partial gains did not resolve systemic planning weaknesses.","Khrushchev tackled weaknesses by prioritising agriculture and consumers, improving living standards.","He failed to solve structural planning problems; reforms were erratic and results disappointing.",{A:"Solved weaknesses.",B:"Partly improved living standards but didn’t solve structural issues.",C:"Worsened economy overall.",D:"No economic change."},"B")]},
-  {id:"oc", title:"Opposition & Control", icon:"🛡️", lessons:[makeLesson("L37","Was opposition weaker under Khrushchev?","Interpretive nuance","Was opposition weaker?","1953–1964",["Reduced terror enabled more visible criticism.","KGB monitoring and party limits still constrained organisation.","Hungary demonstrated coercive boundaries in the bloc.","Dissent was more audible but still structurally weak."],"Visibility and organisational strength are not the same thing.","Opposition was weaker because fear and coercion still constrained organisation and the party remained dominant.","Opposition became more visible and confident because reduced terror created space for dissent.",{A:"Opposition weaker overall.",B:"Opposition stronger overall.",C:"Opposition more visible but still structurally weak.",D:"Opposition disappeared."},"C")]},
-  {id:"sc", title:"Social & Cultural Change", icon:"🧭", lessons:[makeLesson("L38","Was the Khrushchev Thaw a genuine transformation?","AO3 interpretation","Was the Thaw transformative?","1953–1964",["Cultural liberalisation widened discussion and youth expression.","Censorship and periodic clampdowns persisted.","Housing and education programmes improved daily life for many.","Party boundaries still structured public culture."],"The Thaw shifted expectations but remained reversible.","The Thaw was transformative: it loosened cultural control and altered social expectations.","The Thaw was limited and reversible; party control and censorship remained decisive.",{A:"Genuine transformation.",B:"Limited change with strong continuity of control.",C:"No change at all.",D:"Total freedom achieved."},"B")]}
-]}
-]};
+const lessonsData = (()=>{
+  const topics = topicSpecs.map(t=>{
+    const themes = Object.entries(t.themes).map(([themeId, lessonRows])=>({
+      id:themeId,
+      title:THEME_LABELS[themeId],
+      lessons:lessonRows.map(([n,title,timeframe])=>buildLesson(t.id, themeId, n, title, timeframe))
+    }));
+    return {id:t.id,title:t.title,themes};
+  });
+  return {topics};
+})();
 
-function flattenLessons(){ return lessonsData.topics.flatMap(t=>t.themes.flatMap(th=>th.lessons.map(l=>({...l, topicId:t.id, topicTitle:t.title, years:t.years, themeId:th.id, themeTitle:th.title})))); }
-const LESSONS_V2 = flattenLessons();
-let lessonProgressV2 = JSON.parse(localStorage.getItem(LESSON_PROGRESS_V2_KEY)||"{}");
-let lessonsNavState = {view:"home", topicId:null, themeId:null, lessonId:null, idx:0, sfScore:0, sfTotal:0, masteryScore:0, masteryMax:30, judgementScore:0, done:{}};
+const lessonIndex = {};
+lessonsData.topics.forEach(t=>t.themes.forEach(th=>th.lessons.forEach(l=>lessonIndex[l.id]=l)));
 
-function saveLessonProgressV2(){ localStorage.setItem(LESSON_PROGRESS_V2_KEY, JSON.stringify(lessonProgressV2)); }
-function getLessonProgressV2(id){ return lessonProgressV2[id] || {completion:false,lastAttemptDate:null,lastScorePct:0,bestScorePct:0,weakSignals:[]}; }
+let LESSON_PROGRESS = loadLessonProgressV2();
 
-function lessonDue(p){ if(!p.lastAttemptDate) return true; const days=(Date.now()-new Date(p.lastAttemptDate).getTime())/86400000; return days>7 || (p.lastScorePct||0)<65; }
-
-function generateLessonSections(lesson){
-  const bank = lesson.contentPack.knowledge.slice(0,4).map((k,i)=>({id:`s${i+1}`,text:k,supportAWeight:3-i%2,challengeAWeight:i%2?2:-1,supportBWeight:i%2?2:-1,challengeBWeight:3-i%2,tags:["executive_power","coercion","legitimacy","economic_pressure"][i%4]}));
-  bank.push({id:"s5",text:"Regional implementation gaps weakened centre-to-local authority.",supportAWeight:0,challengeAWeight:2,supportBWeight:2,challengeBWeight:0,tags:["party_control"]});
-  bank.push({id:"s6",text:"Administrative centralisation gave rulers rapid coercive reach.",supportAWeight:3,challengeAWeight:-1,supportBWeight:-1,challengeBWeight:3,tags:["executive_power"]});
-  bank.push({id:"s7",text:"Social unrest was intermittent rather than continuous.",supportAWeight:2,challengeAWeight:0,supportBWeight:0,challengeBWeight:2,tags:["context"]});
-  bank.push({id:"s8",text:"Legal reforms widened expectations and criticism.",supportAWeight:-1,challengeAWeight:3,supportBWeight:3,challengeBWeight:-1,tags:["legitimacy"]});
-  bank.push({id:"s9",text:"Rhetoric was modern, but enforcement remained traditional.",supportAWeight:0,challengeAWeight:2,supportBWeight:2,challengeBWeight:0,tags:["continuity"]});
-  bank.push({id:"s10",text:"Economic growth improved state capacity in key sectors.",supportAWeight:2,challengeAWeight:0,supportBWeight:0,challengeBWeight:2,tags:["economic_pressure"]});
-  bank.push({id:"s11",text:"Atmosphere felt tense, but evidence is mostly anecdotal.",supportAWeight:0,challengeAWeight:0,supportBWeight:0,challengeBWeight:0,tags:["neutral"]});
-  bank.push({id:"s12",text:"No institutions mattered because everything was random.",supportAWeight:-1,challengeAWeight:-1,supportBWeight:-1,challengeBWeight:-1,tags:["contradict"]});
-
-  const sf = lesson.contentPack.knowledge.slice(0,3).flatMap((k,i)=>[
-    {type:"briefing",phase:"SF",text:`${k} This matters for thematic breadth because it links political authority to social conditions and institutional practice. For Section A evaluation, use this as tested context before judging interpretations. Keep focus on scale, timing, and whether change was structural or superficial.`},
-    {type:"select",phase:"SF",prompt:`Context check ${i+1}: Which statement best captures the key context?`,options:[k,"This factor had no impact on authority.","Only ideology mattered, not institutions."],correctIds:[0]}
-  ]);
-  const amb = [{type:"briefing",phase:"A",text:`${lesson.contentPack.ambition[0]} In exam terms, weigh causation by ranking immediate triggers against deep structures. Prioritise evidence that directly engages executive power, coercive capacity, and legitimacy.`},{type:"rank",phase:"A",prompt:"Pick the best two causal priorities.",options:["Structural authority/capacity","Contextual atmosphere","Leadership and elite alignment","Pure chance"] ,correctIds:[0,2]}];
-  const interpA=`${lesson.contentPack.interpretationAThesis} Supporters argue that continuity in executive power, coercive institutions, and administrative control gave the regime real resilience. They note that reforms, where present, were often managed from above and designed to preserve command rather than surrender it. Even when crises appeared severe, authority structures could absorb shock through repression, legal engineering, or selective concession. From an extract-evaluation angle, this interpretation is strongest when evidence shows institutions still functioning, elites still aligned, and social discontent fragmented.`;
-  const interpB=`${lesson.contentPack.interpretationBThesis} This view stresses that visible authority masked accumulating structural weakness. It highlights pressure from war, economic imbalance, social expectations, or policy contradictions that eroded legitimacy over time. Even where coercion delivered short-term order, it could intensify long-run instability by blocking adaptation and widening opposition. For Section A judgement, this interpretation gains force when evidence shows executive overstretch, breakdown in coercive loyalty, or widening gaps between legal form and political reality.`;
-  return [...sf,...amb,{type:"interpretation",phase:"M",label:"Interpretation A",text:interpA,bank},{type:"select",phase:"M",mode:"supportA",prompt:"Strengthen Interpretation A (select 3)",limit:3,statementBank:bank},{type:"select",phase:"M",mode:"challengeA",prompt:"Weaken Interpretation A (select 2)",limit:2,statementBank:bank},{type:"interpretation",phase:"M",label:"Interpretation B",text:interpB,bank},{type:"select",phase:"M",mode:"supportB",prompt:"Strengthen Interpretation B (select 3)",limit:3,statementBank:bank},{type:"select",phase:"M",mode:"challengeB",prompt:"Weaken Interpretation B (select 2)",limit:2,statementBank:bank},{type:"judgement",phase:"J",options:lesson.contentPack.judgementOptions,best:lesson.contentPack.judgementBest,evidencePick:{prompt:"Choose the best 2 evidence statements.",limit:2,fromStatementBank:true}},{type:"feedback",phase:"F"}];
+function loadLessonProgressV2(){
+  try{ return JSON.parse(localStorage.getItem(LESSON_PROGRESS_V2_KEY)||"{}"); }catch(e){ return {}; }
 }
+function saveLessonProgressV2(){ localStorage.setItem(LESSON_PROGRESS_V2_KEY, JSON.stringify(LESSON_PROGRESS)); }
+function saveLessonNavState(){ localStorage.setItem(LESSON_NAV_V2_KEY, JSON.stringify(lessonsNavState)); }
 
-function getLessonStatusMeta(progress){
-  if(!progress.completion) return {label:"New", action:"Start lesson", tone:"new"};
-  if(lessonDue(progress)) return {label:"Review due", action:"Review lesson", tone:"due"};
-  return {label:"On track", action:"Continue", tone:"track"};
-}
-
-function getTopicProgress(topic){
-  const lessons = topic.themes.flatMap(theme=>theme.lessons);
-  const completed = lessons.filter(lesson=>getLessonProgressV2(lesson.id).completion).length;
-  return {
-    completed,
-    total: lessons.length,
-    pct: lessons.length ? Math.round((completed/lessons.length)*100) : 0
-  };
-}
-
-function getSuggestedLesson(){
-  const allLessons = LESSONS_V2.map(lesson=>({ lesson, progress:getLessonProgressV2(lesson.id) }));
-  const dueLesson = allLessons.find(entry=>entry.progress.completion && lessonDue(entry.progress));
-  if(dueLesson) return { ...dueLesson.lesson, cue:"Review priority" };
-  const newLesson = allLessons.find(entry=>!entry.progress.completion);
-  if(newLesson) return { ...newLesson.lesson, cue:"Best next step" };
-  return null;
+function lessonCard(lesson){
+  const p = LESSON_PROGRESS[lesson.id] || {};
+  const score = Number.isFinite(p.bestScorePct) ? `${p.bestScorePct}% best` : "Not attempted";
+  return `<button class="tile lessonTile" data-id="${lesson.id}"><h3>${lesson.lessonNo}. ${lesson.title}</h3><div class="note">${lesson.timeframe}</div><div class="note">${score}</div></button>`;
 }
 
 function renderLessonsHome(){
-  const root=$("lessonsRoot");
-  if(!root) return;
   lessonsNavState.view="home";
-
-  const topicCards = lessonsData.topics.map(topic=>{
-    const progress = getTopicProgress(topic);
-    return `
-      <button class='lessonNavCard' data-topic='${topic.id}'>
-        <div class='lessonNavTop'>
-          <div>
-            <div class='lessonNavTitle'>${topic.title}</div>
-            <div class='lessonNavMeta'>${topic.years}</div>
-          </div>
-          <div class='lessonStatusPill'>${progress.completed}/${progress.total}</div>
-        </div>
-        <div class='lessonProgressTrack lessonProgressTrack--soft'>
-          <div class='lessonProgressFill' style='width:${progress.pct}%'></div>
-        </div>
-        <div class='lessonNavMeta'>${progress.pct}% complete</div>
-      </button>`;
-  }).join("");
-
-  const suggested = getSuggestedLesson();
-  const suggestedHtml = suggested ? `
-    <div class='lessonSuggestion'>
-      <div>
-        <div class='lessonSuggestionLabel'>${suggested.cue}</div>
-        <div class='lessonSuggestionTitle'>${suggested.title}</div>
-        <div class='lessonNavMeta'>${suggested.topicTitle} • ${suggested.timeframe}</div>
-      </div>
-      <button class='btn primary' data-quick-lesson='${suggested.id}'>Open</button>
-    </div>` : "";
-
-  root.innerHTML=`
-    <div class='card lessonHubIntro'>
-      <div class='quizPanelTitleText'>Lessons Hub</div>
-      <div class='note'>Pick one short lesson and focus on one enquiry at a time.</div>
-      ${suggestedHtml}
-    </div>
-    <div class='lessonNavGrid'>${topicCards}</div>`;
-
-  root.querySelectorAll("[data-topic]").forEach(button=>button.onclick=()=>renderTopicView(button.dataset.topic));
-  if(root.querySelector("[data-quick-lesson]")) root.querySelector("[data-quick-lesson]").onclick=(e)=>renderLessonPlayer(e.currentTarget.dataset.quickLesson);
+  const root=$("lessonsRoot");
+  root.innerHTML = `<div class="viewTitle">Lesson briefing</div><div class="lesson-pill-row">${lessonsData.topics.map(t=>`<button class="pill topicPill" data-id="${t.id}">${t.title}</button>`).join("")}</div>`;
+  root.querySelectorAll(".topicPill").forEach(btn=>btn.onclick=()=>renderTopicView(btn.dataset.id));
+  saveLessonNavState();
 }
 
 function renderTopicView(topicId){
-  const topic=lessonsData.topics.find(item=>item.id===topicId);
-  if(!topic) return;
-  lessonsNavState={...lessonsNavState,view:"topic",topicId};
+  lessonsNavState.view="topic"; lessonsNavState.topicId=topicId;
+  const topic = lessonsData.topics.find(t=>t.id===topicId);
   const root=$("lessonsRoot");
-
-  const progress = getTopicProgress(topic);
-  root.innerHTML=`
-    <div class='card'>
-      <button class='btn' id='lhBack'>← Lessons Home</button>
-      <div class='divider'></div>
-      <div class='lessonNavTitle'>${topic.title}</div>
-      <div class='lessonNavMeta'>${topic.years} • ${progress.completed}/${progress.total} completed</div>
-      <div class='lessonProgressTrack lessonProgressTrack--soft'>
-        <div class='lessonProgressFill' style='width:${progress.pct}%'></div>
-      </div>
-    </div>
-    <div class='lessonNavGrid'>
-      ${topic.themes.map(theme=>{
-        const done = theme.lessons.filter(lesson=>getLessonProgressV2(lesson.id).completion).length;
-        const pct = Math.round((done/theme.lessons.length)*100);
-        return `<div class='lessonNavCard'>
-          <div class='lessonNavTop'>
-            <div class='lessonNavTitle'>${theme.icon} ${theme.title}</div>
-            <div class='lessonStatusPill'>${done}/${theme.lessons.length}</div>
-          </div>
-          <div class='lessonProgressTrack lessonProgressTrack--soft'><div class='lessonProgressFill' style='width:${pct}%'></div></div>
-          <div class='lessonNavMeta'>${pct}% complete</div>
-          <button class='btn primary' data-theme='${theme.id}'>Open theme</button>
-        </div>`;
-      }).join("")}
-    </div>`;
-
+  root.innerHTML = `<div class="row" style="justify-content:space-between"><button class="btn ghost" id="lhBack">Back</button><div class="pill">${topic.title}</div></div><div class="lesson-pill-row">${topic.themes.map(th=>`<button class="tile themeTile" data-id="${th.id}"><h3>${th.title}</h3><div class="note">${th.lessons.length} lessons</div></button>`).join("")}</div>`;
   $("lhBack").onclick=renderLessonsHome;
-  root.querySelectorAll("[data-theme]").forEach(button=>button.onclick=()=>renderThemeView(topicId,button.dataset.theme));
+  root.querySelectorAll(".themeTile").forEach(btn=>btn.onclick=()=>renderThemeView(topicId, btn.dataset.id));
+  saveLessonNavState();
 }
 
-function renderThemeView(topicId,themeId){
-  const topic=lessonsData.topics.find(item=>item.id===topicId);
-  const theme=topic?.themes.find(item=>item.id===themeId);
-  if(!theme) return;
-  lessonsNavState={...lessonsNavState,view:"theme",topicId,themeId};
+function renderThemeView(topicId, themeId){
+  lessonsNavState.view="theme"; lessonsNavState.topicId=topicId; lessonsNavState.themeId=themeId;
+  const topic=lessonsData.topics.find(t=>t.id===topicId);
+  const theme=topic.themes.find(th=>th.id===themeId);
   const root=$("lessonsRoot");
-
-  root.innerHTML=`
-    <div class='card'>
-      <button class='btn' id='tvBack'>← Topic</button>
-      <div class='divider'></div>
-      <div class='lessonNavTitle'>${theme.icon} ${theme.title}</div>
-      <div class='lessonNavMeta'>${theme.lessons.length} lessons</div>
-    </div>
-    <div class='lessonList'>
-      ${theme.lessons.map(lesson=>{
-        const progress=getLessonProgressV2(lesson.id);
-        const status=getLessonStatusMeta(progress);
-        const score=progress.lastScorePct||0;
-        return `<article class='lessonListCard'>
-          <div class='lessonNavTop'>
-            <div>
-              <div class='lessonNavTitle'>${lesson.title}</div>
-              <div class='lessonNavMeta'>${lesson.timeframe}</div>
-            </div>
-            <span class='lessonStatusPill tone-${status.tone}'>${status.label}</span>
-          </div>
-          <div class='lessonOutcome'>${lesson.enquiryQuestion}</div>
-          <div class='lessonNavMeta'>${status.label==="New"?"Not started yet":`Last score ${score}%`}</div>
-          <button class='btn primary' data-lesson='${lesson.id}'>${status.action}</button>
-        </article>`;
-      }).join("")}
-    </div>`;
-
+  root.innerHTML = `<div class="row" style="justify-content:space-between"><button class="btn ghost" id="tvBack">Back</button><div class="pill">${theme.title}</div></div><div class="stack">${theme.lessons.map(lessonCard).join("")}</div>`;
   $("tvBack").onclick=()=>renderTopicView(topicId);
-  root.querySelectorAll("[data-lesson]").forEach(button=>button.onclick=()=>renderLessonPlayer(button.dataset.lesson));
+  root.querySelectorAll(".lessonTile").forEach(btn=>btn.onclick=()=>renderLessonPlayer(btn.dataset.id));
+  saveLessonNavState();
 }
 
-function scoreSelections(selected, mode, bank){ return selected.reduce((sum,id)=> sum + (bank.find(s=>s.id===id)?.[mode+"Weight"] || 0),0); }
-function LessonCard(inner){ return `<div class='lessonPlayerWrap'><div class='lessonCard'>${inner}</div></div>`; }
-function LessonHero(lesson){
-  const src=lesson.heroImage||"section-bg.jpg";
-  const keyQuestion = lesson.contentPack?.keyQuestion || lesson.enquiryQuestion || lesson.title;
-  return `<div class='lessonHero'><img src='${src}' alt='Lesson hero image'><div class='lessonHeroOverlay'><div class='lessonHeroTitle'>${lesson.timeframe} | ${lesson.themeTitle}: ${keyQuestion}</div><div class='lessonHeroSub'>${lesson.timeframe} • ${lesson.themeTitle}</div></div></div>`;
+function computeSlides(lesson, mode){
+  const slides=[];
+  slides.push({type:"hero",title:lesson.title,subtitle:lesson.timeframe,bigPicture:lesson.bigPicture});
+  lesson.sfBriefings.forEach((txt,i)=>{
+    slides.push({type:"brief",phase:"SF",title:`Strong foundations ${i+1}`,text:txt});
+    slides.push({type:"select",phase:"SF",prompt:lesson.sfChecks[i].prompt,options:lesson.sfChecks[i].options,correct:lesson.sfChecks[i].correct,max:1});
+  });
+  lesson.ambitionBriefings.forEach((txt,i)=>slides.push({type:"brief",phase:"AMB",title:`Ambition ${i+1}`,text:txt}));
+  slides.push({type:lesson.ambitionTask.type==="rank"?"rank":"select",phase:"AMB",prompt:lesson.ambitionTask.prompt,options:lesson.ambitionTask.options,correct:lesson.ambitionTask.correct,max:2});
+  const bank = mode==="simple" ? lesson.statementBank.slice(0,9) : lesson.statementBank;
+  const ia = mode==="simple" ? lesson.interpretationA.split(".").slice(0,3).join(".")+"." : lesson.interpretationA;
+  const ib = mode==="simple" ? lesson.interpretationB.split(".").slice(0,3).join(".")+"." : lesson.interpretationB;
+  slides.push({type:"interp",phase:"EX",label:"Interpretation A",text:ia});
+  slides.push({type:"interpTask",phase:"EX",task:"Strengthen A",pick:3,scoreKey:"supportA",bank});
+  slides.push({type:"interpTask",phase:"EX",task:"Weaken A",pick:2,scoreKey:"challengeA",bank});
+  slides.push({type:"interp",phase:"EX",label:"Interpretation B",text:ib});
+  slides.push({type:"interpTask",phase:"EX",task:"Strengthen B",pick:3,scoreKey:"supportB",bank});
+  slides.push({type:"interpTask",phase:"EX",task:"Weaken B",pick:2,scoreKey:"challengeB",bank});
+  slides.push({type:"judge",phase:"J",data:lesson.judgement,bank});
+  slides.push({type:"feedback",phase:"F"});
+  return slides;
 }
-function LessonSectionHeading(text){ return `<h2 class='lessonSectionHeading'>${text}</h2>`; }
-function InsetTaskCard(title, instruction, hint){ return `<section class='insetTaskCard'><h3 class='insetTaskTitle'>${title}</h3><p class='lessonBodyText'>${instruction}</p>${hint?`<div class='hintStrip'>${hint}</div>`:""}</section>`; }
-function ChoicePills(items, cls){ return `<div class='choicePills'>${items.map(item=>`<button type='button' class='choicePill ${cls||""}' data-id='${item.id}'>${item.text}</button>`).join("")}</div>`; }
-function BottomNav(canPrev, canNext, active){ return `<div class='lessonBottomNav'><button class='btn lessonSlideBtn' id='lessonSlidePrevBtn' ${canPrev?"":"disabled"}>Previous</button><div class='lessonSlideDots'>${[1,2,3,4].map(i=>`<span class='lessonSlideDot ${i===active?"isActive":""}'></span>`).join("")}</div><button class='btn primary lessonSlideBtn' id='lessonSlideNextBtn' ${canNext?"":"disabled"}>Next</button></div>`; }
 
 function renderLessonPlayer(lessonId){
-  const lesson=LESSONS_V2.find(l=>l.id===lessonId);
-  if(!lesson) return;
-  const sections=generateLessonSections(lesson);
-  lessonsNavState={...lessonsNavState,view:"player",lessonId,idx:0,sfScore:0,sfTotal:0,masteryScore:0,judgementScore:0,done:{},sections,examPlus:false,slideGate:{}};
-  drawLessonSection();
-}
+  const lesson=lessonIndex[lessonId];
+  lessonsNavState.view="player"; lessonsNavState.lessonId=lessonId;
+  const p=LESSON_PROGRESS[lessonId]||{};
+  if(typeof p.lastSlideIdx==="number") lessonsNavState.slideIdx=Math.min(p.lastSlideIdx,1);
+  lessonsNavState.mode = p.lastMode || lessonsNavState.mode || "exam";
+  lessonsNavState.sfAttempts=0; lessonsNavState.sfCorrect=0; lessonsNavState.totalInterp=0; lessonsNavState.neutralPicks=0; lessonsNavState.contradictions=0; lessonsNavState.missedStruct=false; lessonsNavState.atmosphereOnly=false;
 
-function lessonSlideFromSection(sec){
-  if(!sec) return 1;
-  if(sec.phase==="SF") return 1;
-  if(sec.phase==="A") return 2;
-  if(sec.phase==="M") return 3;
-  return 4;
-}
-
-function drawLessonSection(){
-  const st=lessonsNavState;
-  const sec=st.sections[st.idx];
   const root=$("lessonsRoot");
-  if(!sec) return renderThemeView(LESSONS_V2.find(l=>l.id===st.lessonId).topicId, LESSONS_V2.find(l=>l.id===st.lessonId).themeId);
-  const lesson=LESSONS_V2.find(l=>l.id===st.lessonId);
-  const slide=lessonSlideFromSection(sec);
-  const simple=!st.examPlus;
-  const canPrev=st.idx>0;
-  const canNext=!!st.slideGate[st.idx] || sec.type==="briefing" || sec.type==="interpretation";
-  let body="";
+  const draw=()=>{
+    const slides=computeSlides(lesson, lessonsNavState.mode);
+    const idx=Math.max(0, Math.min(lessonsNavState.slideIdx, slides.length-1));
+    lessonsNavState.slideIdx=idx;
+    const s=slides[idx];
+    let body="";
+    if(s.type==="hero") body=renderHeroSlide(s);
+    if(s.type==="brief") body=renderBriefingSlide(s);
+    if(s.type==="select"||s.type==="interpTask") body=renderSelectSlide(s);
+    if(s.type==="rank") body=renderRankSlide(s);
+    if(s.type==="interp") body=renderInterpretationSlide(s);
+    if(s.type==="judge") body=renderJudgementSlide(s);
+    if(s.type==="feedback") body=renderFeedbackSlide(lesson, slides.length);
 
-  if(slide===1){
-    const opts=(sec.statementBank||sec.options?.map((t,i)=>({id:String(i),text:t}))||[]);
-    body+=LessonSectionHeading("Big picture idea");
-    const conceptLine = lesson.contentPack?.conceptLine || lesson.contentPack?.ambition?.[0] || "Use the key debate to frame your opening judgement.";
-    body+=`<p class='lessonBodyText'>${conceptLine}</p>`;
-    body+=InsetTaskCard("Frame the historical problem","Pick the tension sentence that best captures reform and continuity in political authority.",simple?"A-level move: frame it as tension between reform method and autocratic purpose.":"A-level move: define the mechanism of reform, then test whether executive power actually shifted.");
-    if(opts.length){
-      body+=`<div><div class='lessonCounter'>Choose 1 statement</div><div id='opts'>${ChoicePills(opts.map(o=>({id:o.id,text:o.text}),'opt'))}</div><button type='button' class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='lessonFeedback' id='selFb'></div></div>`;
-    } else {
-      body+=`<button class='btn primary' id='nextSec'>Continue</button>`;
-    }
-  }
+    root.innerHTML=`<div class="viewTitle">Lesson briefing</div><div class="row"><span class="pill">Slide ${idx+1} of ${slides.length}</span><div class="lesson-pill-row"><button class="pill modeBtn ${lessonsNavState.mode==="overview"?"isSelected":""}" data-mode="overview">Overview</button><button class="pill modeBtn ${lessonsNavState.mode==="simple"?"isSelected":""}" data-mode="simple">Simple</button><button class="pill modeBtn ${lessonsNavState.mode==="exam"?"isSelected":""}" data-mode="exam">Exam+</button></div></div>${body}<div class="row" style="justify-content:space-between;margin-top:14px"><button class="btn ghost" id="lessonPrev">Previous</button><div class="lesson-slide-dots">${slides.map((_,i)=>`<span class="dot ${i===idx?"active":""}"></span>`).join("")}</div><button class="btn" id="lessonNext">Next</button></div>`;
 
-  if(slide===2){
-    body+=LessonSectionHeading("Micro-briefing");
-    body+=`<ul class='lessonBulletList'>${lesson.contentPack.knowledge.slice(0,5).map(item=>`<li>${item}</li>`).join("")}</ul>`;
-    if(sec.type==="select"||sec.type==="rank"){
-      const opts=(sec.statementBank||sec.options.map((t,i)=>({id:String(i),text:t})));
-      body+=InsetTaskCard("Check understanding","Pick the best answer(s) before moving on.",simple?"Use one concrete phrase from the briefing in your reason.":"Add one precise contextual marker (year, policy, institution) in your reason.");
-      body+=`<div><p class='lessonBodyText'>${sec.prompt}</p><div id='opts'>${ChoicePills(opts,'opt')}</div><button type='button' class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='lessonFeedback' id='selFb'></div></div>`;
-    } else {
-      body+=`<button class='btn primary' id='nextSec'>Continue</button>`;
-    }
-  }
+    root.querySelectorAll(".modeBtn").forEach(btn=>btn.onclick=()=>{lessonsNavState.mode=btn.dataset.mode;lessonsNavState.slideIdx=0;draw();});
+    const next=root.querySelector("#lessonNext");
+    root.querySelector("#lessonPrev").onclick=()=>{ if(idx===0){ renderThemeView(lesson.topicId, lesson.themeId); return; } lessonsNavState.slideIdx--; draw(); };
+    next.onclick=()=>{ lessonsNavState.slideIdx++; LESSON_PROGRESS[lessonId]={...(LESSON_PROGRESS[lessonId]||{}), lastMode:lessonsNavState.mode,lastSlideIdx:lessonsNavState.slideIdx}; saveLessonProgressV2(); if(lessonsNavState.slideIdx>=slides.length){ lessonsNavState.slideIdx=slides.length-1; } draw(); };
 
-  if(slide===3){
-    body+=LessonSectionHeading("Exam skill build");
-    if(sec.type==="interpretation") body+=`<p class='lessonBodyText'>${sec.text}</p><div class='hintStrip'>Choose evidence that directly builds or weakens the claim.</div><button class='btn primary' id='nextSec'>Continue</button>`;
-    if(sec.type==="select"){
-      const opts=sec.statementBank||[];
-      body+=`<p class='lessonBodyText'>${sec.prompt}</p><div class='lessonCounter' id='selCount'>Selected: 0/${sec.limit||sec.correctIds.length}</div><div id='opts'>${ChoicePills(opts,'opt')}</div><button type='button' class='btn primary' id='checkSel' disabled style='margin-top:10px'>Build & score</button><div class='lessonFeedback' id='selFb'></div>`;
-    }
-  }
+    wireInteractiveHandlers(s,next,lesson,slides);
+    saveLessonNavState();
+  };
+  draw();
+}
 
-  if(slide===4){
-    if(sec.type==="judgement"){
-      body+=LessonSectionHeading("Exam-ready output");
-      body+=`<p class='lessonBodyText'>Choose a judgement, then pick evidence to build your answer.</p><div id='opts'>${ChoicePills(Object.entries(sec.options).map(([k,v])=>({id:k,text:`${k}. ${v}`}),'jopt'))}</div><div id='eviWrap' class='hidden'></div><button type='button' class='btn primary hidden' id='judgeDone' style='margin-top:10px'>Build answer</button><div class='lessonFeedback' id='judgeFb'></div>`;
-    }
-    if(sec.type==="feedback"){
-      const total=st.masteryScore+st.judgementScore;
-      const pct=Math.max(0,Math.round((total/34)*100));
-      const weak=[];
-      if(st.neutral>2) weak.push("Too many neutral selections.");
-      if(st.contra>1) weak.push("A few selected statements contradicted your argument.");
-      if(st.structMiss) weak.push("Add explicit executive/coercion evidence.");
-      if(st.contextOver) weak.push("Balance context with institutional evidence.");
-      body+=LessonSectionHeading("Your answer build");
-      body+=`<div class='lessonOutputBox'>${Object.values(lesson.contentPack.judgementOptions).join(" ")}</div><div class='lessonBodyText'><strong>Score:</strong> ${pct}/100</div><ul class='lessonBulletList'><li>What you did well: you completed every stage of argument build.</li><li>What you did well: you engaged interpretation and evidence selection.</li></ul><div class='hintStrip'>Upgrade target: ${weak[0]||"Push precision with one named institution or policy."} ${simple?"": "Add precise evidence: use one dated policy example in your opening line."}</div><div style='display:grid;grid-template-columns:1fr 1fr;gap:8px'><button class='btn' id='retrySlide'>Retry this slide</button><button class='btn primary' id='finishLesson'>Mark as complete</button></div>`;
-      lessonProgressV2[st.lessonId]={completion:true,lastAttemptDate:new Date().toISOString(),lastScorePct:pct,bestScorePct:Math.max(pct,getLessonProgressV2(st.lessonId).bestScorePct||0),weakSignals:weak};
-      saveLessonProgressV2();
-    }
-  }
+function renderHeroSlide(s){ return `<div class="heroCard"><div class="heroOverlay"><h2>${s.title}</h2><p>${s.subtitle}</p></div></div><section class="taskCard"><h3>Big picture idea</h3><p>${s.bigPicture}</p></section>`; }
+function renderBriefingSlide(s){ return `<section class="taskCard"><h2>${s.title}</h2><p>${s.text}</p></section>`; }
+function tileHtml(options, cls){ return `<div class="tileGrid">${options.map((o,i)=>`<button class="statement-tile ${cls}" data-id="${i}">${o.text||o}</button>`).join("")}</div>`; }
+function renderSelectSlide(s){ return `<section class="taskCard"><h3>${s.task||"Context check"}</h3><p>${s.prompt}</p>${tileHtml(s.bank||s.options, "pickTile")}<div class="row"><button class="btn" id="submitSlide" disabled>Submit</button><div class="note" id="slideFb"></div></div></section>`; }
+function renderRankSlide(s){ return `<section class="taskCard"><h3>Rank task</h3><p>${s.prompt}</p>${tileHtml(s.options,"pickTile")}<div class="row"><button class="btn" id="submitSlide" disabled>Submit</button><div class="note" id="slideFb"></div></div></section>`; }
+function renderInterpretationSlide(s){ return `<section class="taskCard"><h3>${s.label}</h3><p>${s.text}</p></section>`; }
+function renderJudgementSlide(s){ return `<section class="taskCard"><h3>Judgement builder</h3><p>${s.data.prompt}</p>${tileHtml(s.data.options,"judgeTile")}<h4>Select 2 supporting statements</h4>${tileHtml(s.bank,"eviTile")}<div class="row"><button class="btn" id="submitJudge" disabled>Submit</button><div class="note" id="judgeFb"></div></div></section>`; }
 
-  const header=`<div class='lessonCardTop'><h1 class='lessonCardTitle'>Lesson briefing</h1><button class='btn' id='lpBack'>← Theme</button></div><div class='lessonMetaSticky'><div class='lessonSlideCounter'>SLIDE ${slide} OF 4</div><div class='lessonPillRow'><button class='lessonPillBtn'>Overview</button><button class='lessonPillBtn ${simple?"isActive":""}' id='simpleModeBtn'>Simple</button><button class='lessonPillBtn ${!simple?"isActive":""}' id='examModeBtn'>Exam+</button></div></div>`;
-  root.innerHTML=LessonCard(`${header}${LessonHero(lesson)}<div class='lessonBody'>${body}</div>${BottomNav(canPrev,canNext,slide)}`);
+function renderFeedbackSlide(lesson,totalSlides){
+  const p=LESSON_PROGRESS[lesson.id]||{};
+  const score=p.lastScorePct||0;
+  const band=score>=85?"Level 5":score>=65?"Level 4":score>=45?"Developing":"Surface";
+  const reasons=(p.weakSignals||[]).map(x=>`<li>${x}</li>`).join("") || "<li>Solid evidence balance across tasks.</li>";
+  return `<section class="taskCard"><h3>Feedback</h3><p>Score: <b>${score}%</b> (${band})</p><ul>${reasons}</ul><button class="btn" id="finishLesson">Return to lessons</button></section>`;
+}
 
-  $("lpBack").onclick=()=>renderThemeView(lesson.topicId,lesson.themeId);
-  $("simpleModeBtn").onclick=()=>{ lessonsNavState.examPlus=false; drawLessonSection(); };
-  $("examModeBtn").onclick=()=>{ lessonsNavState.examPlus=true; drawLessonSection(); };
-  $("lessonSlidePrevBtn").onclick=()=>{ if(st.idx>0){ lessonsNavState.idx--; drawLessonSection(); } };
-  $("lessonSlideNextBtn").onclick=()=>{ if(canNext){ lessonsNavState.idx++; drawLessonSection(); } };
-  if($("nextSec")) $("nextSec").onclick=()=>{ lessonsNavState.slideGate[st.idx]=true; lessonsNavState.idx++; drawLessonSection(); };
-
-  const optsWrap = root.querySelector("#opts");
-  const checkSelBtn = root.querySelector("#checkSel");
-  const selCountEl = root.querySelector("#selCount");
-  const selFbEl = root.querySelector("#selFb");
-  if(optsWrap && checkSelBtn){
-    const selected=new Set();
-    const limit=sec.limit||sec.correctIds?.length||1;
-    const optionButtons = Array.from(optsWrap.querySelectorAll('.opt'));
-
-    const syncSelectionUi = ()=>{
-      optionButtons.forEach(button=>button.classList.toggle('isSelected', selected.has(button.dataset.id)));
-      if(selCountEl) selCountEl.textContent=`Selected: ${selected.size}/${limit}`;
-      checkSelBtn.disabled=selected.size!==limit;
-    };
-
-    const toggleOption = (button)=>{
-      if(!button) return;
-      const id = button.dataset.id;
-      if(!id) return;
-      if(selected.has(id)) selected.delete(id);
-      else {
-        if(limit && selected.size>=limit) return;
-        selected.add(id);
-      }
-      syncSelectionUi();
-    };
-
-    optsWrap.addEventListener('click', (event)=>{
-      const button = event.target.closest('.opt');
-      if(!button || !optsWrap.contains(button)) return;
-      toggleOption(button);
+function wireInteractiveHandlers(slide,nextBtn,lesson,slides){
+  nextBtn.disabled = ["select","rank","interpTask","judge"].includes(slide.type);
+  const weak=[];
+  if(slide.type==="select" || slide.type==="rank"){
+    const picks=new Set();
+    $("lessonsRoot").querySelectorAll(".pickTile").forEach(el=>el.onclick=()=>{
+      const id=Number(el.dataset.id);
+      if(picks.has(id)){picks.delete(id);el.classList.remove("isSelected");}
+      else{ if(picks.size>=(slide.max||1)) return; picks.add(id);el.classList.add("isSelected"); }
+      $("submitSlide").disabled = picks.size!==(slide.max||1);
     });
-
-    optsWrap.addEventListener('touchend', (event)=>{
-      const button = event.target.closest('.opt');
-      if(!button || !optsWrap.contains(button)) return;
-      event.preventDefault();
-      toggleOption(button);
-    }, {passive:false});
-
-    checkSelBtn.onclick=()=>{
-      let gained=0;
-      if(sec.phase==="SF"){
-        const validIds = (sec.correctIds || []).map(id=>String(id));
-        const correct=[...selected].filter(x=>validIds.includes(String(x))).length;
-        lessonsNavState.sfScore+=correct;
-        lessonsNavState.sfTotal+=sec.correctIds.length;
-        if(selFbEl) selFbEl.textContent=correct===sec.correctIds.length?"Good pick — this is the core tension sentence.":"Not quite — here’s why: focus on the statement that directly links authority and reform.";
-      } else if(sec.phase==="M"){
-        gained=scoreSelections([...selected],sec.mode,sec.statementBank);
-        lessonsNavState.masteryScore+=Math.max(0,gained);
-        lessonsNavState.neutral=(lessonsNavState.neutral||0)+[...selected].filter(id=>(sec.statementBank.find(s=>s.id===id)?.[sec.mode+"Weight"]||0)===0).length;
-        lessonsNavState.contra=(lessonsNavState.contra||0)+[...selected].filter(id=>(sec.statementBank.find(s=>s.id===id)?.[sec.mode+"Weight"]||0)<0).length;
-        lessonsNavState.structMiss=(lessonsNavState.structMiss||false) || ![...selected].some(id=>["executive_power","coercion"].some(t=>(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes(t)));
-        lessonsNavState.contextOver=(lessonsNavState.contextOver||false) || [...selected].every(id=>(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("context")||(sec.statementBank.find(s=>s.id===id)?.tags||[]).includes("neutral"));
-        if(selFbEl) selFbEl.textContent=`Score added: ${Math.max(0,gained)}. Build the next step.`;
-      } else {
-        const validIds = (sec.correctIds || []).map(id=>String(id));
-        const correct=[...selected].filter(x=>validIds.includes(String(x))).length;
-        if(selFbEl) selFbEl.textContent=`Good weighting: ${correct} strong choices.`;
+    $("submitSlide").onclick=()=>{
+      const correct=(slide.correct||[]).every(i=>picks.has(i)) && picks.size===(slide.correct||[]).length;
+      if(slide.phase==="SF"){
+        lessonsNavState.sfAttempts++; if(correct) lessonsNavState.sfCorrect++;
       }
-      lessonsNavState.slideGate[st.idx]=true;
-      const nextBtn = root.querySelector("#lessonSlideNextBtn") || $("lessonSlideNextBtn");
-      if(nextBtn) nextBtn.disabled=false;
+      $("slideFb").textContent = correct ? "Accurate selection." : "Review causation and implementation before moving on.";
+      if(slide.type==="interpTask"){
+        let gained=0;
+        [...picks].forEach(i=>{ const it=slide.bank[i]; const v=(it?.[slide.scoreKey]||0); gained += v; if(v===0) lessonsNavState.neutralPicks++; if(v<0) lessonsNavState.contradictions++; });
+        lessonsNavState.totalInterp += Math.max(0,gained);
+        if(![...picks].some(i=>["executive_power","coercion"].some(t=>(slide.bank[i]?.tags||[]).includes(t)))) lessonsNavState.missedStruct=true;
+        if([...picks].every(i=>(slide.bank[i]?.tags||[]).includes("atmosphere") || (slide.bank[i]?.tags||[]).includes("neutral"))) lessonsNavState.atmosphereOnly=true;
+      }
+      nextBtn.disabled=false;
     };
   }
-
-  if(root.querySelectorAll('.jopt').length){
-    let chosen=null;
-    root.querySelectorAll('.jopt').forEach(btn=>btn.addEventListener('click', ()=>{
-      chosen=btn.dataset.id;
-      root.querySelectorAll('.jopt').forEach(x=>x.classList.remove('isSelected'));
-      btn.classList.add('isSelected');
-      const bank=st.sections.find(s=>s.type==="interpretation").bank;
-      $("eviWrap").classList.remove('hidden');
-      $("eviWrap").innerHTML=`<div class='lessonCounter'>Choose 2 supporting statements</div>${ChoicePills(bank.slice(0,6).map(s=>({id:s.id,text:s.text}),'evi'))}`;
-      $("judgeDone").classList.remove('hidden');
-      const ev=new Set();
-      root.querySelectorAll('.evi').forEach(x=>x.addEventListener('click', ()=>{
-        const id=x.dataset.id;
-        if(ev.has(id)){ev.delete(id);x.classList.remove('isSelected');}
-        else {if(ev.size>=2)return;ev.add(id);x.classList.add('isSelected');}
-      }));
-      $("judgeDone").onclick=()=>{
-        lessonsNavState.judgementScore=(chosen===sec.best?2:0)+2;
-        $("judgeFb").textContent="Answer build generated. Move to final feedback.";
-        lessonsNavState.slideGate[st.idx]=true;
-        $("lessonSlideNextBtn").disabled=false;
-      };
-    }));
+  if(slide.type==="judge"){
+    let chosen=null; const ev=new Set();
+    $("lessonsRoot").querySelectorAll(".judgeTile").forEach(el=>el.onclick=()=>{ chosen=Number(el.dataset.id); $("lessonsRoot").querySelectorAll(".judgeTile").forEach(x=>x.classList.remove("isSelected")); el.classList.add("isSelected"); $("submitJudge").disabled=!(chosen!==null&&ev.size===2); });
+    $("lessonsRoot").querySelectorAll(".eviTile").forEach(el=>el.onclick=()=>{ const id=Number(el.dataset.id); if(ev.has(id)){ev.delete(id);el.classList.remove("isSelected");} else{ if(ev.size>=2) return; ev.add(id);el.classList.add("isSelected"); } $("submitJudge").disabled=!(chosen!==null&&ev.size===2); });
+    $("submitJudge").onclick=()=>{
+      const bestIdx = slide.data.options.findIndex(o=>o.id===slide.data.best);
+      const judgePts = (chosen===bestIdx?2:0)+2;
+      const sfPct = lessonsNavState.sfAttempts? (100*lessonsNavState.sfCorrect/lessonsNavState.sfAttempts) : 100;
+      if(sfPct<60){
+        $("judgeFb").textContent="Quick Recap required: Strong Foundations under 60%. Return to SF slides and retry to unlock Exam+ performance.";
+      } else {
+        $("judgeFb").textContent="Judgement submitted.";
+      }
+      const total = Math.min(30, lessonsNavState.totalInterp) + judgePts;
+      const pct = Math.round((total/34)*100);
+      if(lessonsNavState.neutralPicks>=4) weak.push("Too many neutral picks reduced analytical precision.");
+      if(lessonsNavState.contradictions>=2) weak.push("Contradictory statements were selected in strengthen tasks.");
+      if(lessonsNavState.missedStruct) weak.push("Missed structural executive/coercion evidence.");
+      if(lessonsNavState.atmosphereOnly) weak.push("Over-reliance on atmosphere facts instead of structural evidence.");
+      const prev=LESSON_PROGRESS[lesson.id]||{};
+      LESSON_PROGRESS[lesson.id]={completion:1,lastAttemptDate:new Date().toISOString(),lastScorePct:pct,bestScorePct:Math.max(pct,prev.bestScorePct||0),weakSignals:weak,lastMode:lessonsNavState.mode,lastSlideIdx:slides.length-1};
+      saveLessonProgressV2();
+      nextBtn.disabled=false;
+    };
   }
-
-  if($("retrySlide")) $("retrySlide").onclick=()=>{ lessonsNavState.idx=Math.max(0,st.idx-1); drawLessonSection(); };
-  if($("finishLesson")) $("finishLesson").onclick=()=>{ renderThemeView(lesson.topicId,lesson.themeId); };
+  if(slide.type==="feedback") $("finishLesson").onclick=()=>renderThemeView(lesson.topicId, lesson.themeId);
 }
 
 function renderLessonLibrary(){ renderLessonsHome(); }
@@ -12889,7 +12757,7 @@ function init(){
   $("matchTopicSelect").value = "MIXED";
   $("examTopicSelect").value = "ALL";
 
-  LESSON_PROGRESS = loadLessonProgress();
+  LESSON_PROGRESS = loadLessonProgressV2();
   renderLessonLibrary();
   renderExamSelect();
   updateStudyLaunchCta();
