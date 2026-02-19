@@ -8654,9 +8654,9 @@ function buildLessonSlides(lesson){
       tone:"overview",
       image:getLessonSlideImage(lesson),
       interactive:{
-        title:"Quick connect",
-        prompt:"Say this in your own words: What is this lesson mostly about?",
-        support:"Tip: Start with ‘This lesson is about…’ and add one key word (power, control, reform, or change)."
+        title:"Frame the historical problem",
+        prompt:"In one precise sentence, define the central debate of this lesson and identify the key concept (authority, reform, control, or opposition).",
+        support:"A-level move: frame it as tension (e.g. ‘The period shows reform in method but continuity in political purpose.’)."
       }
     },
     {
@@ -8669,15 +8669,15 @@ function buildLessonSlides(lesson){
       tone:"change",
       image:getLessonSlideImage(lesson),
       interactive:{
-        title:"Pick the best definition",
+        title:"Apply the concept accurately",
         check:{
-          question:"In history, a ‘change’ means…",
-          choices:["something that stayed the same","something that became different","a random fact with no time link"],
+          question:"Which definition of ‘change’ best fits A-level historical analysis?",
+          choices:["Any event that happened during the period","A demonstrable shift between two points in time, supported with evidence and explained significance","An opinion that the period felt different"],
           answerIndex:1,
-          success:"Yes. A change is something that became different over time.",
-          retry:"Try again. Think about what is different, not what stayed stable."
+          success:"Exactly. At A-level, change must be evidenced across time and linked to why it mattered.",
+          retry:"Not quite. Focus on comparison across time plus evidence, not just an event or impression."
         },
-        support:"Sentence stem: ‘One change was ___ because before this, ___ but after this, ___.’"
+        support:"Analytical stem: ‘A significant change was ___; compared with ___ in [start date], by [end date] ___, which mattered because ___.’"
       }
     },
     {
@@ -8690,15 +8690,15 @@ function buildLessonSlides(lesson){
       tone:"continuity",
       image:getLessonSlideImage(lesson),
       interactive:{
-        title:"Spot continuity",
+        title:"Test continuity with precision",
         check:{
-          question:"A ‘continuity’ is best described as…",
-          choices:["a key feature that stayed over time","a one-off event","a guess without evidence"],
+          question:"Which option is the strongest definition of continuity?",
+          choices:["A structural feature that persists across the period, even when policies or tone change","A policy that lasted for only one ruler","Any tradition mentioned in a textbook"],
           answerIndex:0,
-          success:"Correct. Continuity means something that carried on.",
-          retry:"Not yet. Look for what continued across years, not a single moment."
+          success:"Correct. Continuity is about durable structures or priorities that outlast short-term shifts.",
+          retry:"Try again. Continuity needs persistence across the period, not a temporary measure or vague reference."
         },
-        support:"Sentence stem: ‘A continuity was ___ and this mattered because ___.’"
+        support:"Analytical stem: ‘Despite ___, continuity persisted in ___ because evidence from both ___ and ___ shows ___.’"
       }
     },
     {
@@ -8711,9 +8711,9 @@ function buildLessonSlides(lesson){
       tone:"exam",
       image:getLessonSlideImage(lesson),
       interactive:{
-        title:"Explain your judgement",
-        prompt:"Finish this sentence: ‘The most important factor was ___ because ___.’",
-        support:"Tip: Use one date and one clear effect in your explanation."
+        title:"Defend a line of argument",
+        prompt:"Complete a substantiated judgement: ‘Overall, ___ was more significant than ___ because over the period ___, although ___.’",
+        support:"A-level tip: rank factors, anchor your argument with at least two precise references, then concede a valid counterpoint."
       }
     }
   ];
