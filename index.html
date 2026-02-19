@@ -754,24 +754,25 @@
     .lessonHeaderTopTitle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     .lessonHeaderCard .lessonMeta{font-size:12px;letter-spacing:.2px;text-transform:uppercase;margin-top:2px}
     .lessonTitleMain{font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.2px;line-height:1.35}
-    .lessonHubIntro{display:grid;gap:10px}
-    .lessonSuggestion{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid color-mix(in srgb, var(--line) 66%, var(--accent2) 34%);border-radius:14px;background:rgba(255,255,255,.78)}
+    .lessonHubIntro{display:grid;gap:8px}
+    .lessonSuggestion{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid color-mix(in srgb, var(--line) 66%, var(--accent2) 34%);border-radius:14px;background:rgba(255,255,255,.9)}
     .lessonSuggestionLabel{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
     .lessonSuggestionTitle{font-size:15px;font-weight:900;color:var(--textStrong);line-height:1.3;margin-top:3px}
     .lessonNavGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
-    .lessonNavCard{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;padding:12px;background:linear-gradient(170deg, rgba(250,252,255,.95), rgba(232,242,251,.82));display:grid;gap:9px;text-align:left;color:inherit}
+    .lessonNavCard{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;padding:12px;background:rgba(248,252,255,.92);display:grid;gap:8px;text-align:left;color:inherit;box-shadow:0 3px 10px rgba(20,50,90,.08)}
     .lessonNavCard[data-topic]{cursor:pointer}
     .lessonNavTop{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
     .lessonNavTitle{font-size:15px;font-weight:900;line-height:1.3;color:var(--textStrong)}
     .lessonNavMeta{font-size:12px;color:var(--muted);line-height:1.4}
-    .lessonStatusPill{display:inline-flex;align-items:center;justify-content:center;min-height:24px;padding:4px 9px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);font-size:11px;font-weight:900;background:rgba(255,255,255,.82);white-space:nowrap}
+    .lessonStatusPill{display:inline-flex;align-items:center;justify-content:center;min-height:24px;padding:4px 9px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);font-size:11px;font-weight:900;background:rgba(255,255,255,.94);white-space:nowrap}
     .tone-new{background:rgba(222,231,241,.6)}
     .tone-track{background:rgba(126,185,170,.22)}
     .tone-due{background:rgba(183,142,161,.2)}
     .lessonProgressTrack--soft{height:10px;background:rgba(220,231,243,.56);border:1px solid color-mix(in srgb, var(--line) 52%, var(--accent2) 48%)}
     .lessonList{display:grid;gap:10px;margin-top:10px}
-    .lessonListCard{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;padding:12px;background:linear-gradient(172deg, rgba(250,252,255,.95), rgba(232,241,251,.78));display:grid;gap:9px}
-    .lessonOutcome{font-size:13px;line-height:1.45;color:var(--text);padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.76);border:1px solid color-mix(in srgb, var(--line) 58%, var(--accent2) 42%)}
+    .lessonListCard{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;padding:12px;background:rgba(248,252,255,.92);display:grid;gap:8px;box-shadow:0 3px 10px rgba(20,50,90,.08)}
+    .lessonListCard .btn{width:100%}
+    .lessonOutcome{font-size:13px;line-height:1.4;color:var(--text);padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.88);border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%)}
     .lessonBriefingTitle{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px}
     .lessonSlideShell{margin-top:12px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:16px;padding:12px;background:linear-gradient(175deg, rgba(250,252,255,.95), rgba(232,241,251,.82))}
     .lessonSlideMeta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
@@ -12570,7 +12571,7 @@ function renderLessonsHome(){
         <div class='lessonProgressTrack lessonProgressTrack--soft'>
           <div class='lessonProgressFill' style='width:${progress.pct}%'></div>
         </div>
-        <div class='lessonNavMeta'>${progress.pct}% complete • ${topic.themes.length} themes</div>
+        <div class='lessonNavMeta'>${progress.pct}% complete</div>
       </button>`;
   }).join("");
 
@@ -12588,7 +12589,7 @@ function renderLessonsHome(){
   root.innerHTML=`
     <div class='card lessonHubIntro'>
       <div class='quizPanelTitleText'>Lessons Hub</div>
-      <div class='note'>Short, structured pathways with retrieval, judgement, and feedback in each lesson.</div>
+      <div class='note'>Pick one short lesson and focus on one enquiry at a time.</div>
       ${suggestedHtml}
     </div>
     <div class='lessonNavGrid'>${topicCards}</div>`;
@@ -12646,7 +12647,7 @@ function renderThemeView(topicId,themeId){
       <button class='btn' id='tvBack'>← Topic</button>
       <div class='divider'></div>
       <div class='lessonNavTitle'>${theme.icon} ${theme.title}</div>
-      <div class='lessonNavMeta'>${theme.lessons.length} lessons • ${topic.title}</div>
+      <div class='lessonNavMeta'>${theme.lessons.length} lessons</div>
     </div>
     <div class='lessonList'>
       ${theme.lessons.map(lesson=>{
@@ -12657,12 +12658,12 @@ function renderThemeView(topicId,themeId){
           <div class='lessonNavTop'>
             <div>
               <div class='lessonNavTitle'>${lesson.title}</div>
-              <div class='lessonNavMeta'>${lesson.timeframe} • ${lesson.examSkillFocus}</div>
+              <div class='lessonNavMeta'>${lesson.timeframe}</div>
             </div>
             <span class='lessonStatusPill tone-${status.tone}'>${status.label}</span>
           </div>
           <div class='lessonOutcome'>${lesson.enquiryQuestion}</div>
-          <div class='lessonNavMeta'>Last score: ${score}%${lessonDue(progress)?" • revisit this week":""}</div>
+          <div class='lessonNavMeta'>${status.label==="New"?"Not started yet":`Last score ${score}%`}</div>
           <button class='btn primary' data-lesson='${lesson.id}'>${status.action}</button>
         </article>`;
       }).join("")}
