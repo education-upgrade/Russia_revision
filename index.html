@@ -12714,7 +12714,7 @@ function drawLessonSection(){
     body+=`<p class='lessonBodyText'>${conceptLine}</p>`;
     body+=InsetTaskCard("Frame the historical problem","Pick the tension sentence that best captures reform and continuity in political authority.",simple?"A-level move: frame it as tension between reform method and autocratic purpose.":"A-level move: define the mechanism of reform, then test whether executive power actually shifted.");
     if(opts.length){
-      body+=`<div><div class='lessonCounter'>Choose 1 statement</div><div id='opts'>${ChoicePills(opts.map(o=>({id:o.id,text:o.text}),'opt'))}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='lessonFeedback' id='selFb'></div></div>`;
+      body+=`<div><div class='lessonCounter'>Choose 1 statement</div><div id='opts'>${ChoicePills(opts.map(o=>({id:o.id,text:o.text}),'opt'))}</div><button type='button' class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='lessonFeedback' id='selFb'></div></div>`;
     } else {
       body+=`<button class='btn primary' id='nextSec'>Continue</button>`;
     }
@@ -12726,7 +12726,7 @@ function drawLessonSection(){
     if(sec.type==="select"||sec.type==="rank"){
       const opts=(sec.statementBank||sec.options.map((t,i)=>({id:String(i),text:t})));
       body+=InsetTaskCard("Check understanding","Pick the best answer(s) before moving on.",simple?"Use one concrete phrase from the briefing in your reason.":"Add one precise contextual marker (year, policy, institution) in your reason.");
-      body+=`<div><p class='lessonBodyText'>${sec.prompt}</p><div id='opts'>${ChoicePills(opts,'opt')}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='lessonFeedback' id='selFb'></div></div>`;
+      body+=`<div><p class='lessonBodyText'>${sec.prompt}</p><div id='opts'>${ChoicePills(opts,'opt')}</div><button type='button' class='btn primary' id='checkSel' disabled style='margin-top:10px'>Check</button><div class='lessonFeedback' id='selFb'></div></div>`;
     } else {
       body+=`<button class='btn primary' id='nextSec'>Continue</button>`;
     }
@@ -12737,14 +12737,14 @@ function drawLessonSection(){
     if(sec.type==="interpretation") body+=`<p class='lessonBodyText'>${sec.text}</p><div class='hintStrip'>Choose evidence that directly builds or weakens the claim.</div><button class='btn primary' id='nextSec'>Continue</button>`;
     if(sec.type==="select"){
       const opts=sec.statementBank||[];
-      body+=`<p class='lessonBodyText'>${sec.prompt}</p><div class='lessonCounter' id='selCount'>Selected: 0/${sec.limit||sec.correctIds.length}</div><div id='opts'>${ChoicePills(opts,'opt')}</div><button class='btn primary' id='checkSel' disabled style='margin-top:10px'>Build & score</button><div class='lessonFeedback' id='selFb'></div>`;
+      body+=`<p class='lessonBodyText'>${sec.prompt}</p><div class='lessonCounter' id='selCount'>Selected: 0/${sec.limit||sec.correctIds.length}</div><div id='opts'>${ChoicePills(opts,'opt')}</div><button type='button' class='btn primary' id='checkSel' disabled style='margin-top:10px'>Build & score</button><div class='lessonFeedback' id='selFb'></div>`;
     }
   }
 
   if(slide===4){
     if(sec.type==="judgement"){
       body+=LessonSectionHeading("Exam-ready output");
-      body+=`<p class='lessonBodyText'>Choose a judgement, then pick evidence to build your answer.</p><div id='opts'>${ChoicePills(Object.entries(sec.options).map(([k,v])=>({id:k,text:`${k}. ${v}`}),'jopt'))}</div><div id='eviWrap' class='hidden'></div><button class='btn primary hidden' id='judgeDone' style='margin-top:10px'>Build answer</button><div class='lessonFeedback' id='judgeFb'></div>`;
+      body+=`<p class='lessonBodyText'>Choose a judgement, then pick evidence to build your answer.</p><div id='opts'>${ChoicePills(Object.entries(sec.options).map(([k,v])=>({id:k,text:`${k}. ${v}`}),'jopt'))}</div><div id='eviWrap' class='hidden'></div><button type='button' class='btn primary hidden' id='judgeDone' style='margin-top:10px'>Build answer</button><div class='lessonFeedback' id='judgeFb'></div>`;
     }
     if(sec.type==="feedback"){
       const total=st.masteryScore+st.judgementScore;
@@ -12778,19 +12778,39 @@ function drawLessonSection(){
   if(optsWrap && checkSelBtn){
     const selected=new Set();
     const limit=sec.limit||sec.correctIds?.length||1;
-    optsWrap.querySelectorAll('.opt').forEach(btn=>btn.onclick=()=>{
-      const id=btn.dataset.id;
-      if(selected.has(id)){
-        selected.delete(id);
-        btn.classList.remove('isSelected');
-      } else {
-        if(limit && selected.size>=limit) return;
-        selected.add(id);
-        btn.classList.add('isSelected');
-      }
+    const optionButtons = Array.from(optsWrap.querySelectorAll('.opt'));
+
+    const syncSelectionUi = ()=>{
+      optionButtons.forEach(button=>button.classList.toggle('isSelected', selected.has(button.dataset.id)));
       if(selCountEl) selCountEl.textContent=`Selected: ${selected.size}/${limit}`;
       checkSelBtn.disabled=selected.size!==limit;
+    };
+
+    const toggleOption = (button)=>{
+      if(!button) return;
+      const id = button.dataset.id;
+      if(!id) return;
+      if(selected.has(id)) selected.delete(id);
+      else {
+        if(limit && selected.size>=limit) return;
+        selected.add(id);
+      }
+      syncSelectionUi();
+    };
+
+    optsWrap.addEventListener('click', (event)=>{
+      const button = event.target.closest('.opt');
+      if(!button || !optsWrap.contains(button)) return;
+      toggleOption(button);
     });
+
+    optsWrap.addEventListener('touchend', (event)=>{
+      const button = event.target.closest('.opt');
+      if(!button || !optsWrap.contains(button)) return;
+      event.preventDefault();
+      toggleOption(button);
+    }, {passive:false});
+
     checkSelBtn.onclick=()=>{
       let gained=0;
       if(sec.phase==="SF"){
@@ -12820,7 +12840,7 @@ function drawLessonSection(){
 
   if(root.querySelectorAll('.jopt').length){
     let chosen=null;
-    root.querySelectorAll('.jopt').forEach(btn=>btn.onclick=()=>{
+    root.querySelectorAll('.jopt').forEach(btn=>btn.addEventListener('click', ()=>{
       chosen=btn.dataset.id;
       root.querySelectorAll('.jopt').forEach(x=>x.classList.remove('isSelected'));
       btn.classList.add('isSelected');
@@ -12829,18 +12849,18 @@ function drawLessonSection(){
       $("eviWrap").innerHTML=`<div class='lessonCounter'>Choose 2 supporting statements</div>${ChoicePills(bank.slice(0,6).map(s=>({id:s.id,text:s.text}),'evi'))}`;
       $("judgeDone").classList.remove('hidden');
       const ev=new Set();
-      root.querySelectorAll('.evi').forEach(x=>x.onclick=()=>{
+      root.querySelectorAll('.evi').forEach(x=>x.addEventListener('click', ()=>{
         const id=x.dataset.id;
         if(ev.has(id)){ev.delete(id);x.classList.remove('isSelected');}
         else {if(ev.size>=2)return;ev.add(id);x.classList.add('isSelected');}
-      });
+      }));
       $("judgeDone").onclick=()=>{
         lessonsNavState.judgementScore=(chosen===sec.best?2:0)+2;
         $("judgeFb").textContent="Answer build generated. Move to final feedback.";
         lessonsNavState.slideGate[st.idx]=true;
         $("lessonSlideNextBtn").disabled=false;
       };
-    });
+    }));
   }
 
   if($("retrySlide")) $("retrySlide").onclick=()=>{ lessonsNavState.idx=Math.max(0,st.idx-1); drawLessonSection(); };
