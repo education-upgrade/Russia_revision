@@ -9059,7 +9059,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
 /* ==========================================================
    LESSONS (basic SPA + player)
    ========================================================== */
-const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, selectedOptionIndex:null, answers:{} };
+const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, selectedOptionIndex:null, answers:{}, checked:{} };
 
 function getLessonSlides(lesson){
   if(!lesson) return [];
@@ -9070,6 +9070,15 @@ function getLessonSlides(lesson){
 
 function getStoredQuickCheckAnswer(lessonId, slideIdx){
   return lessonsNav.answers?.[lessonId]?.[slideIdx];
+}
+
+function getStoredBuildAnswerSelection(lessonId, slideIdx){
+  const value = lessonsNav.answers?.[lessonId]?.[slideIdx];
+  return Array.isArray(value) ? value : [];
+}
+
+function getStoredBuildAnswerChecked(lessonId, slideIdx){
+  return !!lessonsNav.checked?.[lessonId]?.[slideIdx];
 }
 
 const lessonsData = [
@@ -9131,6 +9140,23 @@ const lessonsData = [
               { type:"idea", heading:"Big picture idea", text:"1905 forced concessions and exposed regime fragility, but Nicholas II retained enough coercive and constitutional control to survive in the short term." },
               { type:"briefing", heading:"Micro-briefing 1", text:"The October Manifesto created a Duma and civil liberties in principle, showing that pressure could extract reform from the regime." },
               { type:"briefing", heading:"Micro-briefing 2", text:"Fundamental Laws (1906), control over ministers, and repressive measures under Stolypin limited parliamentary authority and restored significant autocratic leverage." },
+              {
+                type:"build-answer",
+                heading:"Build an exam answer",
+                prompt:"Select 3 statements that best support the judgement: \"1905 weakened autocracy only partially.\"",
+                selectionLimit:3,
+                statements:[
+                  { id:"s1", text:"The October Manifesto conceded a Duma and civil liberties, showing the regime could be forced into reform.", score:2, feedback:"Strong support: this is direct evidence that autocracy had to retreat under pressure." },
+                  { id:"s2", text:"The Fundamental Laws (1906) reasserted the Tsar's authority, limiting how far constitutional change went.", score:2, feedback:"Excellent: this explains why weakening was only partial, not total." },
+                  { id:"s3", text:"Stolypin's repression after 1906 helped restore order and preserve Romanov control.", score:2, feedback:"Directly relevant: coercion helped autocracy survive after the crisis." },
+                  { id:"s4", text:"Political parties and public debate became more significant after 1905.", score:1, feedback:"Useful but broad: this supports change, though it needs tighter linkage to partial weakening." },
+                  { id:"s5", text:"Revolutionary unrest in 1905 exposed social and political dissatisfaction with the regime.", score:1, feedback:"Relevant context, but stronger answers pair this with constitutional and coercive evidence." },
+                  { id:"s6", text:"Russia's rail network expanded in the late nineteenth century.", score:0, feedback:"True, but it does not directly support this judgement about political authority after 1905." },
+                  { id:"s7", text:"Nicholas II immediately accepted full parliamentary sovereignty in 1905.", score:-1, feedback:"Inaccurate: the Tsar retained major powers and restricted the Duma's influence." },
+                  { id:"s8", text:"The 1905 crisis happened in exactly the same way across every region of the empire.", score:-1, feedback:"Overstated and inaccurate; regional patterns varied and this does not build a secure judgement." },
+                  { id:"s9", text:"Autocracy remained under pressure right up to 1917, despite surviving 1905.", score:1, feedback:"Helpful extension point, though less precise than direct evidence from 1905–06 institutions." }
+                ]
+              },
               { type:"quick-check", heading:"Quick Check", text:"Which is the strongest conclusion?", options:["1905 permanently ended autocracy.","1905 weakened autocracy but did not destroy it before 1917.","1905 had no effect because no institutions changed."], correctIndex:1, feedback:["Incorrect: the Romanov system continued.","Correct: concessions and repression coexisted, producing partial weakening.","Incorrect: the Duma and political parties became central features." ] },
               { type:"next-steps", heading:"Next steps", text:"This helps with balanced argumentation on continuity and change between 1905 and 1917." }
             ]
@@ -9383,7 +9409,10 @@ function renderLessonPlayer(root){
   lessonsNav.slideIdx = idx;
   const slide = slides[idx];
   const storedAnswer = slide.type === "quick-check" ? getStoredQuickCheckAnswer(lesson.id, idx) : null;
-  const nextDisabled = idx===total-1 || (slide.type === "quick-check" && !Number.isInteger(storedAnswer));
+  const buildAnswerChecked = slide.type === "build-answer" ? getStoredBuildAnswerChecked(lesson.id, idx) : false;
+  const nextDisabled = idx===total-1
+    || (slide.type === "quick-check" && !Number.isInteger(storedAnswer))
+    || (slide.type === "build-answer" && !buildAnswerChecked);
 
   root.innerHTML = `
     <div class="card">
@@ -9448,11 +9477,42 @@ function renderLessonPlayer(root){
     });
   }
 
+  if(slide.type === "build-answer"){
+    root.querySelectorAll('[data-action="build-answer-option"]').forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const statementId = btn.dataset.statementId;
+        const limit = Number(slide.selectionLimit || 0);
+        if(!statementId || getStoredBuildAnswerChecked(lesson.id, idx)) return;
+        if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
+        const selectedIds = getStoredBuildAnswerSelection(lesson.id, idx);
+        const isSelected = selectedIds.includes(statementId);
+        let nextSelection = selectedIds;
+        if(isSelected){
+          nextSelection = selectedIds.filter(id=>id!==statementId);
+        }else if(selectedIds.length < limit){
+          nextSelection = [...selectedIds, statementId];
+        }
+        lessonsNav.answers[lesson.id][idx] = nextSelection;
+        renderLessons();
+      });
+    });
+
+    const checkBtn = $("buildAnswerCheckBtn");
+    if(checkBtn){
+      checkBtn.addEventListener("click", ()=>{
+        if(!lessonsNav.checked[lesson.id]) lessonsNav.checked[lesson.id] = {};
+        lessonsNav.checked[lesson.id][idx] = true;
+        renderLessons();
+      });
+    }
+  }
+
   if(slide.type === "results"){
     const retryBtn = $("lessonRetryBtn");
     if(retryBtn){
       retryBtn.addEventListener("click", ()=>{
         lessonsNav.answers[lesson.id] = {};
+        lessonsNav.checked[lesson.id] = {};
         lessonsNav.slideIdx = 0;
         lessonsNav.selectedOptionIndex = null;
         renderLessons();
@@ -9470,23 +9530,80 @@ function renderLessonSlideBody(slide, lesson, slideIdx, allSlides){
       const answer = getStoredQuickCheckAnswer(lesson.id, currentIdx);
       return count + (answer===currentSlide.correctIndex ? 1 : 0);
     }, 0);
-    const score = totalQuickChecks ? Math.round((correctCount / totalQuickChecks) * 100) : 0;
-    const feedback = score >= 80
+    const quickCheckPercent = totalQuickChecks ? Math.round((correctCount / totalQuickChecks) * 100) : 0;
+    const buildTotals = allSlides.reduce((totals, currentSlide, currentIdx)=>{
+      if(currentSlide.type !== "build-answer") return totals;
+      const selectedIds = getStoredBuildAnswerSelection(lesson.id, currentIdx);
+      const scoreEarned = selectedIds.reduce((sum, statementId)=>{
+        const statement = currentSlide.statements.find(item=>item.id===statementId);
+        return sum + Number(statement?.score || 0);
+      }, 0);
+      return {
+        earned: totals.earned + scoreEarned,
+        max: totals.max + (Number(currentSlide.selectionLimit || 0) * 2)
+      };
+    }, { earned:0, max:0 });
+    const buildAnswerPercent = buildTotals.max ? Math.round((buildTotals.earned / buildTotals.max) * 100) : quickCheckPercent;
+    const finalPercent = buildTotals.max
+      ? Math.round((quickCheckPercent * 0.6) + (buildAnswerPercent * 0.4))
+      : quickCheckPercent;
+    const feedback = finalPercent >= 80
       ? "Exam ready – you’re selecting evidence precisely."
-      : score >= 50
+      : finalPercent >= 50
         ? "Nearly there – tighten evidence and link back to the question."
         : "Rebuild foundations – re-read micro-briefings and retry.";
 
     return `
       <h4 class="slideHeading">Results</h4>
       <div class="quickCheckFeedback" style="margin-top:10px">
-        <div><strong>Score:</strong> ${score}%</div>
-        <div><strong>Correct:</strong> ${correctCount} / ${totalQuickChecks}</div>
+        <div><strong>Quick-check:</strong> ${correctCount} / ${totalQuickChecks}</div>
+        <div><strong>Build-answer tasks:</strong> ${buildTotals.earned} / ${buildTotals.max}</div>
+        <div><strong>Final score:</strong> ${finalPercent}%</div>
       </div>
       <div class="quickCheckFeedback" style="margin-top:10px">${feedback}</div>
       <div class="row" style="margin-top:12px">
         <button class="btn primary" id="lessonRetryBtn" type="button">Retry quick checks</button>
       </div>
+    `;
+  }
+
+  if(slide.type === "build-answer"){
+    const selectedIds = getStoredBuildAnswerSelection(lesson.id, slideIdx);
+    const selectionLimit = Number(slide.selectionLimit || 0);
+    const isChecked = getStoredBuildAnswerChecked(lesson.id, slideIdx);
+    const selectedSet = new Set(selectedIds);
+    const canSelectMore = selectedIds.length < selectionLimit;
+    const canCheck = selectedIds.length === selectionLimit && !isChecked;
+    const scoreEarned = selectedIds.reduce((sum, statementId)=>{
+      const statement = slide.statements.find(item=>item.id===statementId);
+      return sum + Number(statement?.score || 0);
+    }, 0);
+    const maxScore = selectionLimit * 2;
+
+    return `
+      <h4 class="slideHeading">${slide.heading}</h4>
+      <div>${slide.prompt}</div>
+      <div class="note" style="margin-top:8px">Select ${selectionLimit} statements.</div>
+      <div class="quickCheckOptions">
+        ${slide.statements.map(statement=>{
+          const isSelected = selectedSet.has(statement.id);
+          const isDisabled = isChecked || (!isSelected && !canSelectMore);
+          const optionStyle = isSelected ? "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);" : "";
+          const feedbackHtml = isChecked && isSelected
+            ? `<div class="quickCheckFeedback" style="margin-top:6px">${statement.feedback}</div>`
+            : "";
+          return `
+            <div>
+              <button class="btn" data-action="build-answer-option" data-statement-id="${statement.id}" type="button" style="text-align:left;justify-content:flex-start;${optionStyle}" ${isDisabled ? "disabled" : ""}>${statement.text}</button>
+              ${feedbackHtml}
+            </div>
+          `;
+        }).join("")}
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="buildAnswerCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check</button>
+      </div>
+      ${isChecked ? `<div class="quickCheckFeedback" style="margin-top:10px">You scored ${scoreEarned}/${maxScore} on this task.</div>` : ""}
     `;
   }
 
