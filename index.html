@@ -2784,6 +2784,46 @@ section#games.gamePaneActive .gamesHeroCard{
 
 
 /* Lessons 2.0 scoped styles */
+#lessonsRoot .lessonsHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+#lessonsRoot .lessonsTitle{ font-size:22px; font-weight:900; margin:0; }
+#lessonsRoot .lessonsGrid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:10px; }
+#lessonsRoot .lessonPlayerTop{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
+#lessonsRoot .slideCounter{ margin:8px 0; width:max-content; }
+#lessonsRoot .modePills{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+#lessonsRoot .modePill{ opacity:.78; }
+#lessonsRoot .modePill.active{ opacity:1; border-color:var(--accent); color:var(--accent); }
+#lessonsRoot .lessonHero{
+  position:relative;
+  min-height:180px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  overflow:hidden;
+  margin-bottom:10px;
+  background-size:cover;
+  background-position:center;
+}
+#lessonsRoot .lessonHero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg, rgba(8,20,38,.12), rgba(6,15,31,.68));
+}
+#lessonsRoot .lessonHeroCopy{ position:absolute; left:12px; right:12px; bottom:12px; z-index:2; color:#fff; }
+#lessonsRoot .lessonHeroTitle{ margin:0; font-size:18px; font-weight:900; }
+#lessonsRoot .lessonHeroSub{ margin-top:4px; font-size:12px; opacity:.95; }
+#lessonsRoot .slideBody{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
+#lessonsRoot .slideHeading{ margin:0 0 8px; font-size:18px; font-weight:900; }
+#lessonsRoot .quickCheckOptions{ display:grid; gap:8px; margin-top:8px; }
+#lessonsRoot .quickCheckFeedback{ margin-top:8px; font-weight:700; }
+#lessonsRoot .playerFooter{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:12px; }
+#lessonsRoot .slideDots{ display:flex; gap:6px; align-items:center; }
+#lessonsRoot .slideDot{ width:8px; height:8px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.9); }
+#lessonsRoot .slideDot.active{ background:var(--accent); border-color:var(--accent); }
 
 </style>
 </head>
@@ -3502,6 +3542,12 @@ section#games.gamePaneActive .gamesHeroCard{
 
   </section>
 
+  <!-- LESSONS -->
+  <section id="lessons" class="tabpane hidden">
+    <div id="lessonsRoot"></div>
+  </section>
+
+
   <!-- EXAM -->
   <section id="exam" class="tabpane hidden">
     <div class="card">
@@ -3567,6 +3613,7 @@ section#games.gamePaneActive .gamesHeroCard{
   <div class="navBtn" data-tab="study"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg><div class="navLabel">Study</div></div>
   <div class="navBtn" data-tab="quiz"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg><div class="navLabel">Quiz</div></div>
   <div class="navBtn" data-tab="games"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg><div class="navLabel">Games</div></div>
+  <div class="navBtn" data-tab="lessons"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><div class="navLabel">Lessons</div></div>
   <div class="navBtn" data-tab="exam"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg><div class="navLabel">Exam</div></div>
 </nav>
 
@@ -8957,6 +9004,9 @@ function setTab(tabId){
   if(tabId === "progress"){
     renderProgressReport();
   }
+  if(tabId === "lessons"){
+    renderLessons();
+  }
 }
 document.querySelectorAll(".navBtn").forEach(btn=>{
   btn.addEventListener("click", ()=>setTab(btn.dataset.tab));
@@ -9003,6 +9053,411 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(backBeatClock) backBeatClock.addEventListener("click", gamesShowHub);
   initTimelineGame();
 });
+
+
+
+/* ==========================================================
+   LESSONS (basic SPA + player)
+   ========================================================== */
+const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, selectedOptionIndex:null };
+
+const lessonsData = [
+  {
+    id:"topic1",
+    title:"Topic 1: The Crisis of Tsarism, 1855–1894",
+    themes:[
+      {
+        id:"political-authority",
+        title:"Political Authority",
+        lessons:[
+          {
+            id:"t1-pa-1855-autocracy",
+            title:"How secure was autocracy in 1855?",
+            yearLabel:"1855",
+            theme:"Political Authority",
+            heroImage:"./topic1.png",
+            slides:[
+              { type:"idea", heading:"Big picture idea", text:"Autocracy looked deeply entrenched in 1855, but military failure and administrative weakness exposed vulnerabilities that would pressure reform." },
+              { type:"briefing", heading:"Micro-briefing 1", text:"Nicholas I left a heavily centralised state backed by censorship, the Orthodox Church, and the secret police, which discouraged overt political opposition." },
+              { type:"briefing", heading:"Micro-briefing 2", text:"However, defeat in the Crimean War revealed Russia's backward infrastructure and command system, making clear that preserving autocracy required change from above." },
+              { type:"quick-check", heading:"Quick Check", text:"Which statement best fits autocracy in 1855?", options:["It had already been replaced by a constitution.","It seemed strong, but structural weaknesses were increasingly visible.","The Tsar ruled only with approval from an elected Duma."], correctIndex:1, feedback:["Incorrect: constitutional monarchy came much later.","Correct: power was concentrated, but military and administrative failures were serious.","Incorrect: the Duma did not exist in 1855."] },
+              { type:"next-steps", heading:"Next steps", text:"This helps you evaluate stability versus fragility in early causation essays on late Tsarist decline." }
+            ]
+          },
+          {
+            id:"t1-pa-a2-reforms",
+            title:"How far did Alexander II’s reforms weaken autocracy?",
+            yearLabel:"1855–1881",
+            theme:"Political Authority",
+            heroImage:"./topic1.png",
+            slides:[
+              { type:"idea", heading:"Big picture idea", text:"Alexander II modernised elements of the system, but he aimed to preserve autocracy rather than dismantle it." },
+              { type:"briefing", heading:"Micro-briefing 1", text:"Key reforms included emancipation (1861), judicial changes, zemstva, and military reform, which widened participation and improved state capability." },
+              { type:"briefing", heading:"Micro-briefing 2", text:"Yet central authority remained intact: the Tsar kept ultimate power, and after assassination attempts the regime moved toward greater repression under Alexander III." },
+              { type:"quick-check", heading:"Quick Check", text:"Best judgement on the reforms?", options:["They abolished autocracy and created parliamentary rule.","They adjusted how Russia was governed but left Tsarist sovereignty central.","They had no meaningful impact on any social or political group."], correctIndex:1, feedback:["Incorrect: no constitutional transfer of sovereignty occurred.","Correct: reforms were significant, but autocratic fundamentals persisted.","Incorrect: emancipation and legal reforms had major effects."] },
+              { type:"next-steps", heading:"Next steps", text:"This supports 'how far' judgements by separating institutional change from constitutional change." }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"topic2",
+    title:"Topic 2: The End of Romanov Rule, 1894–1917",
+    themes:[
+      {
+        id:"political-authority",
+        title:"Political Authority",
+        lessons:[
+          {
+            id:"t2-pa-1905",
+            title:"How far did the 1905 Revolution weaken autocracy?",
+            yearLabel:"1905–1914",
+            theme:"Political Authority",
+            heroImage:"./topic2.png",
+            slides:[
+              { type:"idea", heading:"Big picture idea", text:"1905 forced concessions and exposed regime fragility, but Nicholas II retained enough coercive and constitutional control to survive in the short term." },
+              { type:"briefing", heading:"Micro-briefing 1", text:"The October Manifesto created a Duma and civil liberties in principle, showing that pressure could extract reform from the regime." },
+              { type:"briefing", heading:"Micro-briefing 2", text:"Fundamental Laws (1906), control over ministers, and repressive measures under Stolypin limited parliamentary authority and restored significant autocratic leverage." },
+              { type:"quick-check", heading:"Quick Check", text:"Which is the strongest conclusion?", options:["1905 permanently ended autocracy.","1905 weakened autocracy but did not destroy it before 1917.","1905 had no effect because no institutions changed."], correctIndex:1, feedback:["Incorrect: the Romanov system continued.","Correct: concessions and repression coexisted, producing partial weakening.","Incorrect: the Duma and political parties became central features." ] },
+              { type:"next-steps", heading:"Next steps", text:"This helps with balanced argumentation on continuity and change between 1905 and 1917." }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"topic3",
+    title:"Topic 3: Bolshevik Consolidation of Power, 1917–1924",
+    themes:[
+      {
+        id:"political-authority",
+        title:"Political Authority",
+        lessons:[
+          {
+            id:"t3-pa-lenin-system",
+            title:"How far did Lenin create a new political system?",
+            yearLabel:"1917–1924",
+            theme:"Political Authority",
+            heroImage:"./topic3.png",
+            slides:[
+              { type:"idea", heading:"Big picture idea", text:"Lenin created new institutions and ideology, but many authoritarian governing practices echoed earlier traditions of central control." },
+              { type:"briefing", heading:"Micro-briefing 1", text:"The Sovnarkom, one-party rule, and the Cheka established a distinctly Bolshevik model claiming legitimacy through class revolution rather than dynasty." },
+              { type:"briefing", heading:"Micro-briefing 2", text:"Civil War pressures accelerated coercion, censorship, and centralisation, meaning the new regime was innovative in purpose but familiar in method." },
+              { type:"quick-check", heading:"Quick Check", text:"Which statement is most accurate?", options:["Lenin simply restored the Romanov constitution unchanged.","Lenin created a fully democratic multi-party state.","Lenin introduced a revolutionary party-state that was new in ideology but highly centralised in practice."], correctIndex:2, feedback:["Incorrect: Romanov institutions were overthrown.","Incorrect: opposition parties were suppressed.","Correct: this captures both innovation and continuity."] },
+              { type:"next-steps", heading:"Next steps", text:"This sharpens comparative judgements about revolutionary change versus authoritarian continuity." }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"topic4",
+    title:"Topic 4: Stalin’s USSR, 1924–1953",
+    themes:[
+      {
+        id:"economic-development",
+        title:"Economic Development",
+        lessons:[
+          {
+            id:"t4-ed-fyps",
+            title:"How successful were the Five-Year Plans?",
+            yearLabel:"1928–1941",
+            theme:"Economic Development",
+            heroImage:"./topic4.png",
+            slides:[
+              { type:"idea", heading:"Big picture idea", text:"The Five-Year Plans transformed Soviet industrial capacity, but success came with major inefficiencies and severe human costs." },
+              { type:"briefing", heading:"Micro-briefing 1", text:"Heavy industry output rose sharply and helped the USSR build strategic strength, especially in coal, steel, and machine production." },
+              { type:"briefing", heading:"Micro-briefing 2", text:"Targets encouraged falsification and poor-quality output, while consumer goods lagged and forced labour, coercion, and harsh conditions underpinned progress." },
+              { type:"quick-check", heading:"Quick Check", text:"Most balanced judgement?", options:["The Plans failed entirely and produced no industrial growth.","The Plans achieved major industrial growth, but at high economic and human cost.","The Plans were mainly designed to improve luxury consumer living standards."], correctIndex:1, feedback:["Incorrect: industrial expansion was substantial.","Correct: this weighs achievement against cost.","Incorrect: heavy industry and defence were priorities."] },
+              { type:"next-steps", heading:"Next steps", text:"This helps you weigh metrics of success in economy questions: output, sustainability, and social impact." }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    id:"topic5",
+    title:"Topic 5: Khrushchev and Reform, 1953–1964",
+    themes:[
+      {
+        id:"social-cultural-change",
+        title:"Social & Cultural Change",
+        lessons:[
+          {
+            id:"t5-scc-thaw",
+            title:"Was the Khrushchev Thaw a genuine transformation?",
+            yearLabel:"1953–1964",
+            theme:"Social & Cultural Change",
+            heroImage:"./section-bg.jpg",
+            slides:[
+              { type:"idea", heading:"Big picture idea", text:"The Thaw widened cultural and social space compared with late Stalinism, yet clear political boundaries remained in place." },
+              { type:"briefing", heading:"Micro-briefing 1", text:"De-Stalinisation, publication of some critical works, and reduced terror changed the atmosphere of Soviet life for many citizens." },
+              { type:"briefing", heading:"Micro-briefing 2", text:"Even so, dissent still faced limits, and party control over media, culture, and public organisation prevented a full liberal transformation." },
+              { type:"quick-check", heading:"Quick Check", text:"Which conclusion best fits the evidence?", options:["The Thaw created unrestricted political freedom.","The Thaw brought meaningful relaxation but not a complete break from one-party control.","The Thaw was entirely fictional with no social changes at all."], correctIndex:1, feedback:["Incorrect: restrictions remained substantial.","Correct: improvement and limitation both need to be acknowledged.","Incorrect: there were real changes in tone and policy."] },
+              { type:"next-steps", heading:"Next steps", text:"This supports nuanced 'extent of change' analysis for post-Stalin society questions." }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+];
+
+const lessonThemesMaster = [
+  { id:"political-authority", title:"Political Authority" },
+  { id:"economic-development", title:"Economic Development" },
+  { id:"opposition-control", title:"Opposition & Control" },
+  { id:"social-cultural-change", title:"Social & Cultural Change" }
+];
+
+function getLessonTopic(){ return lessonsData.find(t=>t.id===lessonsNav.topicId) || null; }
+function getLessonTheme(){
+  const topic = getLessonTopic();
+  if(!topic) return null;
+  return topic.themes.find(th=>th.id===lessonsNav.themeId) || null;
+}
+function getLesson(){
+  const theme = getLessonTheme();
+  if(!theme) return null;
+  return theme.lessons.find(l=>l.id===lessonsNav.lessonId) || null;
+}
+
+function renderLessons(){
+  const root = $("lessonsRoot");
+  if(!root) return;
+
+  if(lessonsNav.view === "topics") return renderLessonsTopics(root);
+  if(lessonsNav.view === "themes") return renderLessonsThemes(root);
+  if(lessonsNav.view === "lessons") return renderLessonsList(root);
+  if(lessonsNav.view === "player") return renderLessonPlayer(root);
+}
+
+function renderLessonsTopics(root){
+  root.innerHTML = `
+    <div class="card">
+      <div class="lessonsHeader">
+        <h2 class="lessonsTitle">Lessons</h2>
+        <span class="pill">5 topics</span>
+      </div>
+      <div class="note">Choose a topic to open your lesson pathways.</div>
+      <div class="divider"></div>
+      <div class="lessonsGrid">
+        ${lessonsData.map(topic=>`
+          <div class="card">
+            <div style="font-weight:900">${topic.title}</div>
+            <div class="row" style="margin-top:10px">
+              <button class="btn primary" data-action="open-topic" data-topic="${topic.id}" type="button">Open</button>
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>`;
+
+  root.querySelectorAll('[data-action="open-topic"]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      lessonsNav.topicId = btn.dataset.topic;
+      lessonsNav.themeId = null;
+      lessonsNav.lessonId = null;
+      lessonsNav.slideIdx = 0;
+      lessonsNav.selectedOptionIndex = null;
+      lessonsNav.view = "themes";
+      renderLessons();
+    });
+  });
+}
+
+function renderLessonsThemes(root){
+  const topic = getLessonTopic();
+  if(!topic){ lessonsNav.view = "topics"; return renderLessons(); }
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <button class="btn" id="backToTopics" type="button">← Topics</button>
+        <span class="pill">Themes</span>
+      </div>
+      <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title}</div>
+      <div class="divider"></div>
+      <div class="lessonsGrid">
+        ${lessonThemesMaster.map(theme=>`
+          <div class="card">
+            <div style="font-weight:900">${theme.title}</div>
+            <div class="note" style="margin-top:6px">${(topic.themes.find(t=>t.id===theme.id)?.lessons.length || 0)} lesson(s) available</div>
+            <div class="row" style="margin-top:10px">
+              <button class="btn primary" data-action="open-theme" data-theme="${theme.id}" type="button">Open</button>
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>`;
+
+  $("backToTopics").addEventListener("click", ()=>{
+    lessonsNav.view = "topics";
+    lessonsNav.topicId = null;
+    lessonsNav.themeId = null;
+    lessonsNav.lessonId = null;
+    lessonsNav.slideIdx = 0;
+    lessonsNav.selectedOptionIndex = null;
+    renderLessons();
+  });
+
+  root.querySelectorAll('[data-action="open-theme"]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      lessonsNav.themeId = btn.dataset.theme;
+      lessonsNav.lessonId = null;
+      lessonsNav.slideIdx = 0;
+      lessonsNav.selectedOptionIndex = null;
+      lessonsNav.view = "lessons";
+      renderLessons();
+    });
+  });
+}
+
+function renderLessonsList(root){
+  const topic = getLessonTopic();
+  if(!topic){ lessonsNav.view = "topics"; return renderLessons(); }
+
+  const themeMeta = lessonThemesMaster.find(t=>t.id===lessonsNav.themeId);
+  const topicTheme = topic.themes.find(t=>t.id===lessonsNav.themeId);
+  const lessons = topicTheme?.lessons || [];
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <button class="btn" id="backToThemes" type="button">← Themes</button>
+        <span class="pill">Lessons</span>
+      </div>
+      <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title}</div>
+      <div class="note">${themeMeta ? themeMeta.title : "Theme"}</div>
+      <div class="divider"></div>
+      ${lessons.length ? `<div class="lessonsGrid">${lessons.map(lesson=>`
+        <div class="card">
+          <div style="font-weight:900">${lesson.title}</div>
+          <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" type="button">Start</button>
+          </div>
+        </div>`).join("")}</div>` : `<div class="note">No lessons added in this proof-of-concept for this theme yet.</div>`}
+    </div>`;
+
+  $("backToThemes").addEventListener("click", ()=>{
+    lessonsNav.view = "themes";
+    lessonsNav.lessonId = null;
+    lessonsNav.slideIdx = 0;
+    lessonsNav.selectedOptionIndex = null;
+    renderLessons();
+  });
+
+  root.querySelectorAll('[data-action="start-lesson"]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      lessonsNav.lessonId = btn.dataset.lesson;
+      lessonsNav.slideIdx = 0;
+      lessonsNav.selectedOptionIndex = null;
+      lessonsNav.view = "player";
+      renderLessons();
+    });
+  });
+}
+
+function renderLessonPlayer(root){
+  const lesson = getLesson();
+  if(!lesson){ lessonsNav.view = "lessons"; return renderLessons(); }
+
+  const total = lesson.slides.length;
+  const idx = Math.max(0, Math.min(lessonsNav.slideIdx, total-1));
+  lessonsNav.slideIdx = idx;
+  const slide = lesson.slides[idx];
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="lessonPlayerTop">
+        <div style="font-weight:900;font-size:20px">Lesson briefing</div>
+        <button class="btn" id="backToLessonList" type="button">← Theme</button>
+      </div>
+      <div class="pill slideCounter">Slide ${idx+1} of ${total}</div>
+      <div class="modePills">
+        <span class="pill modePill active">Overview</span>
+        <span class="pill modePill">Simple</span>
+        <span class="pill modePill">Exam+</span>
+      </div>
+      <div class="lessonHero" style="background-image:url('${lesson.heroImage}')">
+        <div class="lessonHeroCopy">
+          <h3 class="lessonHeroTitle">${lesson.yearLabel} | ${lesson.theme}: ${lesson.title}</h3>
+          <div class="lessonHeroSub">${lesson.yearLabel} • ${lesson.theme}</div>
+        </div>
+      </div>
+      <div class="slideBody">
+        ${renderLessonSlideBody(slide)}
+      </div>
+      <div class="playerFooter">
+        <button class="btn" id="lessonPrevBtn" type="button" ${idx===0 ? "disabled" : ""}>Previous</button>
+        <div class="slideDots">${lesson.slides.map((_,i)=>`<span class="slideDot ${i===idx?"active":""}"></span>`).join("")}</div>
+        <button class="btn primary" id="lessonNextBtn" type="button" ${idx===total-1 ? "disabled" : ""}>Next</button>
+      </div>
+    </div>`;
+
+  $("backToLessonList").addEventListener("click", ()=>{
+    lessonsNav.view = "lessons";
+    lessonsNav.lessonId = null;
+    lessonsNav.slideIdx = 0;
+    lessonsNav.selectedOptionIndex = null;
+    renderLessons();
+  });
+
+  $("lessonPrevBtn").addEventListener("click", ()=>{
+    if(lessonsNav.slideIdx>0){
+      lessonsNav.slideIdx -= 1;
+      lessonsNav.selectedOptionIndex = null;
+      renderLessons();
+    }
+  });
+
+  $("lessonNextBtn").addEventListener("click", ()=>{
+    if(lessonsNav.slideIdx<total-1){
+      lessonsNav.slideIdx += 1;
+      lessonsNav.selectedOptionIndex = null;
+      renderLessons();
+    }
+  });
+
+  if(slide.type === "quick-check"){
+    root.querySelectorAll('[data-action="quick-option"]').forEach((btn,i)=>{
+      btn.addEventListener("click", ()=>{
+        lessonsNav.selectedOptionIndex = i;
+        renderLessons();
+      });
+    });
+  }
+}
+
+function renderLessonSlideBody(slide){
+  if(slide.type !== "quick-check") return `<h4 class="slideHeading">${slide.heading}</h4><div>${slide.text}</div>`;
+
+  const selected = Number.isInteger(lessonsNav.selectedOptionIndex) ? lessonsNav.selectedOptionIndex : null;
+  const feedback = selected===null ? "" : (slide.feedback?.[selected] || "");
+
+  return `
+    <h4 class="slideHeading">${slide.heading}</h4>
+    <div>${slide.text}</div>
+    <div class="quickCheckOptions">
+      ${slide.options.map((opt,i)=>{
+        const active = selected===i;
+        const isCorrect = slide.correctIndex===i;
+        let style = "";
+        if(active){
+          style = isCorrect ? "border-color:rgba(126,185,170,.8)" : "border-color:rgba(183,142,161,.8)";
+        }
+        return `<button class="btn" data-action="quick-option" type="button" style="text-align:left;justify-content:flex-start;${style}">${opt}</button>`;
+      }).join("")}
+    </div>
+    ${selected===null ? "" : `<div class="quickCheckFeedback">${feedback}</div>`}
+  `;
+}
+
+document.addEventListener("DOMContentLoaded", renderLessons);
 
 
 /* ==========================================================
