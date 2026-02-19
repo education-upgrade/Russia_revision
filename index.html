@@ -753,7 +753,7 @@
     .lessonHeaderTopTitle{display:inline-flex;align-items:center;gap:8px;font-weight:900;color:var(--textStrong);font-size:16px;white-space:nowrap}
     .lessonHeaderTopTitle svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
     .lessonHeaderCard .lessonMeta{font-size:12px;letter-spacing:.2px;text-transform:uppercase;margin-top:2px}
-    .lessonTitleMain{font-weight:900;font-size:clamp(20px,4vw,28px);line-height:1.08;margin-top:6px;letter-spacing:-.3px}
+    .lessonTitleMain{font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.2px;line-height:1.35}
     .lessonBriefingTitle{display:flex;align-items:center;gap:8px;font-weight:900;font-size:20px}
     .lessonSlideShell{margin-top:12px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:16px;padding:12px;background:linear-gradient(175deg, rgba(250,252,255,.95), rgba(232,241,251,.82))}
     .lessonSlideMeta{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
@@ -820,7 +820,7 @@
       .lessonHeaderCard{padding:12px}
       .lessonHeaderTopTitle{font-size:14px;gap:6px}
       .lessonHeaderTopTitle svg{width:18px;height:18px}
-      .lessonTitleMain{font-size:clamp(16px,6.6vw,22px);line-height:1.06}
+      .lessonTitleMain{font-size:12px;line-height:1.35}
       .lessonChunkGrid{grid-template-columns:1fr}
       .lessonSlideShell{padding:10px}
       .lessonSlideVisual img{height:146px}
@@ -8921,7 +8921,8 @@ function openLesson(lessonId){
   $("lessonBriefingCard").classList.remove("hidden");
 
   $("lessonThemeLabel").textContent = `${lesson.block} • ${lesson.theme}`;
-  $("lessonTitle").textContent = lesson.title;
+  const subtitle = String(lesson.title || "").split(":").slice(1).join(":").trim();
+  $("lessonTitle").textContent = subtitle || lesson.title;
   renderLessonBriefing(lesson);
 }
 
