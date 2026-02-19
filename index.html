@@ -9638,7 +9638,7 @@ function renderLessonPlayer(root){
         const limit = Number(slide.selectionLimit || 0);
         if(!statementId || getStoredBuildAnswerChecked(lesson.id, idx)) return;
         if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        const selectedIds = getStoredBuildAnswerSelection(lesson.id, idx);
+        const selectedIds = [...getStoredBuildAnswerSelection(lesson.id, idx)];
         const isSelected = selectedIds.includes(statementId);
         let nextSelection = selectedIds;
         if(isSelected){
@@ -9741,7 +9741,7 @@ function renderLessonPlayer(root){
         const limit = Number(slide.evidencePick?.selectionLimit || 0);
         if(!statementId || !state.optionChecked || state.evidenceChecked) return;
         if(!lessonsNav.answers[lesson.id]) lessonsNav.answers[lesson.id] = {};
-        const selectedIds = state.evidenceValue;
+        const selectedIds = [...state.evidenceValue];
         const isSelected = selectedIds.includes(statementId);
         let nextSelection = selectedIds;
         if(isSelected){
