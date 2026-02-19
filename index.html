@@ -12562,7 +12562,7 @@ const lessonsData = (()=>{
 const lessonIndex = {};
 lessonsData.topics.forEach(t=>t.themes.forEach(th=>th.lessons.forEach(l=>lessonIndex[l.id]=l)));
 
-let LESSON_PROGRESS = loadLessonProgressV2();
+LESSON_PROGRESS = loadLessonProgressV2();
 
 function loadLessonProgressV2(){
   try{ return JSON.parse(localStorage.getItem(LESSON_PROGRESS_V2_KEY)||"{}"); }catch(e){ return {}; }
