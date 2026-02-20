@@ -9086,6 +9086,7 @@ function persistLessonMode(mode){
 }
 
 const LESSON_ACTIVITY_KEY = "LESSON_ACTIVITY_KEY";
+const DRILL_HISTORY_KEY = "lessonsDrillHistoryV1";
 const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, mode:getInitialLessonMode(), selectedOptionIndex:null, answers:{} };
 
 function getLessonActivityStore(){
@@ -9185,6 +9186,73 @@ function getLessonProgress(lessonId){
   return normalizeLessonProgressEntry(entry);
 }
 
+function readDrillHistory(){
+  try{
+    const raw = localStorage.getItem(DRILL_HISTORY_KEY);
+    if(!raw) return {};
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  }catch(_err){
+    return {};
+  }
+}
+
+function saveDrillHistory(history){
+  try{ localStorage.setItem(DRILL_HISTORY_KEY, JSON.stringify(history)); }catch(_err){}
+}
+
+function getDrillHistoryEntry(scopeKey){
+  if(!scopeKey) return null;
+  const history = readDrillHistory();
+  const entry = history[scopeKey];
+  return entry && typeof entry === "object" ? entry : null;
+}
+
+function storeDrillHistory(scopeKey, payload){
+  if(!scopeKey || !payload || typeof payload !== "object") return;
+  const history = readDrillHistory();
+  const current = history[scopeKey] && typeof history[scopeKey] === "object" ? history[scopeKey] : {};
+  const priorBest = Number.isFinite(current.bestDrillScore) ? Number(current.bestDrillScore) : null;
+  const incomingScore = Number.isFinite(payload.lastDrillScore) ? Number(payload.lastDrillScore) : null;
+  const bestDrillScore = incomingScore == null
+    ? priorBest
+    : (priorBest == null ? incomingScore : Math.max(priorBest, incomingScore));
+
+  history[scopeKey] = {
+    ...current,
+    ...payload,
+    bestDrillScore
+  };
+  saveDrillHistory(history);
+}
+
+function blendLessonAndDrillPct(lessonAvgPct, drillPct){
+  if(!Number.isFinite(lessonAvgPct) && !Number.isFinite(drillPct)) return null;
+  if(!Number.isFinite(lessonAvgPct)) return Math.round(drillPct);
+  if(!Number.isFinite(drillPct)) return Math.round(lessonAvgPct);
+  return Math.round((lessonAvgPct * 0.8) + (drillPct * 0.2));
+}
+
+function roundToFiveScale(percent){
+  if(!Number.isFinite(percent)) return null;
+  const clamped = Math.max(0, Math.min(100, Number(percent)));
+  return Math.round((clamped / 100) * 5);
+}
+
+function getLessonScopeByLessonId(lessonId){
+  if(!lessonId) return { topicId:null, themeId:null };
+  for(const topic of lessonsData){
+    const themes = Array.isArray(topic?.themes) ? topic.themes : [];
+    for(const theme of themes){
+      const lessons = Array.isArray(theme?.lessons) ? theme.lessons : [];
+      if(lessons.some(lesson=>lesson.id===lessonId)){
+        return { topicId:topic.id, themeId:theme.id };
+      }
+    }
+  }
+  return { topicId:null, themeId:null };
+}
+
 
 function markLessonResult(lessonId, scorePct, breakdown){
   if(!lessonId) return;
@@ -9273,6 +9341,65 @@ function getRecommendedNext(topicId){
     ...RECOMMENDED_THEME_ORDER.map(id=>themeMap.get(id)).filter(Boolean),
     ...Array.from(themeMap.values()).filter(theme=>!RECOMMENDED_THEME_ORDER.includes(theme.id))
   ];
+  const topicDrill = getDrillHistoryEntry(`topic:${topicId}`);
+  const lastDrillScore = Number.isFinite(topicDrill?.lastDrillScore) ? Number(topicDrill.lastDrillScore) : null;
+
+  const getWeakDrillReason = ()=>{
+    if(!topicDrill?.breakdown || typeof topicDrill.breakdown !== "object") return null;
+    const candidates = [
+      { key:"argIdentify", label:"Argument identification" },
+      { key:"evidenceSelect", label:"Evidence selection" },
+      { key:"judgement", label:"Judgement" }
+    ].map(item=>{
+      const pct = Number(topicDrill.breakdown?.[item.key]?.pct);
+      return { ...item, pct:Number.isFinite(pct) ? pct : null };
+    }).filter(item=>item.pct !== null).sort((a,b)=>a.pct-b.pct);
+    if(!candidates.length) return null;
+    const weakest = candidates[0];
+    return `Your drill suggests ${weakest.label} is still weak (${weakest.pct}%).`;
+  };
+
+  if(lastDrillScore !== null && lastDrillScore < 3){
+    let weakTheme = null;
+    for(const metric of [
+      { key:"interpretationPct", label:"Interpretation mastery" },
+      { key:"judgementPct", label:"Judgement mastery" },
+      { key:"contextPct", label:"Context mastery" }
+    ]){
+      const candidates = orderedThemes
+        .map(theme=>({ theme, mastery:computeThemeMastery(topicId, theme.id) }))
+        .filter(({ theme })=>Array.isArray(theme.lessons) && theme.lessons.length);
+      if(!candidates.length) continue;
+      const ranked = candidates.sort((a,b)=>{
+        const av = Number.isFinite(a.mastery?.[metric.key]) ? a.mastery[metric.key] : 101;
+        const bv = Number.isFinite(b.mastery?.[metric.key]) ? b.mastery[metric.key] : 101;
+        if(av !== bv) return av - bv;
+        return orderedThemes.findIndex(t=>t.id===a.theme.id) - orderedThemes.findIndex(t=>t.id===b.theme.id);
+      });
+      if(ranked.length){
+        weakTheme = ranked[0].theme;
+        break;
+      }
+    }
+
+    if(weakTheme){
+      const fallbackLesson = (weakTheme.lessons || []).map(lesson=>{
+        const entry = normalizeLessonProgressEntry(byLesson[lesson.id]) || {};
+        const score = Number.isFinite(entry.lastScorePct) ? entry.lastScorePct : 0;
+        return { lesson, score };
+      }).sort((a,b)=>a.score - b.score)[0];
+      if(fallbackLesson){
+        return {
+          type:"theme",
+          topicId,
+          themeId:weakTheme.id,
+          lessonId:fallbackLesson.lesson.id,
+          title:fallbackLesson.lesson.title,
+          reason:getWeakDrillReason() || `Recent drill score was ${lastDrillScore}/5, so targeted practice is recommended.`
+        };
+      }
+    }
+  }
 
   for(const theme of orderedThemes){
     const lessons = Array.isArray(theme.lessons) ? theme.lessons : [];
@@ -9353,6 +9480,9 @@ function getRecommendedNext(topicId){
   if(!fallbackLesson) return null;
   const selectedMastery = computeThemeMastery(topicId, selectedTheme.id);
   const masteryPct = Number.isFinite(selectedMastery?.[selectedMetric.key]) ? selectedMastery[selectedMetric.key] : null;
+  const forwardReason = lastDrillScore !== null && lastDrillScore >= 4
+    ? `Your recent drill score was strong (${lastDrillScore}/5), so move forward in the pathway.`
+    : null;
 
   return {
     type:"theme",
@@ -9360,9 +9490,9 @@ function getRecommendedNext(topicId){
     themeId:selectedTheme.id,
     lessonId:fallbackLesson.lesson.id,
     title:fallbackLesson.lesson.title,
-    reason:masteryPct == null
+    reason:forwardReason || (masteryPct == null
       ? `Your ${selectedMetric.label} is weakest in this theme.`
-      : `Your ${selectedMetric.label} is lowest here (${masteryPct}%).`
+      : `Your ${selectedMetric.label} is lowest here (${masteryPct}%).`)
   };
 }
 
@@ -9458,10 +9588,26 @@ function computeThemeMastery(topicId, themeId){
 
   const avgOrNull = (arr)=>arr.length ? Math.round(arr.reduce((sum,v)=>sum+v,0)/arr.length) : null;
 
+  const lessonContextPct = avgOrNull(contextValues);
+  const lessonInterpretationPct = avgOrNull(interpretationValues);
+  const lessonJudgementPct = avgOrNull(judgementValues);
+  const themeDrill = getDrillHistoryEntry(`theme:${topicId}:${themeId}`);
+  const topicDrill = getDrillHistoryEntry(`topic:${topicId}`);
+  const drillSource = themeDrill || topicDrill || {};
+  const drillArgPct = Number(drillSource?.breakdown?.argIdentify?.pct);
+  const drillEvidencePct = Number(drillSource?.breakdown?.evidenceSelect?.pct);
+  const interpretationDrillParts = [drillArgPct, drillEvidencePct].filter(Number.isFinite);
+  const drillInterpretationPct = interpretationDrillParts.length
+    ? Math.round(interpretationDrillParts.reduce((sum,v)=>sum+v,0) / interpretationDrillParts.length)
+    : null;
+  const drillJudgementPct = Number.isFinite(Number(drillSource?.breakdown?.judgement?.pct))
+    ? Number(drillSource.breakdown.judgement.pct)
+    : null;
+
   return {
-    contextPct: avgOrNull(contextValues),
-    interpretationPct: avgOrNull(interpretationValues),
-    judgementPct: avgOrNull(judgementValues),
+    contextPct: lessonContextPct,
+    interpretationPct: blendLessonAndDrillPct(lessonInterpretationPct, drillInterpretationPct),
+    judgementPct: blendLessonAndDrillPct(lessonJudgementPct, drillJudgementPct),
     lessonsWithData,
     totalLessons
   };
@@ -11961,6 +12107,7 @@ function renderLessonsTopicOverview(root){
   const examWants = Array.isArray(overview.examWants) ? overview.examWants.slice(0,3) : [];
   const pathway = Array.isArray(overview.pathway) ? overview.pathway.slice(0,4) : [];
   const progress = getTopicProgress(topic);
+  const topicDrill = getDrillHistoryEntry(`topic:${topic.id}`);
   const recommended = getRecommendedNext(topic.id);
   const recommendedProgress = recommended?.lessonId ? getLessonProgress(recommended.lessonId) : null;
   const recommendedStatus = getLessonStatus(recommendedProgress);
@@ -12008,6 +12155,7 @@ function renderLessonsTopicOverview(root){
       <div class="card" style="margin-top:10px">
         <div style="font-weight:900">Your progress</div>
         <div class="note" style="margin-top:8px;color:var(--text)">${progressText}</div>
+        ${topicDrill && Number.isFinite(topicDrill.lastDrillScore) ? `<div class="note" style="margin-top:6px;color:var(--text)">Last drill: ${topicDrill.lastDrillScore}/5 • Best: ${Number.isFinite(topicDrill.bestDrillScore) ? topicDrill.bestDrillScore : topicDrill.lastDrillScore}/5</div>` : ""}
         ${progress.completedCount === 0 && progress.bestScore === null ? "" : `
           <div class="note" style="margin-top:6px;color:var(--text)">Best score this topic: ${progress.bestScore === null ? "No score yet" : `${progress.bestScore}%`}</div>
           <div class="note" style="margin-top:6px;color:var(--text)">Due for review: ${progress.dueCount}</div>
@@ -12568,6 +12716,36 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
       return { earned: totals.earned + optionEarned + evidenceEarned, max: totals.max + 2 + (evidenceLimit * 2) };
     }, { earned:0, max:0 });
 
+    const evidenceSelectTaskTotals = allSlides.reduce((totals, currentSlide)=>{
+      if(currentSlide.type !== "evidence-select") return totals;
+      const state = getStoredEvidenceSelectState(lesson.id, currentSlide.slideId);
+      const limit = Number(currentSlide.selectionLimit || (currentSlide.purpose === "challenge" ? 2 : 0));
+      const maxScore = limit * 2;
+      if(maxScore <= 0) return { ...totals, total:totals.total + 1 };
+      const scoreEarned = state.value.reduce((sum, statementId)=>{
+        const statement = currentSlide.statements.find(item=>item.id===statementId);
+        return sum + Number(statement?.score || 0);
+      }, 0);
+      const pct = Math.round((scoreEarned / maxScore) * 100);
+      const strong = pct >= 60 ? 1 : 0;
+      return { strong:totals.strong + strong, total:totals.total + 1 };
+    }, { strong:0, total:0 });
+
+    const judgementTaskTotals = allSlides.reduce((totals, currentSlide)=>{
+      if(currentSlide.type !== "judgement") return totals;
+      const state = getStoredJudgementState(lesson.id, currentSlide.slideId);
+      const optionEarned = state.optionChecked && state.optionIndex===currentSlide.bestIndex ? 2 : 0;
+      const evidenceEarned = state.evidenceValue.reduce((sum, statementId)=>{
+        const statement = currentSlide.evidencePick?.statements?.find(item=>item.id===statementId);
+        return sum + Number(statement?.score || 0);
+      }, 0);
+      const evidenceLimit = Number(currentSlide.evidencePick?.selectionLimit || 2);
+      const maxScore = 2 + (evidenceLimit * 2);
+      const pct = maxScore > 0 ? Math.round(((optionEarned + evidenceEarned) / maxScore) * 100) : 0;
+      const correct = pct >= 60 ? 1 : 0;
+      return { correct:totals.correct + correct, total:totals.total + 1 };
+    }, { correct:0, total:0 });
+
     const componentPercents = {
       quickCheck: totalQuickChecks ? Math.round((correctCount / totalQuickChecks) * 100) : null,
       argIdentify: argIdentifyTotals.max ? Math.round((argIdentifyTotals.earned / argIdentifyTotals.max) * 100) : null,
@@ -12599,6 +12777,37 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
     };
 
     markLessonResult(lesson.id, finalPercent, lessonBreakdown);
+
+    const scope = getLessonScopeByLessonId(lesson.id);
+    const drillBreakdown = {
+      argIdentify: {
+        correct: argIdentifyTotals.earned,
+        total: argIdentifyTotals.max,
+        pct: argIdentifyTotals.max > 0 ? Math.round((argIdentifyTotals.earned / argIdentifyTotals.max) * 100) : 0
+      },
+      evidenceSelect: {
+        strong: evidenceSelectTaskTotals.strong,
+        total: evidenceSelectTaskTotals.total,
+        pct: evidenceSelectTaskTotals.total > 0 ? Math.round((evidenceSelectTaskTotals.strong / evidenceSelectTaskTotals.total) * 100) : 0
+      },
+      judgement: {
+        correct: judgementTaskTotals.correct,
+        total: judgementTaskTotals.total,
+        pct: judgementTaskTotals.total > 0 ? Math.round((judgementTaskTotals.correct / judgementTaskTotals.total) * 100) : 0
+      }
+    };
+    const lastDrillScore = roundToFiveScale(finalPercent);
+    const drillPayload = {
+      lastDrillDate:new Date().toISOString(),
+      lastDrillScore,
+      breakdown:drillBreakdown
+    };
+    if(scope.topicId){
+      storeDrillHistory(`topic:${scope.topicId}`, drillPayload);
+    }
+    if(scope.topicId && scope.themeId){
+      storeDrillHistory(`theme:${scope.topicId}:${scope.themeId}`, drillPayload);
+    }
 
     const feedback = finalPercent >= 80
       ? "Exam ready – you’re selecting evidence precisely."
