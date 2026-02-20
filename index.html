@@ -9077,7 +9077,80 @@ function persistLessonMode(mode){
   try{ localStorage.setItem(LESSON_MODE_KEY, mode); }catch(_err){}
 }
 
+const LESSON_ACTIVITY_KEY = "LESSON_ACTIVITY_KEY";
 const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, mode:getInitialLessonMode(), selectedOptionIndex:null, answers:{} };
+
+function getLessonActivityStore(){
+  try{
+    const raw = localStorage.getItem(LESSON_ACTIVITY_KEY);
+    const parsed = raw ? JSON.parse(raw) : null;
+    if(parsed && typeof parsed === "object" && !Array.isArray(parsed)) return parsed;
+  }catch(_err){}
+  return { byLesson:{} };
+}
+
+function saveLessonActivityStore(store){
+  try{ localStorage.setItem(LESSON_ACTIVITY_KEY, JSON.stringify(store)); }catch(_err){}
+}
+
+function markLessonActivity(lessonId, patch){
+  if(!lessonId || !patch || typeof patch !== "object") return;
+  const store = getLessonActivityStore();
+  if(!store.byLesson || typeof store.byLesson !== "object") store.byLesson = {};
+  const current = store.byLesson[lessonId] && typeof store.byLesson[lessonId] === "object" ? store.byLesson[lessonId] : {};
+  store.byLesson[lessonId] = { ...current, ...patch, updatedAt:Date.now() };
+  saveLessonActivityStore(store);
+}
+
+
+function markLessonResult(lessonId, scorePct){
+  if(!lessonId) return;
+  const store = getLessonActivityStore();
+  if(!store.byLesson || typeof store.byLesson !== "object") store.byLesson = {};
+  const current = store.byLesson[lessonId] && typeof store.byLesson[lessonId] === "object" ? store.byLesson[lessonId] : {};
+  const priorBest = Number.isFinite(current.bestScorePct) ? current.bestScorePct : null;
+  const nextBest = Number.isFinite(scorePct) ? (priorBest===null ? scorePct : Math.max(priorBest, scorePct)) : priorBest;
+  store.byLesson[lessonId] = {
+    ...current,
+    completed:true,
+    bestScorePct:nextBest,
+    updatedAt:Date.now()
+  };
+  saveLessonActivityStore(store);
+}
+
+function getTopicLessons(topic){
+  if(!topic || !Array.isArray(topic.themes)) return [];
+  return topic.themes.flatMap(theme=>Array.isArray(theme.lessons) ? theme.lessons : []);
+}
+
+function getTopicProgress(topic){
+  const topicLessons = getTopicLessons(topic);
+  const totalCount = topicLessons.length;
+  const lessonIds = new Set(topicLessons.map(lesson=>lesson.id));
+  const store = getLessonActivityStore();
+  const byLesson = store.byLesson && typeof store.byLesson === "object" ? store.byLesson : {};
+  let completedCount = 0;
+  let bestScore = null;
+  let dueCount = 0;
+  let lastLesson = null;
+
+  Object.entries(byLesson).forEach(([lessonId, entry])=>{
+    if(!lessonIds.has(lessonId) || !entry || typeof entry !== "object") return;
+    if(entry.completed === true) completedCount += 1;
+    if(Number.isFinite(entry.bestScorePct)){
+      bestScore = bestScore === null ? entry.bestScorePct : Math.max(bestScore, entry.bestScorePct);
+    }
+    if(entry.dueForReview === true) dueCount += 1;
+    if(Number.isFinite(entry.lastStartedAt)){
+      if(!lastLesson || entry.lastStartedAt > Number(lastLesson.lastStartedAt || 0)){
+        lastLesson = { lessonId, lastStartedAt:entry.lastStartedAt };
+      }
+    }
+  });
+
+  return { completedCount, totalCount, bestScore, dueCount, lastLessonId:lastLesson?.lessonId || null };
+}
 
 function ensureSlideMeta(slide, index){
   const nextSlide = { ...slide };
@@ -9277,6 +9350,15 @@ const lessonsData = [
   {
     id:"topic1",
     title:"Topic 1: The Crisis of Tsarism, 1855–1894",
+    topicOverview:{
+      tension:"Autocracy looked immovable, but war shock and modernisation pressures exposed weaknesses in how Russia was governed.",
+      examWants:[
+        "Explain how reforms changed the state while preserving autocratic power.",
+        "Use precise examples to judge how secure authority really was.",
+        "Make balanced judgements about change and continuity across the period."
+      ],
+      pathway:["Political Authority","Economic Development","Opposition & Control","Social & Cultural Change"]
+    },
     themes:[
       {
         id:"political-authority",
@@ -10118,6 +10200,15 @@ const lessonsData = [
   {
     id:"topic2",
     title:"Topic 2: The End of Romanov Rule, 1894–1917",
+    topicOverview:{
+      tension:"Nicholas II tried to preserve autocracy while industrialisation and war created pressures the regime could not contain.",
+      examWants:[
+        "Explain how political authority weakened from 1894 to 1917.",
+        "Use evidence to weigh the impact of 1905, repression, and war.",
+        "Reach a judgement about why the regime collapsed in 1917."
+      ],
+      pathway:["Political Authority","Economic Development","Opposition & Control","Social & Cultural Change"]
+    },
     themes:[
       {
         id:"political-authority",
@@ -10944,6 +11035,15 @@ const lessonsData = [
   {
     id:"topic3",
     title:"Topic 3: Bolshevik Consolidation of Power, 1917–1924",
+    topicOverview:{
+      tension:"The Bolsheviks promised popular power, but civil war and coercion shaped a new political system.",
+      examWants:[
+        "Explain how Lenin built authority in crisis.",
+        "Select evidence that supports or challenges interpretations of Bolshevik rule.",
+        "Judge how far the new system was genuinely revolutionary."
+      ],
+      pathway:["Political Authority","Economic Development","Opposition & Control","Social & Cultural Change"]
+    },
     themes:[
       {
         id:"political-authority",
@@ -11363,6 +11463,15 @@ const lessonsData = [
   {
     id:"topic4",
     title:"Topic 4: Stalin’s USSR, 1924–1953",
+    topicOverview:{
+      tension:"Stalin created rapid change in state power and society, but at huge human cost and through intense control.",
+      examWants:[
+        "Explain how dictatorship was established and maintained.",
+        "Weigh success against cost using specific evidence.",
+        "Evaluate interpretations about terror, control, and transformation."
+      ],
+      pathway:["Political Authority","Economic Development","Opposition & Control","Social & Cultural Change"]
+    },
     themes:[
       {
         id:"economic-development",
@@ -11389,6 +11498,15 @@ const lessonsData = [
   {
     id:"topic5",
     title:"Topic 5: Khrushchev and Reform, 1953–1964",
+    topicOverview:{
+      tension:"Khrushchev reduced terror and experimented with reform, but the party-state remained authoritarian and limits soon appeared.",
+      examWants:[
+        "Explain what changed after Stalin and what stayed the same.",
+        "Use evidence to judge the success of reforms.",
+        "Evaluate interpretations of the Thaw and limits of de-Stalinisation."
+      ],
+      pathway:["Political Authority","Economic Development","Opposition & Control","Social & Cultural Change"]
+    },
     themes:[
       {
         id:"social-cultural-change",
@@ -11438,6 +11556,7 @@ function renderLessons(){
   if(!root) return;
 
   if(lessonsNav.view === "topics") return renderLessonsTopics(root);
+  if(lessonsNav.view === "topicOverview") return renderLessonsTopicOverview(root);
   if(lessonsNav.view === "themes") return renderLessonsThemes(root);
   if(lessonsNav.view === "lessons") return renderLessonsList(root);
   if(lessonsNav.view === "player") return renderLessonPlayer(root);
@@ -11470,10 +11589,109 @@ function renderLessonsTopics(root){
       lessonsNav.lessonId = null;
       lessonsNav.slideIdx = 0;
       lessonsNav.selectedOptionIndex = null;
-      lessonsNav.view = "themes";
+      lessonsNav.view = "topicOverview";
       renderLessons();
     });
   });
+}
+
+function renderLessonsTopicOverview(root){
+  const topic = getLessonTopic();
+  if(!topic){ lessonsNav.view = "topics"; return renderLessons(); }
+
+  const overview = topic.topicOverview || {};
+  const examWants = Array.isArray(overview.examWants) ? overview.examWants.slice(0,3) : [];
+  const pathway = Array.isArray(overview.pathway) ? overview.pathway.slice(0,4) : [];
+  const progress = getTopicProgress(topic);
+  const progressText = progress.completedCount === 0 && progress.bestScore === null
+    ? "Progress: Not started yet"
+    : `Lessons completed in this topic: ${progress.completedCount} / ${progress.totalCount}`;
+
+  root.innerHTML = `
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <button class="btn" id="backToTopicsFromOverview" type="button">← Topics</button>
+        <span class="pill">Topic overview</span>
+      </div>
+      <div style="font-weight:900;font-size:22px;margin-top:8px">${topic.title}</div>
+      <div class="divider"></div>
+
+      <div class="card">
+        <div style="font-weight:900">Big historical tension</div>
+        <div class="note" style="margin-top:8px;color:var(--text)">${overview.tension || "Review how pressure and power interacted across this topic."}</div>
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="font-weight:900">What the exam wants</div>
+        ${examWants.length ? `<ul style="margin:8px 0 0 18px;padding:0;display:grid;gap:6px">${examWants.map(item=>`<li>${item}</li>`).join("")}</ul>` : `<div class="note" style="margin-top:8px">No exam focus notes added yet.</div>`}
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="font-weight:900">Suggested pathway</div>
+        ${pathway.length ? `<ol style="margin:8px 0 0 18px;padding:0;display:grid;gap:6px">${pathway.map(item=>`<li>${item}</li>`).join("")}</ol>` : ""}
+        <div class="note" style="margin-top:8px;color:var(--text)">Start with Political Authority to understand how power worked, then move through the themes.</div>
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="font-weight:900">Your progress</div>
+        <div class="note" style="margin-top:8px;color:var(--text)">${progressText}</div>
+        ${progress.completedCount === 0 && progress.bestScore === null ? "" : `
+          <div class="note" style="margin-top:6px;color:var(--text)">Best score this topic: ${progress.bestScore === null ? "No score yet" : `${progress.bestScore}%`}</div>
+          <div class="note" style="margin-top:6px;color:var(--text)">Due for review: ${progress.dueCount}</div>
+        `}
+      </div>
+
+      <div class="card" style="margin-top:10px">
+        <div style="font-weight:900">Ready to continue?</div>
+        <div class="row" style="margin-top:10px;flex-wrap:wrap">
+          <button class="btn primary" id="goToThemesBtn" type="button">Go to Themes</button>
+          ${progress.lastLessonId ? `<button class="btn" id="continueLastLessonBtn" type="button">Continue last lesson</button>` : ""}
+        </div>
+      </div>
+    </div>`;
+
+  const backBtn = $("backToTopicsFromOverview");
+  if(backBtn){
+    backBtn.addEventListener("click", ()=>{
+      lessonsNav.view = "topics";
+      lessonsNav.topicId = null;
+      lessonsNav.themeId = null;
+      lessonsNav.lessonId = null;
+      lessonsNav.slideIdx = 0;
+      lessonsNav.selectedOptionIndex = null;
+      renderLessons();
+    });
+  }
+
+  const themesBtn = $("goToThemesBtn");
+  if(themesBtn){
+    themesBtn.addEventListener("click", ()=>{
+      lessonsNav.themeId = null;
+      lessonsNav.lessonId = null;
+      lessonsNav.slideIdx = 0;
+      lessonsNav.selectedOptionIndex = null;
+      lessonsNav.view = "themes";
+      renderLessons();
+    });
+  }
+
+  const continueBtn = $("continueLastLessonBtn");
+  if(continueBtn && progress.lastLessonId){
+    continueBtn.addEventListener("click", ()=>{
+      const topicThemes = Array.isArray(topic.themes) ? topic.themes : [];
+      const matchedTheme = topicThemes.find(theme=>Array.isArray(theme.lessons) && theme.lessons.some(lesson=>lesson.id===progress.lastLessonId));
+      if(!matchedTheme){
+        lessonsNav.view = "themes";
+        return renderLessons();
+      }
+      lessonsNav.themeId = matchedTheme.id;
+      lessonsNav.lessonId = progress.lastLessonId;
+      lessonsNav.slideIdx = 0;
+      lessonsNav.selectedOptionIndex = null;
+      lessonsNav.view = "player";
+      renderLessons();
+    });
+  }
 }
 
 function renderLessonsThemes(root){
@@ -11571,6 +11789,7 @@ function renderLessonsList(root){
 function renderLessonPlayer(root){
   const lesson = getLesson();
   if(!lesson){ lessonsNav.view = "lessons"; return renderLessons(); }
+  markLessonActivity(lesson.id, { lastStartedAt:Date.now() });
 
   const allSlides = getLessonSlides(lesson);
   const slides = getSlidesForMode(allSlides, lessonsNav.mode);
@@ -11910,6 +12129,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
       return false;
     });
     const finalPercent = availableComponents.length ? Math.round(availableComponents.reduce((sum, key)=>sum + componentPercents[key], 0) / availableComponents.length) : 0;
+    markLessonResult(lesson.id, finalPercent);
 
     const feedback = finalPercent >= 80
       ? "Exam ready – you’re selecting evidence precisely."
