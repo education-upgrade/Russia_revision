@@ -772,6 +772,10 @@
     .lessonList{display:grid;gap:10px;margin-top:10px}
     .lessonListCard{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;padding:12px;background:rgba(248,252,255,.92);display:grid;gap:8px;box-shadow:0 3px 10px rgba(20,50,90,.08)}
     .lessonListCard .btn{width:100%}
+    .lessonMetaLine{font-size:12px;color:var(--muted);line-height:1.35}
+    .lessonActionRow{display:flex;gap:8px;margin-top:10px;align-items:center}
+    .lessonActionRow .btn.primary{flex:1}
+    .lessonActionRow .btn.lessonBtnSecondary{width:auto;padding:8px 10px;font-size:12px;min-height:auto}
     .lessonOutcome{font-size:13px;line-height:1.4;color:var(--text);padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.88);border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%)}
     .lessonThemeMastery{margin-top:8px;font-size:12px;line-height:1.35;color:var(--muted)}
     .lessonThemeMasteryLabel{font-weight:900;color:var(--textStrong)}
@@ -9245,8 +9249,7 @@ function getLessonStatus(entry){
   return "In progress";
 }
 
-function getLessonCta(entry){
-  const status = getLessonStatus(entry);
+function getLessonCta(status){
   if(status === "In progress") return "Continue";
   if(status === "Completed") return "Review";
   if(status === "Due") return "Review now";
@@ -9257,7 +9260,7 @@ function formatLessonDate(dateIso){
   if(typeof dateIso !== "string") return null;
   const parsed = new Date(dateIso);
   if(Number.isNaN(parsed.getTime())) return null;
-  return parsed.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
+  return parsed.toLocaleDateString("en-GB", { year:"numeric", month:"short", day:"numeric" });
 }
 
 function getRecommendedNext(topicId){
@@ -9384,6 +9387,12 @@ function openLesson(lessonId, startSlideIdx=0, themeIdOverride=null){
   lessonsNav.view = "player";
   renderLessons();
   return true;
+}
+
+function persistLessonSlidePosition(lessonId, slideIdx){
+  if(!lessonId) return;
+  const safeIdx = Number.isFinite(slideIdx) ? Math.max(0, slideIdx) : 0;
+  markLessonActivity(lessonId, { lastSlideIdx:safeIdx });
 }
 
 function getTopicProgress(topic){
@@ -11954,7 +11963,8 @@ function renderLessonsTopicOverview(root){
   const progress = getTopicProgress(topic);
   const recommended = getRecommendedNext(topic.id);
   const recommendedProgress = recommended?.lessonId ? getLessonProgress(recommended.lessonId) : null;
-  const recommendedAction = getLessonCta(recommendedProgress);
+  const recommendedStatus = getLessonStatus(recommendedProgress);
+  const recommendedAction = getLessonCta(recommendedStatus);
   const progressText = progress.completedCount === 0 && progress.bestScore === null
     ? "Progress: Not started yet"
     : `Lessons completed in this topic: ${progress.completedCount} / ${progress.totalCount}`;
@@ -12065,7 +12075,8 @@ function renderLessonsThemes(root){
 
   const recommended = getRecommendedNext(topic.id);
   const recommendedProgress = recommended?.lessonId ? getLessonProgress(recommended.lessonId) : null;
-  const recommendedAction = getLessonCta(recommendedProgress);
+  const recommendedStatus = getLessonStatus(recommendedProgress);
+  const recommendedAction = getLessonCta(recommendedStatus);
 
   const availableThemes = lessonThemesMaster
     .map(themeMeta=>{
@@ -12187,22 +12198,24 @@ function renderLessonsList(root){
         ${(()=>{
           const progress = getLessonProgress(lesson.id);
           const status = getLessonStatus(progress);
-          const lastScore = Number.isFinite(progress?.lastScorePct) ? `${Math.round(progress.lastScorePct)}%` : null;
+          const primaryCta = getLessonCta(status);
+          const attempted = typeof progress?.lastAttemptDate === "string";
+          const lastScoreValue = Number.isFinite(progress?.lastScorePct) ? Math.round(progress.lastScorePct) : null;
+          const bestScoreValue = Number.isFinite(progress?.bestScorePct) ? Math.round(progress.bestScorePct) : lastScoreValue;
           const lastStudied = formatLessonDate(progress?.lastAttemptDate);
           const resumeIdx = Number.isFinite(progress?.lastSlideIdx) ? Math.max(0, progress.lastSlideIdx) : 0;
-          const primaryCta = getLessonCta(progress);
-          const shouldResume = primaryCta === "Continue" || primaryCta === "Review now";
+          const shouldResume = status === "In progress" || status === "Due";
           const primaryIdx = shouldResume ? resumeIdx : 0;
           const showRestart = status === "In progress" || status === "Due";
-          return `<div class="card">
+          return `<div class="card lessonListCard">
           <div style="font-weight:900">${lesson.title}</div>
           <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
-          <div class="note" style="margin-top:6px">Status: ${status}</div>
-          ${lastScore ? `<div class="note">Last score: ${lastScore}</div>` : ""}
-          ${lastStudied ? `<div class="note">Last studied: ${lastStudied}</div>` : ""}
-          <div class="row" style="margin-top:10px">
+          <div class="lessonMetaLine" style="margin-top:6px">Status: ${status}</div>
+          ${attempted && lastScoreValue !== null ? `<div class="lessonMetaLine">Last score: ${lastScoreValue}%${bestScoreValue !== null ? ` (Best: ${bestScoreValue}%)` : ""}</div>` : ""}
+          ${attempted && lastStudied ? `<div class="lessonMetaLine">Last studied: ${lastStudied}</div>` : ""}
+          <div class="lessonActionRow">
             <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" data-start-slide="${primaryIdx}" type="button">${primaryCta}</button>
-            ${showRestart ? `<button class="btn" data-action="restart-lesson" data-lesson="${lesson.id}" data-start-slide="0" type="button">Restart</button>` : ""}
+            ${showRestart ? `<button class="btn lessonBtnSecondary" data-action="restart-lesson" data-lesson="${lesson.id}" data-start-slide="0" type="button">Restart</button>` : ""}
           </div>
         </div>`;
         })()}
@@ -12239,7 +12252,8 @@ function renderLessonPlayer(root){
   const total = slides.length;
   const idx = Math.max(0, Math.min(lessonsNav.slideIdx, total-1));
   lessonsNav.slideIdx = idx;
-  markLessonActivity(lesson.id, { lastStartedAt:Date.now(), lastSlideIdx:idx });
+  markLessonActivity(lesson.id, { lastStartedAt:Date.now() });
+  persistLessonSlidePosition(lesson.id, idx);
   const slide = slides[idx];
   const slideId = slide?.slideId;
   const storedAnswer = slide.type === "quick-check" ? getStoredQuickCheckAnswer(lesson.id, slideId) : null;
@@ -12293,6 +12307,7 @@ function renderLessonPlayer(root){
       lessonsNav.mode = mode;
       persistLessonMode(mode);
       lessonsNav.slideIdx = 0;
+      persistLessonSlidePosition(lesson.id, lessonsNav.slideIdx);
       lessonsNav.selectedOptionIndex = null;
       renderLessons();
     });
@@ -12309,6 +12324,7 @@ function renderLessonPlayer(root){
   $("lessonPrevBtn").addEventListener("click", ()=>{
     if(lessonsNav.slideIdx>0){
       lessonsNav.slideIdx -= 1;
+      persistLessonSlidePosition(lesson.id, lessonsNav.slideIdx);
       lessonsNav.selectedOptionIndex = null;
       renderLessons();
     }
@@ -12317,6 +12333,7 @@ function renderLessonPlayer(root){
   $("lessonNextBtn").addEventListener("click", ()=>{
     if(lessonsNav.slideIdx<total-1){
       lessonsNav.slideIdx += 1;
+      persistLessonSlidePosition(lesson.id, lessonsNav.slideIdx);
       lessonsNav.selectedOptionIndex = null;
       renderLessons();
     }
