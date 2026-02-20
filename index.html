@@ -12227,6 +12227,68 @@ function nextIntervalDays(score, prevInterval){
 function getReview(cardId){ return STATE.reviews[cardId] || null; }
 function setReview(cardId, review){ STATE.reviews[cardId] = Object.assign(STATE.reviews[cardId]||{}, review); saveState(); }
 
+const RETENTION_DEFAULT_HALF_LIFE_DAYS = 7;
+const RETENTION_MIN_HALF_LIFE_DAYS = 1;
+const RETENTION_MAX_HALF_LIFE_DAYS = 180;
+
+function getTopicRetentionStore(){
+  STATE.reviews ||= {};
+  STATE.reviews.__topics ||= {};
+  return STATE.reviews.__topics;
+}
+
+function getTopicRetentionReview(topicId){
+  return getTopicRetentionStore()[topicId] || null;
+}
+
+function getRetention(topicId, nowTs = Date.now()){
+  const r = getTopicRetentionReview(topicId);
+  if(!r) return 0;
+
+  const halfLifeDays = Math.max(
+    RETENTION_MIN_HALF_LIFE_DAYS,
+    Number(r.halfLife || r.halfLifeDays || RETENTION_DEFAULT_HALF_LIFE_DAYS)
+  );
+  const lastSuccessTs = Number(r.lastSuccessTs || 0);
+  if(!lastSuccessTs) return 0;
+
+  const elapsedDays = Math.max(0, (nowTs - lastSuccessTs) / 86400000);
+  const retention = Math.pow(0.5, elapsedDays / halfLifeDays);
+  return Math.max(0, Math.min(1, retention));
+}
+
+function updateTopicRetentionOnReview(topicId, score, reviewTs = Date.now()){
+  if(!topicId) return;
+
+  const store = getTopicRetentionStore();
+  const prev = store[topicId] || {};
+  const prevHalfLife = Math.max(
+    RETENTION_MIN_HALF_LIFE_DAYS,
+    Number(prev.halfLife || prev.halfLifeDays || RETENTION_DEFAULT_HALF_LIFE_DAYS)
+  );
+  const retentionBefore = getRetention(topicId, reviewTs);
+
+  let nextHalfLife = prevHalfLife;
+  let lastSuccessTs = Number(prev.lastSuccessTs || 0);
+
+  if(score >= 2){
+    const growthFactor = score === 3
+      ? (1.35 + retentionBefore * 0.35)
+      : (1.2 + retentionBefore * 0.2);
+    nextHalfLife = Math.min(RETENTION_MAX_HALF_LIFE_DAYS, prevHalfLife * growthFactor);
+    lastSuccessTs = reviewTs;
+  }else{
+    const decayFactor = score === 0 ? 0.55 : 0.8;
+    nextHalfLife = Math.max(RETENTION_MIN_HALF_LIFE_DAYS, prevHalfLife * decayFactor);
+  }
+
+  store[topicId] = {
+    halfLife: Number(nextHalfLife.toFixed(2)),
+    lastSuccessTs,
+    lastReviewTs: reviewTs
+  };
+}
+
 function cardConfidenceLevel(cardId){
   // 🔴 Weak / 🟡 Developing / 🟢 Secure
   // Based on: repeat Again/Hard + time since last success
@@ -14029,6 +14091,7 @@ document.querySelectorAll('#study [data-score]').forEach(btn=>{
       successfulRecalls: (prev?.successfulRecalls || 0) + (score >= 2 ? 1 : 0),
       times: (prev?.times||0)+1
     });
+    updateTopicRetentionOnReview(CURRENT.card.topicId, score, todayTs);
 
     STATE.stats.studied = (STATE.stats.studied||0)+1;
     saveState();
