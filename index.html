@@ -773,6 +773,10 @@
     .lessonListCard{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;padding:12px;background:rgba(248,252,255,.92);display:grid;gap:8px;box-shadow:0 3px 10px rgba(20,50,90,.08)}
     .lessonListCard .btn{width:100%}
     .lessonOutcome{font-size:13px;line-height:1.4;color:var(--text);padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.88);border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%)}
+    .lessonThemeMastery{margin-top:8px;font-size:12px;line-height:1.35;color:var(--muted)}
+    .lessonThemeMasteryLabel{font-weight:900;color:var(--textStrong)}
+    .lessonThemeMasteryLine{margin-top:2px}
+    .lessonThemeMasteryBadge{display:inline-flex;align-items:center;margin-top:6px;padding:2px 8px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);font-size:11px;font-weight:900;background:rgba(255,255,255,.9);color:var(--textStrong)}
         .lessonPlayerWrap{margin-top:12px}
     .lessonCard{
       border:1px solid var(--line);
@@ -9102,18 +9106,98 @@ function markLessonActivity(lessonId, patch){
   saveLessonActivityStore(store);
 }
 
+function normalizePct(value){
+  return Number.isFinite(value) ? Math.max(0, Math.min(100, Math.round(value))) : null;
+}
 
-function markLessonResult(lessonId, scorePct){
+function buildBreakdownPart(part, config){
+  if(part == null) return null;
+  const source = typeof part === "object" ? part : {};
+  const firstKey = config.keys[0];
+  const secondKey = config.keys[1];
+  const first = Number(source[firstKey]);
+  const second = Number(source[secondKey]);
+  const hasCounts = Number.isFinite(first) && Number.isFinite(second);
+  const legacyEarned = Number(source.earned);
+  const legacyMax = Number(source.max);
+  const legacyCorrect = Number(source.correct);
+  const legacyTotal = Number(source.total);
+  const pctRaw = Number(source.pct);
+
+  let normalized = null;
+  if(hasCounts){
+    normalized = {
+      [firstKey]: first,
+      [secondKey]: second,
+      pct: second > 0 ? normalizePct((first / second) * 100) : null
+    };
+  }else if(Number.isFinite(legacyEarned) && Number.isFinite(legacyMax)){
+    normalized = {
+      [firstKey]: legacyEarned,
+      [secondKey]: legacyMax,
+      pct: legacyMax > 0 ? normalizePct((legacyEarned / legacyMax) * 100) : null
+    };
+  }else if(Number.isFinite(legacyCorrect) && Number.isFinite(legacyTotal)){
+    normalized = {
+      [firstKey]: legacyCorrect,
+      [secondKey]: legacyTotal,
+      pct: legacyTotal > 0 ? normalizePct((legacyCorrect / legacyTotal) * 100) : null
+    };
+  }else if(Number.isFinite(pctRaw)){
+    normalized = { [firstKey]: 0, [secondKey]: 0, pct:normalizePct(pctRaw) };
+  }
+
+  if(!normalized) return null;
+  normalized.pct = normalizePct(normalized.pct);
+  return normalized;
+}
+
+function normalizeLessonBreakdown(rawBreakdown){
+  const source = rawBreakdown && typeof rawBreakdown === "object" ? rawBreakdown : {};
+  return {
+    context: buildBreakdownPart(source.context || source.quickCheck, { keys:["correct", "total"] }),
+    argIdentify: buildBreakdownPart(source.argIdentify, { keys:["correct", "total"] }),
+    evidenceSupport: buildBreakdownPart(source.evidenceSupport || source.supportEvidence, { keys:["earned", "max"] }),
+    evidenceChallenge: buildBreakdownPart(source.evidenceChallenge || source.challengeEvidence, { keys:["earned", "max"] }),
+    judgement: buildBreakdownPart(source.judgement, { keys:["earned", "max"] })
+  };
+}
+
+function normalizeLessonProgressEntry(entry){
+  if(!entry || typeof entry !== "object") return null;
+  return {
+    ...entry,
+    completion: entry.completion === true || entry.completed === true,
+    completed: entry.completion === true || entry.completed === true,
+    lastAttemptDate: typeof entry.lastAttemptDate === "string" ? entry.lastAttemptDate : null,
+    breakdown: normalizeLessonBreakdown(entry.breakdown)
+  };
+}
+
+function getLessonProgress(lessonId){
+  if(!lessonId) return null;
+  const store = getLessonActivityStore();
+  const entry = store.byLesson?.[lessonId];
+  return normalizeLessonProgressEntry(entry);
+}
+
+
+function markLessonResult(lessonId, scorePct, breakdown){
   if(!lessonId) return;
   const store = getLessonActivityStore();
   if(!store.byLesson || typeof store.byLesson !== "object") store.byLesson = {};
-  const current = store.byLesson[lessonId] && typeof store.byLesson[lessonId] === "object" ? store.byLesson[lessonId] : {};
+  const current = normalizeLessonProgressEntry(store.byLesson[lessonId]) || {};
   const priorBest = Number.isFinite(current.bestScorePct) ? current.bestScorePct : null;
   const nextBest = Number.isFinite(scorePct) ? (priorBest===null ? scorePct : Math.max(priorBest, scorePct)) : priorBest;
+  const todayIso = new Date().toISOString();
   store.byLesson[lessonId] = {
     ...current,
+    completion:true,
     completed:true,
+    lastAttemptDate:todayIso,
+    lastScorePct:Number.isFinite(scorePct) ? scorePct : null,
     bestScorePct:nextBest,
+    breakdown:normalizeLessonBreakdown(breakdown),
     updatedAt:Date.now()
   };
   saveLessonActivityStore(store);
@@ -9135,8 +9219,9 @@ function getTopicProgress(topic){
   let dueCount = 0;
   let lastLesson = null;
 
-  Object.entries(byLesson).forEach(([lessonId, entry])=>{
-    if(!lessonIds.has(lessonId) || !entry || typeof entry !== "object") return;
+  Object.entries(byLesson).forEach(([lessonId, rawEntry])=>{
+    const entry = normalizeLessonProgressEntry(rawEntry);
+    if(!lessonIds.has(lessonId) || !entry) return;
     if(entry.completed === true) completedCount += 1;
     if(Number.isFinite(entry.bestScorePct)){
       bestScore = bestScore === null ? entry.bestScorePct : Math.max(bestScore, entry.bestScorePct);
@@ -9152,6 +9237,49 @@ function getTopicProgress(topic){
   return { completedCount, totalCount, bestScore, dueCount, lastLessonId:lastLesson?.lessonId || null };
 }
 
+
+function computeThemeMastery(topicId, themeId){
+  const topic = lessonsData.find(t=>t.id===topicId);
+  const theme = topic?.themes?.find(th=>th.id===themeId);
+  const lessons = Array.isArray(theme?.lessons) ? theme.lessons : [];
+  const totalLessons = lessons.length;
+  const contextValues = [];
+  const interpretationValues = [];
+  const judgementValues = [];
+  let lessonsWithData = 0;
+
+  lessons.forEach(lesson=>{
+    const progress = getLessonProgress(lesson.id);
+    if(!progress) return;
+    const breakdown = progress.breakdown || {};
+    const contextPct = Number.isFinite(breakdown.context?.pct) ? breakdown.context.pct : null;
+    const argPct = Number.isFinite(breakdown.argIdentify?.pct) ? breakdown.argIdentify.pct : null;
+    const supportPct = Number.isFinite(breakdown.evidenceSupport?.pct) ? breakdown.evidenceSupport.pct : null;
+    const challengePct = Number.isFinite(breakdown.evidenceChallenge?.pct) ? breakdown.evidenceChallenge.pct : null;
+    const judgementPct = Number.isFinite(breakdown.judgement?.pct) ? breakdown.judgement.pct : null;
+
+    if(contextPct !== null) contextValues.push(contextPct);
+    const interpretationParts = [argPct, supportPct, challengePct].filter(v=>Number.isFinite(v));
+    if(interpretationParts.length){
+      const avg = interpretationParts.reduce((sum, v)=>sum + v, 0) / interpretationParts.length;
+      interpretationValues.push(avg);
+    }
+    if(judgementPct !== null) judgementValues.push(judgementPct);
+
+    if(contextPct !== null || interpretationParts.length || judgementPct !== null) lessonsWithData += 1;
+  });
+
+  const avgOrNull = (arr)=>arr.length ? Math.round(arr.reduce((sum,v)=>sum+v,0)/arr.length) : null;
+
+  return {
+    contextPct: avgOrNull(contextValues),
+    interpretationPct: avgOrNull(interpretationValues),
+    judgementPct: avgOrNull(judgementValues),
+    lessonsWithData,
+    totalLessons
+  };
+}
+
 function getThemeProgress(topic, theme){
   const themeLessons = Array.isArray(theme?.lessons) ? theme.lessons : [];
   const totalLessons = themeLessons.length;
@@ -9164,8 +9292,9 @@ function getThemeProgress(topic, theme){
   let attemptedLessons = 0;
   let dueLessons = 0;
 
-  Object.entries(byLesson).forEach(([lessonId, entry])=>{
-    if(!lessonIds.has(lessonId) || !entry || typeof entry !== "object") return;
+  Object.entries(byLesson).forEach(([lessonId, rawEntry])=>{
+    const entry = normalizeLessonProgressEntry(rawEntry);
+    if(!lessonIds.has(lessonId) || !entry) return;
     const hasAttempt = Number.isFinite(entry.lastStartedAt) || Number.isFinite(entry.bestScorePct) || entry.completed === true;
     if(!hasAttempt) return;
     attemptedLessons += 1;
@@ -9179,9 +9308,17 @@ function getThemeProgress(topic, theme){
   return { totalLessons, completedLessons, attemptedLessons, dueLessons };
 }
 
-function getThemeStatus(progress){
+function getThemeStatus(progress, mastery){
   if(progress.dueLessons > 0) return { label:"Due for review", cta:"Review now" };
-  if(progress.totalLessons > 0 && progress.completedLessons === progress.totalLessons) return { label:"Completed", cta:"Review" };
+  if(progress.totalLessons > 0 && progress.completedLessons === progress.totalLessons){
+    const interpretationLow = Number.isFinite(mastery?.interpretationPct) && mastery.interpretationPct < 65;
+    const judgementLow = Number.isFinite(mastery?.judgementPct) && mastery.judgementPct < 65;
+    if(interpretationLow || judgementLow) return { label:"Completed", cta:"Improve exam skills" };
+    return { label:"Completed", cta:"Review" };
+  }
+  const hasContext = Number.isFinite(mastery?.contextPct);
+  const interpretationMissing = mastery?.interpretationPct == null;
+  if(hasContext && interpretationMissing) return { label:"In progress", cta:"Try Exam+" };
   if(progress.attemptedLessons > 0) return { label:"In progress", cta:"Continue" };
   return { label:"Not started", cta:"Start" };
 }
@@ -11743,11 +11880,17 @@ function renderLessonsThemes(root){
     .map(themeMeta=>{
       const topicTheme = topic.themes.find(t=>t.id===themeMeta.id);
       const progress = getThemeProgress(topic, topicTheme);
+      const mastery = computeThemeMastery(topic.id, themeMeta.id);
+      const interpretationLow = Number.isFinite(mastery.interpretationPct) && mastery.interpretationPct < 60;
+      const judgementLow = Number.isFinite(mastery.judgementPct) && mastery.judgementPct < 60;
+      const strongMastery = [mastery.contextPct, mastery.interpretationPct, mastery.judgementPct].every(v=>Number.isFinite(v) && v >= 75);
       return {
         ...themeMeta,
         topicTheme,
         progress,
-        status:getThemeStatus(progress)
+        mastery,
+        masteryBadge: strongMastery ? "Strong" : (interpretationLow || judgementLow ? "Needs practice" : null),
+        status:getThemeStatus(progress, mastery)
       };
     })
     .filter(theme=>theme.progress.totalLessons > 0);
@@ -11774,6 +11917,13 @@ function renderLessonsThemes(root){
             <div style="font-weight:900;padding-right:120px">${theme.title}</div>
             ${theme.id === recommendedThemeId ? `<div class="pill" style="margin-top:6px">Start here</div>` : ""}
             <div class="note" style="margin-top:8px">${theme.progress.completedLessons}/${theme.progress.totalLessons} completed</div>
+            <div class="lessonThemeMastery">
+              <div class="lessonThemeMasteryLabel">Skill Mastery:</div>
+              <div class="lessonThemeMasteryLine">Context: ${theme.mastery.contextPct == null ? "—" : `${theme.mastery.contextPct}%`}</div>
+              <div class="lessonThemeMasteryLine">Interpretation: ${theme.mastery.interpretationPct == null ? "—" : `${theme.mastery.interpretationPct}%`}</div>
+              <div class="lessonThemeMasteryLine">Judgement: ${theme.mastery.judgementPct == null ? "—" : `${theme.mastery.judgementPct}%`}</div>
+              ${theme.masteryBadge ? `<div class="lessonThemeMasteryBadge">${theme.masteryBadge}</div>` : ""}
+            </div>
             <div style="margin-top:8px;height:6px;background:var(--line);border-radius:999px;overflow:hidden">
               <div style="height:100%;width:${theme.progress.totalLessons > 0 ? (theme.progress.completedLessons / theme.progress.totalLessons) * 100 : 0}%;background:var(--accent);border-radius:999px"></div>
             </div>
@@ -12174,11 +12324,11 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
     }, { earned:0, max:0 });
 
     const componentPercents = {
-      quickCheck: totalQuickChecks ? Math.round((correctCount / totalQuickChecks) * 100) : 0,
-      argIdentify: argIdentifyTotals.max ? Math.round((argIdentifyTotals.earned / argIdentifyTotals.max) * 100) : 0,
-      supportEvidence: supportEvidenceTotals.max ? Math.round((supportEvidenceTotals.earned / supportEvidenceTotals.max) * 100) : 0,
-      challengeEvidence: challengeEvidenceTotals.max ? Math.round((challengeEvidenceTotals.earned / challengeEvidenceTotals.max) * 100) : 0,
-      judgement: judgementTotals.max ? Math.round((judgementTotals.earned / judgementTotals.max) * 100) : 0
+      quickCheck: totalQuickChecks ? Math.round((correctCount / totalQuickChecks) * 100) : null,
+      argIdentify: argIdentifyTotals.max ? Math.round((argIdentifyTotals.earned / argIdentifyTotals.max) * 100) : null,
+      supportEvidence: supportEvidenceTotals.max ? Math.round((supportEvidenceTotals.earned / supportEvidenceTotals.max) * 100) : null,
+      challengeEvidence: challengeEvidenceTotals.max ? Math.round((challengeEvidenceTotals.earned / challengeEvidenceTotals.max) * 100) : null,
+      judgement: judgementTotals.max ? Math.round((judgementTotals.earned / judgementTotals.max) * 100) : null
     };
 
     const modeComponents = mode === "overview"
@@ -12195,7 +12345,15 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
       return false;
     });
     const finalPercent = availableComponents.length ? Math.round(availableComponents.reduce((sum, key)=>sum + componentPercents[key], 0) / availableComponents.length) : 0;
-    markLessonResult(lesson.id, finalPercent);
+    const lessonBreakdown = {
+      context: totalQuickChecks > 0 ? { correct:correctCount, total:totalQuickChecks, pct:componentPercents.quickCheck } : null,
+      argIdentify: argIdentifyTotals.max > 0 ? { correct:argIdentifyTotals.earned, total:argIdentifyTotals.max, pct:componentPercents.argIdentify } : null,
+      evidenceSupport: supportEvidenceTotals.max > 0 ? { earned:supportEvidenceTotals.earned, max:supportEvidenceTotals.max, pct:componentPercents.supportEvidence } : null,
+      evidenceChallenge: challengeEvidenceTotals.max > 0 ? { earned:challengeEvidenceTotals.earned, max:challengeEvidenceTotals.max, pct:componentPercents.challengeEvidence } : null,
+      judgement: judgementTotals.max > 0 ? { earned:judgementTotals.earned, max:judgementTotals.max, pct:componentPercents.judgement } : null
+    };
+
+    markLessonResult(lesson.id, finalPercent, lessonBreakdown);
 
     const feedback = finalPercent >= 80
       ? "Exam ready – you’re selecting evidence precisely."
