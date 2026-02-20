@@ -9152,6 +9152,40 @@ function getTopicProgress(topic){
   return { completedCount, totalCount, bestScore, dueCount, lastLessonId:lastLesson?.lessonId || null };
 }
 
+function getThemeProgress(topic, theme){
+  const themeLessons = Array.isArray(theme?.lessons) ? theme.lessons : [];
+  const totalLessons = themeLessons.length;
+  const lessonIds = new Set(themeLessons.map(lesson=>lesson.id));
+  const store = getLessonActivityStore();
+  const byLesson = store.byLesson && typeof store.byLesson === "object" ? store.byLesson : {};
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  let completedLessons = 0;
+  let attemptedLessons = 0;
+  let dueLessons = 0;
+
+  Object.entries(byLesson).forEach(([lessonId, entry])=>{
+    if(!lessonIds.has(lessonId) || !entry || typeof entry !== "object") return;
+    const hasAttempt = Number.isFinite(entry.lastStartedAt) || Number.isFinite(entry.bestScorePct) || entry.completed === true;
+    if(!hasAttempt) return;
+    attemptedLessons += 1;
+    if(entry.completed === true) completedLessons += 1;
+
+    const staleAttempt = Number.isFinite(entry.lastStartedAt) && (now - entry.lastStartedAt) > sevenDaysMs;
+    const lowScore = Number.isFinite(entry.bestScorePct) && entry.bestScorePct < 65;
+    if(entry.dueForReview === true || staleAttempt || lowScore) dueLessons += 1;
+  });
+
+  return { totalLessons, completedLessons, attemptedLessons, dueLessons };
+}
+
+function getThemeStatus(progress){
+  if(progress.dueLessons > 0) return { label:"Due for review", cta:"Review now" };
+  if(progress.totalLessons > 0 && progress.completedLessons === progress.totalLessons) return { label:"Completed", cta:"Review" };
+  if(progress.attemptedLessons > 0) return { label:"In progress", cta:"Continue" };
+  return { label:"Not started", cta:"Start" };
+}
+
 function ensureSlideMeta(slide, index){
   const nextSlide = { ...slide };
   if(!nextSlide.slideId) nextSlide.slideId = `slide-${index+1}`;
@@ -11698,6 +11732,32 @@ function renderLessonsThemes(root){
   const topic = getLessonTopic();
   if(!topic){ lessonsNav.view = "topics"; return renderLessons(); }
 
+  const recommendedThemeOrder = [
+    "political-authority",
+    "economic-development",
+    "opposition-control",
+    "social-cultural-change"
+  ];
+
+  const availableThemes = lessonThemesMaster
+    .map(themeMeta=>{
+      const topicTheme = topic.themes.find(t=>t.id===themeMeta.id);
+      const progress = getThemeProgress(topic, topicTheme);
+      return {
+        ...themeMeta,
+        topicTheme,
+        progress,
+        status:getThemeStatus(progress)
+      };
+    })
+    .filter(theme=>theme.progress.totalLessons > 0);
+
+  const recommendedThemeId = recommendedThemeOrder.find(themeId=>{
+    const found = availableThemes.find(theme=>theme.id===themeId);
+    if(!found) return false;
+    return found.progress.completedLessons < found.progress.totalLessons;
+  }) || null;
+
   root.innerHTML = `
     <div class="card">
       <div class="row" style="justify-content:space-between">
@@ -11705,14 +11765,20 @@ function renderLessonsThemes(root){
         <span class="pill">Themes</span>
       </div>
       <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title}</div>
+      <div class="note" style="margin-top:6px">Follow the suggested order or jump to any theme for targeted revision.</div>
       <div class="divider"></div>
       <div class="lessonsGrid">
-        ${lessonThemesMaster.map(theme=>`
-          <div class="card">
-            <div style="font-weight:900">${theme.title}</div>
-            <div class="note" style="margin-top:6px">${(topic.themes.find(t=>t.id===theme.id)?.lessons.length || 0)} lesson(s) available</div>
+        ${availableThemes.map(theme=>`
+          <div class="card" style="position:relative">
+            <div class="pill" style="position:absolute;top:12px;right:12px">${theme.status.label}</div>
+            <div style="font-weight:900;padding-right:120px">${theme.title}</div>
+            ${theme.id === recommendedThemeId ? `<div class="pill" style="margin-top:6px">Start here</div>` : ""}
+            <div class="note" style="margin-top:8px">${theme.progress.completedLessons}/${theme.progress.totalLessons} completed</div>
+            <div style="margin-top:8px;height:6px;background:var(--line);border-radius:999px;overflow:hidden">
+              <div style="height:100%;width:${theme.progress.totalLessons > 0 ? (theme.progress.completedLessons / theme.progress.totalLessons) * 100 : 0}%;background:var(--accent);border-radius:999px"></div>
+            </div>
             <div class="row" style="margin-top:10px">
-              <button class="btn primary" data-action="open-theme" data-theme="${theme.id}" type="button">Open</button>
+              <button class="btn primary" data-action="open-theme" data-theme="${theme.id}" type="button">${theme.status.cta}</button>
             </div>
           </div>`).join("")}
       </div>
