@@ -9208,6 +9208,159 @@ function getTopicLessons(topic){
   return topic.themes.flatMap(theme=>Array.isArray(theme.lessons) ? theme.lessons : []);
 }
 
+const RECOMMENDED_THEME_ORDER = [
+  "political-authority",
+  "economic-development",
+  "opposition-control",
+  "social-cultural-change"
+];
+
+function parseAttemptMs(entry){
+  if(!entry || typeof entry !== "object") return null;
+  if(Number.isFinite(entry.lastStartedAt)) return entry.lastStartedAt;
+  if(typeof entry.lastAttemptDate === "string"){
+    const parsed = Date.parse(entry.lastAttemptDate);
+    if(Number.isFinite(parsed)) return parsed;
+  }
+  return null;
+}
+
+function isLessonDue(entry, now=Date.now()){
+  if(!entry || typeof entry !== "object") return false;
+  if(entry.dueForReview === true) return true;
+  const attemptMs = parseAttemptMs(entry);
+  const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+  const staleAttempt = Number.isFinite(attemptMs) && (now - attemptMs) > sevenDaysMs;
+  const lowScore = Number.isFinite(entry.lastScorePct) && entry.lastScorePct < 65;
+  return staleAttempt || lowScore;
+}
+
+
+function getLessonCta(entry){
+  if(!entry) return "Start";
+  const attempted = entry.completed === true || Number.isFinite(entry.lastScorePct) || Number.isFinite(entry.bestScorePct) || Number.isFinite(entry.lastStartedAt);
+  return attempted ? "Continue" : "Start";
+}
+
+function getRecommendedNext(topicId){
+  const topic = lessonsData.find(t=>t.id===topicId);
+  if(!topic) return null;
+
+  const byLesson = getLessonActivityStore().byLesson || {};
+  const themeMap = new Map((Array.isArray(topic.themes) ? topic.themes : []).map(theme=>[theme.id, theme]));
+  const orderedThemes = [
+    ...RECOMMENDED_THEME_ORDER.map(id=>themeMap.get(id)).filter(Boolean),
+    ...Array.from(themeMap.values()).filter(theme=>!RECOMMENDED_THEME_ORDER.includes(theme.id))
+  ];
+
+  for(const theme of orderedThemes){
+    const lessons = Array.isArray(theme.lessons) ? theme.lessons : [];
+    for(const lesson of lessons){
+      const entry = normalizeLessonProgressEntry(byLesson[lesson.id]) || null;
+      if(isLessonDue(entry)){
+        return {
+          type:"lesson",
+          topicId,
+          themeId:theme.id,
+          lessonId:lesson.id,
+          title:lesson.title,
+          reason:"This lesson is due for review."
+        };
+      }
+    }
+  }
+
+  for(const theme of orderedThemes){
+    const lessons = Array.isArray(theme.lessons) ? theme.lessons : [];
+    if(!lessons.length) continue;
+    const unfinished = lessons.find(lesson=>{
+      const entry = normalizeLessonProgressEntry(byLesson[lesson.id]);
+      return !entry || entry.completed !== true;
+    });
+    if(unfinished){
+      return {
+        type:"lesson",
+        topicId,
+        themeId:theme.id,
+        lessonId:unfinished.id,
+        title:unfinished.title,
+        reason:`This is the next unfinished lesson in ${theme.title}.`
+      };
+    }
+  }
+
+  const allLessons = getTopicLessons(topic);
+  if(!allLessons.length) return null;
+
+  const masteryPriority = [
+    { key:"interpretationPct", label:"Interpretation mastery" },
+    { key:"judgementPct", label:"Judgement mastery" },
+    { key:"contextPct", label:"Context mastery" }
+  ];
+
+  let selectedTheme = null;
+  let selectedMetric = masteryPriority[0];
+  for(const metric of masteryPriority){
+    const candidates = orderedThemes
+      .map(theme=>({ theme, mastery:computeThemeMastery(topicId, theme.id) }))
+      .filter(({ theme })=>Array.isArray(theme.lessons) && theme.lessons.length);
+    if(!candidates.length) continue;
+    const withScores = candidates.filter(item=>Number.isFinite(item.mastery?.[metric.key]));
+    const ranked = (withScores.length ? withScores : candidates)
+      .sort((a,b)=>{
+        const av = Number.isFinite(a.mastery?.[metric.key]) ? a.mastery[metric.key] : 101;
+        const bv = Number.isFinite(b.mastery?.[metric.key]) ? b.mastery[metric.key] : 101;
+        if(av !== bv) return av - bv;
+        return orderedThemes.findIndex(t=>t.id===a.theme.id) - orderedThemes.findIndex(t=>t.id===b.theme.id);
+      });
+    if(ranked.length){
+      selectedTheme = ranked[0].theme;
+      selectedMetric = metric;
+      break;
+    }
+  }
+
+  if(!selectedTheme) selectedTheme = orderedThemes.find(theme=>Array.isArray(theme.lessons) && theme.lessons.length) || null;
+  if(!selectedTheme) return null;
+
+  const fallbackLesson = (selectedTheme.lessons || []).map(lesson=>{
+    const entry = normalizeLessonProgressEntry(byLesson[lesson.id]) || {};
+    const score = Number.isFinite(entry.lastScorePct) ? entry.lastScorePct : 0;
+    return { lesson, score };
+  }).sort((a,b)=>a.score - b.score)[0];
+
+  if(!fallbackLesson) return null;
+  const selectedMastery = computeThemeMastery(topicId, selectedTheme.id);
+  const masteryPct = Number.isFinite(selectedMastery?.[selectedMetric.key]) ? selectedMastery[selectedMetric.key] : null;
+
+  return {
+    type:"theme",
+    topicId,
+    themeId:selectedTheme.id,
+    lessonId:fallbackLesson.lesson.id,
+    title:fallbackLesson.lesson.title,
+    reason:masteryPct == null
+      ? `Your ${selectedMetric.label} is weakest in this theme.`
+      : `Your ${selectedMetric.label} is lowest here (${masteryPct}%).`
+  };
+}
+
+function launchLessonFromTopic(topic, lessonId, preferResume=true){
+  if(!topic || !lessonId) return false;
+  const topicThemes = Array.isArray(topic.themes) ? topic.themes : [];
+  const matchedTheme = topicThemes.find(theme=>Array.isArray(theme.lessons) && theme.lessons.some(lesson=>lesson.id===lessonId));
+  if(!matchedTheme) return false;
+  const progress = getLessonProgress(lessonId);
+  const resumeIdx = preferResume && Number.isFinite(progress?.lastSlideIdx) ? Math.max(0, progress.lastSlideIdx) : 0;
+  lessonsNav.themeId = matchedTheme.id;
+  lessonsNav.lessonId = lessonId;
+  lessonsNav.slideIdx = resumeIdx;
+  lessonsNav.selectedOptionIndex = null;
+  lessonsNav.view = "player";
+  renderLessons();
+  return true;
+}
+
 function getTopicProgress(topic){
   const topicLessons = getTopicLessons(topic);
   const totalCount = topicLessons.length;
@@ -9226,7 +9379,7 @@ function getTopicProgress(topic){
     if(Number.isFinite(entry.bestScorePct)){
       bestScore = bestScore === null ? entry.bestScorePct : Math.max(bestScore, entry.bestScorePct);
     }
-    if(entry.dueForReview === true) dueCount += 1;
+    if(isLessonDue(entry)) dueCount += 1;
     if(Number.isFinite(entry.lastStartedAt)){
       if(!lastLesson || entry.lastStartedAt > Number(lastLesson.lastStartedAt || 0)){
         lastLesson = { lessonId, lastStartedAt:entry.lastStartedAt };
@@ -11774,6 +11927,9 @@ function renderLessonsTopicOverview(root){
   const examWants = Array.isArray(overview.examWants) ? overview.examWants.slice(0,3) : [];
   const pathway = Array.isArray(overview.pathway) ? overview.pathway.slice(0,4) : [];
   const progress = getTopicProgress(topic);
+  const recommended = getRecommendedNext(topic.id);
+  const recommendedProgress = recommended?.lessonId ? getLessonProgress(recommended.lessonId) : null;
+  const recommendedAction = getLessonCta(recommendedProgress);
   const progressText = progress.completedCount === 0 && progress.bestScore === null
     ? "Progress: Not started yet"
     : `Lessons completed in this topic: ${progress.completedCount} / ${progress.totalCount}`;
@@ -11791,6 +11947,17 @@ function renderLessonsTopicOverview(root){
         <div style="font-weight:900">Big historical tension</div>
         <div class="note" style="margin-top:8px;color:var(--text)">${overview.tension || "Review how pressure and power interacted across this topic."}</div>
       </div>
+
+      ${recommended ? `
+        <div class="card" style="margin-top:10px">
+          <div class="recommendedCardTitle">Recommended Next</div>
+          <div class="recommendedLabel">Continue: ${recommended.title}</div>
+          <div class="recommendedReason">Because ${recommended.reason}</div>
+          <div class="row" style="margin-top:10px;flex-wrap:wrap">
+            <button class="btn primary" id="recommendedNextBtn" type="button">${recommendedAction}</button>
+            ${progress.lastLessonId ? `<button class="btn small" id="resumeLastLessonBtn" type="button">Resume last lesson</button>` : ""}
+          </div>
+        </div>` : ""}
 
       <div class="card" style="margin-top:10px">
         <div style="font-weight:900">What the exam wants</div>
@@ -11816,7 +11983,7 @@ function renderLessonsTopicOverview(root){
         <div style="font-weight:900">Ready to continue?</div>
         <div class="row" style="margin-top:10px;flex-wrap:wrap">
           <button class="btn primary" id="goToThemesBtn" type="button">Go to Themes</button>
-          ${progress.lastLessonId ? `<button class="btn" id="continueLastLessonBtn" type="button">Continue last lesson</button>` : ""}
+          
         </div>
       </div>
     </div>`;
@@ -11846,21 +12013,23 @@ function renderLessonsTopicOverview(root){
     });
   }
 
-  const continueBtn = $("continueLastLessonBtn");
-  if(continueBtn && progress.lastLessonId){
-    continueBtn.addEventListener("click", ()=>{
-      const topicThemes = Array.isArray(topic.themes) ? topic.themes : [];
-      const matchedTheme = topicThemes.find(theme=>Array.isArray(theme.lessons) && theme.lessons.some(lesson=>lesson.id===progress.lastLessonId));
-      if(!matchedTheme){
+  const recommendedBtn = $("recommendedNextBtn");
+  if(recommendedBtn && recommended?.lessonId){
+    recommendedBtn.addEventListener("click", ()=>{
+      if(!launchLessonFromTopic(topic, recommended.lessonId, true)){
         lessonsNav.view = "themes";
-        return renderLessons();
+        renderLessons();
       }
-      lessonsNav.themeId = matchedTheme.id;
-      lessonsNav.lessonId = progress.lastLessonId;
-      lessonsNav.slideIdx = 0;
-      lessonsNav.selectedOptionIndex = null;
-      lessonsNav.view = "player";
-      renderLessons();
+    });
+  }
+
+  const resumeLastBtn = $("resumeLastLessonBtn");
+  if(resumeLastBtn && progress.lastLessonId){
+    resumeLastBtn.addEventListener("click", ()=>{
+      if(!launchLessonFromTopic(topic, progress.lastLessonId, true)){
+        lessonsNav.view = "themes";
+        renderLessons();
+      }
     });
   }
 }
@@ -11869,12 +12038,9 @@ function renderLessonsThemes(root){
   const topic = getLessonTopic();
   if(!topic){ lessonsNav.view = "topics"; return renderLessons(); }
 
-  const recommendedThemeOrder = [
-    "political-authority",
-    "economic-development",
-    "opposition-control",
-    "social-cultural-change"
-  ];
+  const recommended = getRecommendedNext(topic.id);
+  const recommendedProgress = recommended?.lessonId ? getLessonProgress(recommended.lessonId) : null;
+  const recommendedAction = getLessonCta(recommendedProgress);
 
   const availableThemes = lessonThemesMaster
     .map(themeMeta=>{
@@ -11895,7 +12061,7 @@ function renderLessonsThemes(root){
     })
     .filter(theme=>theme.progress.totalLessons > 0);
 
-  const recommendedThemeId = recommendedThemeOrder.find(themeId=>{
+  const recommendedThemeId = recommended?.themeId || RECOMMENDED_THEME_ORDER.find(themeId=>{
     const found = availableThemes.find(theme=>theme.id===themeId);
     if(!found) return false;
     return found.progress.completedLessons < found.progress.totalLessons;
@@ -11909,6 +12075,15 @@ function renderLessonsThemes(root){
       </div>
       <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title}</div>
       <div class="note" style="margin-top:6px">Follow the suggested order or jump to any theme for targeted revision.</div>
+      ${recommended ? `
+        <div class="card" style="margin-top:10px">
+          <div class="recommendedCardTitle">Recommended Next</div>
+          <div class="recommendedLabel">Continue: ${recommended.title}</div>
+          <div class="recommendedReason">Because ${recommended.reason}</div>
+          <div class="row" style="margin-top:10px">
+            <button class="btn primary" id="themesRecommendedNextBtn" type="button">${recommendedAction}</button>
+          </div>
+        </div>` : ""}
       <div class="divider"></div>
       <div class="lessonsGrid">
         ${availableThemes.map(theme=>`
@@ -11954,6 +12129,16 @@ function renderLessonsThemes(root){
       renderLessons();
     });
   });
+
+  const themesRecommendedBtn = $("themesRecommendedNextBtn");
+  if(themesRecommendedBtn && recommended?.lessonId){
+    themesRecommendedBtn.addEventListener("click", ()=>{
+      if(!launchLessonFromTopic(topic, recommended.lessonId, true)){
+        lessonsNav.view = "lessons";
+        renderLessons();
+      }
+    });
+  }
 }
 
 function renderLessonsList(root){
@@ -12005,13 +12190,12 @@ function renderLessonsList(root){
 function renderLessonPlayer(root){
   const lesson = getLesson();
   if(!lesson){ lessonsNav.view = "lessons"; return renderLessons(); }
-  markLessonActivity(lesson.id, { lastStartedAt:Date.now() });
-
   const allSlides = getLessonSlides(lesson);
   const slides = getSlidesForMode(allSlides, lessonsNav.mode);
   const total = slides.length;
   const idx = Math.max(0, Math.min(lessonsNav.slideIdx, total-1));
   lessonsNav.slideIdx = idx;
+  markLessonActivity(lesson.id, { lastStartedAt:Date.now(), lastSlideIdx:idx });
   const slide = slides[idx];
   const slideId = slide?.slideId;
   const storedAnswer = slide.type === "quick-check" ? getStoredQuickCheckAnswer(lesson.id, slideId) : null;
