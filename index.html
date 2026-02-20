@@ -9228,7 +9228,7 @@ function parseAttemptMs(entry){
 function isLessonDue(entry, now=Date.now()){
   if(!entry || typeof entry !== "object") return false;
   if(entry.dueForReview === true) return true;
-  const attemptMs = parseAttemptMs(entry);
+  const attemptMs = typeof entry.lastAttemptDate === "string" ? Date.parse(entry.lastAttemptDate) : parseAttemptMs(entry);
   const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
   const staleAttempt = Number.isFinite(attemptMs) && (now - attemptMs) > sevenDaysMs;
   const lowScore = Number.isFinite(entry.lastScorePct) && entry.lastScorePct < 65;
@@ -9236,10 +9236,28 @@ function isLessonDue(entry, now=Date.now()){
 }
 
 
+function getLessonStatus(entry){
+  if(!entry || typeof entry !== "object") return "Not started";
+  const hasAttemptDate = typeof entry.lastAttemptDate === "string";
+  if(!hasAttemptDate) return "Not started";
+  if(isLessonDue(entry)) return "Due";
+  if(entry.completion === true || entry.completed === true) return "Completed";
+  return "In progress";
+}
+
 function getLessonCta(entry){
-  if(!entry) return "Start";
-  const attempted = entry.completed === true || Number.isFinite(entry.lastScorePct) || Number.isFinite(entry.bestScorePct) || Number.isFinite(entry.lastStartedAt);
-  return attempted ? "Continue" : "Start";
+  const status = getLessonStatus(entry);
+  if(status === "In progress") return "Continue";
+  if(status === "Completed") return "Review";
+  if(status === "Due") return "Review now";
+  return "Start";
+}
+
+function formatLessonDate(dateIso){
+  if(typeof dateIso !== "string") return null;
+  const parsed = new Date(dateIso);
+  if(Number.isNaN(parsed.getTime())) return null;
+  return parsed.toLocaleDateString(undefined, { year:"numeric", month:"short", day:"numeric" });
 }
 
 function getRecommendedNext(topicId){
@@ -9352,9 +9370,16 @@ function launchLessonFromTopic(topic, lessonId, preferResume=true){
   if(!matchedTheme) return false;
   const progress = getLessonProgress(lessonId);
   const resumeIdx = preferResume && Number.isFinite(progress?.lastSlideIdx) ? Math.max(0, progress.lastSlideIdx) : 0;
-  lessonsNav.themeId = matchedTheme.id;
+  return openLesson(lessonId, resumeIdx, matchedTheme.id);
+}
+
+function openLesson(lessonId, startSlideIdx=0, themeIdOverride=null){
+  if(!lessonId) return false;
+  const themeId = themeIdOverride || lessonsNav.themeId;
+  if(!themeId) return false;
+  lessonsNav.themeId = themeId;
   lessonsNav.lessonId = lessonId;
-  lessonsNav.slideIdx = resumeIdx;
+  lessonsNav.slideIdx = Math.max(0, Number.isFinite(startSlideIdx) ? startSlideIdx : 0);
   lessonsNav.selectedOptionIndex = null;
   lessonsNav.view = "player";
   renderLessons();
@@ -12159,13 +12184,29 @@ function renderLessonsList(root){
       <div class="note">${themeMeta ? themeMeta.title : "Theme"}</div>
       <div class="divider"></div>
       ${lessons.length ? `<div class="lessonsGrid">${lessons.map(lesson=>`
-        <div class="card">
+        ${(()=>{
+          const progress = getLessonProgress(lesson.id);
+          const status = getLessonStatus(progress);
+          const lastScore = Number.isFinite(progress?.lastScorePct) ? `${Math.round(progress.lastScorePct)}%` : null;
+          const lastStudied = formatLessonDate(progress?.lastAttemptDate);
+          const resumeIdx = Number.isFinite(progress?.lastSlideIdx) ? Math.max(0, progress.lastSlideIdx) : 0;
+          const primaryCta = getLessonCta(progress);
+          const shouldResume = primaryCta === "Continue" || primaryCta === "Review now";
+          const primaryIdx = shouldResume ? resumeIdx : 0;
+          const showRestart = status === "In progress" || status === "Due";
+          return `<div class="card">
           <div style="font-weight:900">${lesson.title}</div>
           <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
+          <div class="note" style="margin-top:6px">Status: ${status}</div>
+          ${lastScore ? `<div class="note">Last score: ${lastScore}</div>` : ""}
+          ${lastStudied ? `<div class="note">Last studied: ${lastStudied}</div>` : ""}
           <div class="row" style="margin-top:10px">
-            <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" type="button">Start</button>
+            <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" data-start-slide="${primaryIdx}" type="button">${primaryCta}</button>
+            ${showRestart ? `<button class="btn" data-action="restart-lesson" data-lesson="${lesson.id}" data-start-slide="0" type="button">Restart</button>` : ""}
           </div>
-        </div>`).join("")}</div>` : `<div class="note">No lessons added in this proof-of-concept for this theme yet.</div>`}
+        </div>`;
+        })()}
+        `).join("")}</div>` : `<div class="note">No lessons added in this proof-of-concept for this theme yet.</div>`}
     </div>`;
 
   $("backToThemes").addEventListener("click", ()=>{
@@ -12178,11 +12219,14 @@ function renderLessonsList(root){
 
   root.querySelectorAll('[data-action="start-lesson"]').forEach(btn=>{
     btn.addEventListener("click", ()=>{
-      lessonsNav.lessonId = btn.dataset.lesson;
-      lessonsNav.slideIdx = 0;
-      lessonsNav.selectedOptionIndex = null;
-      lessonsNav.view = "player";
-      renderLessons();
+      const startSlideIdx = Number(btn.dataset.startSlide);
+      openLesson(btn.dataset.lesson, Number.isFinite(startSlideIdx) ? startSlideIdx : 0);
+    });
+  });
+
+  root.querySelectorAll('[data-action="restart-lesson"]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      openLesson(btn.dataset.lesson, 0);
     });
   });
 }
