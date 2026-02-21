@@ -3238,8 +3238,8 @@ section#games.gamePaneActive .gamesHeroCard{
         </button>
         <button class="btn" id="coachChallengeBtn" type="button">
           <span class="btnIconLabel">
-            <svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg>
-            <span class="coachActionTitle" id="coachQuizBtnTitle">Quiz</span>
+            <svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="12" height="15" rx="2"></rect><path d="M8 9h4"></path><path d="M8 13h4"></path><path d="M18 8h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8"></path></svg>
+            <span class="coachActionTitle" id="coachQuizBtnTitle">Start challenge</span>
           </span>
         </button>
       </div>
@@ -14532,7 +14532,7 @@ function openDailyCoachDialog(forceRefresh=false){
   if(msgNode){
     msgNode.textContent = doneToday
       ? "You’ve already completed today’s challenge. Good work!"
-      : `Today’s topic: ${(TOPICS.find(t=>t.id===daily.topicId)?.title || daily.topicId)}`;
+      : `Daily challenge topic: ${(TOPICS.find(t=>t.id===daily.topicId)?.title || daily.topicId)}`;
   }
   if(leadNode){
     leadNode.textContent = doneToday
@@ -14545,7 +14545,7 @@ function openDailyCoachDialog(forceRefresh=false){
   if(lastNode) lastNode.textContent = `Last reviewed: ${formatCoachWhen(topicMetrics.lastStudiedAt)}`;
 
   if(studyTitleNode) studyTitleNode.textContent = doneToday ? "Study" : "Start";
-  if(quizTitleNode) quizTitleNode.textContent = doneToday ? "Quiz" : "Start";
+  if(quizTitleNode) quizTitleNode.textContent = doneToday ? "Quiz" : "Start challenge";
 
   if(studyBtn){
     studyBtn.classList.toggle("hidden", !doneToday);
