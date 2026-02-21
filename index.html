@@ -9087,7 +9087,18 @@ function persistLessonMode(mode){
 
 const LESSON_ACTIVITY_KEY = "LESSON_ACTIVITY_KEY";
 const DRILL_HISTORY_KEY = "lessonsDrillHistoryV1";
-const lessonsNav = { view:"topics", topicId:null, themeId:null, lessonId:null, slideIdx:0, mode:getInitialLessonMode(), selectedOptionIndex:null, answers:{} };
+const lessonsNav = {
+  view:"topics",
+  topicId:null,
+  themeId:null,
+  lessonId:null,
+  slideIdx:0,
+  mode:getInitialLessonMode(),
+  selectedOptionIndex:null,
+  answers:{},
+  libraryFilters:{ topic:"all", theme:"all", search:"" },
+  collapsedLessonBlocks:{}
+};
 
 function getLessonActivityStore(){
   try{
@@ -9510,13 +9521,118 @@ function openLesson(lessonId, startSlideIdx=0, themeIdOverride=null){
   if(!lessonId) return false;
   const themeId = themeIdOverride || lessonsNav.themeId;
   if(!themeId) return false;
+  const startIdx = typeof startSlideIdx === "object" && startSlideIdx
+    ? (startSlideIdx.startAt === "practice" ? getLessonPracticeStartIndex(lessonId) : Number(startSlideIdx.slideIdx || 0))
+    : Number(startSlideIdx);
   lessonsNav.themeId = themeId;
   lessonsNav.lessonId = lessonId;
-  lessonsNav.slideIdx = Math.max(0, Number.isFinite(startSlideIdx) ? startSlideIdx : 0);
+  lessonsNav.slideIdx = Math.max(0, Number.isFinite(startIdx) ? startIdx : 0);
   lessonsNav.selectedOptionIndex = null;
   lessonsNav.view = "player";
   renderLessons();
   return true;
+}
+
+function getLessonPracticeStartIndex(lessonId){
+  const topic = getLessonTopic();
+  const theme = topic?.themes?.find(t=>t.id===lessonsNav.themeId);
+  const lesson = theme?.lessons?.find(item=>item.id===lessonId);
+  if(!lesson) return 0;
+  const slides = getSlidesForMode(getLessonSlides(lesson), lessonsNav.mode);
+  const firstArgIdentify = slides.findIndex(slide=>slide.type === "arg-identify");
+  if(firstArgIdentify >= 0) return firstArgIdentify;
+  const firstPractice = slides.findIndex(slide=>!["idea","briefing"].includes(slide.type));
+  return firstPractice >= 0 ? firstPractice : 0;
+}
+
+function stableShuffle(list, seedString){
+  const source = Array.isArray(list) ? list.slice() : [];
+  let seed = 2166136261;
+  const text = String(seedString || "shuffle");
+  for(let i=0;i<text.length;i++){
+    seed ^= text.charCodeAt(i);
+    seed = Math.imul(seed, 16777619);
+  }
+  const rand = ()=>{
+    seed += 0x6D2B79F5;
+    let t = seed;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  for(let i=source.length-1;i>0;i--){
+    const j = Math.floor(rand() * (i + 1));
+    [source[i], source[j]] = [source[j], source[i]];
+  }
+  return source;
+}
+
+function getOrCreateSlideShuffleOrder(lessonId, slideId, type, count, lengths=[]){
+  if(!lessonId || !slideId || !Number.isInteger(count) || count <= 1) return [...Array(Math.max(count, 0)).keys()];
+  const key = `LESSON_SHUFFLE_${lessonId}_${slideId}`;
+  try{
+    const raw = localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : null;
+    const existing = parsed && parsed[type];
+    if(Array.isArray(existing) && existing.length===count && existing.every(v=>Number.isInteger(v) && v>=0 && v<count) && new Set(existing).size===count){
+      return existing;
+    }
+  }catch(_err){}
+
+  const indexes = [...Array(count).keys()];
+  const hasOutlierLength = lengths.some(len=>len < 25 || len > 160);
+  const order = hasOutlierLength && count > 3
+    ? [0, ...stableShuffle(indexes.slice(1,-1), `${lessonId}::${slideId}::${type}::middle`), count - 1]
+    : stableShuffle(indexes, `${lessonId}::${slideId}::${type}`);
+
+  try{
+    const raw = localStorage.getItem(key);
+    const parsed = raw ? JSON.parse(raw) : {};
+    const next = parsed && typeof parsed === "object" ? parsed : {};
+    next[type] = order;
+    localStorage.setItem(key, JSON.stringify(next));
+  }catch(_err){}
+  return order;
+}
+
+function getShuffledSlideData(lesson, slide){
+  const slideId = slide?.slideId;
+  if(!slide || !lesson || !slideId) return { ...slide };
+
+  if(slide.type === "quick-check" || slide.type === "arg-identify"){
+    const options = Array.isArray(slide.options) ? slide.options : [];
+    const order = getOrCreateSlideShuffleOrder(lesson.id, slideId, slide.type, options.length, options.map(opt=>String(opt || "").length));
+    const shuffledOptions = order.map(idx=>options[idx]);
+    const remappedFeedback = Array.isArray(slide.feedback) ? order.map(idx=>slide.feedback[idx]) : slide.feedback;
+    const remappedCorrectIndex = order.findIndex(idx=>idx===slide.correctIndex);
+    return {
+      ...slide,
+      options:shuffledOptions,
+      feedback:remappedFeedback,
+      correctIndex:Number.isInteger(remappedCorrectIndex) && remappedCorrectIndex >= 0 ? remappedCorrectIndex : slide.correctIndex,
+      optionIndexMap:order,
+      originalCorrectIndex:slide.correctIndex
+    };
+  }
+
+  if(slide.type === "evidence-select"){
+    const statements = Array.isArray(slide.statements) ? slide.statements : [];
+    const order = getOrCreateSlideShuffleOrder(lesson.id, slideId, slide.type, statements.length, statements.map(item=>String(item?.text || "").length));
+    return { ...slide, statements:order.map(idx=>statements[idx]) };
+  }
+
+  if(slide.type === "judgement"){
+    const evidenceStatements = Array.isArray(slide.evidencePick?.statements) ? slide.evidencePick.statements : [];
+    const order = getOrCreateSlideShuffleOrder(lesson.id, slideId, "judgement-evidence", evidenceStatements.length, evidenceStatements.map(item=>String(item?.text || "").length));
+    return {
+      ...slide,
+      evidencePick:{
+        ...(slide.evidencePick || {}),
+        statements:order.map(idx=>evidenceStatements[idx])
+      }
+    };
+  }
+  return { ...slide };
 }
 
 function persistLessonSlidePosition(lessonId, slideIdx){
@@ -12839,6 +12955,26 @@ function renderLessonsList(root){
   const themeMeta = lessonThemesMaster.find(t=>t.id===lessonsNav.themeId);
   const topicTheme = topic.themes.find(t=>t.id===lessonsNav.themeId);
   const lessons = topicTheme?.lessons || [];
+  const filters = lessonsNav.libraryFilters || { topic:"all", theme:"all", search:"" };
+  const normalizedSearch = String(filters.search || "").trim().toLowerCase();
+
+  const filteredLessons = lessons.filter(lesson=>{
+    const block = String(lesson.block || lesson.yearLabel || "General");
+    const topicMatch = filters.topic === "all" || filters.topic === topic.id;
+    const themeMatch = filters.theme === "all" || String(lesson.theme || "").toLowerCase().includes(filters.theme);
+    const searchHaystack = `${lesson.title} ${lesson.theme || ""} ${block}`.toLowerCase();
+    const searchMatch = !normalizedSearch || searchHaystack.includes(normalizedSearch);
+    return topicMatch && themeMatch && searchMatch;
+  });
+
+  const lessonBlocks = filteredLessons.reduce((acc, lesson)=>{
+    const block = String(lesson.block || lesson.yearLabel || "General");
+    if(!acc[block]) acc[block] = [];
+    acc[block].push(lesson);
+    return acc;
+  }, {});
+
+  const blockEntries = Object.entries(lessonBlocks);
 
   root.innerHTML = `
     <div class="card">
@@ -12849,32 +12985,65 @@ function renderLessonsList(root){
       <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title}</div>
       <div class="note">${themeMeta ? themeMeta.title : "Theme"}</div>
       <div class="divider"></div>
-      ${lessons.length ? `<div class="lessonsGrid">${lessons.map(lesson=>`
-        ${(()=>{
-          const progress = getLessonProgress(lesson.id);
-          const status = getLessonStatus(progress);
-          const primaryCta = getLessonCta(status);
-          const attempted = typeof progress?.lastAttemptDate === "string";
-          const lastScoreValue = Number.isFinite(progress?.lastScorePct) ? Math.round(progress.lastScorePct) : null;
-          const bestScoreValue = Number.isFinite(progress?.bestScorePct) ? Math.round(progress.bestScorePct) : lastScoreValue;
-          const lastStudied = formatLessonDate(progress?.lastAttemptDate);
-          const resumeIdx = Number.isFinite(progress?.lastSlideIdx) ? Math.max(0, progress.lastSlideIdx) : 0;
-          const shouldResume = status === "In progress" || status === "Due";
-          const primaryIdx = shouldResume ? resumeIdx : 0;
-          const showRestart = status === "In progress" || status === "Due";
-          return `<div class="card lessonListCard">
-          <div style="font-weight:900">${lesson.title}</div>
-          <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
-          <div class="lessonMetaLine" style="margin-top:6px">Status: ${status}</div>
-          ${attempted && lastScoreValue !== null ? `<div class="lessonMetaLine">Last score: ${lastScoreValue}%${bestScoreValue !== null ? ` (Best: ${bestScoreValue}%)` : ""}</div>` : ""}
-          ${attempted && lastStudied ? `<div class="lessonMetaLine">Last studied: ${lastStudied}</div>` : ""}
-          <div class="lessonActionRow">
-            <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" data-start-slide="${primaryIdx}" type="button">${primaryCta}</button>
-            ${showRestart ? `<button class="btn lessonBtnSecondary" data-action="restart-lesson" data-lesson="${lesson.id}" data-start-slide="0" type="button">Restart</button>` : ""}
+      <div class="card" style="padding:10px;margin-bottom:10px">
+        <div class="row" style="flex-wrap:wrap;gap:8px;align-items:center">
+          <select class="btn" id="lessonFilterTopic" style="min-width:140px">
+            <option value="all" ${filters.topic === "all" ? "selected" : ""}>All</option>
+            <option value="topic1" ${filters.topic === "topic1" ? "selected" : ""}>Topic 1</option>
+            <option value="topic2" ${filters.topic === "topic2" ? "selected" : ""}>Topic 2</option>
+            <option value="topic3" ${filters.topic === "topic3" ? "selected" : ""}>Topic 3</option>
+            <option value="topic4" ${filters.topic === "topic4" ? "selected" : ""}>Topic 4</option>
+          </select>
+          <select class="btn" id="lessonFilterTheme" style="min-width:170px">
+            <option value="all" ${filters.theme === "all" ? "selected" : ""}>All</option>
+            <option value="political" ${filters.theme === "political" ? "selected" : ""}>Political</option>
+            <option value="economic" ${filters.theme === "economic" ? "selected" : ""}>Economic</option>
+            <option value="opposition" ${filters.theme === "opposition" ? "selected" : ""}>Opposition</option>
+            <option value="social & cultural" ${filters.theme === "social & cultural" ? "selected" : ""}>Social & Cultural</option>
+          </select>
+          <input id="lessonFilterSearch" class="btn" style="text-align:left;justify-content:flex-start;min-width:260px" placeholder="Search: zemstva, Russification, emancipation..." value="${String(filters.search || "").replace(/"/g,"&quot;")}" />
+        </div>
+      </div>
+      ${blockEntries.length ? `<div id="lessonLibraryBlocks" class="lessonsGrid">${blockEntries.map(([blockName, blockLessons])=>{
+        const key = `${lessonsNav.themeId}::${blockName}`;
+        const collapsed = lessonsNav.collapsedLessonBlocks[key] !== false;
+        const completedCount = blockLessons.filter(lesson=>getLessonProgress(lesson.id)?.completed===true).length;
+        return `<div class="card" data-block="${blockName}">
+          <div class="row" style="justify-content:space-between;align-items:center;gap:8px">
+            <div>
+              <div style="font-weight:900">${blockName}</div>
+              <div class="lessonMetaLine">Progress: ${completedCount}/${blockLessons.length} completed</div>
+            </div>
+            <button class="btn" data-action="toggle-block" data-block="${blockName}" type="button">${collapsed ? `View lessons (${blockLessons.length})` : "Hide lessons"}</button>
+          </div>
+          <div style="margin-top:10px;display:${collapsed ? "none" : "grid"};gap:10px" data-block-list="${blockName}">
+            ${blockLessons.map(lesson=>{
+              const progress = getLessonProgress(lesson.id);
+              const status = getLessonStatus(progress);
+              const attempted = typeof progress?.lastAttemptDate === "string";
+              const lastScoreValue = Number.isFinite(progress?.lastScorePct) ? Math.round(progress.lastScorePct) : null;
+              const bestScoreValue = Number.isFinite(progress?.bestScorePct) ? Math.round(progress.bestScorePct) : lastScoreValue;
+              const lastStudied = formatLessonDate(progress?.lastAttemptDate);
+              const resumeIdx = Number.isFinite(progress?.lastSlideIdx) ? Math.max(0, progress.lastSlideIdx) : 0;
+              const shouldResume = status === "In progress" || status === "Due";
+              const startSlideIdx = shouldResume ? resumeIdx : 0;
+              const showRetry = status === "In progress" || status === "Due";
+              return `<div class="card lessonListCard">
+                <div style="font-weight:900">${lesson.title}</div>
+                <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
+                <div class="lessonMetaLine" style="margin-top:6px">Status: ${status}</div>
+                ${attempted && lastScoreValue !== null ? `<div class="lessonMetaLine">Last score: ${lastScoreValue}%${bestScoreValue !== null ? ` (Best: ${bestScoreValue}%)` : ""}</div>` : ""}
+                ${attempted && lastStudied ? `<div class="lessonMetaLine">Last studied: ${lastStudied}</div>` : ""}
+                <div class="lessonActionRow" style="flex-wrap:wrap">
+                  <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" data-start-slide="${startSlideIdx}" type="button">Start lesson</button>
+                  <button class="btn lessonBtnSecondary" data-action="practice-lesson" data-lesson="${lesson.id}" type="button">Exam practice</button>
+                  ${showRetry ? `<button class="btn lessonBtnSecondary" data-action="restart-lesson" data-lesson="${lesson.id}" data-start-slide="0" type="button">Retry lesson</button>` : ""}
+                </div>
+              </div>`;
+            }).join("")}
           </div>
         </div>`;
-        })()}
-        `).join("")}</div>` : `<div class="note">No lessons added in this proof-of-concept for this theme yet.</div>`}
+      }).join("")}</div>` : `<div class="note">No lessons match these filters.</div>`}
     </div>`;
 
   $("backToThemes").addEventListener("click", ()=>{
@@ -12885,10 +13054,38 @@ function renderLessonsList(root){
     renderLessons();
   });
 
+  const applyFilters = ()=>{
+    lessonsNav.libraryFilters = {
+      topic:$("lessonFilterTopic")?.value || "all",
+      theme:$("lessonFilterTheme")?.value || "all",
+      search:$("lessonFilterSearch")?.value || ""
+    };
+    renderLessons();
+  };
+
+  ["lessonFilterTopic","lessonFilterTheme"].forEach(id=>$(id)?.addEventListener("change", applyFilters));
+  $("lessonFilterSearch")?.addEventListener("input", applyFilters);
+
+  root.querySelectorAll('[data-action="toggle-block"]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const blockName = btn.dataset.block;
+      const key = `${lessonsNav.themeId}::${blockName}`;
+      const currentlyCollapsed = lessonsNav.collapsedLessonBlocks[key] !== false;
+      lessonsNav.collapsedLessonBlocks[key] = !currentlyCollapsed;
+      renderLessons();
+    });
+  });
+
   root.querySelectorAll('[data-action="start-lesson"]').forEach(btn=>{
     btn.addEventListener("click", ()=>{
       const startSlideIdx = Number(btn.dataset.startSlide);
       openLesson(btn.dataset.lesson, Number.isFinite(startSlideIdx) ? startSlideIdx : 0);
+    });
+  });
+
+  root.querySelectorAll('[data-action="practice-lesson"]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      openLesson(btn.dataset.lesson, { startAt:"practice" });
     });
   });
 
@@ -12903,7 +13100,7 @@ function renderLessonPlayer(root){
   const lesson = getLesson();
   if(!lesson){ lessonsNav.view = "lessons"; return renderLessons(); }
   const allSlides = getLessonSlides(lesson);
-  const slides = getSlidesForMode(allSlides, lessonsNav.mode);
+  const slides = getSlidesForMode(allSlides, lessonsNav.mode).map(slide=>getShuffledSlideData(lesson, slide));
   const total = slides.length;
   const idx = Math.max(0, Math.min(lessonsNav.slideIdx, total-1));
   lessonsNav.slideIdx = idx;
@@ -12920,6 +13117,8 @@ function renderLessonPlayer(root){
   const quickCheckCanAdvance = lessonsNav.mode === "overview"
     ? Number.isInteger(storedAnswer)
     : Number.isInteger(storedAnswer);
+  const firstPracticeIdx = slides.findIndex(currentSlide=>!["idea","briefing"].includes(currentSlide.type));
+  const onBriefingTransitionSlide = firstPracticeIdx > 0 && idx === firstPracticeIdx - 1 && ["idea","briefing"].includes(slide.type);
   const nextDisabled = idx===total-1
     || (slide.type === "quick-check" && !quickCheckCanAdvance)
     || (slide.type === "build-answer" && !buildAnswerChecked)
@@ -12951,7 +13150,7 @@ function renderLessonPlayer(root){
       <div class="playerFooter">
         <button class="btn" id="lessonPrevBtn" type="button" ${idx===0 ? "disabled" : ""}>Previous</button>
         <div class="slideDots">${slides.map((_,i)=>`<span class="slideDot ${i===idx?"active":""}"></span>`).join("")}</div>
-        <button class="btn primary" id="lessonNextBtn" type="button" ${nextDisabled ? "disabled" : ""}>Next</button>
+        <button class="btn primary" id="lessonNextBtn" type="button" ${nextDisabled ? "disabled" : ""}>${onBriefingTransitionSlide ? "Continue to exam practice →" : "Next"}</button>
       </div>
     </div>`;
 
