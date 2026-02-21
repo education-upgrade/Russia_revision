@@ -9540,72 +9540,71 @@ function getLessonPracticeStartIndex(lessonId){
   const lesson = theme?.lessons?.find(item=>item.id===lessonId);
   if(!lesson) return 0;
   const slides = getSlidesForMode(getLessonSlides(lesson), lessonsNav.mode);
-  const firstArgIdentify = slides.findIndex(slide=>slide.type === "arg-identify");
-  if(firstArgIdentify >= 0) return firstArgIdentify;
-  const firstPractice = slides.findIndex(slide=>!["idea","briefing"].includes(slide.type));
-  return firstPractice >= 0 ? firstPractice : 0;
+  return findFirstPracticeSlideIndex(slides);
 }
 
-function stableShuffle(list, seedString){
-  const source = Array.isArray(list) ? list.slice() : [];
-  let seed = 2166136261;
-  const text = String(seedString || "shuffle");
+function findFirstPracticeSlideIndex(slides){
+  const practiceTypes = new Set(["arg-identify","evidence-select","interpretation","build-answer"]);
+  for(let i=0;i<slides.length;i++){
+    if(practiceTypes.has(slides[i].type)) return i;
+  }
+  return 0;
+}
+
+function hashSeed(str){
+  let h = 2166136261;
+  const text = String(str || "seed");
   for(let i=0;i<text.length;i++){
-    seed ^= text.charCodeAt(i);
-    seed = Math.imul(seed, 16777619);
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-  const rand = ()=>{
-    seed += 0x6D2B79F5;
-    let t = seed;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-  for(let i=source.length-1;i>0;i--){
-    const j = Math.floor(rand() * (i + 1));
-    [source[i], source[j]] = [source[j], source[i]];
-  }
-  return source;
+  return h >>> 0;
 }
 
-function getOrCreateSlideShuffleOrder(lessonId, slideId, type, count, lengths=[]){
-  if(!lessonId || !slideId || !Number.isInteger(count) || count <= 1) return [...Array(Math.max(count, 0)).keys()];
-  const key = `LESSON_SHUFFLE_${lessonId}_${slideId}`;
-  try{
-    const raw = localStorage.getItem(key);
-    const parsed = raw ? JSON.parse(raw) : null;
-    const existing = parsed && parsed[type];
-    if(Array.isArray(existing) && existing.length===count && existing.every(v=>Number.isInteger(v) && v>=0 && v<count) && new Set(existing).size===count){
-      return existing;
-    }
-  }catch(_err){}
+function mulberry32(seed){
+  let t = seed >>> 0;
+  return function(){
+    t += 0x6D2B79F5;
+    let x = t;
+    x = Math.imul(x ^ (x >>> 15), x | 1);
+    x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
+    return ((x ^ (x >>> 14)) >>> 0) / 4294967296;
+  };
+}
 
-  const indexes = [...Array(count).keys()];
-  const hasOutlierLength = lengths.some(len=>len < 25 || len > 160);
-  const order = hasOutlierLength && count > 3
-    ? [0, ...stableShuffle(indexes.slice(1,-1), `${lessonId}::${slideId}::${type}::middle`), count - 1]
-    : stableShuffle(indexes, `${lessonId}::${slideId}::${type}`);
+function stableShuffle(list, seedStr){
+  const seed = hashSeed(seedStr);
+  const rand = mulberry32(seed);
+  const arr = (Array.isArray(list) ? list : []).map((v,i)=>({ v, i }));
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(rand() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.map(x=>x.v);
+}
 
+function getOrCreateShuffleOrder(key, length, seedStr){
+  if(!Number.isInteger(length) || length <= 1) return [...Array(Math.max(length || 0, 0)).keys()];
   try{
-    const raw = localStorage.getItem(key);
-    const parsed = raw ? JSON.parse(raw) : {};
-    const next = parsed && typeof parsed === "object" ? parsed : {};
-    next[type] = order;
-    localStorage.setItem(key, JSON.stringify(next));
+    const stored = JSON.parse(localStorage.getItem(key) || "null");
+    if(stored && Array.isArray(stored) && stored.length===length) return stored;
   }catch(_err){}
+  const order = stableShuffle([...Array(length).keys()], seedStr);
+  try{ localStorage.setItem(key, JSON.stringify(order)); }catch(_err){}
   return order;
 }
 
-function getShuffledSlideData(lesson, slide){
-  const slideId = slide?.slideId;
-  if(!slide || !lesson || !slideId) return { ...slide };
+function getShuffledSlideData(lesson, slide, slideIndex=0){
+  if(!slide || !lesson) return { ...slide };
+  const slideId = slide?.slideId || slideIndex;
+  const slideKey = `${lesson.id}::${slideId}::${slide.type}`;
 
   if(slide.type === "quick-check" || slide.type === "arg-identify"){
     const options = Array.isArray(slide.options) ? slide.options : [];
-    const order = getOrCreateSlideShuffleOrder(lesson.id, slideId, slide.type, options.length, options.map(opt=>String(opt || "").length));
+    const order = getOrCreateShuffleOrder(`LS_SHUF_${slideKey}_opts`, options.length, slideKey);
     const shuffledOptions = order.map(idx=>options[idx]);
     const remappedFeedback = Array.isArray(slide.feedback) ? order.map(idx=>slide.feedback[idx]) : slide.feedback;
-    const remappedCorrectIndex = order.findIndex(idx=>idx===slide.correctIndex);
+    const remappedCorrectIndex = order.indexOf(slide.correctIndex);
     return {
       ...slide,
       options:shuffledOptions,
@@ -9618,18 +9617,23 @@ function getShuffledSlideData(lesson, slide){
 
   if(slide.type === "evidence-select"){
     const statements = Array.isArray(slide.statements) ? slide.statements : [];
-    const order = getOrCreateSlideShuffleOrder(lesson.id, slideId, slide.type, statements.length, statements.map(item=>String(item?.text || "").length));
+    const order = getOrCreateShuffleOrder(`LS_SHUF_${slideKey}_stmts`, statements.length, slideKey);
     return { ...slide, statements:order.map(idx=>statements[idx]) };
   }
 
   if(slide.type === "judgement"){
+    const options = Array.isArray(slide.options) ? slide.options : [];
+    const optionOrder = getOrCreateShuffleOrder(`LS_SHUF_${slideKey}_opts`, options.length, `${slideKey}::opts`);
     const evidenceStatements = Array.isArray(slide.evidencePick?.statements) ? slide.evidencePick.statements : [];
-    const order = getOrCreateSlideShuffleOrder(lesson.id, slideId, "judgement-evidence", evidenceStatements.length, evidenceStatements.map(item=>String(item?.text || "").length));
+    const evidenceOrder = getOrCreateShuffleOrder(`LS_SHUF_${slideKey}_stmts`, evidenceStatements.length, `${slideKey}::stmts`);
+    const remappedBestIndex = optionOrder.indexOf(slide.bestIndex);
     return {
       ...slide,
+      options:optionOrder.map(idx=>options[idx]),
+      bestIndex:Number.isInteger(remappedBestIndex) && remappedBestIndex >= 0 ? remappedBestIndex : slide.bestIndex,
       evidencePick:{
         ...(slide.evidencePick || {}),
-        statements:order.map(idx=>evidenceStatements[idx])
+        statements:evidenceOrder.map(idx=>evidenceStatements[idx])
       }
     };
   }
@@ -12927,27 +12931,71 @@ function renderLessonsTopics(root){
         <h2 class="lessonsTitle">Lessons</h2>
         <span class="pill">5 topics</span>
       </div>
-      <div class="note">Choose a topic to open your lesson pathways.</div>
+      <div class="note">Choose a topic to continue instantly or browse themes.</div>
       <div class="divider"></div>
       <div class="lessonsGrid">
-        ${lessonsData.map(topic=>`
+        ${lessonsData.map(topic=>{
+          const topicLessons = getTopicLessons(topic);
+          let lastStarted = null;
+          topicLessons.forEach(lesson=>{
+            const progress = getLessonProgress(lesson.id);
+            if(!Number.isFinite(progress?.lastStartedAt)) return;
+            if(!lastStarted || progress.lastStartedAt > lastStarted.lastStartedAt){
+              lastStarted = { lessonId:lesson.id, lastStartedAt:progress.lastStartedAt };
+            }
+          });
+          const recommended = getRecommendedNext(topic.id);
+          const continueLessonId = lastStarted?.lessonId || recommended?.lessonId || "";
+          return `
           <div class="card">
             <div style="font-weight:900">${topic.title}</div>
-            <div class="row" style="margin-top:10px">
-              <button class="btn primary" data-action="open-topic" data-topic="${topic.id}" type="button">Open</button>
+            <div class="row" style="margin-top:10px;flex-wrap:wrap">
+              <button class="btn primary" data-action="continue-topic" data-topic="${topic.id}" data-lesson="${continueLessonId}" type="button">Continue</button>
+              <button class="btn" data-action="browse-themes" data-topic="${topic.id}" type="button">Browse themes</button>
             </div>
-          </div>`).join("")}
+          </div>`;
+        }).join("")}
       </div>
     </div>`;
 
-  root.querySelectorAll('[data-action="open-topic"]').forEach(btn=>{
+  root.querySelectorAll('[data-action="continue-topic"]').forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const topic = lessonsData.find(t=>t.id===btn.dataset.topic);
+      if(!topic) return;
+      let lessonId = btn.dataset.lesson || "";
+      if(!lessonId){
+        lessonId = getRecommendedNext(topic.id)?.lessonId || "";
+      }
+      const matchedTheme = lessonId
+        ? (topic.themes || []).find(theme=>(theme.lessons || []).some(lesson=>lesson.id===lessonId))
+        : null;
+
+      lessonsNav.topicId = topic.id;
+      lessonsNav.selectedOptionIndex = null;
+      if(lessonId && matchedTheme){
+        const progress = getLessonProgress(lessonId);
+        lessonsNav.themeId = matchedTheme.id;
+        lessonsNav.lessonId = lessonId;
+        lessonsNav.slideIdx = Number.isFinite(progress?.lastSlideIdx) ? Math.max(0, progress.lastSlideIdx) : 0;
+        lessonsNav.view = "player";
+      }else{
+        lessonsNav.themeId = null;
+        lessonsNav.lessonId = null;
+        lessonsNav.slideIdx = 0;
+        lessonsNav.view = "themes";
+      }
+      renderLessons();
+    });
+  });
+
+  root.querySelectorAll('[data-action="browse-themes"]').forEach(btn=>{
     btn.addEventListener("click", ()=>{
       lessonsNav.topicId = btn.dataset.topic;
       lessonsNav.themeId = null;
       lessonsNav.lessonId = null;
       lessonsNav.slideIdx = 0;
       lessonsNav.selectedOptionIndex = null;
-      lessonsNav.view = "topicOverview";
+      lessonsNav.view = "themes";
       renderLessons();
     });
   });
@@ -13074,11 +13122,8 @@ function renderLessonsTopicOverview(root){
 function renderLessonsThemes(root){
   const topic = getLessonTopic();
   if(!topic){ lessonsNav.view = "topics"; return renderLessons(); }
-
-  const recommended = getRecommendedNext(topic.id);
-  const recommendedProgress = recommended?.lessonId ? getLessonProgress(recommended.lessonId) : null;
-  const recommendedStatus = getLessonStatus(recommendedProgress);
-  const recommendedAction = getLessonCta(recommendedStatus);
+  const filters = lessonsNav.libraryFilters || { topic:"all", theme:"all", search:"" };
+  const normalizedSearch = String(filters.search || "").trim().toLowerCase();
 
   const availableThemes = lessonThemesMaster
     .map(themeMeta=>{
@@ -13099,55 +13144,70 @@ function renderLessonsThemes(root){
     })
     .filter(theme=>theme.progress.totalLessons > 0);
 
-  const recommendedThemeId = recommended?.themeId || RECOMMENDED_THEME_ORDER.find(themeId=>{
-    const found = availableThemes.find(theme=>theme.id===themeId);
-    if(!found) return false;
-    return found.progress.completedLessons < found.progress.totalLessons;
-  }) || null;
+  const themedList = filters.theme && filters.theme !== "all"
+    ? availableThemes.filter(theme=>theme.id===filters.theme)
+    : availableThemes;
+  const allLessons = themedList.flatMap(theme=>(theme.topicTheme?.lessons || []).map(lesson=>({ lesson, theme })));
+  const searchResults = normalizedSearch
+    ? allLessons.filter(item=>{
+      const enquiry = String(item.lesson.enquiry || "");
+      const text = `${item.lesson.title} ${enquiry} ${item.theme.title}`.toLowerCase();
+      return text.includes(normalizedSearch);
+    })
+    : [];
 
   root.innerHTML = `
     <div class="card">
       <div class="row" style="justify-content:space-between">
         <button class="btn" id="backToTopics" type="button">← Topics</button>
-        <span class="pill">Themes</span>
+        <div class="row" style="gap:8px">
+          <button class="btn small" id="openTopicOverview" type="button">Topic info</button>
+          <span class="pill">Themes</span>
+        </div>
       </div>
       <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title}</div>
-      <div class="note" style="margin-top:6px">Follow the suggested order or jump to any theme for targeted revision.</div>
-      ${recommended ? `
-        <div class="card" style="margin-top:10px">
-          <div class="recommendedCardTitle">Recommended Next</div>
-          <div class="recommendedLabel">Continue: ${recommended.title}</div>
-          <div class="recommendedReason">Because ${recommended.reason}</div>
-          <div class="row" style="margin-top:10px">
-            <button class="btn primary" id="themesRecommendedNextBtn" type="button">${recommendedAction}</button>
-          </div>
-        </div>` : ""}
+      <div class="card" style="position:sticky;top:8px;z-index:3;padding:10px;margin-top:10px">
+        <div class="row" style="flex-wrap:wrap;gap:8px;align-items:center">
+          <input id="lessonFilterSearch" class="btn" style="text-align:left;justify-content:flex-start;min-width:260px" placeholder="Search lessons: 1905, Okhrana, Stolypin…" value="${String(filters.search || "").replace(/"/g,"&quot;")}" />
+          <button class="btn ${filters.theme === "all" ? "primary" : ""}" data-action="theme-chip" data-theme="all" type="button">All themes</button>
+          ${availableThemes.map(theme=>`<button class="btn ${filters.theme === theme.id ? "primary" : ""}" data-action="theme-chip" data-theme="${theme.id}" type="button">${theme.title}</button>`).join("")}
+          <button class="btn" id="themesResetFilters" type="button">Reset</button>
+        </div>
+      </div>
       <div class="divider"></div>
-      <div class="lessonsGrid">
-        ${availableThemes.map(theme=>`
-          <div class="card" style="position:relative">
+      ${normalizedSearch ? `
+        <div style="display:grid;gap:10px">
+          ${searchResults.length ? searchResults.map(item=>`<div class="card">
+            <div style="font-weight:900">${item.lesson.title}</div>
+            <div class="note" style="margin-top:6px">${topic.title} → ${item.theme.title} → ${item.lesson.title}</div>
+            <div class="lessonActionRow" style="margin-top:10px;flex-wrap:wrap">
+              <button class="btn primary" data-action="start-search-result" data-theme="${item.theme.id}" data-lesson="${item.lesson.id}" type="button">Start</button>
+              <button class="btn lessonBtnSecondary" data-action="practice-search-result" data-theme="${item.theme.id}" data-lesson="${item.lesson.id}" type="button">Exam practice</button>
+            </div>
+          </div>`).join("") : `<div class="note">No matching lessons. Try another keyword.</div>`}
+        </div>
+      ` : `
+        <div class="lessonsGrid">
+          ${themedList.map(theme=>`<div class="card" style="position:relative">
             <div class="pill" style="position:absolute;top:12px;right:12px">${theme.status.label}</div>
             <div style="font-weight:900;padding-right:120px">${theme.title}</div>
-            ${theme.id === recommendedThemeId ? `<div class="pill" style="margin-top:6px">Start here</div>` : ""}
             <div class="note" style="margin-top:8px">${theme.progress.completedLessons}/${theme.progress.totalLessons} completed</div>
             <div class="lessonThemeMastery">
               <div class="lessonThemeMasteryLabel">Skill Mastery:</div>
               <div class="lessonThemeMasteryLine">Context: ${theme.mastery.contextPct == null ? "—" : `${theme.mastery.contextPct}%`}</div>
               <div class="lessonThemeMasteryLine">Interpretation: ${theme.mastery.interpretationPct == null ? "—" : `${theme.mastery.interpretationPct}%`}</div>
               <div class="lessonThemeMasteryLine">Judgement: ${theme.mastery.judgementPct == null ? "—" : `${theme.mastery.judgementPct}%`}</div>
-              ${theme.masteryBadge ? `<div class="lessonThemeMasteryBadge">${theme.masteryBadge}</div>` : ""}
             </div>
-            <div style="margin-top:8px;height:6px;background:var(--line);border-radius:999px;overflow:hidden">
-              <div style="height:100%;width:${theme.progress.totalLessons > 0 ? (theme.progress.completedLessons / theme.progress.totalLessons) * 100 : 0}%;background:var(--accent);border-radius:999px"></div>
-            </div>
-            <div class="row" style="margin-top:10px">
-              <button class="btn primary" data-action="open-theme" data-theme="${theme.id}" type="button">${theme.status.cta}</button>
+            <div class="lessonActionRow" style="margin-top:10px;flex-wrap:wrap">
+              <button class="btn primary" data-action="open-theme" data-theme="${theme.id}" type="button">View lessons</button>
+              <button class="btn" data-action="start-next-theme" data-theme="${theme.id}" type="button">Start next</button>
             </div>
           </div>`).join("")}
-      </div>
+        </div>
+      `}
     </div>`;
 
-  $("backToTopics").addEventListener("click", ()=>{
+  $("backToTopics")?.addEventListener("click", ()=>{
     lessonsNav.view = "topics";
     lessonsNav.topicId = null;
     lessonsNav.themeId = null;
@@ -13156,27 +13216,69 @@ function renderLessonsThemes(root){
     lessonsNav.selectedOptionIndex = null;
     renderLessons();
   });
+  $("openTopicOverview")?.addEventListener("click", ()=>{ lessonsNav.view = "topicOverview"; renderLessons(); });
 
-  root.querySelectorAll('[data-action="open-theme"]').forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      lessonsNav.themeId = btn.dataset.theme;
-      lessonsNav.lessonId = null;
-      lessonsNav.slideIdx = 0;
-      lessonsNav.selectedOptionIndex = null;
-      lessonsNav.view = "lessons";
-      renderLessons();
-    });
+  root.querySelectorAll('[data-action="theme-chip"]').forEach(btn=>btn.addEventListener("click", ()=>{
+    lessonsNav.libraryFilters = { ...filters, theme:btn.dataset.theme || "all" };
+    renderLessons();
+  }));
+  $("lessonFilterSearch")?.addEventListener("input", ()=>{
+    lessonsNav.libraryFilters = { ...filters, search:$("lessonFilterSearch")?.value || "" };
+    renderLessons();
+  });
+  $("themesResetFilters")?.addEventListener("click", ()=>{
+    lessonsNav.libraryFilters = { topic:"all", theme:"all", search:"" };
+    renderLessons();
   });
 
-  const themesRecommendedBtn = $("themesRecommendedNextBtn");
-  if(themesRecommendedBtn && recommended?.lessonId){
-    themesRecommendedBtn.addEventListener("click", ()=>{
-      if(!launchLessonFromTopic(topic, recommended.lessonId, true)){
-        lessonsNav.view = "lessons";
-        renderLessons();
-      }
-    });
-  }
+  root.querySelectorAll('[data-action="open-theme"]').forEach(btn=>btn.addEventListener("click", ()=>{
+    lessonsNav.themeId = btn.dataset.theme;
+    lessonsNav.lessonId = null;
+    lessonsNav.slideIdx = 0;
+    lessonsNav.selectedOptionIndex = null;
+    lessonsNav.view = "lessons";
+    lessonsNav.libraryFilters = { ...lessonsNav.libraryFilters, theme:btn.dataset.theme || "all" };
+    renderLessons();
+  }));
+
+  root.querySelectorAll('[data-action="start-next-theme"]').forEach(btn=>btn.addEventListener("click", ()=>{
+    const themeId = btn.dataset.theme;
+    const theme = topic.themes.find(t=>t.id===themeId);
+    const lessons = Array.isArray(theme?.lessons) ? theme.lessons : [];
+    const nextLesson = lessons.find(lesson=>{
+      const progress = getLessonProgress(lesson.id);
+      const incomplete = progress?.completed !== true || !Number.isFinite(progress?.bestScorePct);
+      const neverTried = !Number.isFinite(progress?.attempts) || Number(progress?.attempts) === 0;
+      return incomplete || neverTried;
+    }) || lessons[0];
+    if(!nextLesson) return;
+    lessonsNav.themeId = themeId;
+    lessonsNav.lessonId = nextLesson.id;
+    lessonsNav.slideIdx = 0;
+    lessonsNav.selectedOptionIndex = null;
+    lessonsNav.view = "player";
+    renderLessons();
+  }));
+
+  root.querySelectorAll('[data-action="start-search-result"]').forEach(btn=>btn.addEventListener("click", ()=>{
+    lessonsNav.themeId = btn.dataset.theme;
+    lessonsNav.lessonId = btn.dataset.lesson;
+    lessonsNav.slideIdx = 0;
+    lessonsNav.view = "player";
+    renderLessons();
+  }));
+
+  root.querySelectorAll('[data-action="practice-search-result"]').forEach(btn=>btn.addEventListener("click", ()=>{
+    const theme = topic.themes.find(t=>t.id===btn.dataset.theme);
+    const lesson = (theme?.lessons || []).find(item=>item.id===btn.dataset.lesson);
+    if(!lesson) return;
+    const slides = getSlidesForMode(getLessonSlides(lesson), lessonsNav.mode);
+    lessonsNav.themeId = btn.dataset.theme;
+    lessonsNav.lessonId = lesson.id;
+    lessonsNav.slideIdx = findFirstPracticeSlideIndex(slides);
+    lessonsNav.view = "player";
+    renderLessons();
+  }));
 }
 
 function renderLessonsList(root){
@@ -13186,26 +13288,14 @@ function renderLessonsList(root){
   const themeMeta = lessonThemesMaster.find(t=>t.id===lessonsNav.themeId);
   const topicTheme = topic.themes.find(t=>t.id===lessonsNav.themeId);
   const lessons = topicTheme?.lessons || [];
-  const filters = lessonsNav.libraryFilters || { topic:"all", theme:"all", search:"" };
+  const filters = lessonsNav.libraryFilters || { topic:"all", theme:lessonsNav.themeId || "all", search:"" };
   const normalizedSearch = String(filters.search || "").trim().toLowerCase();
 
   const filteredLessons = lessons.filter(lesson=>{
-    const block = String(lesson.block || lesson.yearLabel || "General");
-    const topicMatch = filters.topic === "all" || filters.topic === topic.id;
-    const themeMatch = filters.theme === "all" || String(lesson.theme || "").toLowerCase().includes(filters.theme);
-    const searchHaystack = `${lesson.title} ${lesson.theme || ""} ${block}`.toLowerCase();
-    const searchMatch = !normalizedSearch || searchHaystack.includes(normalizedSearch);
-    return topicMatch && themeMatch && searchMatch;
+    const enquiry = String(lesson.enquiry || "");
+    const text = `${lesson.title} ${enquiry} ${themeMeta?.title || ""}`.toLowerCase();
+    return !normalizedSearch || text.includes(normalizedSearch);
   });
-
-  const lessonBlocks = filteredLessons.reduce((acc, lesson)=>{
-    const block = String(lesson.block || lesson.yearLabel || "General");
-    if(!acc[block]) acc[block] = [];
-    acc[block].push(lesson);
-    return acc;
-  }, {});
-
-  const blockEntries = Object.entries(lessonBlocks);
 
   root.innerHTML = `
     <div class="card">
@@ -13213,68 +13303,24 @@ function renderLessonsList(root){
         <button class="btn" id="backToThemes" type="button">← Themes</button>
         <span class="pill">Lessons</span>
       </div>
-      <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title}</div>
-      <div class="note">${themeMeta ? themeMeta.title : "Theme"}</div>
-      <div class="divider"></div>
-      <div class="card" style="padding:10px;margin-bottom:10px">
+      <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title} → ${themeMeta ? themeMeta.title : "Theme"}</div>
+      <div class="card" style="position:sticky;top:8px;z-index:3;padding:10px;margin-top:10px">
         <div class="row" style="flex-wrap:wrap;gap:8px;align-items:center">
-          <select class="btn" id="lessonFilterTopic" style="min-width:140px">
-            <option value="all" ${filters.topic === "all" ? "selected" : ""}>All</option>
-            <option value="topic1" ${filters.topic === "topic1" ? "selected" : ""}>Topic 1</option>
-            <option value="topic2" ${filters.topic === "topic2" ? "selected" : ""}>Topic 2</option>
-            <option value="topic3" ${filters.topic === "topic3" ? "selected" : ""}>Topic 3</option>
-            <option value="topic4" ${filters.topic === "topic4" ? "selected" : ""}>Topic 4</option>
-          </select>
-          <select class="btn" id="lessonFilterTheme" style="min-width:170px">
-            <option value="all" ${filters.theme === "all" ? "selected" : ""}>All</option>
-            <option value="political" ${filters.theme === "political" ? "selected" : ""}>Political</option>
-            <option value="economic" ${filters.theme === "economic" ? "selected" : ""}>Economic</option>
-            <option value="opposition" ${filters.theme === "opposition" ? "selected" : ""}>Opposition</option>
-            <option value="social & cultural" ${filters.theme === "social & cultural" ? "selected" : ""}>Social & Cultural</option>
-          </select>
-          <input id="lessonFilterSearch" class="btn" style="text-align:left;justify-content:flex-start;min-width:260px" placeholder="Search: zemstva, Russification, emancipation..." value="${String(filters.search || "").replace(/"/g,"&quot;")}" />
+          <input id="lessonFilterSearch" class="btn" style="text-align:left;justify-content:flex-start;min-width:260px" placeholder="Search lessons: 1905, Okhrana, Stolypin…" value="${String(filters.search || "").replace(/"/g,"&quot;")}" />
+          <button class="btn ${filters.theme === "all" ? "primary" : ""}" data-action="lesson-theme-chip" data-theme="all" type="button">All themes</button>
+          ${lessonThemesMaster.filter(meta=>topic.themes.some(t=>t.id===meta.id)).map(meta=>`<button class="btn ${meta.id === lessonsNav.themeId ? "primary" : ""}" data-action="switch-theme" data-theme="${meta.id}" type="button">${meta.title}</button>`).join("")}
+          <button class="btn" id="lessonResetFilters" type="button">Reset</button>
         </div>
       </div>
-      ${blockEntries.length ? `<div id="lessonLibraryBlocks" class="lessonsGrid">${blockEntries.map(([blockName, blockLessons])=>{
-        const key = `${lessonsNav.themeId}::${blockName}`;
-        const collapsed = lessonsNav.collapsedLessonBlocks[key] !== false;
-        const completedCount = blockLessons.filter(lesson=>getLessonProgress(lesson.id)?.completed===true).length;
-        return `<div class="card" data-block="${blockName}">
-          <div class="row" style="justify-content:space-between;align-items:center;gap:8px">
-            <div>
-              <div style="font-weight:900">${blockName}</div>
-              <div class="lessonMetaLine">Progress: ${completedCount}/${blockLessons.length} completed</div>
-            </div>
-            <button class="btn" data-action="toggle-block" data-block="${blockName}" type="button">${collapsed ? `View lessons (${blockLessons.length})` : "Hide lessons"}</button>
-          </div>
-          <div style="margin-top:10px;display:${collapsed ? "none" : "grid"};gap:10px" data-block-list="${blockName}">
-            ${blockLessons.map(lesson=>{
-              const progress = getLessonProgress(lesson.id);
-              const status = getLessonStatus(progress);
-              const attempted = typeof progress?.lastAttemptDate === "string";
-              const lastScoreValue = Number.isFinite(progress?.lastScorePct) ? Math.round(progress.lastScorePct) : null;
-              const bestScoreValue = Number.isFinite(progress?.bestScorePct) ? Math.round(progress.bestScorePct) : lastScoreValue;
-              const lastStudied = formatLessonDate(progress?.lastAttemptDate);
-              const resumeIdx = Number.isFinite(progress?.lastSlideIdx) ? Math.max(0, progress.lastSlideIdx) : 0;
-              const shouldResume = status === "In progress" || status === "Due";
-              const startSlideIdx = shouldResume ? resumeIdx : 0;
-              const showRetry = status === "In progress" || status === "Due";
-              return `<div class="card lessonListCard">
-                <div style="font-weight:900">${lesson.title}</div>
-                <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
-                <div class="lessonMetaLine" style="margin-top:6px">Status: ${status}</div>
-                ${attempted && lastScoreValue !== null ? `<div class="lessonMetaLine">Last score: ${lastScoreValue}%${bestScoreValue !== null ? ` (Best: ${bestScoreValue}%)` : ""}</div>` : ""}
-                ${attempted && lastStudied ? `<div class="lessonMetaLine">Last studied: ${lastStudied}</div>` : ""}
-                <div class="lessonActionRow" style="flex-wrap:wrap">
-                  <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" data-start-slide="${startSlideIdx}" type="button">Start lesson</button>
-                  <button class="btn lessonBtnSecondary" data-action="practice-lesson" data-lesson="${lesson.id}" type="button">Exam practice</button>
-                  ${showRetry ? `<button class="btn lessonBtnSecondary" data-action="restart-lesson" data-lesson="${lesson.id}" data-start-slide="0" type="button">Retry lesson</button>` : ""}
-                </div>
-              </div>`;
-            }).join("")}
-          </div>
-        </div>`;
-      }).join("")}</div>` : `<div class="note">No lessons match these filters.</div>`}
+      <div class="divider"></div>
+      ${filteredLessons.length ? `<div class="lessonsGrid">${filteredLessons.map(lesson=>`<div class="card lessonListCard">
+        <div style="font-weight:900">${lesson.title}</div>
+        <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
+        <div class="lessonActionRow" style="flex-wrap:wrap;margin-top:10px">
+          <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" type="button">Start lesson</button>
+          <button class="btn lessonBtnSecondary" data-action="practice-lesson" data-lesson="${lesson.id}" type="button">Exam practice</button>
+        </div>
+      </div>`).join("")}</div>` : `<div class="note">No matching lessons. Try another keyword.</div>`}
     </div>`;
 
   $("backToThemes").addEventListener("click", ()=>{
@@ -13285,44 +13331,51 @@ function renderLessonsList(root){
     renderLessons();
   });
 
-  const applyFilters = ()=>{
-    lessonsNav.libraryFilters = {
-      topic:$("lessonFilterTopic")?.value || "all",
-      theme:$("lessonFilterTheme")?.value || "all",
-      search:$("lessonFilterSearch")?.value || ""
-    };
+  $("lessonFilterSearch")?.addEventListener("input", ()=>{
+    lessonsNav.libraryFilters = { ...filters, search:$("lessonFilterSearch")?.value || "" };
     renderLessons();
-  };
-
-  ["lessonFilterTopic","lessonFilterTheme"].forEach(id=>$(id)?.addEventListener("change", applyFilters));
-  $("lessonFilterSearch")?.addEventListener("input", applyFilters);
-
-  root.querySelectorAll('[data-action="toggle-block"]').forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const blockName = btn.dataset.block;
-      const key = `${lessonsNav.themeId}::${blockName}`;
-      const currentlyCollapsed = lessonsNav.collapsedLessonBlocks[key] !== false;
-      lessonsNav.collapsedLessonBlocks[key] = !currentlyCollapsed;
-      renderLessons();
-    });
   });
+  $("lessonResetFilters")?.addEventListener("click", ()=>{
+    lessonsNav.libraryFilters = { topic:"all", theme:lessonsNav.themeId || "all", search:"" };
+    renderLessons();
+  });
+
+
+
+  root.querySelectorAll('[data-action="lesson-theme-chip"]').forEach(btn=>btn.addEventListener("click", ()=>{
+    lessonsNav.view = "themes";
+    lessonsNav.lessonId = null;
+    lessonsNav.slideIdx = 0;
+    lessonsNav.libraryFilters = { ...filters, theme:"all" };
+    renderLessons();
+  }));
+
+  root.querySelectorAll('[data-action="switch-theme"]').forEach(btn=>btn.addEventListener("click", ()=>{
+    lessonsNav.themeId = btn.dataset.theme;
+    lessonsNav.lessonId = null;
+    lessonsNav.slideIdx = 0;
+    lessonsNav.libraryFilters = { ...filters, theme:btn.dataset.theme || "all" };
+    renderLessons();
+  }));
 
   root.querySelectorAll('[data-action="start-lesson"]').forEach(btn=>{
     btn.addEventListener("click", ()=>{
-      const startSlideIdx = Number(btn.dataset.startSlide);
-      openLesson(btn.dataset.lesson, Number.isFinite(startSlideIdx) ? startSlideIdx : 0);
+      lessonsNav.lessonId = btn.dataset.lesson;
+      lessonsNav.slideIdx = 0;
+      lessonsNav.view = "player";
+      renderLessons();
     });
   });
 
   root.querySelectorAll('[data-action="practice-lesson"]').forEach(btn=>{
     btn.addEventListener("click", ()=>{
-      openLesson(btn.dataset.lesson, { startAt:"practice" });
-    });
-  });
-
-  root.querySelectorAll('[data-action="restart-lesson"]').forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      openLesson(btn.dataset.lesson, 0);
+      const lesson = (topicTheme?.lessons || []).find(item=>item.id===btn.dataset.lesson);
+      if(!lesson) return;
+      const slides = getSlidesForMode(getLessonSlides(lesson), lessonsNav.mode);
+      lessonsNav.lessonId = btn.dataset.lesson;
+      lessonsNav.slideIdx = findFirstPracticeSlideIndex(slides);
+      lessonsNav.view = "player";
+      renderLessons();
     });
   });
 }
@@ -13331,7 +13384,7 @@ function renderLessonPlayer(root){
   const lesson = getLesson();
   if(!lesson){ lessonsNav.view = "lessons"; return renderLessons(); }
   const allSlides = getLessonSlides(lesson);
-  const slides = getSlidesForMode(allSlides, lessonsNav.mode).map(slide=>getShuffledSlideData(lesson, slide));
+  const slides = getSlidesForMode(allSlides, lessonsNav.mode).map((slide, slideIndex)=>getShuffledSlideData(lesson, slide, slideIndex));
   const total = slides.length;
   const idx = Math.max(0, Math.min(lessonsNav.slideIdx, total-1));
   lessonsNav.slideIdx = idx;
@@ -13349,7 +13402,8 @@ function renderLessonPlayer(root){
     ? Number.isInteger(storedAnswer)
     : Number.isInteger(storedAnswer);
   const firstPracticeIdx = slides.findIndex(currentSlide=>!["idea","briefing"].includes(currentSlide.type));
-  const onBriefingTransitionSlide = firstPracticeIdx > 0 && idx === firstPracticeIdx - 1 && ["idea","briefing"].includes(slide.type);
+  const lastBriefingIndex = firstPracticeIdx > 0 ? firstPracticeIdx - 1 : -1;
+  const onLastBriefingSlide = idx === lastBriefingIndex && ["idea","briefing"].includes(slide.type);
   const nextDisabled = idx===total-1
     || (slide.type === "quick-check" && !quickCheckCanAdvance)
     || (slide.type === "build-answer" && !buildAnswerChecked)
@@ -13360,7 +13414,7 @@ function renderLessonPlayer(root){
   root.innerHTML = `
     <div class="card">
       <div class="lessonPlayerTop">
-        <div style="font-weight:900;font-size:20px">Lesson briefing</div>
+        <div style="font-weight:900;font-size:20px">${getLessonTopic()?.title || ''} → ${lessonThemesMaster.find(t=>t.id===lessonsNav.themeId)?.title || ''} → ${lesson.title}</div>
         <button class="btn" id="backToLessonList" type="button">← Theme</button>
       </div>
       <div class="pill slideCounter">Slide ${idx+1} of ${total}</div>
@@ -13381,7 +13435,7 @@ function renderLessonPlayer(root){
       <div class="playerFooter">
         <button class="btn" id="lessonPrevBtn" type="button" ${idx===0 ? "disabled" : ""}>Previous</button>
         <div class="slideDots">${slides.map((_,i)=>`<span class="slideDot ${i===idx?"active":""}"></span>`).join("")}</div>
-        <button class="btn primary" id="lessonNextBtn" type="button" ${nextDisabled ? "disabled" : ""}>${onBriefingTransitionSlide ? "Continue to exam practice →" : "Next"}</button>
+        <button class="btn primary" id="lessonNextBtn" type="button" ${nextDisabled ? "disabled" : ""}>${onLastBriefingSlide ? "Continue to practice →" : "Next →"}</button>
       </div>
     </div>`;
 
