@@ -2799,7 +2799,21 @@ section#games.gamePaneActive .gamesHeroCard{
   justify-content:space-between;
   gap:10px;
 }
-#lessonsRoot .lessonsTitle{ font-size:22px; font-weight:900; margin:0; }
+#lessonsRoot .lessonsTitle{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin:0;
+  color:var(--accent);
+  font-size:24px;
+  font-weight:900;
+  line-height:1;
+}
+#lessonsRoot .lessonsTitle .navIcon{
+  width:20px;
+  height:20px;
+  stroke-width:2;
+}
 #lessonsRoot .lessonsGrid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:10px; }
 #lessonsRoot .lessonPlayerTop{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
 #lessonsRoot .slideCounter{ margin:8px 0; width:max-content; }
@@ -14234,7 +14248,7 @@ function renderLessonsTopics(root){
   root.innerHTML = `
     <div class="card">
       <div class="lessonsHeader">
-        <h2 class="lessonsTitle">Lessons</h2>
+        <h2 class="lessonsTitle"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span>Lessons</span></h2>
         <span class="pill">${lessonsData.length} topics</span>
       </div>
       <div class="note">Choose a topic to continue instantly or browse themes.</div>
@@ -14326,9 +14340,13 @@ function renderLessonsTopicOverview(root){
 
   root.innerHTML = `
     <div class="card">
-      <div class="row" style="justify-content:space-between">
-        <button class="btn" id="backToTopicsFromOverview" type="button">← Topics</button>
+      <div class="lessonsHeader">
+        <h2 class="lessonsTitle"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span>Lessons</span></h2>
         <span class="pill">Topic overview</span>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-top:10px">
+        <button class="btn" id="backToTopicsFromOverview" type="button">← Topics</button>
+        <span class="pill">${topic.title}</span>
       </div>
       <div style="font-weight:900;font-size:22px;margin-top:8px">${topic.title}</div>
       <div class="divider"></div>
@@ -14450,12 +14468,13 @@ function renderLessonsThemes(root){
 
   root.innerHTML = `
     <div class="card">
-      <div class="row" style="justify-content:space-between">
+      <div class="lessonsHeader">
+        <h2 class="lessonsTitle"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span>Lessons</span></h2>
+        <span class="pill">Themes</span>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-top:10px">
         <button class="btn" id="backToTopics" type="button">← Topics</button>
-        <div class="row" style="gap:8px">
-          <button class="btn small" id="openTopicOverview" type="button">Topic info</button>
-          <span class="pill">Themes</span>
-        </div>
+        <button class="btn small" id="openTopicOverview" type="button">Topic info</button>
       </div>
       <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title}</div>
       <div class="divider"></div>
@@ -14529,9 +14548,13 @@ function renderLessonsList(root){
 
   root.innerHTML = `
     <div class="card">
-      <div class="row" style="justify-content:space-between">
+      <div class="lessonsHeader">
+        <h2 class="lessonsTitle"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span>Lessons</span></h2>
+        <span class="pill">Lesson list</span>
+      </div>
+      <div class="row" style="justify-content:space-between;margin-top:10px">
         <button class="btn" id="backToThemes" type="button">← Themes</button>
-        <span class="pill">Lessons</span>
+        <span class="pill">${themeMeta ? themeMeta.title : "Theme"}</span>
       </div>
       <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title} → ${themeMeta ? themeMeta.title : "Theme"}</div>
       <div class="divider"></div>
@@ -14613,8 +14636,11 @@ function renderLessonPlayer(root){
 
   root.innerHTML = `
     <div class="card">
-      <div class="pill slideCounter">Slide ${idx+1} of ${total}</div>
-      <div class="lessonModeRow">
+      <div class="lessonsHeader">
+        <h2 class="lessonsTitle"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span>Lessons</span></h2>
+        <div class="pill slideCounter">Slide ${idx+1} of ${total}</div>
+      </div>
+      <div class="lessonModeRow" style="margin-top:10px">
         <div class="modePills">
           <span class="pill modePill ${lessonsNav.mode === "overview" ? "active" : ""}" data-action="lesson-mode" data-mode="overview">Overview</span>
           <span class="pill modePill ${lessonsNav.mode === "simple" ? "active" : ""}" data-action="lesson-mode" data-mode="simple">Simple</span>
