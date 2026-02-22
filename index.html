@@ -14381,8 +14381,6 @@ function renderLessonsTopicOverview(root){
 function renderLessonsThemes(root){
   const topic = getLessonTopic();
   if(!topic){ lessonsNav.view = "topics"; return renderLessons(); }
-  const filters = lessonsNav.libraryFilters || { topic:"all", theme:"all", search:"" };
-  const normalizedSearch = String(filters.search || "").trim().toLowerCase();
 
   const availableThemes = lessonThemesMaster
     .map(themeMeta=>{
@@ -14403,18 +14401,6 @@ function renderLessonsThemes(root){
     })
     .filter(theme=>theme.progress.totalLessons > 0);
 
-  const themedList = filters.theme && filters.theme !== "all"
-    ? availableThemes.filter(theme=>theme.id===filters.theme)
-    : availableThemes;
-  const allLessons = themedList.flatMap(theme=>(theme.topicTheme?.lessons || []).map(lesson=>({ lesson, theme })));
-  const searchResults = normalizedSearch
-    ? allLessons.filter(item=>{
-      const enquiry = String(item.lesson.enquiry || "");
-      const text = `${item.lesson.title} ${enquiry} ${item.theme.title}`.toLowerCase();
-      return text.includes(normalizedSearch);
-    })
-    : [];
-
   root.innerHTML = `
     <div class="card">
       <div class="row" style="justify-content:space-between">
@@ -14425,45 +14411,24 @@ function renderLessonsThemes(root){
         </div>
       </div>
       <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title}</div>
-      <div class="card" style="position:sticky;top:8px;z-index:3;padding:10px;margin-top:10px">
-        <div class="row" style="flex-wrap:wrap;gap:8px;align-items:center">
-          <input id="lessonFilterSearch" class="btn" style="text-align:left;justify-content:flex-start;min-width:260px" placeholder="Search lessons: 1905, Okhrana, Stolypin…" value="${String(filters.search || "").replace(/"/g,"&quot;")}" />
-          <button class="btn ${filters.theme === "all" ? "primary" : ""}" data-action="theme-chip" data-theme="all" type="button">All themes</button>
-          ${availableThemes.map(theme=>`<button class="btn ${filters.theme === theme.id ? "primary" : ""}" data-action="theme-chip" data-theme="${theme.id}" type="button">${theme.title}</button>`).join("")}
-          <button class="btn" id="themesResetFilters" type="button">Reset</button>
-        </div>
-      </div>
       <div class="divider"></div>
-      ${normalizedSearch ? `
-        <div style="display:grid;gap:10px">
-          ${searchResults.length ? searchResults.map(item=>`<div class="card">
-            <div style="font-weight:900">${item.lesson.title}</div>
-            <div class="note" style="margin-top:6px">${topic.title} → ${item.theme.title} → ${item.lesson.title}</div>
-            <div class="lessonActionRow" style="margin-top:10px;flex-wrap:wrap">
-              <button class="btn primary" data-action="start-search-result" data-theme="${item.theme.id}" data-lesson="${item.lesson.id}" type="button">Start</button>
-              <button class="btn lessonBtnSecondary" data-action="practice-search-result" data-theme="${item.theme.id}" data-lesson="${item.lesson.id}" type="button">Exam practice</button>
-            </div>
-          </div>`).join("") : `<div class="note">No matching lessons. Try another keyword.</div>`}
-        </div>
-      ` : `
-        <div class="lessonsGrid">
-          ${themedList.map(theme=>`<div class="card" style="position:relative">
-            <div class="pill" style="position:absolute;top:12px;right:12px">${theme.status.label}</div>
-            <div style="font-weight:900;padding-right:120px">${theme.title}</div>
-            <div class="note" style="margin-top:8px">${theme.progress.completedLessons}/${theme.progress.totalLessons} completed</div>
-            <div class="lessonThemeMastery">
-              <div class="lessonThemeMasteryLabel">Skill Mastery:</div>
-              <div class="lessonThemeMasteryLine">Context: ${theme.mastery.contextPct == null ? "—" : `${theme.mastery.contextPct}%`}</div>
-              <div class="lessonThemeMasteryLine">Interpretation: ${theme.mastery.interpretationPct == null ? "—" : `${theme.mastery.interpretationPct}%`}</div>
-              <div class="lessonThemeMasteryLine">Judgement: ${theme.mastery.judgementPct == null ? "—" : `${theme.mastery.judgementPct}%`}</div>
-            </div>
-            <div class="lessonActionRow" style="margin-top:10px;flex-wrap:wrap">
-              <button class="btn primary" data-action="open-theme" data-theme="${theme.id}" type="button">View lessons</button>
-              <button class="btn" data-action="start-next-theme" data-theme="${theme.id}" type="button">Start next</button>
-            </div>
-          </div>`).join("")}
-        </div>
-      `}
+      <div class="lessonsGrid">
+        ${availableThemes.map(theme=>`<div class="card" style="position:relative">
+          <div class="pill" style="position:absolute;top:12px;right:12px">${theme.status.label}</div>
+          <div style="font-weight:900;padding-right:120px">${theme.title}</div>
+          <div class="note" style="margin-top:8px">${theme.progress.completedLessons}/${theme.progress.totalLessons} completed</div>
+          <div class="lessonThemeMastery">
+            <div class="lessonThemeMasteryLabel">Skill Mastery:</div>
+            <div class="lessonThemeMasteryLine">Context: ${theme.mastery.contextPct == null ? "—" : `${theme.mastery.contextPct}%`}</div>
+            <div class="lessonThemeMasteryLine">Interpretation: ${theme.mastery.interpretationPct == null ? "—" : `${theme.mastery.interpretationPct}%`}</div>
+            <div class="lessonThemeMasteryLine">Judgement: ${theme.mastery.judgementPct == null ? "—" : `${theme.mastery.judgementPct}%`}</div>
+          </div>
+          <div class="lessonActionRow" style="margin-top:10px;flex-wrap:wrap">
+            <button class="btn primary" data-action="open-theme" data-theme="${theme.id}" type="button">View lessons</button>
+            <button class="btn" data-action="start-next-theme" data-theme="${theme.id}" type="button">Start next</button>
+          </div>
+        </div>`).join("")}
+      </div>
     </div>`;
 
   $("backToTopics")?.addEventListener("click", ()=>{
@@ -14477,26 +14442,12 @@ function renderLessonsThemes(root){
   });
   $("openTopicOverview")?.addEventListener("click", ()=>{ lessonsNav.view = "topicOverview"; renderLessons(); });
 
-  root.querySelectorAll('[data-action="theme-chip"]').forEach(btn=>btn.addEventListener("click", ()=>{
-    lessonsNav.libraryFilters = { ...filters, theme:btn.dataset.theme || "all" };
-    renderLessons();
-  }));
-  $("lessonFilterSearch")?.addEventListener("input", ()=>{
-    lessonsNav.libraryFilters = { ...filters, search:$("lessonFilterSearch")?.value || "" };
-    renderLessons();
-  });
-  $("themesResetFilters")?.addEventListener("click", ()=>{
-    lessonsNav.libraryFilters = { topic:"all", theme:"all", search:"" };
-    renderLessons();
-  });
-
   root.querySelectorAll('[data-action="open-theme"]').forEach(btn=>btn.addEventListener("click", ()=>{
     lessonsNav.themeId = btn.dataset.theme;
     lessonsNav.lessonId = null;
     lessonsNav.slideIdx = 0;
     lessonsNav.selectedOptionIndex = null;
     lessonsNav.view = "lessons";
-    lessonsNav.libraryFilters = { ...lessonsNav.libraryFilters, theme:btn.dataset.theme || "all" };
     renderLessons();
   }));
 
@@ -14519,25 +14470,6 @@ function renderLessonsThemes(root){
     renderLessons();
   }));
 
-  root.querySelectorAll('[data-action="start-search-result"]').forEach(btn=>btn.addEventListener("click", ()=>{
-    lessonsNav.themeId = btn.dataset.theme;
-    lessonsNav.lessonId = btn.dataset.lesson;
-    lessonsNav.slideIdx = 0;
-    lessonsNav.view = "player";
-    renderLessons();
-  }));
-
-  root.querySelectorAll('[data-action="practice-search-result"]').forEach(btn=>btn.addEventListener("click", ()=>{
-    const theme = topic.themes.find(t=>t.id===btn.dataset.theme);
-    const lesson = (theme?.lessons || []).find(item=>item.id===btn.dataset.lesson);
-    if(!lesson) return;
-    const slides = getSlidesForMode(getLessonSlides(lesson), lessonsNav.mode);
-    lessonsNav.themeId = btn.dataset.theme;
-    lessonsNav.lessonId = lesson.id;
-    lessonsNav.slideIdx = findFirstPracticeSlideIndex(slides);
-    lessonsNav.view = "player";
-    renderLessons();
-  }));
 }
 
 function renderLessonsList(root){
