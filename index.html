@@ -16591,8 +16591,9 @@ function goDailyFocus(){
 }
 function goDailyQuiz(topicIdOverride=null){
   const d = ensureDaily();
-  const targetTopicId = (topicIdOverride && topicIdOverride !== "MIXED" && isTopicEnabled(topicIdOverride))
-    ? topicIdOverride
+  const requestedTopicId = (typeof topicIdOverride === "string") ? topicIdOverride : null;
+  const targetTopicId = (requestedTopicId && requestedTopicId !== "MIXED" && isTopicEnabled(requestedTopicId))
+    ? requestedTopicId
     : d.topicId;
   d.lastStep = "quiz";
   saveState();
