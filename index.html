@@ -2806,6 +2806,8 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .modePills{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
 #lessonsRoot .modePill{ opacity:.78; }
 #lessonsRoot .modePill.active{ opacity:1; border-color:var(--accent); color:var(--accent); }
+#lessonsRoot .lessonModeRow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
+#lessonsRoot .lessonModeRow .modePills{margin-bottom:0;flex-wrap:nowrap;}
 #lessonsRoot .lessonHero{
   position:relative;
   min-height:180px;
@@ -14602,14 +14604,14 @@ function renderLessonPlayer(root){
 
   root.innerHTML = `
     <div class="card">
-      <div class="lessonPlayerTop" style="justify-content:flex-end">
-        <button class="btn" id="backToLessonList" type="button">← Theme</button>
-      </div>
       <div class="pill slideCounter">Slide ${idx+1} of ${total}</div>
-      <div class="modePills">
-        <span class="pill modePill ${lessonsNav.mode === "overview" ? "active" : ""}" data-action="lesson-mode" data-mode="overview">Overview</span>
-        <span class="pill modePill ${lessonsNav.mode === "simple" ? "active" : ""}" data-action="lesson-mode" data-mode="simple">Simple</span>
-        <span class="pill modePill ${lessonsNav.mode === "exam" ? "active" : ""}" data-action="lesson-mode" data-mode="exam">Exam+</span>
+      <div class="lessonModeRow">
+        <div class="modePills">
+          <span class="pill modePill ${lessonsNav.mode === "overview" ? "active" : ""}" data-action="lesson-mode" data-mode="overview">Overview</span>
+          <span class="pill modePill ${lessonsNav.mode === "simple" ? "active" : ""}" data-action="lesson-mode" data-mode="simple">Simple</span>
+          <span class="pill modePill ${lessonsNav.mode === "exam" ? "active" : ""}" data-action="lesson-mode" data-mode="exam">Exam+</span>
+        </div>
+        <button class="btn" id="backToLessonList" type="button">← Theme</button>
       </div>
       <div class="lessonHero" style="background-image:url('${lesson.heroImage}')">
         <div class="lessonHeroCopy">
