@@ -10009,33 +10009,33 @@ function buildSkillFocusSlide(lesson){
   const isHowFar = enquiryText.includes("how far");
   const isWhy = !isHowFar && enquiryText.includes("why");
   const questionSkill = isHowFar
-    ? "Make a balanced extent judgement (change vs continuity / success vs limits)."
+    ? "Decide how far you agree: what changed, what stayed the same, and how significant the change was."
     : isWhy
-      ? "Explain causation and weigh factors (trigger vs underlying causes)."
-      : "Build secure contextual knowledge and apply it to an exam judgement.";
+      ? "Explain why events happened by weighing short-term triggers against deeper causes."
+      : "Use secure knowledge to build and defend a clear exam judgement.";
 
   const bullets = [
     questionSkill,
-    "Identify the main argument in an interpretation.",
-    "Select evidence that supports or challenges the interpretation.",
-    "Write a short judgement that answers the enquiry.",
-    "Use each task to move from knowledge to exam-ready judgement."
+    "Spot the main idea in a historian's interpretation.",
+    "Pick evidence that supports or challenges that interpretation.",
+    "Write a short judgement that directly answers the enquiry question.",
+    "Finish with an exam-style paragraph you can use in a 25-mark answer."
   ].slice(0, 5);
 
   const examLinks = [
-    "AQA Russia AO1 (knowledge + judgement)",
-    "AQA AO3 Interpretations (evaluate views using knowledge)",
-    isHowFar ? "25-mark ‘How far’ style judgement practice" : null,
+    "AO1: accurate knowledge + a clear supported judgement",
+    "AO3: evaluate interpretations using your own contextual knowledge",
+    isHowFar ? "25-mark 'How far' judgement practice" : null,
     isWhy ? "25-mark ‘Why’/causation style judgement practice" : null
   ].filter(Boolean);
 
   return {
     slideId:`${lessonId}-skill-focus`,
     type:"skill-focus",
-    heading:"Exam skill focus",
+    heading:"What you'll learn today",
     bullets,
     examLinks,
-    lessonFlow:"Briefings → checks → ambition → interpretations → judgement → exam transfer"
+    lessonFlow:"Quick briefings → knowledge checks → stretch task → interpretations → final judgement → exam transfer"
   };
 }
 
