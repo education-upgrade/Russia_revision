@@ -9800,7 +9800,7 @@ function ensureSlideMeta(slide, index){
 
 function getDefaultModesForSlide(slide, interpretationOrder){
   if(slide.type === "results") return ["overview", "simple", "exam"];
-  if(slide.type === "idea" || slide.type === "briefing" || slide.type === "quick-check" || slide.type === "next-steps" || slide.type === "rank-factors" || slide.type === "strongest-evidence") return ["overview", "simple", "exam"];
+  if(slide.type === "idea" || slide.type === "briefing" || slide.type === "quick-check" || slide.type === "next-steps" || slide.type === "rank-factors" || slide.type === "strongest-evidence" || slide.type === "exam-transfer") return ["overview", "simple", "exam"];
   if(slide.type === "interpretation") return interpretationOrder === 1 ? ["simple", "exam"] : ["exam"];
   if(slide.type === "arg-identify") return ["simple", "exam"];
   if(slide.type === "evidence-select") return slide.purpose === "challenge" ? ["exam"] : ["simple", "exam"];
@@ -9967,6 +9967,41 @@ function getSlidesForMode(allSlides, mode){
   return allSlides.filter(slide=>Array.isArray(slide.modes) && slide.modes.includes(mode));
 }
 
+function getSfBriefingsForSlides(pack){
+  const briefings = Array.isArray(pack?.sf?.briefings) ? pack.sf.briefings : [];
+  if(briefings.length <= 3) return briefings.map(item=>({ ...item }));
+
+  const mergedFirst = {
+    ...briefings[0],
+    heading:briefings[0]?.heading || "Micro-briefing 1",
+    text:`${String(briefings[0]?.text || "")}
+
+Also:
+${String(briefings[1]?.text || "")}`
+  };
+  const third = { ...briefings[2] };
+  const fourthPlus = { ...briefings[3] };
+  if(briefings.length > 4){
+    const extraText = briefings.slice(4).map(item=>String(item?.text || "")).filter(Boolean).join("\n\n");
+    fourthPlus.text = [String(fourthPlus.text || ""), extraText].filter(Boolean).join("\n\n");
+  }
+  return [mergedFirst, third, fourthPlus];
+}
+
+function buildExamTransferModelAnswer(lesson){
+  const pack = lesson?.contentPack || {};
+  const enquiry = pack.hero?.subtitleLine || lesson?.title || "the enquiry";
+  const options = Array.isArray(pack.judgement?.options) ? pack.judgement.options : [];
+  const bestIndex = Number.isInteger(pack.judgement?.bestIndex) ? pack.judgement.bestIndex : 0;
+  const judgementText = String(options[bestIndex] || options[0] || "Overall, the evidence points to a mixed outcome.");
+  const scoredStatements = Array.isArray(pack.judgement?.evidencePick?.statements) ? pack.judgement.evidencePick.statements.slice() : [];
+  const topStatements = scoredStatements.slice().sort((a,b)=>(Number(b?.score) || 0) - (Number(a?.score) || 0));
+  const evidence = (topStatements.length ? topStatements : scoredStatements).slice(0,2).map(item=>String(item?.text || "")).filter(Boolean);
+  const supportText = evidence[0] || "key evidence supports this view";
+  const limitText = evidence[1] || String(pack.bigPicture || "change was uneven and had clear limits");
+  return `Overall, for ${enquiry.toLowerCase()}, ${judgementText.charAt(0).toLowerCase()}${judgementText.slice(1)}. This is mainly because ${supportText.charAt(0).toLowerCase()}${supportText.slice(1)}. However, ${limitText.charAt(0).toLowerCase()}${limitText.slice(1)}.`;
+}
+
 function buildSlidesFromContentPack(lesson){
   const pack = lesson?.contentPack;
   if(!pack) return [];
@@ -9987,7 +10022,8 @@ function buildSlidesFromContentPack(lesson){
     { slideId:`${lessonId}-big-picture`, type:"idea", heading:"Big picture idea", text:pack.bigPicture ?? "" }
   ];
 
-  (pack.sf?.briefings || []).forEach((briefing, index)=>{
+  const sfBriefings = getSfBriefingsForSlides(pack);
+  sfBriefings.forEach((briefing, index)=>{
     const order = index + 1;
     slides.push({ slideId:`${lessonId}-sf-b${order}`, type:"briefing", heading:briefing.heading, text:briefing.text });
     const check = (pack.sf?.checks || [])[index];
@@ -10069,6 +10105,19 @@ function buildSlidesFromContentPack(lesson){
         evidencePick:pack.judgement.evidencePick
       });
     }
+    slides.push({
+      slideId:`${lessonId}-exam-transfer`,
+      type:"exam-transfer",
+      heading:"Exam transfer",
+      prompt:"Write a 2–3 sentence conclusion answering the enquiry. Use: (1) your judgement, (2) one supporting point, (3) one limitation.",
+      sentenceStarters:[
+        "Overall, it can be argued that…",
+        "This is mainly because…",
+        "However, it is important to note that…",
+        "Therefore, the extent of change/success was…"
+      ],
+      modelAnswer:buildExamTransferModelAnswer(lesson)
+    });
   }
 
   slides.push({ slideId:`${lessonId}-results`, type:"results", heading:"Results" });
@@ -10162,6 +10211,29 @@ function getStoredRankFactorsState(lessonId, slideId){
   const value = getLessonAnswer(lessonId, slideId);
   if(!value || typeof value !== "object" || Array.isArray(value)) return { rankedIds:[], checked:false };
   return { rankedIds: Array.isArray(value.rankedIds) ? value.rankedIds : [], checked: !!value.checked };
+}
+
+function getExamTransferWriteKey(lessonId, slideIndex){
+  return `LESSON_WRITE_${lessonId}_${slideIndex}`;
+}
+
+function getStoredExamTransferWriting(lessonId, slideIndex){
+  try{
+    return String(localStorage.getItem(getExamTransferWriteKey(lessonId, slideIndex)) || "");
+  }catch(_err){
+    return "";
+  }
+}
+
+function setStoredExamTransferWriting(lessonId, slideIndex, value){
+  try{
+    localStorage.setItem(getExamTransferWriteKey(lessonId, slideIndex), String(value || ""));
+  }catch(_err){}
+}
+
+function getStoredExamTransferRevealState(lessonId, slideId){
+  const value = getLessonAnswer(lessonId, slideId);
+  return !!(value && typeof value === "object" && value.revealed);
 }
 
 const lessonsData = [
@@ -14586,6 +14658,7 @@ function renderLessonPlayer(root){
   const judgementState = slide.type === "judgement" ? getStoredJudgementState(lesson.id, slideId) : { optionChecked:false, evidenceChecked:false };
   const strongestEvidenceState = slide.type === "strongest-evidence" ? getStoredStrongestEvidenceState(lesson.id, slideId) : { checked:false };
   const rankFactorsState = slide.type === "rank-factors" ? getStoredRankFactorsState(lesson.id, slideId) : { checked:false };
+  const examTransferRevealed = slide.type === "exam-transfer" ? getStoredExamTransferRevealState(lesson.id, slideId) : false;
 
   const quickCheckCanAdvance = lessonsNav.mode === "overview"
     ? Number.isInteger(storedAnswer)
@@ -14620,7 +14693,7 @@ function renderLessonPlayer(root){
         </div>
       </div>
       <div class="slideBody">
-        ${renderLessonSlideBody(slide, lesson, slideId, slides, lessonsNav.mode)}
+        ${renderLessonSlideBody(slide, lesson, slideId, slides, lessonsNav.mode, idx, examTransferRevealed)}
       </div>
       <div class="playerFooter">
         <button class="btn" id="lessonPrevBtn" type="button" ${idx===0 ? "disabled" : ""}>Previous</button>
@@ -14873,6 +14946,47 @@ function renderLessonPlayer(root){
     if(checkBtn){ checkBtn.addEventListener("click", ()=>{ const state=getStoredRankFactorsState(lesson.id, slideId); const need=Number(slide.pickCount || 3); if(state.rankedIds.length!==need) return; setLessonAnswer(lesson.id, slideId, { rankedIds:state.rankedIds, checked:true }); renderLessons(); }); }
   }
 
+  if(slide.type === "exam-transfer"){
+    root.querySelectorAll('[data-action="exam-transfer-starter"]').forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const starter = btn.dataset.starter || "";
+        const current = getStoredExamTransferWriting(lesson.id, idx);
+        const spacer = current && !/\s$/.test(current) ? " " : "";
+        const nextValue = `${current}${spacer}${starter}`.trimStart();
+        setStoredExamTransferWriting(lesson.id, idx, nextValue);
+        renderLessons();
+      });
+    });
+
+    const writeInput = $("examTransferWriteInput");
+    if(writeInput){
+      writeInput.addEventListener("input", ()=>{
+        setStoredExamTransferWriting(lesson.id, idx, writeInput.value);
+      });
+    }
+
+    const revealBtn = $("examTransferRevealBtn");
+    if(revealBtn){
+      revealBtn.addEventListener("click", ()=>{
+        const revealed = getStoredExamTransferRevealState(lesson.id, slideId);
+        setLessonAnswer(lesson.id, slideId, { revealed:!revealed });
+        renderLessons();
+      });
+    }
+
+    const nextBtn = $("examTransferNextBtn");
+    if(nextBtn){
+      nextBtn.addEventListener("click", ()=>{
+        if(lessonsNav.slideIdx<total-1){
+          lessonsNav.slideIdx += 1;
+          persistLessonSlidePosition(lesson.id, lessonsNav.slideIdx);
+          lessonsNav.selectedOptionIndex = null;
+          renderLessons();
+        }
+      });
+    }
+  }
+
   if(slide.type === "results"){
     const retryBtn = $("lessonRetryBtn");
     if(retryBtn){
@@ -14886,7 +15000,7 @@ function renderLessonPlayer(root){
   }
 }
 
-function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
+function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideIndex, examTransferRevealed){
   if(slide.type === "results"){
     const quickCheckSlides = allSlides.filter(s=>s.type === "quick-check");
     const totalQuickChecks = quickCheckSlides.length;
@@ -15336,6 +15450,24 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
         <button class="btn primary" id="rankFactorsCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Submit ranking</button>
       </div>
       ${state.checked ? `<div class="quickCheckFeedback" style="margin-top:10px">${scoreText}</div>` : ""}
+    `;
+  }
+
+  if(slide.type === "exam-transfer"){
+    const storedWriting = getStoredExamTransferWriting(lesson.id, slideIndex);
+    const starters = Array.isArray(slide.sentenceStarters) ? slide.sentenceStarters : [];
+    return `
+      <h4 class="slideHeading">${slide.heading}</h4>
+      <div>${slide.prompt}</div>
+      <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
+        ${starters.map(starter=>`<button class="btn" data-action="exam-transfer-starter" data-starter="${escapeHtml(starter)}" type="button">${escapeHtml(starter)}</button>`).join("")}
+      </div>
+      <textarea id="examTransferWriteInput" rows="5" style="width:100%;margin-top:10px" placeholder="Type your conclusion…">${escapeHtml(storedWriting)}</textarea>
+      <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="examTransferRevealBtn" type="button">${examTransferRevealed ? "Hide model answer" : "Reveal model answer"}</button>
+        <button class="btn primary" id="examTransferNextBtn" type="button">Next →</button>
+      </div>
+      ${examTransferRevealed ? `<div class="quickCheckFeedback" style="margin-top:10px"><strong>Model answer:</strong> ${escapeHtml(slide.modelAnswer || "")}</div>` : ""}
     `;
   }
 
