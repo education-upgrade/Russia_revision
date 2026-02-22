@@ -824,6 +824,7 @@
     .lessonSlideDots{display:flex;gap:8px;justify-content:center}
     .lessonSlideDot{width:10px;height:10px;border-radius:50%;background:color-mix(in srgb,var(--line) 75%, #fff 25%)}
     .lessonSlideDot.isActive{width:24px;border-radius:999px;background:var(--accent)}
+    .lessonBulletList{margin:8px 0 0 18px;padding:0;display:grid;gap:8px;line-height:1.45}
     .visuallyHidden{position:absolute;left:-9999px}
     @media(max-width:720px){
       .lessonCard{padding:12px}
@@ -8480,6 +8481,21 @@ function escapeHtml(v){
     .replace(/'/g, "&#39;");
 }
 
+function renderLessonTextBullets(text){
+  if(typeof text !== "string") return "";
+  const trimmed = text.trim();
+  if(!trimmed) return "";
+
+  const sentenceParts = trimmed
+    .replace(/\s+/g, " ")
+    .split(/(?<=[.!?])\s+(?=[A-Z0-9"“])/)
+    .map(part=>part.trim())
+    .filter(Boolean);
+
+  const points = sentenceParts.length > 1 ? sentenceParts : [trimmed];
+  return `<ul class="lessonBulletList">${points.map(point=>`<li>${escapeHtml(point)}</li>`).join("")}</ul>`;
+}
+
 /* ==========================================================
    DAILY CHALLENGE (purposeful + rotating)
    ========================================================== */
@@ -15468,7 +15484,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     `;
   }
 
-  if(slide.type !== "quick-check") return `<h4 class="slideHeading">${slide.heading}</h4><div>${slide.text}</div>`;
+  if(slide.type !== "quick-check") return `<h4 class="slideHeading">${slide.heading}</h4>${renderLessonTextBullets(slide.text)}`;
 
   const storedAnswer = getStoredQuickCheckAnswer(lesson.id, slideId);
   const selected = Number.isInteger(storedAnswer) ? storedAnswer : null;
