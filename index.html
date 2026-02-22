@@ -10032,28 +10032,26 @@ function buildSkillFocusSlide(lesson){
       ? "Explain why events happened by weighing short-term triggers against deeper causes."
       : "Use secure knowledge to build and defend a clear exam judgement.";
 
-  const bullets = [
+  const ao1Points = [
     questionSkill,
-    "Spot the main idea in a historian's interpretation.",
-    "Pick evidence that supports or challenges that interpretation.",
-    "Write a short judgement that directly answers the enquiry question.",
-    "Finish with an exam-style paragraph you can use in a 25-mark answer."
-  ].slice(0, 5);
+    "Use secure contextual knowledge to support your line of argument.",
+    "Write a concise judgement that directly answers the enquiry."
+  ];
 
-  const examLinks = [
-    "AO1: accurate knowledge + a clear supported judgement",
-    "AO3: evaluate interpretations using your own contextual knowledge",
-    isHowFar ? "25-mark 'How far' judgement practice" : null,
-    isWhy ? "25-mark ‘Why’/causation style judgement practice" : null
-  ].filter(Boolean);
+  const ao3Points = [
+    "Identify the main argument in a historian's interpretation.",
+    "Select evidence that supports or challenges that interpretation.",
+    "Weigh the interpretation against your own knowledge before reaching a judgement."
+  ];
 
   return {
     slideId:`${lessonId}-skill-focus`,
     type:"skill-focus",
     heading:"What you'll learn today",
-    bullets,
-    examLinks,
-    lessonFlow:"Quick briefings → knowledge checks → stretch task → interpretations → final judgement → exam transfer"
+    aoTiles:[
+      { label:"AO1", points:ao1Points },
+      { label:"AO3", points:ao3Points }
+    ]
   };
 }
 
@@ -14954,20 +14952,6 @@ function renderLessonPlayer(root){
     }
   }
 
-  if(slide.type === "skill-focus"){
-    const startBtn = $("skillFocusStartBtn");
-    if(startBtn){
-      startBtn.addEventListener("click", ()=>{
-        if(lessonsNav.slideIdx<total-1){
-          lessonsNav.slideIdx += 1;
-          persistLessonSlidePosition(lesson.id, lessonsNav.slideIdx);
-          lessonsNav.selectedOptionIndex = null;
-          renderLessons();
-        }
-      });
-    }
-  }
-
   if(slide.type === "results"){
     const retryBtn = $("lessonRetryBtn");
     if(retryBtn){
@@ -15467,19 +15451,18 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
   }
 
   if(slide.type === "skill-focus"){
-    const bullets = Array.isArray(slide.bullets) ? slide.bullets.slice(0,5) : [];
-    const examLinks = Array.isArray(slide.examLinks) ? slide.examLinks : [];
+    const aoTiles = Array.isArray(slide.aoTiles) ? slide.aoTiles.slice(0,2) : [];
     return `
       <h4 class="slideHeading">${slide.heading || "Exam skill focus"}</h4>
       <div class="quickCheckOptions" style="margin-top:8px">
-        ${bullets.map(item=>`<div class="note" style="padding:8px 10px">• ${escapeHtml(item)}</div>`).join("")}
-      </div>
-      <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
-        ${examLinks.map(item=>`<span class="pill">${escapeHtml(item)}</span>`).join("")}
-      </div>
-      <div class="note" style="margin-top:10px"><strong>Lesson flow:</strong> ${escapeHtml(slide.lessonFlow || "")}</div>
-      <div class="row" style="margin-top:12px">
-        <button class="btn primary" id="skillFocusStartBtn" type="button">Start lesson →</button>
+        ${aoTiles.map(tile=>`
+          <div class="note" style="padding:10px 12px">
+            <div style="font-weight:900;color:var(--textStrong)">${escapeHtml(tile.label || "AO")}</div>
+            <ul style="margin:6px 0 0 18px;padding:0;display:grid;gap:6px">
+              ${(Array.isArray(tile.points) ? tile.points : []).map(point=>`<li>${escapeHtml(point)}</li>`).join("")}
+            </ul>
+          </div>
+        `).join("")}
       </div>
     `;
   }
