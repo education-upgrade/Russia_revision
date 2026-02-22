@@ -14171,6 +14171,14 @@ function getLesson(){
   return theme.lessons.find(l=>l.id===lessonsNav.lessonId) || null;
 }
 
+function getNextLessonInPack(currentLessonId){
+  const theme = getLessonTheme();
+  const lessons = Array.isArray(theme?.lessons) ? theme.lessons : [];
+  const currentIndex = lessons.findIndex(lesson=>lesson.id===currentLessonId);
+  if(currentIndex < 0) return null;
+  return lessons[currentIndex + 1] || null;
+}
+
 function renderLessons(){
   const root = $("lessonsRoot");
   if(!root) return;
@@ -14929,11 +14937,24 @@ function renderLessonPlayer(root){
         renderLessons();
       });
     }
+
+    const nextLessonBtn = $("lessonNextLessonBtn");
+    if(nextLessonBtn){
+      nextLessonBtn.addEventListener("click", ()=>{
+        const nextLesson = getNextLessonInPack(lesson.id);
+        if(!nextLesson) return;
+        lessonsNav.lessonId = nextLesson.id;
+        lessonsNav.slideIdx = 0;
+        lessonsNav.selectedOptionIndex = null;
+        renderLessons();
+      });
+    }
   }
 }
 
 function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideIndex, examTransferRevealed){
   if(slide.type === "results"){
+    const nextLesson = getNextLessonInPack(lesson.id);
     const quickCheckSlides = allSlides.filter(s=>s.type === "quick-check");
     const totalQuickChecks = quickCheckSlides.length;
     const correctCount = allSlides.reduce((count, currentSlide)=>{
@@ -15138,6 +15159,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
       <div class="quickCheckFeedback" style="margin-top:10px">${feedback}</div>
       <div class="row" style="margin-top:12px">
         <button class="btn primary" id="lessonRetryBtn" type="button">Retry lesson</button>
+        <button class="btn primary" id="lessonNextLessonBtn" type="button" ${nextLesson ? "" : "disabled"}>Go to next lesson</button>
       </div>
     `;
   }
