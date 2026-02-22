@@ -9887,13 +9887,29 @@ function getLessonThemeId(lessonId){
 }
 
 function extractFactorLabel(text, fallback){
-  const heading = String(text || "").split(":")[0].trim();
-  if(heading && heading.length >= 4 && heading.length <= 42) return heading;
+  const raw = String(text || "").trim();
+  if(!raw) return fallback;
+
+  const parts = raw.split(":").map(part=>part.trim()).filter(Boolean);
+  const firstPart = parts[0] || "";
+  const latterParts = parts.slice(1).join(": ").trim();
+  const isGenericPrefix = /^micro-briefing\s*\d+$/i.test(firstPart) || /^factor\s*\d+$/i.test(firstPart);
+
+  if(isGenericPrefix && latterParts){
+    const concise = latterParts.split(/[–—-]/)[0].trim();
+    if(concise && concise.length >= 4 && concise.length <= 90) return concise;
+    if(latterParts.length >= 4 && latterParts.length <= 90) return latterParts;
+  }
+
+  const heading = firstPart;
+  if(heading && heading.length >= 4 && heading.length <= 90) return heading;
+  if(raw.length >= 4 && raw.length <= 90) return raw;
   return fallback;
 }
 
 function buildRankFactorsSlide(lesson, slideId, sourceLabel){
   const pack = lesson?.contentPack || {};
+  const enquiry = (pack.hero?.subtitleLine || lesson?.title || "this lesson enquiry").trim();
   const themeId = getLessonThemeId(lesson?.id);
   const fallbackByTheme = {
     "political-authority":["Leadership and legitimacy", "Reform and concession", "Repression capacity", "Institutions and governance", "War and crisis"],
@@ -9920,14 +9936,14 @@ function buildRankFactorsSlide(lesson, slideId, sourceLabel){
     text,
     weight:weights[i],
     feedback:i < 3
-      ? `${text} is a high-utility factor because it directly helps explain causation and extent.`
-      : `${text} matters, but it is less decisive than higher-ranked factors for this enquiry.`
+      ? `${text} is a strong factor because it directly helps answer: ${enquiry}`
+      : `${text} is relevant, but it is less decisive for: ${enquiry}`
   }));
   return {
     slideId,
     type:"rank-factors",
     heading:sourceLabel,
-    prompt:"Rank the three most decisive factors. 1st should be the strongest because top rank carries most weighting.",
+    prompt:`Rank the three most decisive factors for this question: ${enquiry} 1st should be the strongest because top rank carries most weighting.`,
     items,
     pickCount:3,
     scoring:{ type:"weighted-top-3" }
