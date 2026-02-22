@@ -9621,6 +9621,19 @@ function getShuffledSlideData(lesson, slide, slideIndex=0){
     return { ...slide, statements:order.map(idx=>statements[idx]) };
   }
 
+  if(slide.type === "strongest-evidence"){
+    const statements = Array.isArray(slide.statements) ? slide.statements : [];
+    const order = getOrCreateShuffleOrder(`LS_SHUF_${slideKey}_stmts`, statements.length, slideKey);
+    const shuffled = order.map(idx=>statements[idx]);
+    return { ...slide, statements:shuffled, correctId:slide.correctId };
+  }
+
+  if(slide.type === "rank-factors"){
+    const items = Array.isArray(slide.items) ? slide.items : [];
+    const order = getOrCreateShuffleOrder(`LS_SHUF_${slideKey}_items`, items.length, slideKey);
+    return { ...slide, items:order.map(idx=>items[idx]) };
+  }
+
   if(slide.type === "judgement"){
     const options = Array.isArray(slide.options) ? slide.options : [];
     const optionOrder = getOrCreateShuffleOrder(`LS_SHUF_${slideKey}_opts`, options.length, `${slideKey}::opts`);
@@ -9785,12 +9798,167 @@ function ensureSlideMeta(slide, index){
 
 function getDefaultModesForSlide(slide, interpretationOrder){
   if(slide.type === "results") return ["overview", "simple", "exam"];
-  if(slide.type === "idea" || slide.type === "briefing" || slide.type === "quick-check" || slide.type === "next-steps") return ["overview", "simple", "exam"];
+  if(slide.type === "idea" || slide.type === "briefing" || slide.type === "quick-check" || slide.type === "next-steps" || slide.type === "rank-factors" || slide.type === "strongest-evidence") return ["overview", "simple", "exam"];
   if(slide.type === "interpretation") return interpretationOrder === 1 ? ["simple", "exam"] : ["exam"];
   if(slide.type === "arg-identify") return ["simple", "exam"];
   if(slide.type === "evidence-select") return slide.purpose === "challenge" ? ["exam"] : ["simple", "exam"];
   if(slide.type === "judgement") return ["exam"];
   return ["exam"];
+}
+
+function getLessonInteractionPlan(lessonId){
+  const planCode = hashSeed(String(lessonId || "")) % 4;
+  return ["A", "B", "C", "D"][planCode] || "A";
+}
+
+function getLessonThemeId(lessonId){
+  for(const topic of lessonsData || []){
+    for(const theme of topic?.themes || []){
+      const lesson = (theme.lessons || []).find(item=>item.id===lessonId);
+      if(lesson) return theme.id;
+    }
+  }
+  return "";
+}
+
+function extractFactorLabel(text, fallback){
+  const heading = String(text || "").split(":")[0].trim();
+  if(heading && heading.length >= 4 && heading.length <= 42) return heading;
+  return fallback;
+}
+
+function buildRankFactorsSlide(lesson, slideId, sourceLabel){
+  const pack = lesson?.contentPack || {};
+  const themeId = getLessonThemeId(lesson?.id);
+  const fallbackByTheme = {
+    "political-authority":["Leadership and legitimacy", "Reform and concession", "Repression capacity", "Institutions and governance", "War and crisis"],
+    "economic-development":["Industry and finance", "Agriculture and food supply", "Transport and logistics", "Living standards", "War impact"],
+    "opposition-control":["Opposition organisation", "State repression", "Splits and divisions", "Mass mobilisation", "Army loyalty"],
+    "social-cultural":["Urbanisation", "Literacy and ideas", "Class tension", "Rural continuity", "War acceleration"]
+  };
+  const briefingLabels = (pack.sf?.briefings || []).map((briefing, i)=>extractFactorLabel(briefing.heading, `Factor ${i+1}`));
+  const fallbackLabels = fallbackByTheme[themeId] || ["Leadership", "Institutions", "Economy", "Society", "War pressure"];
+  const combined = [...briefingLabels, ...fallbackLabels, extractFactorLabel(pack.bigPicture, "State capacity")];
+  const unique = [];
+  const seen = new Set();
+  combined.forEach(label=>{
+    const key = String(label || "").toLowerCase();
+    if(!key || seen.has(key)) return;
+    seen.add(key);
+    unique.push(label);
+  });
+  const labels = unique.slice(0, 5);
+  while(labels.length < 5){ labels.push(`Factor ${labels.length + 1}`); }
+  const weights = [5, 4, 3, 2, 1];
+  const items = labels.map((text, i)=>({
+    id:`${slideId}-factor-${i+1}`,
+    text,
+    weight:weights[i],
+    feedback:i < 3
+      ? `${text} is a high-utility factor because it directly helps explain causation and extent.`
+      : `${text} matters, but it is less decisive than higher-ranked factors for this enquiry.`
+  }));
+  return {
+    slideId,
+    type:"rank-factors",
+    heading:sourceLabel,
+    prompt:"Rank the three most decisive factors. 1st should be the strongest because top rank carries most weighting.",
+    items,
+    pickCount:3,
+    scoring:{ type:"weighted-top-3" }
+  };
+}
+
+function statementFromSource(statement, prefix=""){
+  if(!statement) return null;
+  return {
+    id:String(statement.id || `${prefix}${hashSeed(JSON.stringify(statement))}`),
+    text:String(statement.text || ""),
+    strength:Number(statement.score ?? statement.strength ?? 0),
+    feedback:String(statement.feedback || "This is true, but evaluate how directly it answers the claim.")
+  };
+}
+
+function pickDirectBestStatement(statements){
+  const sorted = [...statements].sort((a,b)=>(b.strength - a.strength) || (b.text.length - a.text.length));
+  return sorted[0]?.id || statements[0]?.id || null;
+}
+
+function buildStrongestEvidenceFromQuickCheck(lesson, slideId, sourceLabel){
+  const pack = lesson?.contentPack || {};
+  const support = (pack.interpretations?.A?.evidenceSupport?.statements || []).slice().sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,2).map(s=>statementFromSource(s, `${slideId}-a-s-`));
+  const challenge = (pack.interpretations?.A?.evidenceChallenge?.statements || []).slice().sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,1).map(s=>statementFromSource(s, `${slideId}-a-c-`));
+  const judgement = (pack.judgement?.evidencePick?.statements || []).slice().sort((a,b)=>(b.score||0)-(a.score||0)).slice(0,1).map(s=>statementFromSource(s, `${slideId}-j-`));
+  const irrelevantPool = [...(pack.interpretations?.B?.evidenceChallenge?.statements || []), ...(pack.interpretations?.B?.evidenceSupport?.statements || [])]
+    .filter(s=>Number(s?.score || 0) <= 0)
+    .map(s=>statementFromSource(s, `${slideId}-irr-`));
+  const extraIrrelevant = irrelevantPool[0] || {
+    id:`${slideId}-irrelevant-fallback`,
+    text:"Industrial output figures from a different decade that are accurate but not directly tied to this claim.",
+    strength:0,
+    feedback:"Accurate detail, but it is too indirect to be the strongest evidence for this exact claim."
+  };
+  const statements = [...support, ...challenge, ...judgement, extraIrrelevant].filter(Boolean).slice(0,6);
+  const correctId = pickDirectBestStatement(statements);
+  return {
+    slideId,
+    type:"strongest-evidence",
+    heading:sourceLabel,
+    prompt:"Choose the MOST relevant evidence statement.",
+    contextLine:pack.bigPicture || pack.hero?.titleLine || "Evaluate the claim using the most direct evidence.",
+    statements,
+    correctId,
+    feedbackCorrect:"Strong choice: this evidence most directly supports the claim, not just a nearby point.",
+    feedbackWrong:"This may be true, but it is less direct. Prioritise evidence that most clearly proves the specific claim."
+  };
+}
+
+function buildStrongestEvidenceFromJudgement(lesson, slideId){
+  const pack = lesson?.contentPack || {};
+  const statements = (pack.judgement?.evidencePick?.statements || []).map((s,i)=>statementFromSource(s, `${slideId}-j-${i}-`)).filter(Boolean);
+  const correctId = pickDirectBestStatement(statements);
+  return {
+    slideId,
+    type:"strongest-evidence",
+    heading:"Judgement evidence focus",
+    prompt:"Which statement is the strongest evidence for your final judgement?",
+    contextLine:pack.judgement?.options?.[pack.judgement?.bestIndex] || "Best overall judgement",
+    statements,
+    correctId,
+    feedbackCorrect:"Yes—this is the most relevant evidence for justifying the best overall judgement.",
+    feedbackWrong:"This statement has value, but another option is more directly useful for defending the judgement."
+  };
+}
+
+function buildRankFactorsFromJudgement(lesson, slideId){
+  const pack = lesson?.contentPack || {};
+  const judgementItems = (pack.judgement?.evidencePick?.statements || []).map((s, i)=>({
+    id:String(s.id || `${slideId}-e-${i+1}`),
+    text:String(s.text || ""),
+    weight:Number(s.score || 0) + 1,
+    feedback:String(s.feedback || "Useful if it directly supports your judgement line.")
+  }));
+  const irrelevantSource = [
+    ...(pack.interpretations?.A?.evidenceChallenge?.statements || []),
+    ...(pack.interpretations?.B?.evidenceChallenge?.statements || []),
+    ...(pack.interpretations?.B?.evidenceSupport?.statements || [])
+  ].filter(item=>Number(item?.score || 0) <= 0).slice(0,2);
+  const extra = irrelevantSource.map((s, i)=>({
+    id:`${slideId}-irr-${i+1}`,
+    text:String(s.text || `True but less relevant detail ${i+1}`),
+    weight:0,
+    feedback:"This may be true but is weak for justifying the final judgement."
+  }));
+  const allItems = [...judgementItems, ...extra].slice(0, 7);
+  return {
+    slideId,
+    type:"rank-factors",
+    heading:"Judgement evidence ranking",
+    prompt:"Rank the top 3 MOST useful pieces of evidence for your judgement. Prioritise direct relevance in 1st place.",
+    items:allItems,
+    pickCount:3,
+    scoring:{ type:"weighted-top-3" }
+  };
 }
 
 function getSlidesForMode(allSlides, mode){
@@ -9801,6 +9969,7 @@ function buildSlidesFromContentPack(lesson){
   const pack = lesson?.contentPack;
   if(!pack) return [];
   const lessonId = lesson.id;
+  const plan = getLessonInteractionPlan(lesson.id);
   const quickCheckFromCheck = (slideId, check)=>({
     slideId,
     type:"quick-check",
@@ -9831,11 +10000,15 @@ function buildSlidesFromContentPack(lesson){
   }
   const ambitionTask = pack.ambition?.task;
   if(ambitionTask){
-    slides.push(quickCheckFromCheck(`${lessonId}-ambition-task`, ambitionTask));
+    if(plan === "B") slides.push(buildRankFactorsSlide(lesson, `${lessonId}-ambition-task`, ambitionTask.heading || "Ambition task"));
+    else if(plan === "D") slides.push(buildStrongestEvidenceFromQuickCheck(lesson, `${lessonId}-ambition-task`, ambitionTask.heading || "Ambition task"));
+    else slides.push(quickCheckFromCheck(`${lessonId}-ambition-task`, ambitionTask));
   }
 
   if(pack.quickCheck){
-    slides.push(quickCheckFromCheck(`${lessonId}-quick-check`, pack.quickCheck));
+    if(plan === "A") slides.push(buildStrongestEvidenceFromQuickCheck(lesson, `${lessonId}-quick-check`, pack.quickCheck.heading || "Quick check"));
+    else if(plan === "D") slides.push(buildRankFactorsSlide(lesson, `${lessonId}-quick-check`, pack.quickCheck.heading || "Quick check"));
+    else slides.push(quickCheckFromCheck(`${lessonId}-quick-check`, pack.quickCheck));
   }
 
   const interpretationSlides = (key)=>{
@@ -9877,17 +10050,23 @@ function buildSlidesFromContentPack(lesson){
   slides.push(...interpretationSlides("A"), ...interpretationSlides("B"));
 
   if(pack.judgement){
-    slides.push({
-      slideId:`${lessonId}-judgement`,
-      type:"judgement",
-      heading:"Judgement",
-      prompt:"Best overall judgement?",
-      options:pack.judgement.options,
-      bestIndex:pack.judgement.bestIndex,
-      feedbackCorrect:pack.judgement.feedbackCorrect,
-      feedbackWrong:pack.judgement.feedbackWrong,
-      evidencePick:pack.judgement.evidencePick
-    });
+    if(plan === "B"){
+      slides.push(buildStrongestEvidenceFromJudgement(lesson, `${lessonId}-judgement`));
+    }else if(plan === "C"){
+      slides.push(buildRankFactorsFromJudgement(lesson, `${lessonId}-judgement`));
+    }else{
+      slides.push({
+        slideId:`${lessonId}-judgement`,
+        type:"judgement",
+        heading:"Judgement",
+        prompt:"Best overall judgement?",
+        options:pack.judgement.options,
+        bestIndex:pack.judgement.bestIndex,
+        feedbackCorrect:pack.judgement.feedbackCorrect,
+        feedbackWrong:pack.judgement.feedbackWrong,
+        evidencePick:pack.judgement.evidencePick
+      });
+    }
   }
 
   slides.push({ slideId:`${lessonId}-results`, type:"results", heading:"Results" });
@@ -9969,6 +10148,18 @@ function getStoredJudgementState(lessonId, slideId){
     evidenceValue: Array.isArray(value.evidenceValue) ? value.evidenceValue : [],
     evidenceChecked: !!value.evidenceChecked
   };
+}
+
+function getStoredStrongestEvidenceState(lessonId, slideId){
+  const value = getLessonAnswer(lessonId, slideId);
+  if(!value || typeof value !== "object" || Array.isArray(value)) return { selectedId:null, checked:false };
+  return { selectedId: typeof value.selectedId === "string" ? value.selectedId : null, checked: !!value.checked };
+}
+
+function getStoredRankFactorsState(lessonId, slideId){
+  const value = getLessonAnswer(lessonId, slideId);
+  if(!value || typeof value !== "object" || Array.isArray(value)) return { rankedIds:[], checked:false };
+  return { rankedIds: Array.isArray(value.rankedIds) ? value.rankedIds : [], checked: !!value.checked };
 }
 
 const lessonsData = [
@@ -14391,6 +14582,8 @@ function renderLessonPlayer(root){
   const argIdentifyState = slide.type === "arg-identify" ? getStoredArgIdentifyState(lesson.id, slideId) : { checked:false, value:null };
   const evidenceSelectState = slide.type === "evidence-select" ? getStoredEvidenceSelectState(lesson.id, slideId) : { checked:false, value:[] };
   const judgementState = slide.type === "judgement" ? getStoredJudgementState(lesson.id, slideId) : { optionChecked:false, evidenceChecked:false };
+  const strongestEvidenceState = slide.type === "strongest-evidence" ? getStoredStrongestEvidenceState(lesson.id, slideId) : { checked:false };
+  const rankFactorsState = slide.type === "rank-factors" ? getStoredRankFactorsState(lesson.id, slideId) : { checked:false };
 
   const quickCheckCanAdvance = lessonsNav.mode === "overview"
     ? Number.isInteger(storedAnswer)
@@ -14403,7 +14596,9 @@ function renderLessonPlayer(root){
     || (slide.type === "build-answer" && !buildAnswerChecked)
     || (slide.type === "arg-identify" && lessonsNav.mode === "exam" && !argIdentifyState.checked)
     || (slide.type === "evidence-select" && lessonsNav.mode === "exam" && !evidenceSelectState.checked)
-    || (slide.type === "judgement" && lessonsNav.mode === "exam" && (!judgementState.optionChecked || !judgementState.evidenceChecked));
+    || (slide.type === "judgement" && lessonsNav.mode === "exam" && (!judgementState.optionChecked || !judgementState.evidenceChecked))
+    || (slide.type === "strongest-evidence" && !strongestEvidenceState.checked)
+    || (slide.type === "rank-factors" && !rankFactorsState.checked);
 
   root.innerHTML = `
     <div class="card">
@@ -14636,6 +14831,46 @@ function renderLessonPlayer(root){
     }
   }
 
+  if(slide.type === "strongest-evidence"){
+    root.querySelectorAll('[data-action="strongest-evidence-option"]').forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const selectedId = btn.dataset.statementId;
+        const state = getStoredStrongestEvidenceState(lesson.id, slideId);
+        if(!selectedId || state.checked) return;
+        setLessonAnswer(lesson.id, slideId, { selectedId, checked:false });
+        renderLessons();
+      });
+    });
+    const checkBtn = $("strongestEvidenceCheckBtn");
+    if(checkBtn){
+      checkBtn.addEventListener("click", ()=>{
+        const state = getStoredStrongestEvidenceState(lesson.id, slideId);
+        if(!state.selectedId) return;
+        setLessonAnswer(lesson.id, slideId, { selectedId:state.selectedId, checked:true });
+        renderLessons();
+      });
+    }
+  }
+
+  if(slide.type === "rank-factors"){
+    root.querySelectorAll('[data-action="rank-factor-item"]').forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const itemId = btn.dataset.itemId;
+        const state = getStoredRankFactorsState(lesson.id, slideId);
+        if(!itemId || state.checked) return;
+        const nextRank = state.rankedIds.includes(itemId) ? state.rankedIds : [...state.rankedIds, itemId].slice(0, Number(slide.pickCount || 3));
+        setLessonAnswer(lesson.id, slideId, { rankedIds:nextRank, checked:false });
+        renderLessons();
+      });
+    });
+    const undoBtn = $("rankFactorsUndoBtn");
+    if(undoBtn){ undoBtn.addEventListener("click", ()=>{ const state=getStoredRankFactorsState(lesson.id, slideId); setLessonAnswer(lesson.id, slideId, { rankedIds:state.rankedIds.slice(0,-1), checked:false }); renderLessons(); }); }
+    const clearBtn = $("rankFactorsClearBtn");
+    if(clearBtn){ clearBtn.addEventListener("click", ()=>{ setLessonAnswer(lesson.id, slideId, { rankedIds:[], checked:false }); renderLessons(); }); }
+    const checkBtn = $("rankFactorsCheckBtn");
+    if(checkBtn){ checkBtn.addEventListener("click", ()=>{ const state=getStoredRankFactorsState(lesson.id, slideId); const need=Number(slide.pickCount || 3); if(state.rankedIds.length!==need) return; setLessonAnswer(lesson.id, slideId, { rankedIds:state.rankedIds, checked:true }); renderLessons(); }); }
+  }
+
   if(slide.type === "results"){
     const retryBtn = $("lessonRetryBtn");
     if(retryBtn){
@@ -14700,6 +14935,29 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
       return { earned: totals.earned + optionEarned + evidenceEarned, max: totals.max + 2 + (evidenceLimit * 2) };
     }, { earned:0, max:0 });
 
+    const strongestEvidenceTotals = allSlides.reduce((totals, currentSlide)=>{
+      if(currentSlide.type !== "strongest-evidence") return totals;
+      const state = getStoredStrongestEvidenceState(lesson.id, currentSlide.slideId);
+      const earned = state.checked && state.selectedId===currentSlide.correctId ? 1 : 0;
+      return { earned:totals.earned + earned, max:totals.max + 1 };
+    }, { earned:0, max:0 });
+
+    const rankFactorsTotals = allSlides.reduce((totals, currentSlide)=>{
+      if(currentSlide.type !== "rank-factors") return totals;
+      const state = getStoredRankFactorsState(lesson.id, currentSlide.slideId);
+      const ranked = state.rankedIds || [];
+      const sorted = [...(currentSlide.items || [])].sort((a,b)=>(b.weight||0)-(a.weight||0));
+      const top = sorted.slice(0, Number(currentSlide.pickCount || 3));
+      const topIds = top.map(item=>item.id);
+      let earned = 0;
+      ranked.forEach((id, idx)=>{
+        if(topIds.includes(id)) earned += 0.2;
+        if(top[idx] && top[idx].id===id) earned += 0.2;
+      });
+      earned = Math.min(1, Math.round(earned * 10) / 10);
+      return { earned:totals.earned + earned, max:totals.max + 1 };
+    }, { earned:0, max:0 });
+
     const evidenceSelectTaskTotals = allSlides.reduce((totals, currentSlide)=>{
       if(currentSlide.type !== "evidence-select") return totals;
       const state = getStoredEvidenceSelectState(lesson.id, currentSlide.slideId);
@@ -14735,20 +14993,24 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
       argIdentify: argIdentifyTotals.max ? Math.round((argIdentifyTotals.earned / argIdentifyTotals.max) * 100) : null,
       supportEvidence: supportEvidenceTotals.max ? Math.round((supportEvidenceTotals.earned / supportEvidenceTotals.max) * 100) : null,
       challengeEvidence: challengeEvidenceTotals.max ? Math.round((challengeEvidenceTotals.earned / challengeEvidenceTotals.max) * 100) : null,
-      judgement: judgementTotals.max ? Math.round((judgementTotals.earned / judgementTotals.max) * 100) : null
+      judgement: judgementTotals.max ? Math.round((judgementTotals.earned / judgementTotals.max) * 100) : null,
+      strongestEvidence: strongestEvidenceTotals.max ? Math.round((strongestEvidenceTotals.earned / strongestEvidenceTotals.max) * 100) : null,
+      rankFactors: rankFactorsTotals.max ? Math.round((rankFactorsTotals.earned / rankFactorsTotals.max) * 100) : null
     };
 
     const modeComponents = mode === "overview"
-      ? ["quickCheck"]
+      ? ["quickCheck", "strongestEvidence", "rankFactors"]
       : mode === "simple"
-        ? ["quickCheck", "argIdentify", "supportEvidence"]
-        : ["quickCheck", "argIdentify", "supportEvidence", "challengeEvidence", "judgement"];
+        ? ["quickCheck", "argIdentify", "supportEvidence", "strongestEvidence", "rankFactors"]
+        : ["quickCheck", "argIdentify", "supportEvidence", "challengeEvidence", "judgement", "strongestEvidence", "rankFactors"];
     const availableComponents = modeComponents.filter(key=>{
       if(key === "quickCheck") return totalQuickChecks > 0;
       if(key === "argIdentify") return argIdentifyTotals.max > 0;
       if(key === "supportEvidence") return supportEvidenceTotals.max > 0;
       if(key === "challengeEvidence") return challengeEvidenceTotals.max > 0;
       if(key === "judgement") return judgementTotals.max > 0;
+      if(key === "strongestEvidence") return strongestEvidenceTotals.max > 0;
+      if(key === "rankFactors") return rankFactorsTotals.max > 0;
       return false;
     });
     const finalPercent = availableComponents.length ? Math.round(availableComponents.reduce((sum, key)=>sum + componentPercents[key], 0) / availableComponents.length) : 0;
@@ -14757,7 +15019,9 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
       argIdentify: argIdentifyTotals.max > 0 ? { correct:argIdentifyTotals.earned, total:argIdentifyTotals.max, pct:componentPercents.argIdentify } : null,
       evidenceSupport: supportEvidenceTotals.max > 0 ? { earned:supportEvidenceTotals.earned, max:supportEvidenceTotals.max, pct:componentPercents.supportEvidence } : null,
       evidenceChallenge: challengeEvidenceTotals.max > 0 ? { earned:challengeEvidenceTotals.earned, max:challengeEvidenceTotals.max, pct:componentPercents.challengeEvidence } : null,
-      judgement: judgementTotals.max > 0 ? { earned:judgementTotals.earned, max:judgementTotals.max, pct:componentPercents.judgement } : null
+      judgement: judgementTotals.max > 0 ? { earned:judgementTotals.earned, max:judgementTotals.max, pct:componentPercents.judgement } : null,
+      strongestEvidence: strongestEvidenceTotals.max > 0 ? { earned:strongestEvidenceTotals.earned, max:strongestEvidenceTotals.max, pct:componentPercents.strongestEvidence } : null,
+      rankFactors: rankFactorsTotals.max > 0 ? { earned:rankFactorsTotals.earned, max:rankFactorsTotals.max, pct:componentPercents.rankFactors } : null
     };
 
     markLessonResult(lesson.id, finalPercent, lessonBreakdown);
@@ -14813,6 +15077,8 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
           <div><strong>Support evidence:</strong> ${supportEvidenceTotals.earned} / ${supportEvidenceTotals.max}</div>
           <div><strong>Challenge evidence:</strong> ${challengeEvidenceTotals.earned} / ${challengeEvidenceTotals.max}</div>
           <div><strong>Judgement:</strong> ${judgementTotals.earned} / ${judgementTotals.max}</div>
+          <div><strong>Strongest evidence:</strong> ${strongestEvidenceTotals.earned} / ${strongestEvidenceTotals.max}</div>
+          <div><strong>Rank factors:</strong> ${rankFactorsTotals.earned} / ${rankFactorsTotals.max}</div>
         `;
 
     return `
@@ -15006,6 +15272,68 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode){
         <button class="btn primary" id="judgementEvidenceCheckBtn" type="button" ${evidenceCanCheck ? "" : "disabled"}>Check evidence</button>
       </div>
       ${state.evidenceChecked ? `<div class="quickCheckFeedback" style="margin-top:10px">Evidence score: ${evidenceScore} / ${evidenceLimit * 2}</div>` : ""}
+    `;
+  }
+
+
+  if(slide.type === "strongest-evidence"){
+    const state = getStoredStrongestEvidenceState(lesson.id, slideId);
+    const selectedId = state.selectedId;
+    const canCheck = !!selectedId && !state.checked;
+    const selectedStatement = (slide.statements || []).find(item=>item.id===selectedId);
+    const feedbackText = !state.checked ? "" : (selectedId===slide.correctId ? `${slide.feedbackCorrect} ${selectedStatement?.feedback || ""}` : `${slide.feedbackWrong} ${selectedStatement?.feedback || ""}`);
+    return `
+      <h4 class="slideHeading">${slide.heading}</h4>
+      <div>${slide.prompt}</div>
+      ${slide.contextLine ? `<div class="note" style="margin-top:8px">Claim: ${slide.contextLine}</div>` : ""}
+      <div class="quickCheckOptions" style="margin-top:10px">
+        ${(slide.statements || []).map(statement=>{
+          const active = selectedId===statement.id;
+          let style = "";
+          if(active) style = state.checked ? (statement.id===slide.correctId ? "border-color:rgba(126,185,170,.8);" : "border-color:rgba(183,142,161,.8);") : "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);";
+          return `<button class="btn" data-action="strongest-evidence-option" data-statement-id="${statement.id}" type="button" style="text-align:left;justify-content:flex-start;${style}" ${state.checked ? "disabled" : ""}>${statement.text}</button>`;
+        }).join("")}
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn primary" id="strongestEvidenceCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Check evidence</button>
+      </div>
+      ${state.checked ? `<div class="quickCheckFeedback" style="margin-top:10px">${feedbackText}</div>` : ""}
+    `;
+  }
+
+  if(slide.type === "rank-factors"){
+    const state = getStoredRankFactorsState(lesson.id, slideId);
+    const pickCount = Number(slide.pickCount || 3);
+    const ranked = state.rankedIds || [];
+    const slots = ["1st","2nd","3rd"].slice(0, pickCount).map((label, idx)=>`<div class="note" style="padding:6px 8px">${label}: ${((slide.items||[]).find(item=>item.id===ranked[idx])||{}).text || "—"}</div>`).join("");
+    const canCheck = ranked.length===pickCount && !state.checked;
+    let scoreText = "";
+    if(state.checked){
+      const sorted = [...(slide.items || [])].sort((a,b)=>(b.weight||0)-(a.weight||0));
+      const top = sorted.slice(0, pickCount);
+      const topIds = top.map(item=>item.id);
+      let earned = 0;
+      ranked.forEach((id, idx)=>{ if(topIds.includes(id)) earned += 0.2; if(top[idx] && top[idx].id===id) earned += 0.2; });
+      earned = Math.min(1, Math.round(earned * 10) / 10);
+      scoreText = `Score: ${earned} / 1. 1st place matters most because it carries the strongest weighting in causal judgement.`;
+    }
+    return `
+      <h4 class="slideHeading">${slide.heading}</h4>
+      <div>${slide.prompt}</div>
+      <div class="quickCheckOptions" style="margin-top:10px">${slots}</div>
+      <div class="quickCheckOptions" style="margin-top:10px">
+        ${(slide.items || []).map(item=>{
+          const taken = ranked.includes(item.id);
+          const style = taken ? "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);" : "";
+          return `<button class="btn" data-action="rank-factor-item" data-item-id="${item.id}" type="button" style="text-align:left;justify-content:flex-start;${style}" ${state.checked || taken || ranked.length>=pickCount ? "disabled" : ""}>${item.text}</button>`;
+        }).join("")}
+      </div>
+      <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="rankFactorsUndoBtn" type="button" ${state.checked || !ranked.length ? "disabled" : ""}>Undo</button>
+        <button class="btn" id="rankFactorsClearBtn" type="button" ${state.checked || !ranked.length ? "disabled" : ""}>Clear</button>
+        <button class="btn primary" id="rankFactorsCheckBtn" type="button" ${canCheck ? "" : "disabled"}>Submit ranking</button>
+      </div>
+      ${state.checked ? `<div class="quickCheckFeedback" style="margin-top:10px">${scoreText}</div>` : ""}
     `;
   }
 
