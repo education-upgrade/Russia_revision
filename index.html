@@ -2816,6 +2816,10 @@ section#games.gamePaneActive .gamesHeroCard{
     margin-bottom:8px;
     border-radius:12px;
   }
+  #lessonsRoot .lessonHero.isCompact{
+    min-height:auto;
+    padding:10px;
+  }
   #lessonsRoot .lessonHeroCopy{
     left:10px;
     right:10px;
@@ -2913,6 +2917,10 @@ section#games.gamePaneActive .gamesHeroCard{
   background-size:cover;
   background-position:center;
 }
+#lessonsRoot .lessonHero.isCompact{
+  min-height:auto;
+  padding:12px;
+}
 #lessonsRoot .lessonHero::after{
   content:"";
   position:absolute;
@@ -2920,12 +2928,16 @@ section#games.gamePaneActive .gamesHeroCard{
   background:linear-gradient(180deg, rgba(8,20,38,.12), rgba(6,15,31,.68));
 }
 #lessonsRoot .lessonHeroCopy{ position:absolute; left:12px; right:12px; bottom:12px; z-index:2; color:#fff; }
+#lessonsRoot .lessonHero.isCompact .lessonHeroCopy{ position:relative; left:auto; right:auto; bottom:auto; }
 #lessonsRoot .lessonHeroMeta,
 #lessonsRoot .lessonHeroTopic,
 #lessonsRoot .lessonHeroQuestion{ margin:0; }
 #lessonsRoot .lessonHeroMeta{ font-size:12px; font-weight:800; opacity:.95; letter-spacing:.3px; }
 #lessonsRoot .lessonHeroTopic{ margin-top:4px; font-size:13px; font-weight:800; opacity:.98; }
 #lessonsRoot .lessonHeroQuestion{ margin-top:6px; font-size:18px; font-weight:900; line-height:1.15; text-wrap:balance; }
+#lessonsRoot .lessonHero.isCompact .lessonHeroMeta,
+#lessonsRoot .lessonHero.isCompact .lessonHeroTopic{ font-size:11px; }
+#lessonsRoot .lessonHero.isCompact .lessonHeroQuestion{ margin-top:4px; font-size:15px; line-height:1.25; }
 #lessonsRoot .slideBody{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
 #lessonsRoot .slideHeading{ margin:0 0 8px; font-size:18px; font-weight:900; }
 #lessonsRoot .quickCheckOptions{ display:grid; gap:8px; margin-top:8px; }
@@ -14828,7 +14840,7 @@ function renderLessonPlayer(root){
         </div>
         <button class="btn" id="backToLessonList" type="button">← Theme</button>
       </div>
-      <div class="lessonHero" style="background-image:url('${lesson.heroImage}')">
+      <div class="lessonHero ${idx > 0 ? "isCompact" : ""}" style="background-image:url('${lesson.heroImage}')">
         <div class="lessonHeroCopy">
           <p class="lessonHeroMeta">Date: ${lesson.yearLabel}</p>
           <p class="lessonHeroTopic">Topic: ${lesson.theme}</p>
