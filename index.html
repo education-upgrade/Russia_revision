@@ -2816,7 +2816,6 @@ section#games.gamePaneActive .gamesHeroCard{
 }
 #lessonsRoot .lessonsGrid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:10px; }
 #lessonsRoot .lessonPlayerTop{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
-#lessonsRoot .slideCounter{ margin:8px 0; width:max-content; }
 #lessonsRoot .modePills{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
 #lessonsRoot .modePill{ opacity:.78; }
 #lessonsRoot .modePill.active{ opacity:1; border-color:var(--accent); color:var(--accent); }
@@ -2851,10 +2850,10 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .quickCheckFeedback{ margin-top:8px; font-weight:700; }
 #lessonsRoot .playerFooter{ display:flex; align-items:center; gap:8px; margin-top:12px; }
 #lessonsRoot .playerFooter .btn{ flex:0 0 auto; }
-#lessonsRoot .slideDots{ display:flex; gap:6px; align-items:center; flex:1 1 auto; min-width:0; overflow-x:auto; scrollbar-width:none; -ms-overflow-style:none; }
-#lessonsRoot .slideDots::-webkit-scrollbar{ display:none; }
-#lessonsRoot .slideDot{ width:8px; height:8px; border-radius:999px; border:1px solid var(--line); background:rgba(255,255,255,.9); }
-#lessonsRoot .slideDot.active{ background:var(--accent); border-color:var(--accent); }
+#lessonsRoot .lessonProgressWrap{ flex:1 1 auto; min-width:0; }
+#lessonsRoot .lessonProgressTrack{ height:12px; border-radius:999px; background:color-mix(in srgb, var(--accent2) 34%, #ffffff 66%); border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%); overflow:hidden; }
+#lessonsRoot .lessonProgressFill{ height:100%; background:linear-gradient(90deg,var(--warn),var(--good)); width:0; transition:width .25s ease; }
+#lessonsRoot .lessonProgressPct{ margin-top:4px; font-size:12px; font-weight:800; color:var(--textMuted); text-align:center; }
 
 </style>
 </head>
@@ -14640,7 +14639,6 @@ function renderLessonPlayer(root){
     <div class="card">
       <div class="lessonsHeader">
         <h2 class="lessonsTitle"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span>Lessons</span></h2>
-        <div class="pill slideCounter">Slide ${idx+1} of ${total}</div>
       </div>
       <div class="lessonModeRow" style="margin-top:10px">
         <div class="modePills">
@@ -14662,7 +14660,10 @@ function renderLessonPlayer(root){
       </div>
       <div class="playerFooter">
         <button class="btn" id="lessonPrevBtn" type="button" ${idx===0 ? "disabled" : ""}>Previous</button>
-        <div class="slideDots">${slides.map((_,i)=>`<span class="slideDot ${i===idx?"active":""}"></span>`).join("")}</div>
+        <div class="lessonProgressWrap" aria-label="Lesson progress">
+          <div class="lessonProgressTrack"><div class="lessonProgressFill" style="width:${Math.round(((idx+1)/Math.max(total,1))*100)}%"></div></div>
+          <div class="lessonProgressPct">${Math.round(((idx+1)/Math.max(total,1))*100)}% complete</div>
+        </div>
         <button class="btn primary" id="lessonNextBtn" type="button" ${nextDisabled ? "disabled" : ""}>${onLastBriefingSlide ? "Continue to practice →" : "Next →"}</button>
       </div>
     </div>`;
