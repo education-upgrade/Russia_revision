@@ -2839,8 +2839,12 @@ section#games.gamePaneActive .gamesHeroCard{
   background:linear-gradient(180deg, rgba(8,20,38,.12), rgba(6,15,31,.68));
 }
 #lessonsRoot .lessonHeroCopy{ position:absolute; left:12px; right:12px; bottom:12px; z-index:2; color:#fff; }
-#lessonsRoot .lessonHeroTitle{ margin:0; font-size:18px; font-weight:900; }
-#lessonsRoot .lessonHeroSub{ margin-top:4px; font-size:12px; opacity:.95; }
+#lessonsRoot .lessonHeroMeta,
+#lessonsRoot .lessonHeroTopic,
+#lessonsRoot .lessonHeroQuestion{ margin:0; }
+#lessonsRoot .lessonHeroMeta{ font-size:12px; font-weight:800; opacity:.95; letter-spacing:.3px; }
+#lessonsRoot .lessonHeroTopic{ margin-top:4px; font-size:13px; font-weight:800; opacity:.98; }
+#lessonsRoot .lessonHeroQuestion{ margin-top:6px; font-size:18px; font-weight:900; line-height:1.15; text-wrap:balance; }
 #lessonsRoot .slideBody{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
 #lessonsRoot .slideHeading{ margin:0 0 8px; font-size:18px; font-weight:900; }
 #lessonsRoot .quickCheckOptions{ display:grid; gap:8px; margin-top:8px; }
@@ -10069,7 +10073,7 @@ function buildSlidesFromContentPack(lesson){
   });
 
   const slides = [
-    { slideId:`${lessonId}-hero`, type:"briefing", heading:"Hero", text:pack.hero?.titleLine ?? "" },
+    { slideId:`${lessonId}-hero`, type:"briefing", heading:"Intro", text:pack.hero?.titleLine ?? "" },
     { slideId:`${lessonId}-big-picture`, type:"idea", heading:"Big picture idea", text:pack.bigPicture ?? "" }
   ];
 
@@ -14650,8 +14654,9 @@ function renderLessonPlayer(root){
       </div>
       <div class="lessonHero" style="background-image:url('${lesson.heroImage}')">
         <div class="lessonHeroCopy">
-          <h3 class="lessonHeroTitle">${lesson.yearLabel} | ${lesson.theme}: ${lesson.title}</h3>
-          <div class="lessonHeroSub">${lesson.yearLabel} • ${lesson.theme}</div>
+          <p class="lessonHeroMeta">Date: ${lesson.yearLabel}</p>
+          <p class="lessonHeroTopic">Topic: ${lesson.theme}</p>
+          <h3 class="lessonHeroQuestion">Question: ${lesson.title}</h3>
         </div>
       </div>
       <div class="slideBody">
