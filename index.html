@@ -15348,7 +15348,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
           const isSelected = selectedSet.has(statement.id);
           const isDisabled = state.checked || (!isSelected && !canSelectMore);
           const optionStyle = isSelected ? "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);" : "";
-          const feedbackHtml = state.checked
+          const feedbackHtml = state.checked && isSelected
             ? `<div class="quickCheckFeedback" style="margin-top:6px">${statement.feedback}</div>`
             : "";
           return `
