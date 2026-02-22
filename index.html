@@ -9629,6 +9629,36 @@ function getOrCreateShuffleOrder(key, length, seedStr){
   return order;
 }
 
+function balanceOptionLengths(options, seedKey){
+  if(!Array.isArray(options) || options.length < 2) return Array.isArray(options) ? [...options] : [];
+  const lengths = options.map(opt=>String(opt || "").trim().length);
+  const maxLen = Math.max(...lengths, 0);
+  if(maxLen < 60) return [...options];
+
+  const minTarget = Math.floor(maxLen * 0.78);
+  const fillers = [
+    " in this context.",
+    " in this period.",
+    " at least in the short term.",
+    " for most people at the time.",
+    " in the immediate situation."
+  ];
+
+  return options.map((rawText, idx)=>{
+    let text = String(rawText || "").trim();
+    if(!text) return text;
+    let guard = 0;
+    while(text.length < minTarget && guard < 4){
+      const fillerIdx = hashSeed(`${seedKey}:${idx}:${guard}`) % fillers.length;
+      const suffix = fillers[fillerIdx];
+      if(text.endsWith(".")) text = text.slice(0, -1);
+      text = `${text},${suffix}`.replace(/,\s+/g, " ").replace(/\s+/g, " ").trim();
+      guard += 1;
+    }
+    return text;
+  });
+}
+
 function getShuffledSlideData(lesson, slide, slideIndex=0){
   if(!slide || !lesson) return { ...slide };
   const slideId = slide?.slideId || slideIndex;
@@ -9637,7 +9667,7 @@ function getShuffledSlideData(lesson, slide, slideIndex=0){
   if(slide.type === "quick-check" || slide.type === "arg-identify"){
     const options = Array.isArray(slide.options) ? slide.options : [];
     const order = getOrCreateShuffleOrder(`LS_SHUF_${slideKey}_opts`, options.length, slideKey);
-    const shuffledOptions = order.map(idx=>options[idx]);
+    const shuffledOptions = balanceOptionLengths(order.map(idx=>options[idx]), `${slideKey}::opts`);
     const remappedFeedback = Array.isArray(slide.feedback) ? order.map(idx=>slide.feedback[idx]) : slide.feedback;
     const remappedCorrectIndex = order.indexOf(slide.correctIndex);
     return {
@@ -9677,7 +9707,7 @@ function getShuffledSlideData(lesson, slide, slideIndex=0){
     const remappedBestIndex = optionOrder.indexOf(slide.bestIndex);
     return {
       ...slide,
-      options:optionOrder.map(idx=>options[idx]),
+      options:balanceOptionLengths(optionOrder.map(idx=>options[idx]), `${slideKey}::judgement`),
       bestIndex:Number.isInteger(remappedBestIndex) && remappedBestIndex >= 0 ? remappedBestIndex : slide.bestIndex,
       evidencePick:{
         ...(slide.evidencePick || {}),
