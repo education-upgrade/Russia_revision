@@ -14407,8 +14407,7 @@ function renderLessonPlayer(root){
 
   root.innerHTML = `
     <div class="card">
-      <div class="lessonPlayerTop">
-        <div style="font-weight:900;font-size:20px">${getLessonTopic()?.title || ''} → ${lessonThemesMaster.find(t=>t.id===lessonsNav.themeId)?.title || ''} → ${lesson.title}</div>
+      <div class="lessonPlayerTop" style="justify-content:flex-end">
         <button class="btn" id="backToLessonList" type="button">← Theme</button>
       </div>
       <div class="pill slideCounter">Slide ${idx+1} of ${total}</div>
