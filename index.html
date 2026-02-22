@@ -9800,7 +9800,7 @@ function ensureSlideMeta(slide, index){
 
 function getDefaultModesForSlide(slide, interpretationOrder){
   if(slide.type === "results") return ["overview", "simple", "exam"];
-  if(slide.type === "idea" || slide.type === "briefing" || slide.type === "quick-check" || slide.type === "next-steps" || slide.type === "rank-factors" || slide.type === "strongest-evidence" || slide.type === "exam-transfer") return ["overview", "simple", "exam"];
+  if(slide.type === "idea" || slide.type === "briefing" || slide.type === "skill-focus" || slide.type === "quick-check" || slide.type === "next-steps" || slide.type === "rank-factors" || slide.type === "strongest-evidence" || slide.type === "exam-transfer") return ["overview", "simple", "exam"];
   if(slide.type === "interpretation") return interpretationOrder === 1 ? ["simple", "exam"] : ["exam"];
   if(slide.type === "arg-identify") return ["simple", "exam"];
   if(slide.type === "evidence-select") return slide.purpose === "challenge" ? ["exam"] : ["simple", "exam"];
@@ -10002,6 +10002,43 @@ function buildExamTransferModelAnswer(lesson){
   return `Overall, for ${enquiry.toLowerCase()}, ${judgementText.charAt(0).toLowerCase()}${judgementText.slice(1)}. This is mainly because ${supportText.charAt(0).toLowerCase()}${supportText.slice(1)}. However, ${limitText.charAt(0).toLowerCase()}${limitText.slice(1)}.`;
 }
 
+function buildSkillFocusSlide(lesson){
+  const lessonId = lesson?.id || "lesson";
+  const pack = lesson?.contentPack || {};
+  const enquiryText = `${lesson?.title || ""} ${pack?.hero?.subtitleLine || ""}`.toLowerCase();
+  const isHowFar = enquiryText.includes("how far");
+  const isWhy = !isHowFar && enquiryText.includes("why");
+  const questionSkill = isHowFar
+    ? "Make a balanced extent judgement (change vs continuity / success vs limits)."
+    : isWhy
+      ? "Explain causation and weigh factors (trigger vs underlying causes)."
+      : "Build secure contextual knowledge and apply it to an exam judgement.";
+
+  const bullets = [
+    questionSkill,
+    "Identify the main argument in an interpretation.",
+    "Select evidence that supports or challenges the interpretation.",
+    "Write a short judgement that answers the enquiry.",
+    "Use each task to move from knowledge to exam-ready judgement."
+  ].slice(0, 5);
+
+  const examLinks = [
+    "AQA Russia AO1 (knowledge + judgement)",
+    "AQA AO3 Interpretations (evaluate views using knowledge)",
+    isHowFar ? "25-mark ‘How far’ style judgement practice" : null,
+    isWhy ? "25-mark ‘Why’/causation style judgement practice" : null
+  ].filter(Boolean);
+
+  return {
+    slideId:`${lessonId}-skill-focus`,
+    type:"skill-focus",
+    heading:"Exam skill focus",
+    bullets,
+    examLinks,
+    lessonFlow:"Briefings → checks → ambition → interpretations → judgement → exam transfer"
+  };
+}
+
 function buildSlidesFromContentPack(lesson){
   const pack = lesson?.contentPack;
   if(!pack) return [];
@@ -10021,6 +10058,8 @@ function buildSlidesFromContentPack(lesson){
     { slideId:`${lessonId}-hero`, type:"briefing", heading:"Hero", text:pack.hero?.titleLine ?? "" },
     { slideId:`${lessonId}-big-picture`, type:"idea", heading:"Big picture idea", text:pack.bigPicture ?? "" }
   ];
+
+  slides.push(buildSkillFocusSlide(lesson));
 
   const sfBriefings = getSfBriefingsForSlides(pack);
   sfBriefings.forEach((briefing, index)=>{
@@ -14603,9 +14642,9 @@ function renderLessonPlayer(root){
   const quickCheckCanAdvance = lessonsNav.mode === "overview"
     ? Number.isInteger(storedAnswer)
     : Number.isInteger(storedAnswer);
-  const firstPracticeIdx = slides.findIndex(currentSlide=>!["idea","briefing"].includes(currentSlide.type));
+  const firstPracticeIdx = slides.findIndex(currentSlide=>!["idea","briefing","skill-focus"].includes(currentSlide.type));
   const lastBriefingIndex = firstPracticeIdx > 0 ? firstPracticeIdx - 1 : -1;
-  const onLastBriefingSlide = idx === lastBriefingIndex && ["idea","briefing"].includes(slide.type);
+  const onLastBriefingSlide = idx === lastBriefingIndex && ["idea","briefing","skill-focus"].includes(slide.type);
   const nextDisabled = idx===total-1
     || (slide.type === "quick-check" && !quickCheckCanAdvance)
     || (slide.type === "build-answer" && !buildAnswerChecked)
@@ -14917,6 +14956,20 @@ function renderLessonPlayer(root){
     const nextBtn = $("examTransferNextBtn");
     if(nextBtn){
       nextBtn.addEventListener("click", ()=>{
+        if(lessonsNav.slideIdx<total-1){
+          lessonsNav.slideIdx += 1;
+          persistLessonSlidePosition(lesson.id, lessonsNav.slideIdx);
+          lessonsNav.selectedOptionIndex = null;
+          renderLessons();
+        }
+      });
+    }
+  }
+
+  if(slide.type === "skill-focus"){
+    const startBtn = $("skillFocusStartBtn");
+    if(startBtn){
+      startBtn.addEventListener("click", ()=>{
         if(lessonsNav.slideIdx<total-1){
           lessonsNav.slideIdx += 1;
           persistLessonSlidePosition(lesson.id, lessonsNav.slideIdx);
@@ -15422,6 +15475,24 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
         <button class="btn primary" id="examTransferNextBtn" type="button">Next →</button>
       </div>
       ${examTransferRevealed ? `<div class="quickCheckFeedback" style="margin-top:10px"><strong>Model answer:</strong> ${escapeHtml(slide.modelAnswer || "")}</div>` : ""}
+    `;
+  }
+
+  if(slide.type === "skill-focus"){
+    const bullets = Array.isArray(slide.bullets) ? slide.bullets.slice(0,5) : [];
+    const examLinks = Array.isArray(slide.examLinks) ? slide.examLinks : [];
+    return `
+      <h4 class="slideHeading">${slide.heading || "Exam skill focus"}</h4>
+      <div class="quickCheckOptions" style="margin-top:8px">
+        ${bullets.map(item=>`<div class="note" style="padding:8px 10px">• ${escapeHtml(item)}</div>`).join("")}
+      </div>
+      <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
+        ${examLinks.map(item=>`<span class="pill">${escapeHtml(item)}</span>`).join("")}
+      </div>
+      <div class="note" style="margin-top:10px"><strong>Lesson flow:</strong> ${escapeHtml(slide.lessonFlow || "")}</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" id="skillFocusStartBtn" type="button">Start lesson →</button>
+      </div>
     `;
   }
 
