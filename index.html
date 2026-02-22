@@ -14526,14 +14526,6 @@ function renderLessonsList(root){
   const themeMeta = lessonThemesMaster.find(t=>t.id===lessonsNav.themeId);
   const topicTheme = topic.themes.find(t=>t.id===lessonsNav.themeId);
   const lessons = topicTheme?.lessons || [];
-  const filters = lessonsNav.libraryFilters || { topic:"all", theme:lessonsNav.themeId || "all", search:"" };
-  const normalizedSearch = String(filters.search || "").trim().toLowerCase();
-
-  const filteredLessons = lessons.filter(lesson=>{
-    const enquiry = String(lesson.enquiry || "");
-    const text = `${lesson.title} ${enquiry} ${themeMeta?.title || ""}`.toLowerCase();
-    return !normalizedSearch || text.includes(normalizedSearch);
-  });
 
   root.innerHTML = `
     <div class="card">
@@ -14542,23 +14534,15 @@ function renderLessonsList(root){
         <span class="pill">Lessons</span>
       </div>
       <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title} → ${themeMeta ? themeMeta.title : "Theme"}</div>
-      <div class="card" style="position:sticky;top:8px;z-index:3;padding:10px;margin-top:10px">
-        <div class="row" style="flex-wrap:wrap;gap:8px;align-items:center">
-          <input id="lessonFilterSearch" class="btn" style="text-align:left;justify-content:flex-start;min-width:260px" placeholder="Search lessons: 1905, Okhrana, Stolypin…" value="${String(filters.search || "").replace(/"/g,"&quot;")}" />
-          <button class="btn ${filters.theme === "all" ? "primary" : ""}" data-action="lesson-theme-chip" data-theme="all" type="button">All themes</button>
-          ${lessonThemesMaster.filter(meta=>topic.themes.some(t=>t.id===meta.id)).map(meta=>`<button class="btn ${meta.id === lessonsNav.themeId ? "primary" : ""}" data-action="switch-theme" data-theme="${meta.id}" type="button">${meta.title}</button>`).join("")}
-          <button class="btn" id="lessonResetFilters" type="button">Reset</button>
-        </div>
-      </div>
       <div class="divider"></div>
-      ${filteredLessons.length ? `<div class="lessonsGrid">${filteredLessons.map(lesson=>`<div class="card lessonListCard">
+      ${lessons.length ? `<div class="lessonsGrid">${lessons.map(lesson=>`<div class="card lessonListCard">
         <div style="font-weight:900">${lesson.title}</div>
         <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
         <div class="lessonActionRow" style="flex-wrap:wrap;margin-top:10px">
           <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" type="button">Start lesson</button>
           <button class="btn lessonBtnSecondary" data-action="practice-lesson" data-lesson="${lesson.id}" type="button">Exam practice</button>
         </div>
-      </div>`).join("")}</div>` : `<div class="note">No matching lessons. Try another keyword.</div>`}
+      </div>`).join("")}</div>` : `<div class="note">No lessons available in this theme yet.</div>`}
     </div>`;
 
   $("backToThemes").addEventListener("click", ()=>{
@@ -14568,33 +14552,6 @@ function renderLessonsList(root){
     lessonsNav.selectedOptionIndex = null;
     renderLessons();
   });
-
-  $("lessonFilterSearch")?.addEventListener("input", ()=>{
-    lessonsNav.libraryFilters = { ...filters, search:$("lessonFilterSearch")?.value || "" };
-    renderLessons();
-  });
-  $("lessonResetFilters")?.addEventListener("click", ()=>{
-    lessonsNav.libraryFilters = { topic:"all", theme:lessonsNav.themeId || "all", search:"" };
-    renderLessons();
-  });
-
-
-
-  root.querySelectorAll('[data-action="lesson-theme-chip"]').forEach(btn=>btn.addEventListener("click", ()=>{
-    lessonsNav.view = "themes";
-    lessonsNav.lessonId = null;
-    lessonsNav.slideIdx = 0;
-    lessonsNav.libraryFilters = { ...filters, theme:"all" };
-    renderLessons();
-  }));
-
-  root.querySelectorAll('[data-action="switch-theme"]').forEach(btn=>btn.addEventListener("click", ()=>{
-    lessonsNav.themeId = btn.dataset.theme;
-    lessonsNav.lessonId = null;
-    lessonsNav.slideIdx = 0;
-    lessonsNav.libraryFilters = { ...filters, theme:btn.dataset.theme || "all" };
-    renderLessons();
-  }));
 
   root.querySelectorAll('[data-action="start-lesson"]').forEach(btn=>{
     btn.addEventListener("click", ()=>{
