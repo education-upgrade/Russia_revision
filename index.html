@@ -10154,8 +10154,7 @@ function buildSlidesFromContentPack(lesson){
   }
   const ambitionTask = pack.ambition?.task;
   if(ambitionTask){
-    if(plan === "B") slides.push(buildRankFactorsSlide(lesson, `${lessonId}-ambition-task`, ambitionTask.heading || "Ambition task"));
-    else if(plan === "D") slides.push(buildStrongestEvidenceFromQuickCheck(lesson, `${lessonId}-ambition-task`, ambitionTask.heading || "Ambition task"));
+    if(plan === "B" || plan === "D") slides.push(buildStrongestEvidenceFromQuickCheck(lesson, `${lessonId}-ambition-task`, ambitionTask.heading || "Ambition task"));
     else slides.push(quickCheckFromCheck(`${lessonId}-ambition-task`, ambitionTask));
   }
 
