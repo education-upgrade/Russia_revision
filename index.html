@@ -15342,7 +15342,6 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     return `
       <h4 class="slideHeading">${slide.heading}</h4>
       <div>${slide.prompt}</div>
-      <div class="note" style="margin-top:8px">Select exactly ${selectionLimit} specific examples${slide.purpose === "challenge" ? " that challenge the interpretation" : " that support the interpretation"}.</div>
       <div class="quickCheckOptions">
         ${slide.statements.map(statement=>{
           const isSelected = selectedSet.has(statement.id);
