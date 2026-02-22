@@ -10184,7 +10184,7 @@ function buildSlidesFromContentPack(lesson){
         type:"evidence-select",
         purpose:"support",
         heading:`Evidence-support ${key}`,
-        prompt:`Select ${interpretation.evidenceSupport?.selectionLimit ?? 3} statements supporting Interpretation ${key}.`,
+        prompt:`Choose ${interpretation.evidenceSupport?.selectionLimit ?? 3} specific examples that best support Interpretation ${key}.`,
         selectionLimit:interpretation.evidenceSupport?.selectionLimit,
         statements:interpretation.evidenceSupport?.statements
       },
@@ -10193,7 +10193,7 @@ function buildSlidesFromContentPack(lesson){
         type:"evidence-select",
         purpose:"challenge",
         heading:`Evidence-challenge ${key}`,
-        prompt:`Select ${interpretation.evidenceChallenge?.selectionLimit ?? 2} statements that challenge Interpretation ${key}.`,
+        prompt:`Choose ${interpretation.evidenceChallenge?.selectionLimit ?? 2} specific examples that best challenge Interpretation ${key}.`,
         selectionLimit:interpretation.evidenceChallenge?.selectionLimit,
         statements:interpretation.evidenceChallenge?.statements
       }
@@ -10611,11 +10611,11 @@ const lessonsData = [
       evidenceSupport: {
         selectionLimit: 3,
         statements: [
-          { id:"a_sup1", text:"The Okhrana and the 1881 emergency powers increased arrests, censorship, and surveillance of opposition.", score: 2, feedback:"Strong: direct evidence of stronger control." },
-          { id:"a_sup2", text:"Land Captains (1889) increased state and noble power over peasants and local justice.", score: 2, feedback:"Strong: shows tighter control in the countryside." },
-          { id:"a_sup3", text:"The Zemstva reform (1890) and town reform (1892) reduced the influence of elected bodies and increased elite/state dominance.", score: 2, feedback:"Strong: supports ‘reduced independence’." },
+          { id:"a_sup1", text:"Okhrana expansion + Statute of State Security (1881).", score: 2, feedback:"Supports A: shows stronger repression and surveillance." },
+          { id:"a_sup2", text:"Land Captains (1889).", score: 2, feedback:"Supports A: increased central/noble control in rural areas." },
+          { id:"a_sup3", text:"Zemstva reform (1890) + town reform (1892).", score: 2, feedback:"Supports A: reduced independence of elected local bodies." },
           { id:"a_sup4", text:"Alexander III ruled from 1881 to 1894.", score: 0, feedback:"True but not evidence for restoration." },
-          { id:"a_sup5", text:"University rules were tightened in 1884.", score: 1, feedback:"Relevant, but needs linking to political control." },
+          { id:"a_sup5", text:"University Statute (1884).", score: 1, feedback:"Partly supports A: tighter education control, but less direct than local/police measures." },
           { id:"a_sup6", text:"Russia was mostly rural.", score: 0, feedback:"Not direct support for the argument." },
           { id:"a_sup7", text:"Some people disagreed with the government.", score: 1, feedback:"Too vague to strongly support A." },
           { id:"a_sup8", text:"Reaction created a national parliament that controlled ministers.", score: -1, feedback:"Incorrect." }
@@ -10624,9 +10624,9 @@ const lessonsData = [
       evidenceChallenge: {
         selectionLimit: 2,
         statements: [
-          { id:"a_ch1", text:"Reliance on emergency powers suggests the regime needed coercion, meaning stability may have been fragile.", score: 2, feedback:"Strong: challenges the idea of secure restoration." },
-          { id:"a_ch2", text:"Restricting legal outlets for criticism could push opposition underground and increase long-term resentment.", score: 2, feedback:"Strong: shows a long-term limit." },
-          { id:"a_ch3", text:"Tightening censorship and education controls could widen the gap between society and the regime, weakening legitimacy over time.", score: 2, feedback:"Strong: challenges ‘restored’ by highlighting legitimacy problems." },
+          { id:"a_ch1", text:"Reliance on emergency powers (1881).", score: 2, feedback:"Challenges A: suggests stability depended on coercion, not secure consent." },
+          { id:"a_ch2", text:"Censorship + restricted legal criticism.", score: 2, feedback:"Challenges A: may push opposition underground and build resentment." },
+          { id:"a_ch3", text:"Education controls + censorship in the 1880s.", score: 2, feedback:"Challenges A: can weaken legitimacy over time." },
           { id:"a_ch4", text:"Russia had a large empire.", score: 0, feedback:"Not a direct challenge to A." },
           { id:"a_ch5", text:"Some reforms happened in the 1860s.", score: 0, feedback:"Irrelevant here." },
           { id:"a_ch6", text:"The Tsar wore a crown.", score: 0, feedback:"Irrelevant." },
@@ -10653,11 +10653,11 @@ const lessonsData = [
       evidenceSupport: {
         selectionLimit: 3,
         statements: [
-          { id:"b_sup1", text:"Emergency powers under the 1881 Statute suggest the regime expected serious threats and needed exceptional measures.", score: 2, feedback:"Strong: supports ‘security depended on coercion’." },
-          { id:"b_sup2", text:"Censorship and education controls narrowed legal criticism, which could increase frustration and push opposition underground.", score: 2, feedback:"Strong: supports long-term resentment." },
-          { id:"b_sup3", text:"Repression can disrupt opposition but does not remove the deeper causes of discontent.", score: 1, feedback:"Relevant, but stronger with specific examples." },
+          { id:"b_sup1", text:"Statute of State Security (1881) emergency powers.", score: 2, feedback:"Supports B: shows the regime relied on exceptional coercion." },
+          { id:"b_sup2", text:"Censorship + education controls.", score: 2, feedback:"Supports B: repression limited open criticism and could increase resentment." },
+          { id:"b_sup3", text:"Short-term repression vs long-term discontent.", score: 1, feedback:"Partly supports B: valid line, but less specific than named policies." },
           { id:"b_sup4", text:"Alexander III was Tsar.", score: 0, feedback:"Not evidence." },
-          { id:"b_sup5", text:"Land Captains existed.", score: 1, feedback:"Relevant but needs linkage to coercion/legitimacy." },
+          { id:"b_sup5", text:"Land Captains (1889).", score: 1, feedback:"Partly supports B: relevant example, but link to long-term insecurity is indirect." },
           { id:"b_sup6", text:"Russia had cold winters.", score: 0, feedback:"Irrelevant." },
           { id:"b_sup7", text:"Some officials worked in government.", score: 0, feedback:"Irrelevant." },
           { id:"b_sup8", text:"Reaction created universal suffrage.", score: -1, feedback:"Incorrect." }
@@ -10666,9 +10666,9 @@ const lessonsData = [
       evidenceChallenge: {
         selectionLimit: 2,
         statements: [
-          { id:"b_ch1", text:"The Okhrana and emergency powers made opposition harder to organise openly, improving short-term stability.", score: 2, feedback:"Strong: challenges B by stressing effective control." },
-          { id:"b_ch2", text:"Land Captains and local reforms increased central influence, reducing independent political space.", score: 2, feedback:"Strong: suggests meaningful restoration of authority." },
-          { id:"b_ch3", text:"Reducing Zemstva and town influence limited local challenge to the regime.", score: 2, feedback:"Strong: challenges B’s ‘not restored’ claim." },
+          { id:"b_ch1", text:"Okhrana + emergency powers weakened open opposition.", score: 2, feedback:"Challenges B: indicates reaction did restore strong short-term control." },
+          { id:"b_ch2", text:"Land Captains (1889) + local reforms (1890/92).", score: 2, feedback:"Challenges B: shows practical restoration of central authority." },
+          { id:"b_ch3", text:"Reduced Zemstva/town council influence.", score: 2, feedback:"Challenges B: reduced independent local challenge to autocracy." },
           { id:"b_ch4", text:"Russia was large.", score: 0, feedback:"Not a direct challenge." },
           { id:"b_ch5", text:"People travelled by train.", score: 0, feedback:"Irrelevant." },
           { id:"b_ch6", text:"Alexander III disliked change.", score: 1, feedback:"Too vague." },
@@ -15342,13 +15342,13 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     return `
       <h4 class="slideHeading">${slide.heading}</h4>
       <div>${slide.prompt}</div>
-      <div class="note" style="margin-top:8px">Select exactly ${selectionLimit} statements${slide.purpose === "challenge" ? " that challenge the interpretation" : ""}.</div>
+      <div class="note" style="margin-top:8px">Select exactly ${selectionLimit} specific examples${slide.purpose === "challenge" ? " that challenge the interpretation" : " that support the interpretation"}.</div>
       <div class="quickCheckOptions">
         ${slide.statements.map(statement=>{
           const isSelected = selectedSet.has(statement.id);
           const isDisabled = state.checked || (!isSelected && !canSelectMore);
           const optionStyle = isSelected ? "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);" : "";
-          const feedbackHtml = state.checked && isSelected
+          const feedbackHtml = state.checked
             ? `<div class="quickCheckFeedback" style="margin-top:6px">${statement.feedback}</div>`
             : "";
           return `
