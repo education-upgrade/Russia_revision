@@ -10078,7 +10078,7 @@ function buildExamTransferModelAnswer(lesson){
   const evidence = (topStatements.length ? topStatements : scoredStatements).slice(0,2).map(item=>String(item?.text || "")).filter(Boolean);
   const supportText = evidence[0] || "key evidence supports this view";
   const limitText = evidence[1] || String(pack.bigPicture || "change was uneven and had clear limits");
-  return `Overall, for ${enquiry.toLowerCase()}, ${judgementText.charAt(0).toLowerCase()}${judgementText.slice(1)}. This is mainly because ${supportText.charAt(0).toLowerCase()}${supportText.slice(1)}. However, ${limitText.charAt(0).toLowerCase()}${limitText.slice(1)}.`;
+  return `Overall, ${judgementText.charAt(0).toLowerCase()}${judgementText.slice(1)}. This is mainly because ${supportText.charAt(0).toLowerCase()}${supportText.slice(1)}. However, ${limitText.charAt(0).toLowerCase()}${limitText.slice(1)}.`;
 }
 
 function buildSkillFocusSlide(lesson){
