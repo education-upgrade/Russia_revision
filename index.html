@@ -3659,10 +3659,10 @@ section#games.gamePaneActive .gamesHeroCard{
    TOPICS (SoW order)
    ========================================================== */
 const TOPICS = [
-  { id:"t1", title:"1. Preserving Autocracy 1855-1894" },
-  { id:"t2", title:"2. Failure of Autocracy 1894-1917" },
-  { id:"t3", title:"3. Establishing Communist Rule 1917-1941" },
-  { id:"t4", title:"4. Stalinist Dictatorship and reaction 1941-1964" }
+  { id:"t1", title:"Autocracy, Reform and Reaction (1855–1894)" },
+  { id:"t2", title:"Industrialisation, War and Revolution (1894–1917)" },
+  { id:"t3", title:"Revolution and Consolidation (1917–1941)" },
+  { id:"t4", title:"Stalinism, War and the Post-Stalin State (1941–1964)" }
 ];
 
 /* ==========================================================
@@ -9296,7 +9296,7 @@ const RECOMMENDED_THEME_ORDER = [
   "political-authority",
   "economic-development",
   "opposition-control",
-  "social-cultural-change"
+  "social-cultural"
 ];
 
 function parseAttemptMs(entry){
@@ -9973,8 +9973,8 @@ function getStoredJudgementState(lessonId, slideId){
 
 const lessonsData = [
   {
-    id:"topic1",
-    title:"Topic 1: The Crisis of Tsarism, 1855–1894",
+    id:"t1",
+    title:"Autocracy, Reform and Reaction (1855–1894)",
     topicOverview:{
       tension:"Autocracy looked immovable, but war shock and modernisation pressures exposed weaknesses in how Russia was governed.",
       examWants:[
@@ -10573,7 +10573,7 @@ const lessonsData = [
         ]
       },
       {
-        id:"social-cultural-change",
+        id:"social-cultural",
         title:"Social & Cultural Change",
         lessons:[
           {
@@ -10802,8 +10802,8 @@ const lessonsData = [
     ]
   },
   {
-    id:"topic2",
-    title:"Topic 2: The End of Romanov Rule, 1894–1917",
+    id:"t2",
+    title:"Industrialisation, War and Revolution (1894–1917)",
     topicOverview:{
       tension:"Nicholas II tried to preserve autocracy while industrialisation and war created pressures the regime could not contain.",
       examWants:[
@@ -12845,7 +12845,7 @@ const lessonsData = [
 ]
       },
       {
-        id:"social-cultural-change",
+        id:"social-cultural",
         title:"Social & Cultural Change",
         lessons:[
           {
@@ -13296,8 +13296,8 @@ const lessonsData = [
     ]
   },
   {
-    id:"topic3",
-    title:"Topic 3: Bolshevik Consolidation of Power, 1917–1924",
+    id:"t3",
+    title:"Revolution and Consolidation (1917–1941)",
     topicOverview:{
       tension:"The Bolsheviks promised popular power, but civil war and coercion shaped a new political system.",
       examWants:[
@@ -13720,12 +13720,27 @@ const lessonsData = [
             }
           }
         ]
+      },
+      {
+        id:"economic-development",
+        title:"Economic Development",
+        lessons:[]
+      },
+      {
+        id:"opposition-control",
+        title:"Opposition & Control",
+        lessons:[]
+      },
+      {
+        id:"social-cultural",
+        title:"Social & Cultural Change",
+        lessons:[]
       }
     ]
   },
   {
-    id:"topic4",
-    title:"Topic 4: Stalin’s USSR, 1924–1953",
+    id:"t4",
+    title:"Stalinism, War and the Post-Stalin State (1941–1964)",
     topicOverview:{
       tension:"Stalin created rapid change in state power and society, but at huge human cost and through intense control.",
       examWants:[
@@ -13755,29 +13770,26 @@ const lessonsData = [
             ]
           }
         ]
-      }
-    ]
-  },
-  {
-    id:"topic5",
-    title:"Topic 5: Khrushchev and Reform, 1953–1964",
-    topicOverview:{
-      tension:"Khrushchev reduced terror and experimented with reform, but the party-state remained authoritarian and limits soon appeared.",
-      examWants:[
-        "Explain what changed after Stalin and what stayed the same.",
-        "Use evidence to judge the success of reforms.",
-        "Evaluate interpretations of the Thaw and limits of de-Stalinisation."
-      ],
-      pathway:["Political Authority","Economic Development","Opposition & Control","Social & Cultural Change"]
-    },
-    themes:[
+      },
       {
-        id:"social-cultural-change",
+        id:"political-authority",
+        title:"Political Authority",
+        lessons:[]
+      },
+      {
+        id:"opposition-control",
+        title:"Opposition & Control",
+        lessons:[]
+      },
+      {
+        id:"social-cultural",
         title:"Social & Cultural Change",
         lessons:[
           {
-            id:"t5-scc-thaw",
+            id:"t4-sc-thaw",
             title:"Was the Khrushchev Thaw a genuine transformation?",
+            topicId:"t4",
+            themeId:"social-cultural",
             yearLabel:"1953–1964",
             theme:"Social & Cultural Change",
             heroImage:"./section-bg.jpg",
@@ -13793,14 +13805,94 @@ const lessonsData = [
       }
     ]
   }
+
 ];
+
+
+const LESSON_THEME_ALIASES = {
+  "social-cultural-change":"social-cultural",
+  "social-cultural":"social-cultural",
+  "political-authority":"political-authority",
+  "economic-development":"economic-development",
+  "opposition-control":"opposition-control"
+};
+
+(function normalizeLessonsArchitecture(){
+  const requiredThemes = [
+    { id:"political-authority", title:"Political Authority" },
+    { id:"economic-development", title:"Economic Development" },
+    { id:"opposition-control", title:"Opposition & Control" },
+    { id:"social-cultural", title:"Social & Cultural Change" }
+  ];
+
+  lessonsData.forEach(topic=>{
+    const themeMap = new Map(requiredThemes.map(theme=>[theme.id, { ...theme, lessons:[] }]));
+
+    (Array.isArray(topic.themes) ? topic.themes : []).forEach(theme=>{
+      const normalizedThemeId = LESSON_THEME_ALIASES[theme.id] || theme.id;
+      const targetTheme = themeMap.get(normalizedThemeId) || themeMap.get("social-cultural");
+      const lessons = Array.isArray(theme.lessons) ? theme.lessons : [];
+      lessons.forEach(lesson=>{
+        const normalizedLessonThemeId = LESSON_THEME_ALIASES[lesson.themeId] || normalizedThemeId;
+        const finalTheme = themeMap.get(normalizedLessonThemeId) || targetTheme;
+        finalTheme.lessons.push({
+          ...lesson,
+          topicId: topic.id,
+          themeId: finalTheme.id
+        });
+      });
+    });
+
+    topic.themes = requiredThemes.map(theme=>themeMap.get(theme.id));
+  });
+})();
 
 const lessonThemesMaster = [
   { id:"political-authority", title:"Political Authority" },
   { id:"economic-development", title:"Economic Development" },
   { id:"opposition-control", title:"Opposition & Control" },
-  { id:"social-cultural-change", title:"Social & Cultural Change" }
+  { id:"social-cultural", title:"Social & Cultural Change" }
 ];
+
+const LESSON_REQUIRED_THEME_IDS = ["political-authority","economic-development","opposition-control","social-cultural"];
+let lessonsValidatedOnce = false;
+
+function validateLessonsArchitecture(){
+  if(lessonsValidatedOnce) return;
+  lessonsValidatedOnce = true;
+
+  const homepageTopicIds = TOPICS.map(topic=>topic.id);
+  if(lessonsData.length !== homepageTopicIds.length){
+    console.warn("[Lessons] Expected 4 lesson topics to match homepage tiles.", {
+      expected: homepageTopicIds,
+      actual: lessonsData.map(topic=>topic.id)
+    });
+  }
+
+  lessonsData.forEach(topic=>{
+    const themeIds = Array.isArray(topic.themes) ? topic.themes.map(theme=>theme.id) : [];
+    const missingThemes = LESSON_REQUIRED_THEME_IDS.filter(id=>!themeIds.includes(id));
+    if(missingThemes.length){
+      console.warn("[Lessons] Topic is missing required theme buckets.", { topicId:topic.id, missingThemes, themeIds });
+    }
+
+    (topic.themes || []).forEach(theme=>{
+      (theme.lessons || []).forEach(lesson=>{
+        const badTopic = !homepageTopicIds.includes(lesson.topicId || topic.id);
+        const badTheme = !LESSON_REQUIRED_THEME_IDS.includes(lesson.themeId || theme.id);
+        if(badTopic || badTheme){
+          console.warn("[Lessons] Lesson has invalid topic/theme assignment.", {
+            lessonId:lesson.id,
+            lessonTopicId:lesson.topicId,
+            lessonThemeId:lesson.themeId,
+            containerTopicId:topic.id,
+            containerThemeId:theme.id
+          });
+        }
+      });
+    });
+  });
+}
 
 function getLessonTopic(){ return lessonsData.find(t=>t.id===lessonsNav.topicId) || null; }
 function getLessonTheme(){
@@ -13817,6 +13909,7 @@ function getLesson(){
 function renderLessons(){
   const root = $("lessonsRoot");
   if(!root) return;
+  validateLessonsArchitecture();
 
   if(lessonsNav.view === "topics") return renderLessonsTopics(root);
   if(lessonsNav.view === "topicOverview") return renderLessonsTopicOverview(root);
@@ -13830,7 +13923,7 @@ function renderLessonsTopics(root){
     <div class="card">
       <div class="lessonsHeader">
         <h2 class="lessonsTitle">Lessons</h2>
-        <span class="pill">5 topics</span>
+        <span class="pill">${lessonsData.length} topics</span>
       </div>
       <div class="note">Choose a topic to continue instantly or browse themes.</div>
       <div class="divider"></div>
