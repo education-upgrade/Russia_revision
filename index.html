@@ -15314,8 +15314,8 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
           const active = selected===i;
           let style = "";
           if(state.checked){
-            if(i===slide.correctIndex){ style = "border-color:rgba(126,185,170,.8);"; }
-            else if(active){ style = "border-color:rgba(183,142,161,.8);"; }
+            if(i===slide.correctIndex){ style = "border:3px solid rgba(126,185,170,.8);"; }
+            else if(active){ style = "border:3px solid rgba(183,142,161,.8);"; }
           }else if(active){
             style = "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);";
           }
@@ -15394,9 +15394,9 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
           let style = "";
           if(state.optionChecked){
             if(i===slide.bestIndex){
-              style = "border-color:rgba(126,185,170,.8);";
+              style = "border:3px solid rgba(126,185,170,.8);";
             }else if(active){
-              style = "border-color:rgba(183,142,161,.8);";
+              style = "border:3px solid rgba(183,142,161,.8);";
             }
           }else if(active){
             style = "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);";
@@ -15448,7 +15448,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
         ${(slide.statements || []).map(statement=>{
           const active = selectedId===statement.id;
           let style = "";
-          if(active) style = state.checked ? (statement.id===slide.correctId ? "border-color:rgba(126,185,170,.8);" : "border-color:rgba(183,142,161,.8);") : "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);";
+          if(active) style = state.checked ? (statement.id===slide.correctId ? "border:3px solid rgba(126,185,170,.8);" : "border:3px solid rgba(183,142,161,.8);") : "border-color:rgba(110,144,202,.8);background:color-mix(in srgb,var(--accent2) 28%, #fff 72%);";
           return `<button class="btn" data-action="strongest-evidence-option" data-statement-id="${statement.id}" type="button" style="text-align:left;justify-content:flex-start;${style}" ${state.checked ? "disabled" : ""}>${statement.text}</button>`;
         }).join("")}
       </div>
@@ -15555,7 +15555,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
         const isCorrect = slide.correctIndex===i;
         let style = "";
         if(active){
-          style = isCorrect ? "border-color:rgba(126,185,170,.8)" : "border-color:rgba(183,142,161,.8)";
+          style = isCorrect ? "border:3px solid rgba(126,185,170,.8)" : "border:3px solid rgba(183,142,161,.8)";
         }
         return `<button class="btn" data-action="quick-option" type="button" style="text-align:left;justify-content:flex-start;${style}">${opt}</button>`;
       }).join("")}
