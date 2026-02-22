@@ -14247,6 +14247,25 @@ function getNextLessonInPack(currentLessonId){
   return lessons[currentIndex + 1] || null;
 }
 
+
+function getLessonSlideMix(lesson){
+  const slides = getLessonSlides(lesson);
+  const counts = slides.reduce((acc, slide)=>{
+    acc.total += 1;
+    if(["idea","briefing","skill-focus"].includes(slide.type)) acc.context += 1;
+    if(["quick-check","knowledge-check-3"].includes(slide.type)) acc.knowledge += 1;
+    if(["build-answer","strongest-evidence","rank-factors"].includes(slide.type)) acc.ao1 += 1;
+    if(["ao3-interpretation","arg-identify","evidence-select","judgement"].includes(slide.type)) acc.ao3 += 1;
+    return acc;
+  }, { total:0, context:0, knowledge:0, ao1:0, ao3:0 });
+  const pathway = [];
+  if(counts.context) pathway.push("Context");
+  if(counts.knowledge) pathway.push("Knowledge check");
+  if(counts.ao1) pathway.push("AO1 practice");
+  if(counts.ao3) pathway.push("AO3 interpretation");
+  return { counts, pathway };
+}
+
 function renderLessons(){
   const root = $("lessonsRoot");
   if(!root) return;
@@ -14571,6 +14590,18 @@ function renderLessonsList(root){
         <span class="pill">Lessons</span>
       </div>
       <div style="font-weight:900;font-size:18px;margin-top:8px">${topic.title} → ${themeMeta ? themeMeta.title : "Theme"}</div>
+      <div class="note" style="margin-top:8px;color:var(--text)">Mixed-ability route: begin with contextual slides, secure AO1 knowledge checks, then move into AO3 interpretation and judgement practice.</div>
+
+      <div class="card" style="margin-top:10px;padding:12px">
+        <div style="font-weight:900">Exam skills focus in this theme</div>
+        <div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap">
+          <span class="pill">Contextual slide retrieval</span>
+          <span class="pill">Knowledge checks</span>
+          <span class="pill">AO1 precise evidence</span>
+          <span class="pill">AO3 interpretations (fabricated historians)</span>
+        </div>
+      </div>
+
       <div class="card" style="position:sticky;top:8px;z-index:3;padding:10px;margin-top:10px">
         <div class="row" style="flex-wrap:wrap;gap:8px;align-items:center">
           <input id="lessonFilterSearch" class="btn" style="text-align:left;justify-content:flex-start;min-width:260px" placeholder="Search lessons: 1905, Okhrana, Stolypin…" value="${String(filters.search || "").replace(/"/g,"&quot;")}" />
@@ -14580,14 +14611,30 @@ function renderLessonsList(root){
         </div>
       </div>
       <div class="divider"></div>
-      ${filteredLessons.length ? `<div class="lessonsGrid">${filteredLessons.map(lesson=>`<div class="card lessonListCard">
-        <div style="font-weight:900">${lesson.title}</div>
-        <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
-        <div class="lessonActionRow" style="flex-wrap:wrap;margin-top:10px">
-          <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" type="button">Start lesson</button>
-          <button class="btn lessonBtnSecondary" data-action="practice-lesson" data-lesson="${lesson.id}" type="button">Exam practice</button>
-        </div>
-      </div>`).join("")}</div>` : `<div class="note">No matching lessons. Try another keyword.</div>`}
+      ${filteredLessons.length ? `<div class="lessonsGrid">${filteredLessons.map(lesson=>{
+        const lessonMix = getLessonSlideMix(lesson);
+        const progress = getLessonProgress(lesson.id);
+        const status = getLessonStatus(progress);
+        const cta = getLessonCta(status);
+        return `<div class="card lessonListCard">
+          <div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px">
+            <div style="font-weight:900">${lesson.title}</div>
+            <span class="pill">${status.label}</span>
+          </div>
+          <div class="note" style="margin-top:6px">${lesson.yearLabel} • ${lesson.theme}</div>
+          <div class="lessonOutcome" style="margin-top:6px">Flow: ${lessonMix.pathway.join(" → ") || "Context → AO practice"}</div>
+          <div class="row" style="margin-top:8px;gap:6px;flex-wrap:wrap">
+            <span class="pill">Context ${lessonMix.counts.context}</span>
+            <span class="pill">Knowledge ${lessonMix.counts.knowledge}</span>
+            <span class="pill">AO1 ${lessonMix.counts.ao1}</span>
+            <span class="pill">AO3 ${lessonMix.counts.ao3}</span>
+          </div>
+          <div class="lessonActionRow" style="flex-wrap:wrap;margin-top:10px">
+            <button class="btn primary" data-action="start-lesson" data-lesson="${lesson.id}" type="button">${cta}</button>
+            <button class="btn lessonBtnSecondary" data-action="practice-lesson" data-lesson="${lesson.id}" type="button">Jump to AO practice</button>
+          </div>
+        </div>`;
+      }).join("")}</div>` : `<div class="note">No matching lessons. Try another keyword.</div>`}
     </div>`;
 
   $("backToThemes").addEventListener("click", ()=>{
@@ -14606,8 +14653,6 @@ function renderLessonsList(root){
     lessonsNav.libraryFilters = { topic:"all", theme:lessonsNav.themeId || "all", search:"" };
     renderLessons();
   });
-
-
 
   root.querySelectorAll('[data-action="lesson-theme-chip"]').forEach(btn=>btn.addEventListener("click", ()=>{
     lessonsNav.view = "themes";
@@ -14647,6 +14692,7 @@ function renderLessonsList(root){
   });
 }
 
+
 function renderLessonPlayer(root){
   const lesson = getLesson();
   if(!lesson){ lessonsNav.view = "lessons"; return renderLessons(); }
@@ -14674,6 +14720,16 @@ function renderLessonPlayer(root){
   const firstPracticeIdx = slides.findIndex(currentSlide=>!["idea","briefing","skill-focus"].includes(currentSlide.type));
   const lastBriefingIndex = firstPracticeIdx > 0 ? firstPracticeIdx - 1 : -1;
   const onLastBriefingSlide = idx === lastBriefingIndex && ["idea","briefing","skill-focus"].includes(slide.type);
+  const slideSkillLabel = ["idea","briefing","skill-focus"].includes(slide.type)
+    ? "Context builder"
+    : ["quick-check","knowledge-check-3"].includes(slide.type)
+      ? "Knowledge check"
+      : ["build-answer","strongest-evidence","rank-factors"].includes(slide.type)
+        ? "AO1 practice"
+        : ["ao3-interpretation","arg-identify","evidence-select","judgement"].includes(slide.type)
+          ? "AO3 interpretation"
+          : "Exam transfer";
+  const challengeTag = lessonsNav.mode === "overview" ? "Core" : (lessonsNav.mode === "simple" ? "Developing" : "Challenge");
   const nextDisabled = idx===total-1
     || (slide.type === "quick-check" && !quickCheckCanAdvance)
     || (slide.type === "build-answer" && !buildAnswerChecked)
@@ -14701,6 +14757,11 @@ function renderLessonPlayer(root){
           <h3 class="lessonHeroTitle">${lesson.yearLabel} | ${lesson.theme}: ${lesson.title}</h3>
           <div class="lessonHeroSub">${lesson.yearLabel} • ${lesson.theme}</div>
         </div>
+      </div>
+      <div class="row" style="margin-top:10px;gap:6px;flex-wrap:wrap">
+        <span class="pill">Current focus: ${slideSkillLabel}</span>
+        <span class="pill">Pathway level: ${challengeTag}</span>
+        <span class="pill">Interpretations are deliberately fabricated for AO3 evaluation drills</span>
       </div>
       <div class="slideBody">
         ${renderLessonSlideBody(slide, lesson, slideId, slides, lessonsNav.mode, idx, examTransferRevealed)}
