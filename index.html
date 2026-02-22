@@ -16953,8 +16953,8 @@ function getChallengeCtaConfig(d){
   const useMixed = !coachTopic || coachTopic === "MIXED" || !isTopicEnabled(coachTopic);
   const coachTopicTitle = useMixed ? "Mixed topics" : (TOPICS.find(t=>t.id===coachTopic)?.title || coachTopic);
   const label = useMixed
-    ? "Daily challenge: Interleaved mixed quiz"
-    : `Daily challenge: ${compactTopicTitle(coachTopicTitle) || coachTopicTitle}`;
+    ? "Continue learning: Interleaved mixed quiz"
+    : `Continue learning: ${compactTopicTitle(coachTopicTitle) || coachTopicTitle}`;
 
   return {
     label,
