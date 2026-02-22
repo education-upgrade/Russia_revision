@@ -9943,7 +9943,7 @@ function buildRankFactorsSlide(lesson, slideId, sourceLabel){
     slideId,
     type:"rank-factors",
     heading:sourceLabel,
-    prompt:`Rank the three most decisive factors for this question: ${enquiry} 1st should be the strongest because top rank carries most weighting.`,
+    prompt:`Rank the three most decisive factors for this question: ${enquiry}`,
     items,
     pickCount:3,
     scoring:{ type:"weighted-top-3" }
@@ -15473,7 +15473,17 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
       let earned = 0;
       ranked.forEach((id, idx)=>{ if(topIds.includes(id)) earned += 0.2; if(top[idx] && top[idx].id===id) earned += 0.2; });
       earned = Math.min(1, Math.round(earned * 10) / 10);
-      scoreText = `Score: ${earned} / 1. 1st place matters most because it carries the strongest weighting in causal judgement.`;
+      const chosenItems = ranked.map(id => (slide.items || []).find(item => item.id === id)).filter(Boolean);
+      const strongerSelections = chosenItems.filter(item => topIds.includes(item.id)).map(item => item.text);
+      const weakerSelections = chosenItems.filter(item => !topIds.includes(item.id)).map(item => item.text);
+      const qualityNotes = [];
+      if(strongerSelections.length){
+        qualityNotes.push(`Strong selections: ${strongerSelections.join(", ")}.`);
+      }
+      if(weakerSelections.length){
+        qualityNotes.push(`Less decisive for this question: ${weakerSelections.join(", ")}.`);
+      }
+      scoreText = `Score: ${earned} / 1. ${qualityNotes.join(" ")}`.trim();
     }
     return `
       <h4 class="slideHeading">${slide.heading}</h4>
