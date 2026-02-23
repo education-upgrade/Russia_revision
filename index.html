@@ -2945,7 +2945,10 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .lessonHero.isCompact .lessonHeroTopic{ font-size:11px; }
 #lessonsRoot .lessonHero.isCompact .lessonHeroQuestion{ margin-top:4px; font-size:15px; line-height:1.25; }
 #lessonsRoot .slideBody{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
+#lessonsRoot .slideHeadingWrap{display:grid;gap:3px;margin:0 0 8px}
+#lessonsRoot .slideHeadingLabel{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
 #lessonsRoot .slideHeading{ margin:0 0 8px; font-size:18px; font-weight:900; }
+#lessonsRoot .slideHeadingWrap .slideHeading{margin:0}
 #lessonsRoot .quickCheckOptions{ display:grid; gap:8px; margin-top:8px; }
 #lessonsRoot .quickCheckFeedback{ margin-top:8px; font-weight:700; }
 #lessonsRoot .playerFooter{ display:flex; align-items:center; gap:8px; margin-top:12px; }
@@ -15247,6 +15250,31 @@ function renderLessonPlayer(root){
   }
 }
 
+function getLessonSlideLabel(slideType){
+  const labels = {
+    idea:"Lesson frame",
+    briefing:"Core knowledge",
+    "skill-focus":"Exam skill",
+    "quick-check":"Check your understanding",
+    "build-answer":"Build your answer",
+    "arg-identify":"Argument decision",
+    "evidence-select":"Evidence test",
+    judgement:"Final judgement",
+    "strongest-evidence":"Best evidence",
+    "rank-factors":"Priority ranking",
+    "exam-transfer":"Exam transfer",
+    results:"Lesson summary",
+    "next-steps":"Exam link"
+  };
+  return labels[slideType] || "Lesson panel";
+}
+
+function renderLessonSlideHeading(slide){
+  const title = escapeHtml(slide?.heading || "Lesson panel");
+  const label = escapeHtml(getLessonSlideLabel(slide?.type));
+  return `<div class="slideHeadingWrap"><div class="slideHeadingLabel">${label}</div><h4 class="slideHeading">${title}</h4></div>`;
+}
+
 function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideIndex, examTransferRevealed){
   if(slide.type === "results"){
     const nextLesson = getNextLessonFromCourse(lesson.id);
@@ -15443,7 +15471,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
       : "Improve overall structure: keep linking each point back to the exact wording of the question.";
 
     return `
-      <h4 class="slideHeading">Results</h4>
+      ${renderLessonSlideHeading({ type:"results", heading:"Results" })}
       <div class="resultsPanel">
         <div class="resultsScoreRing" style="--scorePct:${finalPercent};">
           <div class="resultsScoreValue">${finalPercent}%</div>
@@ -15471,7 +15499,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     const maxScore = selectionLimit * 2;
 
     return `
-      <h4 class="slideHeading">${slide.heading}</h4>
+      ${renderLessonSlideHeading(slide)}
       <div>${slide.prompt}</div>
       <div class="note" style="margin-top:8px">Select ${selectionLimit} statements.</div>
       <div class="quickCheckOptions">
@@ -15499,7 +15527,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
 
   if(slide.type === "interpretation"){
     return `
-      <h4 class="slideHeading">${slide.heading}</h4>
+      ${renderLessonSlideHeading(slide)}
       ${slide.subheading ? `<div class="note" style="margin-bottom:8px">${slide.subheading}</div>` : ""}
       <div>${slide.text}</div>
     `;
@@ -15511,7 +15539,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     const canCheck = selected!==null && !state.checked;
     const feedback = !state.checked ? "" : (selected===slide.correctIndex ? slide.feedbackCorrect : slide.feedbackWrong);
     return `
-      <h4 class="slideHeading">${slide.heading}</h4>
+      ${renderLessonSlideHeading(slide)}
       <div>${slide.prompt}</div>
       <div class="note" style="margin-top:8px">Skill: ${slide.skillTag || "AO3-argument"}</div>
       <div class="quickCheckOptions" style="margin-top:10px">
@@ -15546,7 +15574,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     }, 0);
 
     return `
-      <h4 class="slideHeading">${slide.heading}</h4>
+      ${renderLessonSlideHeading(slide)}
       <div>${slide.prompt}</div>
       <div class="quickCheckOptions">
         ${slide.statements.map(statement=>{
@@ -15590,7 +15618,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     }, 0);
 
     return `
-      <h4 class="slideHeading">${slide.heading}</h4>
+      ${renderLessonSlideHeading(slide)}
       <div>${slide.prompt}</div>
       <div class="quickCheckOptions" style="margin-top:10px">
         ${slide.options.map((opt,i)=>{
@@ -15645,7 +15673,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     const selectedStatement = (slide.statements || []).find(item=>item.id===selectedId);
     const feedbackText = !state.checked ? "" : (selectedId===slide.correctId ? `${slide.feedbackCorrect} ${selectedStatement?.feedback || ""}` : `${slide.feedbackWrong} ${selectedStatement?.feedback || ""}`);
     return `
-      <h4 class="slideHeading">${slide.heading}</h4>
+      ${renderLessonSlideHeading(slide)}
       <div>${slide.prompt}</div>
       ${slide.contextLine ? `<div class="note" style="margin-top:8px">Claim: ${slide.contextLine}</div>` : ""}
       <div class="quickCheckOptions" style="margin-top:10px">
@@ -15690,7 +15718,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
       scoreText = `Score: ${earned} / 1. ${qualityNotes.join(" ")}`.trim();
     }
     return `
-      <h4 class="slideHeading">${slide.heading}</h4>
+      ${renderLessonSlideHeading(slide)}
       <div>${slide.prompt}</div>
       <div class="quickCheckOptions" style="margin-top:10px">${slots}</div>
       <div class="quickCheckOptions" style="margin-top:10px">
@@ -15713,7 +15741,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     const storedWriting = getStoredExamTransferWriting(lesson.id, slideIndex);
     const starters = Array.isArray(slide.sentenceStarters) ? slide.sentenceStarters : [];
     return `
-      <h4 class="slideHeading">${slide.heading}</h4>
+      ${renderLessonSlideHeading(slide)}
       <div>${slide.prompt}</div>
       <div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap">
         ${starters.map(starter=>`<button class="btn" data-action="exam-transfer-starter" data-starter="${escapeHtml(starter)}" type="button">${escapeHtml(starter)}</button>`).join("")}
@@ -15730,7 +15758,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
   if(slide.type === "skill-focus"){
     const aoTiles = Array.isArray(slide.aoTiles) ? slide.aoTiles.slice(0,2) : [];
     return `
-      <h4 class="slideHeading">${slide.heading || "Exam skill focus"}</h4>
+      ${renderLessonSlideHeading({ ...slide, heading: slide.heading || "Exam skill focus" })}
       <div class="quickCheckOptions" style="margin-top:8px">
         ${aoTiles.map(tile=>`
           <div class="note" style="padding:10px 12px">
@@ -15744,14 +15772,14 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     `;
   }
 
-  if(slide.type !== "quick-check") return `<h4 class="slideHeading">${slide.heading}</h4>${renderLessonTextBullets(slide.text)}`;
+  if(slide.type !== "quick-check") return `${renderLessonSlideHeading(slide)}${renderLessonTextBullets(slide.text)}`;
 
   const storedAnswer = getStoredQuickCheckAnswer(lesson.id, slideId);
   const selected = Number.isInteger(storedAnswer) ? storedAnswer : null;
   const feedback = selected===null ? "" : (slide.feedback?.[selected] || "");
 
   return `
-    <h4 class="slideHeading">${slide.heading}</h4>
+    ${renderLessonSlideHeading(slide)}
     <div>${slide.text}</div>
     <div class="quickCheckOptions">
       ${slide.options.map((opt,i)=>{
