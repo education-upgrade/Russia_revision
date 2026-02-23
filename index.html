@@ -8612,13 +8612,17 @@ function renderLessonTextBullets(text){
   const trimmed = text.trim();
   if(!trimmed) return "";
 
-  const panelTitles = [
-    "Trigger event",
-    "Policy shift",
-    "Consequences",
-    "Why this matters",
-    "Exam link"
+  const panelTitleRules = [
+    { title:"Trigger event", match:/\b(trigger|spark|catalyst|immediate cause|provoked|after|when|because)\b/i },
+    { title:"Policy change", match:/\b(policy|decree|reform|law|measure|program|rules|government responded|introduced)\b/i },
+    { title:"People and groups", match:/\b(workers|peasants|army|soldiers|tsar|bolsheviks|mensheviks|nobility|leaders?|figures?)\b/i },
+    { title:"Evidence and detail", match:/\b(by\s+\d{4}|in\s+\d{4}|percent|statistics?|figures?|records?|sources?|example)\b/i },
+    { title:"Consequences", match:/\b(result|led to|therefore|so that|impact|effect|outcome|consequence|followed by)\b/i },
+    { title:"Why this matters", match:/\b(significance|important|shows that|reveals|therefore this mattered|overall)\b/i },
+    { title:"Exam link", match:/\b(exam|question|judgement|evaluate|how far|explain why|source)\b/i }
   ];
+
+  const fallbackTitles = ["Key point", "Supporting detail", "Further context", "Why this matters", "Exam link"];
 
   const sentenceParts = trimmed
     .replace(/\s+/g, " ")
@@ -8627,13 +8631,26 @@ function renderLessonTextBullets(text){
     .filter(Boolean);
 
   const panels = [];
-  const makeTitle = (index)=>panelTitles[index] || `Context panel ${index + 1}`;
+  const usedTitles = new Set();
+  const makeTitle = (panelText, index)=>{
+    const match = panelTitleRules.find(rule=>rule.match.test(panelText) && !usedTitles.has(rule.title));
+    if(match){
+      usedTitles.add(match.title);
+      return match.title;
+    }
+    const fallback = fallbackTitles.find(title=>!usedTitles.has(title));
+    if(fallback){
+      usedTitles.add(fallback);
+      return fallback;
+    }
+    return `Context panel ${index + 1}`;
+  };
 
   if(sentenceParts.length > 1){
     const count = Math.min(5, Math.max(2, sentenceParts.length));
     for(let i=0; i<count; i++){
       const sentence = sentenceParts[i] || sentenceParts[sentenceParts.length - 1] || trimmed;
-      panels.push({ title:makeTitle(i), text:sentence });
+      panels.push({ title:makeTitle(sentence, i), text:sentence });
     }
   }else{
     const bullets = trimmed
@@ -8644,7 +8661,8 @@ function renderLessonTextBullets(text){
     if(bullets.length >= 2){
       const count = Math.min(5, Math.max(2, bullets.length));
       for(let i=0; i<count; i++){
-        panels.push({ title:makeTitle(i), text:bullets[i] || bullets[bullets.length - 1] });
+        const bulletText = bullets[i] || bullets[bullets.length - 1];
+        panels.push({ title:makeTitle(bulletText, i), text:bulletText });
       }
     }else{
       const words = trimmed.split(/\s+/).filter(Boolean);
@@ -8658,7 +8676,8 @@ function renderLessonTextBullets(text){
       while(chunks.length < 2) chunks.push(trimmed);
       const useCount = Math.min(5, Math.max(2, chunks.length));
       for(let i=0; i<useCount; i++){
-        panels.push({ title:makeTitle(i), text:chunks[i] || chunks[chunks.length - 1] || trimmed });
+        const chunkText = chunks[i] || chunks[chunks.length - 1] || trimmed;
+        panels.push({ title:makeTitle(chunkText, i), text:chunkText });
       }
     }
   }
