@@ -8616,16 +8616,19 @@ function renderLessonTextBullets(text){
   if(!trimmed) return "";
 
   const panelTitleRules = [
-    { title:"Trigger event", match:/\b(trigger|spark|catalyst|immediate cause|provoked|after|when|because)\b/i },
-    { title:"Policy change", match:/\b(policy|decree|reform|law|measure|program|rules|government responded|introduced)\b/i },
-    { title:"People and groups", match:/\b(workers|peasants|army|soldiers|tsar|bolsheviks|mensheviks|nobility|leaders?|figures?)\b/i },
-    { title:"Evidence and detail", match:/\b(by\s+\d{4}|in\s+\d{4}|percent|statistics?|figures?|records?|sources?|example)\b/i },
-    { title:"Consequences", match:/\b(result|led to|therefore|so that|impact|effect|outcome|consequence|followed by)\b/i },
-    { title:"Why this matters", match:/\b(significance|important|shows that|reveals|therefore this mattered|overall)\b/i },
-    { title:"Exam link", match:/\b(exam|question|judgement|evaluate|how far|explain why|source)\b/i }
+    { title:"Reform aims", match:/\b(reform|modernis|decree|law|measure|program|introduced)\b/i },
+    { title:"Tsarist control", match:/\b(tsar|autocracy|sovereignty|authority|central power)\b/i },
+    { title:"Social impact", match:/\b(workers|peasants|nobility|army|soldiers|society|class)\b/i },
+    { title:"Political opposition", match:/\b(opposition|radicals?|revolutionaries?|bolsheviks|mensheviks|dissent)\b/i },
+    { title:"Evidence", match:/\b(\d{4}|percent|statistics?|figures?|records?|example)\b/i },
+    { title:"Consequences", match:/\b(result|led to|impact|effect|outcome|consequence)\b/i },
+    { title:"Exam judgement", match:/\b(how far|evaluate|judgement|overall|extent)\b/i }
   ];
 
-  const fallbackTitles = ["Key point", "Supporting detail", "Further context", "Why this matters", "Exam link"];
+  const fallbackTitles = ["Main argument", "Core detail", "Further evidence", "Wider impact", "Overall view"];
+  const titleStopWords = new Set([
+    "the","a","an","and","or","but","if","then","than","that","this","these","those","to","of","for","from","with","without","by","on","in","at","as","is","are","was","were","be","been","being","it","its","their","his","her","they","them","he","she","we","you","i","only","into","through","about","over","under"
+  ]);
 
   const sentenceParts = trimmed
     .replace(/\s+/g, " ")
@@ -8635,11 +8638,39 @@ function renderLessonTextBullets(text){
 
   const panels = [];
   const usedTitles = new Set();
+  const toTitleCase = (value)=>value.replace(/\b\w/g, letter=>letter.toUpperCase());
+  const smartTitleFromText = (panelText)=>{
+    const cleaned = String(panelText)
+      .replace(/[“”"'()[\]{}:;,.!?]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    if(!cleaned) return "Main argument";
+
+    const phrase = cleaned
+      .split(/\b(?:but|because|therefore|however|while|although|so)\b/i)[0]
+      .trim();
+    const words = phrase
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(word=>word && !titleStopWords.has(word));
+
+    const picked = words.slice(0, 3);
+    if(picked.length){
+      return toTitleCase(picked.join(" "));
+    }
+    return toTitleCase(cleaned.split(/\s+/).slice(0, 3).join(" "));
+  };
+
   const makeTitle = (panelText, index)=>{
     const match = panelTitleRules.find(rule=>rule.match.test(panelText) && !usedTitles.has(rule.title));
     if(match){
       usedTitles.add(match.title);
       return match.title;
+    }
+    const specific = smartTitleFromText(panelText);
+    if(specific && !usedTitles.has(specific)){
+      usedTitles.add(specific);
+      return specific;
     }
     const fallback = fallbackTitles.find(title=>!usedTitles.has(title));
     if(fallback){
@@ -8650,7 +8681,7 @@ function renderLessonTextBullets(text){
   };
 
   if(sentenceParts.length > 1){
-    const count = Math.min(5, Math.max(2, sentenceParts.length));
+    const count = Math.min(5, sentenceParts.length);
     for(let i=0; i<count; i++){
       const sentence = sentenceParts[i] || sentenceParts[sentenceParts.length - 1] || trimmed;
       panels.push({ title:makeTitle(sentence, i), text:sentence });
@@ -8662,25 +8693,28 @@ function renderLessonTextBullets(text){
       .filter(Boolean);
 
     if(bullets.length >= 2){
-      const count = Math.min(5, Math.max(2, bullets.length));
+      const count = Math.min(5, bullets.length);
       for(let i=0; i<count; i++){
         const bulletText = bullets[i] || bullets[bullets.length - 1];
         panels.push({ title:makeTitle(bulletText, i), text:bulletText });
       }
     }else{
       const words = trimmed.split(/\s+/).filter(Boolean);
-      const count = Math.min(5, Math.max(2, Math.ceil(words.length / 18)));
-      const size = Math.max(8, Math.ceil(words.length / count));
-      const chunks = [];
-      for(let i=0; i<words.length; i+=size){
-        const chunk = words.slice(i, i + size).join(" ").trim();
-        if(chunk) chunks.push(chunk);
-      }
-      while(chunks.length < 2) chunks.push(trimmed);
-      const useCount = Math.min(5, Math.max(2, chunks.length));
-      for(let i=0; i<useCount; i++){
-        const chunkText = chunks[i] || chunks[chunks.length - 1] || trimmed;
-        panels.push({ title:makeTitle(chunkText, i), text:chunkText });
+      if(words.length <= 40){
+        panels.push({ title:makeTitle(trimmed, 0), text:trimmed });
+      }else{
+        const count = Math.min(5, Math.max(2, Math.ceil(words.length / 28)));
+        const size = Math.max(14, Math.ceil(words.length / count));
+        const chunks = [];
+        for(let i=0; i<words.length; i+=size){
+          const chunk = words.slice(i, i + size).join(" ").trim();
+          if(chunk) chunks.push(chunk);
+        }
+        const useCount = Math.min(5, chunks.length);
+        for(let i=0; i<useCount; i++){
+          const chunkText = chunks[i] || chunks[chunks.length - 1] || trimmed;
+          panels.push({ title:makeTitle(chunkText, i), text:chunkText });
+        }
       }
     }
   }
