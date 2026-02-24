@@ -17348,6 +17348,24 @@ function goDailyFocus(){
   d.lastStep = "flash";
   saveState();
   trackTaskStarted("FLASHCARDS", d.topicId);
+
+  const canResumeDailySession = !!(
+    CURRENT.dailySession?.active &&
+    CURRENT.dailySession.topicId === d.topicId &&
+    CURRENT.card &&
+    CURRENT.list?.length
+  );
+
+  if(canResumeDailySession){
+    setTab("study");
+    $("topicSelect").value = d.topicId;
+    $("modeSelect").value = "all";
+    $("orderSelect").value = "random";
+    rememberStudyContext();
+    renderCard();
+    return;
+  }
+
   openStudyForTopic(d.topicId, "all");
   startDailyFlashSession(d.topicId);
 }
