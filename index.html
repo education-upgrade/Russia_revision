@@ -8645,10 +8645,7 @@ function renderLessonTextBullets(text){
     { title:"Overall judgement", score:2, match:/\b(how far|evaluate|judg(?:e|ment)|overall|extent|more important|convincing)\b/i }
   ];
 
-  const fallbackTitles = ["Main argument", "Core detail", "Further evidence", "Wider impact", "Overall view"];
-  const titleStopWords = new Set([
-    "the","a","an","and","or","but","if","then","than","that","this","these","those","to","of","for","from","with","without","by","on","in","at","as","is","are","was","were","be","been","being","it","its","their","his","her","they","them","he","she","we","you","i","only","into","through","about","over","under"
-  ]);
+  const fallbackTitles = ["Evaluation", "Judgement", "Cause", "Consequence", "Conclusion"];
 
   const sentenceParts = trimmed
     .replace(/\s+/g, " ")
@@ -8658,29 +8655,6 @@ function renderLessonTextBullets(text){
 
   const panels = [];
   const usedTitles = new Set();
-  const toTitleCase = (value)=>value.replace(/\b\w/g, letter=>letter.toUpperCase());
-  const smartTitleFromText = (panelText)=>{
-    const cleaned = String(panelText)
-      .replace(/[“”"'()[\]{}:;,.!?]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-    if(!cleaned) return "Main argument";
-
-    const phrase = cleaned
-      .split(/\b(?:but|because|therefore|however|while|although|so)\b/i)[0]
-      .trim();
-    const words = phrase
-      .toLowerCase()
-      .split(/\s+/)
-      .filter(word=>word && !titleStopWords.has(word));
-
-    const picked = words.slice(0, 3);
-    if(picked.length){
-      return toTitleCase(picked.join(" "));
-    }
-    return toTitleCase(cleaned.split(/\s+/).slice(0, 3).join(" "));
-  };
-
   const makeTitle = (panelText, index)=>{
     const rankedMatch = panelTitleRules
       .filter(rule=>!usedTitles.has(rule.title) && rule.match.test(panelText))
@@ -8688,11 +8662,6 @@ function renderLessonTextBullets(text){
     if(rankedMatch){
       usedTitles.add(rankedMatch.title);
       return rankedMatch.title;
-    }
-    const specific = smartTitleFromText(panelText);
-    if(specific && !usedTitles.has(specific)){
-      usedTitles.add(specific);
-      return specific;
     }
     const fallback = fallbackTitles.find(title=>!usedTitles.has(title));
     if(fallback){
