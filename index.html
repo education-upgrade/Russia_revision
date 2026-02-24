@@ -8634,13 +8634,15 @@ function renderLessonTextBullets(text){
   if(!trimmed) return "";
 
   const panelTitleRules = [
-    { title:"Reform aims", match:/\b(reform|modernis|decree|law|measure|program|introduced)\b/i },
-    { title:"Tsarist control", match:/\b(tsar|autocracy|sovereignty|authority|central power)\b/i },
-    { title:"Social impact", match:/\b(workers|peasants|nobility|army|soldiers|society|class)\b/i },
-    { title:"Political opposition", match:/\b(opposition|radicals?|revolutionaries?|bolsheviks|mensheviks|dissent)\b/i },
-    { title:"Evidence", match:/\b(\d{4}|percent|statistics?|figures?|records?|example)\b/i },
-    { title:"Consequences", match:/\b(result|led to|impact|effect|outcome|consequence)\b/i },
-    { title:"Exam judgement", match:/\b(how far|evaluate|judgement|overall|extent)\b/i }
+    { title:"Key evidence", score:3, match:/\b(\d{4}|percent|statistics?|figures?|records?|example|source|according to|data|rate)\b/i },
+    { title:"Tsarist government", score:3, match:/\b(tsar|autocracy|sovereignty|state control|central (?:power|authority)|okhrana|censorship)\b/i },
+    { title:"Policy and reform", score:2, match:/\b(reform|modernis|decree|law|measure|policy|programme?|introduced|changed|abolished|created)\b/i },
+    { title:"Political challenge", score:3, match:/\b(opposition|radicals?|revolutionaries?|bolsheviks|mensheviks|liberals?|socialists?|dissent|undermine)\b/i },
+    { title:"War and military", score:3, match:/\b(army|soldiers?|navy|war|battle|front|defeat|victory|military|command)\b/i },
+    { title:"Economic change", score:3, match:/\b(industrial|factory|output|railway|tax|grain|harvest|prices?|wages?|econom(?:y|ic)|finance)\b/i },
+    { title:"Impact on society", score:2, match:/\b(workers|peasants|nobility|society|class|living conditions?|education|housing|religion)\b/i },
+    { title:"Consequences", score:2, match:/\b(result|led to|impact|effect|outcome|consequence|therefore|as a result)\b/i },
+    { title:"Overall judgement", score:2, match:/\b(how far|evaluate|judg(?:e|ment)|overall|extent|more important|convincing)\b/i }
   ];
 
   const fallbackTitles = ["Main argument", "Core detail", "Further evidence", "Wider impact", "Overall view"];
@@ -8680,10 +8682,12 @@ function renderLessonTextBullets(text){
   };
 
   const makeTitle = (panelText, index)=>{
-    const match = panelTitleRules.find(rule=>rule.match.test(panelText) && !usedTitles.has(rule.title));
-    if(match){
-      usedTitles.add(match.title);
-      return match.title;
+    const rankedMatch = panelTitleRules
+      .filter(rule=>!usedTitles.has(rule.title) && rule.match.test(panelText))
+      .sort((a, b)=>b.score - a.score)[0];
+    if(rankedMatch){
+      usedTitles.add(rankedMatch.title);
+      return rankedMatch.title;
     }
     const specific = smartTitleFromText(panelText);
     if(specific && !usedTitles.has(specific)){
