@@ -17449,6 +17449,13 @@ const BUTTON_ICON_LABELS = {
 };
 
 let revealCooldownToken = 0;
+function setStudyRatingEnabled(enabled){
+  document.querySelectorAll('#study [data-score]').forEach(btn=>{
+    btn.disabled = !enabled;
+    btn.setAttribute('aria-disabled', String(!enabled));
+  });
+}
+
 function startRevealCooldown(ms=3000){
   const revealBtn = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
   const aBox = document.getElementById("aBox");
@@ -17572,6 +17579,7 @@ function loadNextCard(){
   if(!CURRENT.card){
     $("qText").textContent = "No cards match these filters. Try switching topic or clearing search.";
     $("aBox").classList.add("hidden");
+    setStudyRatingEnabled(false);
     const rb = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
     if(rb) rb.innerHTML = BUTTON_ICON_LABELS.reveal;
     $("cardMeta").textContent = "🃏 Card 0/0";
@@ -17586,6 +17594,7 @@ function renderCard(){
   $("qText").textContent = c.q;
   $("aText").textContent = c.a;
   $("aBox").classList.add("hidden");
+  setStudyRatingEnabled(false);
 
   // Reset reveal button label whenever a new card is rendered
   const rb = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
@@ -17631,6 +17640,7 @@ if(studyLaunchBtn){
     const syncLabel = ()=>{
       const isHidden = aBox.classList.contains("hidden");
       revealBtn.innerHTML = isHidden ? BUTTON_ICON_LABELS.reveal : BUTTON_ICON_LABELS.hide;
+      setStudyRatingEnabled(!isHidden);
     };
     revealBtn.addEventListener("click", ()=>{
       // If no card is loaded yet, load one first.
@@ -17655,6 +17665,7 @@ if(studyLaunchBtn){
 document.querySelectorAll('#study [data-score]').forEach(btn=>{
   btn.addEventListener("click", ()=>{
     if(!CURRENT.card) return;
+    if(document.getElementById("aBox")?.classList.contains("hidden")) return;
 
     const score = Number(btn.dataset.score);
     const id = CURRENT.card.id;
