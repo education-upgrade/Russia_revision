@@ -8671,10 +8671,25 @@ function renderLessonTextBullets(text){
     return `Context panel ${index + 1}`;
   };
 
-  if(sentenceParts.length > 1){
-    const count = Math.min(5, sentenceParts.length);
+  const linkedSentencePattern = /^(however|but|yet|so|therefore|thus|this|these|that|those|as a result|overall|in this view|consequently|instead|still|although|while)\b/i;
+  const groupedSentenceParts = [];
+  sentenceParts.forEach((sentence)=>{
+    const shouldAttachToPrevious = groupedSentenceParts.length > 0 && (
+      linkedSentencePattern.test(sentence) ||
+      sentence.split(/\s+/).filter(Boolean).length <= 8
+    );
+    if(shouldAttachToPrevious){
+      const prev = groupedSentenceParts[groupedSentenceParts.length - 1];
+      groupedSentenceParts[groupedSentenceParts.length - 1] = `${prev} ${sentence}`.trim();
+    }else{
+      groupedSentenceParts.push(sentence);
+    }
+  });
+
+  if(groupedSentenceParts.length > 1){
+    const count = Math.min(5, groupedSentenceParts.length);
     for(let i=0; i<count; i++){
-      const sentence = sentenceParts[i] || sentenceParts[sentenceParts.length - 1] || trimmed;
+      const sentence = groupedSentenceParts[i] || groupedSentenceParts[groupedSentenceParts.length - 1] || trimmed;
       panels.push({ title:makeTitle(sentence, i), text:sentence });
     }
   }else{
