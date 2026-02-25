@@ -855,6 +855,25 @@
     .streakCompleteTitle{ color:var(--keyMetric); }
     .note{color:var(--muted);font-size:12px;line-height:1.45}
     .qText{font-size:clamp(20px, 2.1vw, 24px);font-weight:800;line-height:1.3;margin:0;letter-spacing:-.2px}
+
+    .examPathGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:10px}
+    .examPathTile{border:1px solid var(--line);border-radius:16px;padding:14px;background:rgba(255,255,255,.88);box-shadow:var(--shadow);text-align:left;cursor:pointer;display:grid;gap:6px}
+    .examPathTile .examPathTitle{font-weight:900;font-size:17px;color:var(--textStrong)}
+    .examPathTile .examPathMeta{font-size:13px;color:var(--muted);font-weight:800}
+    .examPathTile.path-sf{border-color:rgba(88,157,136,.55);background:rgba(126,185,170,.12)}
+    .examPathTile.path-a{border-color:rgba(84,133,206,.55);background:rgba(110,144,202,.11)}
+    .examPathTile.path-m{border-color:rgba(140,109,196,.55);background:rgba(142,116,198,.12)}
+    .examPathBadge{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:900;border:1px solid var(--line);width:max-content}
+    .examPathBadge.path-sf{color:#2c6f5b;border-color:rgba(88,157,136,.55);background:rgba(126,185,170,.14)}
+    .examPathBadge.path-a{color:#2f4f8a;border-color:rgba(84,133,206,.55);background:rgba(110,144,202,.14)}
+    .examPathBadge.path-m{color:#5a3a88;border-color:rgba(140,109,196,.55);background:rgba(142,116,198,.16)}
+    .examScreenHead{font-weight:900;font-size:clamp(20px,2.2vw,24px);line-height:1.3}
+    .examStructureBox{border:1px solid var(--line);border-radius:14px;padding:10px;background:rgba(255,255,255,.9);font-size:14px;font-weight:800}
+    .examChecklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:10px}
+    .examChecklistItem{border:1px solid var(--line);border-radius:12px;padding:8px 10px;font-size:13px;font-weight:800;background:#fff}
+    .examChecklistItem.hit{border-color:rgba(88,157,136,.7);background:rgba(126,185,170,.16)}
+    .examChecklistItem.miss{border-color:rgba(183,142,161,.75);background:rgba(183,142,161,.14)}
+    .examFeedbackSection{display:grid;gap:8px}
     .aBox{
       margin-top:12px;
       padding-top:12px;
@@ -3728,58 +3747,98 @@ section#games.gamePaneActive .gamesHeroCard{
 
   <!-- EXAM -->
   <section id="exam" class="tabpane hidden">
-    <div class="card">
+    <div class="card" id="examHomeScreen">
       <div class="homeTopBrandRow" style="margin-bottom:4px">
         <div class="quizPanelTitle homeTitleChip">
           <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg>
-          <span class="quizPanelTitleText">Exam</span>
+          <span class="quizPanelTitleText">Exam Practice – Build Evaluation Like an Examiner</span>
         </div>
       </div>
-
-      <div class="divider"></div>
-
-      <div class="row">
-        <div class="grow">
-          <label>Topic filter</label>
-          <select id="examTopicSelect"></select>
-        </div>
-        <div class="grow">
-          <label>Question</label>
-          <select id="examSelect"></select>
-        </div>
+      <div class="note" style="font-size:14px">AQA 16 markers are driven by evaluation.<br>Practise one high-quality evaluation at a time.</div>
+      <div class="examPathGrid">
+        <button class="examPathTile path-sf" type="button" data-action="exam-path" data-path="SF">
+          <div class="examPathTitle">🟢 Strong Foundations</div>
+          <div class="examPathMeta">Write 1 PEEL evaluation</div>
+        </button>
+        <button class="examPathTile path-a" type="button" data-action="exam-path" data-path="A">
+          <div class="examPathTitle">🔵 Ambition</div>
+          <div class="examPathMeta">Write 1 PEELC evaluation</div>
+        </button>
+        <button class="examPathTile path-m" type="button" data-action="exam-path" data-path="M">
+          <div class="examPathTitle">🟣 Mastery</div>
+          <div class="examPathMeta">Write 1 PEELAC evaluation</div>
+        </button>
       </div>
-
-      <div class="divider"></div>
-
-      <div style="border:1px solid var(--line);border-radius:16px;padding:12px;background:#fff">
-        <div class="note">25-mark question</div>
-        <div class="qText" id="examQText">Pick a question to get started.</div>
-        <div class="note" id="examTag" style="margin-top:6px"></div>
-      </div>
-
-      <div class="divider"></div>
-      <div class="note">Step-by-step exam walkthrough</div>
-      <div id="examWalkthrough" style="margin-top:10px"></div>
-
-      <div class="divider"></div>
-
-      <details id="examHelp" style="border:1px solid var(--line);border-radius:16px;padding:10px;background:#fff">
-        <summary style="cursor:pointer;font-weight:900;list-style:none">🧰 Hints (tap to reveal key knowledge)</summary>
-        <div class="divider"></div>
-        <div id="examHelpBody" class="note"></div>
-      </details>
     </div>
 
-    <div class="card">
-      <div style="font-weight:900">Level 5 habits</div>
-      <ul class="note" style="margin:10px 0 0 18px">
-        <li><b>Stay on the wording</b> (“half-hearted”, “mainly”, “more important than”).</li>
-        <li><b>Factor structure</b>: 3–4 factors, each weighed (reach, timing, impact).</li>
-        <li><b>Precise evidence</b>: dates + named policies + clear consequence.</li>
-        <li><b>Judgement</b>: not just “both” — explain why one matters more.</li>
-      </ul>
+    <div class="card hidden" id="examQuestionScreen">
+      <div class="examScreenHead">Write ONE developed evaluation point.</div>
+      <div class="divider"></div>
+      <div class="qText" id="examPromptQuestion"></div>
+      <div class="note" style="margin-top:6px">Write ONE developed evaluation point.</div>
+      <div class="divider"></div>
+      <div id="examPathwayPill" class="examPathBadge"></div>
+      <div class="examStructureBox" id="examStructureReminder" style="margin-top:10px"></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="examBackHomeBtn" type="button">← Change pathway</button>
+        <button class="btn primary" id="examBeginWritingBtn" type="button">Begin Writing</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="examWritingScreen">
+      <div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px">
+        <div>
+          <div class="examScreenHead" style="font-size:clamp(18px,2vw,22px)">Single Evaluation Writing</div>
+          <div id="examWritingPathway" class="examPathBadge" style="margin-top:6px"></div>
+        </div>
+        <button class="btn" id="examBackQuestionBtn" type="button">← Back to question</button>
+      </div>
+      <div class="examChecklist" id="examStructureChecklist"></div>
+      <textarea id="examEvaluationInput" rows="10" style="width:100%;margin-top:10px" placeholder="Write your developed evaluation point..."></textarea>
+      <div class="note" id="examCharCount" style="margin-top:6px">0 characters</div>
+      <details style="border:1px solid var(--line);border-radius:16px;padding:10px;background:#fff;margin-top:8px">
+        <summary style="cursor:pointer;font-weight:900;list-style:none">Helpful Sentence Starters</summary>
+        <ul class="note" style="margin:8px 0 0 18px;display:grid;gap:6px;font-size:13px">
+          <li>A limitation of…</li>
+          <li>This is supported by…</li>
+          <li>This weakens the explanation because…</li>
+          <li>However, it could be argued…</li>
+          <li>This suggests that…</li>
+          <li>On the other hand…</li>
+          <li>Therefore, the explanation is…</li>
+        </ul>
+      </details>
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" id="examSubmitEvaluationBtn" type="button">Submit Evaluation</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="examFeedbackScreen">
+      <div class="row" style="justify-content:space-between;align-items:flex-start;gap:10px">
+        <div class="examScreenHead" style="font-size:clamp(18px,2vw,22px)">Evaluation Feedback</div>
+        <button class="btn" id="examTryAgainBtn" type="button">Write another</button>
+      </div>
+
+      <div class="divider"></div>
+      <div class="examFeedbackSection">
+        <div style="font-weight:900">Structure Check</div>
+        <div id="examStructureResults" class="note" style="font-size:13px"></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="examFeedbackSection">
+        <div style="font-weight:900">Evaluative Quality</div>
+        <div id="examQualityResults" class="note" style="font-size:13px"></div>
+      </div>
+
+      <div class="divider"></div>
+      <div class="examFeedbackSection">
+        <div style="font-weight:900">Improvement Suggestion</div>
+        <ul id="examImprovementResults" class="note" style="margin:0 0 0 18px;display:grid;gap:6px;font-size:13px"></ul>
+      </div>
     </div>
   </section>
+
 
 
 </main>
@@ -16400,13 +16459,12 @@ function renderTopicDashboard(){
       syncIfMissing(document.getElementById("mcqTopicSelect"), "MIXED");
       syncIfMissing(document.getElementById("matchTopicSelect"), "MIXED");
       syncIfMissing(document.getElementById("emojiTopicSelect"), "MIXED");
-      syncIfMissing(document.getElementById("examTopicSelect"), "ALL");
 
       try{ if(typeof tlPopulateSelect === "function") tlPopulateSelect(); }catch(e){}
       try{ if(typeof refreshConnectionsTopicSelect === "function") refreshConnectionsTopicSelect(); }catch(e){}
       try{ renderTopicDashboard(); }catch(e){}
       try{ renderTopicTiles(); }catch(e){} // legacy tiles (if present)
-      try{ renderExamSelect(); }catch(e){}
+      try{ renderExamPractice(); }catch(e){}
       try{ startMatchGame(); }catch(e){}
       try{ startEmojiRound(); }catch(e){}
       try{ updateDailyUI(); }catch(e){}
@@ -16430,7 +16488,7 @@ function populateTopics(){
   selQuiz.innerHTML = "";
   selMatch.innerHTML = "";
   selEmoji.innerHTML = "";
-  selExamFilter.innerHTML = "";
+  if(selExamFilter) selExamFilter.innerHTML = "";
 
   const optAll = document.createElement("option");
   optAll.value = "ALL";
@@ -16447,9 +16505,11 @@ function populateTopics(){
   addMixed(selMatch);
   addMixed(selEmoji);
 
-  const exAll = document.createElement("option");
-  exAll.value="ALL"; exAll.textContent="🌍 All topics";
-  selExamFilter.appendChild(exAll);
+  if(selExamFilter){
+    const exAll = document.createElement("option");
+    exAll.value="ALL"; exAll.textContent="🌍 All topics";
+    selExamFilter.appendChild(exAll);
+  }
 
   TOPICS.filter(t=>isTopicEnabled(t.id)).forEach(t=>{
     const o = document.createElement("option");
@@ -16469,9 +16529,11 @@ function populateTopics(){
     o4.value = t.id; o4.textContent = t.title;
     selEmoji.appendChild(o4);
 
-    const o5 = document.createElement("option");
-    o5.value = t.id; o5.textContent = t.title;
-    selExamFilter.appendChild(o5);
+    if(selExamFilter){
+      const o5 = document.createElement("option");
+      o5.value = t.id; o5.textContent = t.title;
+      selExamFilter.appendChild(o5);
+    }
   });
 }
 
@@ -17063,10 +17125,7 @@ function navigateToRoute(route){
     startQuiz();
   }else if(tab === "exam"){
     setTab("exam");
-    const filter = $("examTopicSelect");
-    if(filter){ filter.value = topicId; filter.dispatchEvent(new Event("change")); }
-    const exId = getDailyExamId(topicId);
-    if(exId){ $("examSelect").value = exId; renderExamQuestion(); }
+    startExamPracticeFromTopic(topicId);
   }
 }
 function renderHomeRecommendation(){
@@ -17443,10 +17502,7 @@ function goDailyExam(){
   saveState();
   trackTaskStarted("PLAN_25", d.topicId);
   setTab("exam");
-  const exFilter = $("examTopicSelect");
-  if(exFilter){ exFilter.value = d.topicId; exFilter.dispatchEvent(new Event("change")); }
-  const exId = getDailyExamId(d.topicId);
-  if(exId){ $("examSelect").value = exId; renderExamQuestion(); }
+  startExamPracticeFromTopic(d.topicId);
 }
 
 { const _b = document.getElementById('btnGoFocus'); if(_b) _b.addEventListener('click', goDailyFocus); }
@@ -18551,109 +18607,235 @@ function attemptMatch(){
 $("btnStartMatch").addEventListener("click", startMatchGame);
 
 /* ==========================================================
-   EXAM TAB UI (enforce 3 per topic)
+   EXAM PRACTICE (single evaluation system)
    ========================================================== */
-function validateExamBank(){
-  // ensures 3 per topicId (t1..t4)
-  const counts = {};
-  EXAM_BANK.forEach(q => counts[q.topicId] = (counts[q.topicId]||0)+1);
-  for(const t of TOPICS){
-    if((counts[t.id]||0) !== 3){
-      console.warn("EXAM_BANK topic not equal to 3:", t.id, counts[t.id]);
+const EXAM_PRACTICE_QUESTIONS = [
+  "Discuss the biological explanation of aggression (16 marks).",
+  "Discuss social learning theory as an explanation of aggression (16 marks).",
+  "Discuss the cognitive interview as a way of improving eyewitness testimony (16 marks).",
+  "Discuss behaviourist explanations of phobias (16 marks).",
+  "Discuss attachment as an explanation of later relationships (16 marks).",
+  "Discuss the multi-store model of memory (16 marks).",
+  "Discuss obedience as investigated by Milgram (16 marks).",
+  "Discuss the working memory model (16 marks)."
+];
+
+const EXAM_PATHWAYS = {
+  SF: {
+    label: "🟢 Strong Foundations",
+    code: "SF",
+    css: "path-sf",
+    structure: ["Point", "Evidence", "Explain", "Link"],
+    structureText: "Point → Evidence → Explain → Link"
+  },
+  A: {
+    label: "🔵 Ambition",
+    code: "A",
+    css: "path-a",
+    structure: ["Point", "Evidence", "Explain", "Link", "Counter"],
+    structureText: "Point → Evidence → Explain → Link → Counter"
+  },
+  M: {
+    label: "🟣 Mastery",
+    code: "M",
+    css: "path-m",
+    structure: ["Point", "Evidence", "Explain", "Link", "Application", "Counter"],
+    structureText: "Point → Evidence → Explain → Link → Application → Counter"
+  }
+};
+
+let EXAM_PRACTICE_STATE = {
+  screen: "home",
+  pathway: null,
+  questionIndex: 0,
+  topicId: null
+};
+
+function getExamQuestionKeywords(question){
+  const clean = String(question||"")
+    .replace(/\(.*?\)/g, "")
+    .replace(/^Discuss\s+/i, "")
+    .replace(/Write ONE developed evaluation point\.?/i,"")
+    .toLowerCase();
+  return clean.split(/[^a-z]+/).filter(w=>w && w.length>4).slice(0,7);
+}
+
+function pickExamPracticeQuestion(topicId=null){
+  const seed = Date.now() + (String(topicId||"").length * 17);
+  const idx = Math.abs(seed) % EXAM_PRACTICE_QUESTIONS.length;
+  EXAM_PRACTICE_STATE.questionIndex = idx;
+  return EXAM_PRACTICE_QUESTIONS[idx];
+}
+
+function getExamEvaluationStrength(text){
+  const lower = String(text||"").toLowerCase();
+  const terms = ["weakens","strengthens","reduces validity","increases credibility","to a limited extent","arguably"];
+  const hits = terms.reduce((n,t)=>n + (lower.includes(t)?1:0),0);
+  if(hits >= 4) return { quality:"Advanced", strength:"Approaching Mastery" };
+  if(hits >= 2) return { quality:"Secure", strength:"High Ambition" };
+  if(hits >= 1) return { quality:"Basic", strength:"Secure" };
+  return { quality:"Basic", strength:"Developing" };
+}
+
+function detectStructureElements(text, pathwayKey, question){
+  const lower = String(text||"").toLowerCase();
+  const keywords = getExamQuestionKeywords(question);
+  const checks = {
+    Point: /(a strength|a limitation|one issue|however|this suggests)/i.test(text),
+    Evidence: /\b(study|research|found|according to|et al\.?|\b\d{4}\b|[A-Z][a-z]+\s*\(\d{4}\))/i.test(text),
+    Explain: /(because|this means|this suggests|therefore)/i.test(text),
+    Link: keywords.some(k=>lower.includes(k)),
+    Counter: /(however|on the other hand|although|it could be argued)/i.test(text),
+    Application: /(in real life|in society|in education|this has implications for|for example in)/i.test(text)
+  };
+
+  const required = EXAM_PATHWAYS[pathwayKey]?.structure || EXAM_PATHWAYS.SF.structure;
+  return required.map(name=>({ name, hit: !!checks[name] }));
+}
+
+function buildExamImprovementTips(results, pathwayKey){
+  const missing = results.filter(x=>!x.hit).map(x=>x.name);
+  const tips = [];
+  if(missing.includes("Point")) tips.push("Make your judgement more explicit.");
+  if(missing.includes("Link")) tips.push("Strengthen the link to the question.");
+  if(missing.includes("Application")) tips.push("Add a real-world implication.");
+  if(missing.includes("Counter")) tips.push("Evaluate the strength of your counter-argument.");
+  if(missing.includes("Evidence")) tips.push("Use a named study or research reference.");
+  if(missing.includes("Explain")) tips.push("Explain why your evidence matters using because/therefore.");
+
+  if(!tips.length){
+    if(pathwayKey === "M") tips.push("Push precision further by sharpening your application and final judgement.");
+    else tips.push("Now sharpen depth: make your evaluative judgement tighter.");
+  }
+
+  return tips.slice(0,2);
+}
+
+function renderExamPractice(){
+  const home = $("examHomeScreen");
+  const question = $("examQuestionScreen");
+  const writing = $("examWritingScreen");
+  const feedback = $("examFeedbackScreen");
+  if(!home || !question || !writing || !feedback) return;
+
+  home.classList.toggle("hidden", EXAM_PRACTICE_STATE.screen !== "home");
+  question.classList.toggle("hidden", EXAM_PRACTICE_STATE.screen !== "question");
+  writing.classList.toggle("hidden", EXAM_PRACTICE_STATE.screen !== "writing");
+  feedback.classList.toggle("hidden", EXAM_PRACTICE_STATE.screen !== "feedback");
+
+  const pathway = EXAM_PATHWAYS[EXAM_PRACTICE_STATE.pathway] || null;
+  const q = EXAM_PRACTICE_QUESTIONS[EXAM_PRACTICE_STATE.questionIndex] || EXAM_PRACTICE_QUESTIONS[0];
+
+  if(pathway){
+    const pathwayHtml = `Your Pathway: ${pathway.label}`;
+    if($("examPathwayPill")){
+      $("examPathwayPill").className = `examPathBadge ${pathway.css}`;
+      $("examPathwayPill").textContent = pathwayHtml;
+    }
+    if($("examWritingPathway")){
+      $("examWritingPathway").className = `examPathBadge ${pathway.css}`;
+      $("examWritingPathway").textContent = pathwayHtml;
+    }
+    if($("examStructureReminder")){
+      $("examStructureReminder").textContent = pathway.code === "SF"
+        ? `Strong Foundations: ${pathway.structureText}`
+        : (pathway.code === "A"
+          ? `Ambition: ${pathway.structureText}`
+          : `Mastery: ${pathway.structureText}`);
+    }
+
+    const checklist = $("examStructureChecklist");
+    if(checklist){
+      checklist.innerHTML = pathway.structure.map(step=>`<div class="examChecklistItem">${step}</div>`).join("");
     }
   }
-}
-validateExamBank();
 
-function renderExamSelect(){
-  const filter = $("examTopicSelect").value;
-  $("examSelect").innerHTML = "";
-
-  const list = EXAM_BANK.filter(q=>isTopicEnabled(q.topicId)).filter(q=>filter==="ALL" ? true : q.topicId===filter);
-
-  list.forEach(q=>{
-    const o=document.createElement("option");
-    o.value=q.id;
-    o.textContent = q.question.length>95 ? q.question.slice(0,95)+"…" : q.question;
-    $("examSelect").appendChild(o);
-  });
-
-  if(list.length){
-    $("examSelect").value=list[0].id;
-    renderExamQuestion();
-  }else{
-    $("examQText").textContent="No questions here yet. Try another topic.";
-    $("examWalkthrough").innerHTML="";
-    $("examHelpBody").innerHTML="";
+  if($("examPromptQuestion")) $("examPromptQuestion").textContent = q;
+  if($("examEvaluationInput") && $("examCharCount")){
+    $("examCharCount").textContent = `${$("examEvaluationInput").value.length} characters`;
   }
 }
 
-function renderExamQuestion(){
-  const id = $("examSelect").value;
-  const q = EXAM_BANK.find(x=>x.id===id);
-  if(!q) return;
-
-  $("examQText").textContent = q.question;
-  const topicTitle = (TOPICS.find(t=>t.id===q.topicId)||{}).title || "—";
-  $("examTag").textContent = `Topic: ${topicTitle} • Suggested factors: ${q.factors.length}`;
-
-  const walkthrough = $("examWalkthrough");
-  walkthrough.innerHTML = "";
-
-  const factorRows = q.factors.map((factor, i)=>{
-    const linkedPlan = q.plan.find(p=>p.title.toLowerCase().includes(`factor ${i+1}`));
-    const detail = linkedPlan ? linkedPlan.body : "Use this factor as one developed analytical paragraph with precise evidence.";
-    return `<details style="border:1px solid var(--line);border-radius:12px;padding:8px 10px;background:#fff;margin-top:8px"><summary style="cursor:pointer;font-weight:700">${i+1}. ${factor}</summary><div class="note" style="margin-top:6px;color:var(--muted)">${detail}</div></details>`;
-  }).join("");
-
-  const introPlan = q.plan.find(p=>p.title.toLowerCase().includes("intro"));
-  const conclusionPlan = q.plan.find(p=>p.title.toLowerCase().includes("conclusion"));
-
-  const steps = [
-    {
-      title: "1) Write a brief introduction",
-      prompt: "State your overall line of argument in 1–2 sentences.",
-      compare: introPlan ? introPlan.body : "Check your intro sets up a direct judgement on the question wording."
-    },
-    {
-      title: "2) Write 4 factors you would include",
-      prompt: `Aim for concise factor labels. Suggested factors: ${q.factors.join(" • ")}`,
-      compare: `Compare your list with the plan's factors. Press each factor to reveal paragraph guidance.${factorRows}`
-    },
-    {
-      title: "3) Write a conclusion",
-      prompt: "Give a final judgement and explain why your strongest factor outweighs alternatives.",
-      compare: conclusionPlan ? conclusionPlan.body : "Ensure your conclusion is comparative and decisive."
-    }
-  ];
-
-  steps.forEach((step, i)=>{
-    const details = document.createElement("details");
-    details.style.border = "1px solid var(--line)";
-    details.style.borderRadius = "16px";
-    details.style.padding = "10px 12px";
-    details.style.background = "#fff";
-    details.style.marginBottom = "10px";
-
-    details.innerHTML = `
-      <summary style="cursor:pointer;font-weight:900;list-style:none">${step.title}</summary>
-      <div class="note" style="margin-top:8px">${step.prompt}</div>
-      <div class="note" style="margin-top:8px;color:var(--muted)"><b>Compare with plan:</b> ${step.compare}</div>
-    `;
-
-    if(i===0) details.open = true;
-    walkthrough.appendChild(details);
-  });
-
-  $("examHelpBody").innerHTML =
-    `<ul style="margin:0 0 0 18px">${q.help.map(x=>`<li>${x}</li>`).join("")}</ul>`;
-  $("examHelp").open = false;
-
-  // Daily challenge: opening the relevant plan counts
-  recordDailyPlanOpened(q.topicId);
+function openExamQuestionScreen(pathwayKey, topicId=null){
+  EXAM_PRACTICE_STATE.pathway = pathwayKey;
+  EXAM_PRACTICE_STATE.topicId = topicId;
+  pickExamPracticeQuestion(topicId);
+  EXAM_PRACTICE_STATE.screen = "question";
+  renderExamPractice();
 }
-$("examTopicSelect").addEventListener("change", renderExamSelect);
-$("examSelect").addEventListener("change", renderExamQuestion);
+
+function startExamPracticeFromTopic(topicId){
+  const fallbackPath = EXAM_PRACTICE_STATE.pathway || "SF";
+  openExamQuestionScreen(fallbackPath, topicId);
+}
+
+function submitExamEvaluation(){
+  const input = $("examEvaluationInput");
+  if(!input) return;
+  const text = input.value.trim();
+  const pathwayKey = EXAM_PRACTICE_STATE.pathway || "SF";
+  const question = EXAM_PRACTICE_QUESTIONS[EXAM_PRACTICE_STATE.questionIndex] || "";
+
+  const structure = detectStructureElements(text, pathwayKey, question);
+  const quality = getExamEvaluationStrength(text);
+  const tips = buildExamImprovementTips(structure, pathwayKey);
+
+  const structureRoot = $("examStructureResults");
+  if(structureRoot){
+    structureRoot.innerHTML = structure
+      .map(item=>`${item.hit ? "✔" : "✖"} ${item.name === "Point" ? "Clear evaluative point" : item.name + (item.hit ? " present" : " missing")}`)
+      .join("<br>");
+  }
+
+  const qualityRoot = $("examQualityResults");
+  if(qualityRoot){
+    qualityRoot.innerHTML = `Language quality: <b>${quality.quality}</b><br>Evaluation Strength: <b>${quality.strength}</b>`;
+  }
+
+  const improvementRoot = $("examImprovementResults");
+  if(improvementRoot){
+    improvementRoot.innerHTML = tips.map(t=>`<li>${t}</li>`).join("");
+  }
+
+  EXAM_PRACTICE_STATE.screen = "feedback";
+  renderExamPractice();
+
+  const topicForTracking = EXAM_PRACTICE_STATE.topicId || getDailyTopicId();
+  recordDailyPlanOpened(topicForTracking);
+}
+
+function getDeliberatePracticeFilters(){
+  return ["methodological", "reductionism", "cultural bias", "ecological validity", "ethics"];
+}
+
+window.addEventListener("click", (e)=>{
+  const btn = e.target instanceof Element ? e.target.closest('[data-action="exam-path"]') : null;
+  if(!btn) return;
+  const path = btn.getAttribute("data-path");
+  if(path && EXAM_PATHWAYS[path]) openExamQuestionScreen(path);
+});
+
+$("examBackHomeBtn")?.addEventListener("click", ()=>{
+  EXAM_PRACTICE_STATE.screen = "home";
+  renderExamPractice();
+});
+$("examBeginWritingBtn")?.addEventListener("click", ()=>{
+  EXAM_PRACTICE_STATE.screen = "writing";
+  renderExamPractice();
+});
+$("examBackQuestionBtn")?.addEventListener("click", ()=>{
+  EXAM_PRACTICE_STATE.screen = "question";
+  renderExamPractice();
+});
+$("examSubmitEvaluationBtn")?.addEventListener("click", submitExamEvaluation);
+$("examTryAgainBtn")?.addEventListener("click", ()=>{
+  $("examEvaluationInput").value = "";
+  EXAM_PRACTICE_STATE.screen = "home";
+  renderExamPractice();
+});
+$("examEvaluationInput")?.addEventListener("input", ()=>{
+  $("examCharCount").textContent = `${$("examEvaluationInput").value.length} characters`;
+});
 
 if($("btnExport") && $("dataBox")){
   $("btnExport").addEventListener("click", ()=>{ $("dataBox").value = JSON.stringify(STATE); });
@@ -18702,9 +18884,7 @@ function init(){
   $("mcqTopicSelect").value = "MIXED";
   $("emojiTopicSelect").value = "MIXED";
   $("matchTopicSelect").value = "MIXED";
-  $("examTopicSelect").value = "ALL";
-
-  renderExamSelect();
+  renderExamPractice();
   updateStudyLaunchCta();
   computeKpis();
 
