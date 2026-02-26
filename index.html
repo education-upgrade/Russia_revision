@@ -805,6 +805,9 @@
     .lessonHeroTitle{font-size:clamp(20px,5vw,42px);font-weight:900;line-height:1.08;max-width:90%}
     .lessonHeroSub{margin-top:4px;font-size:14px;opacity:.94}
     .lessonBody{display:grid;gap:12px;padding-bottom:96px}
+    .lessonContextSections{display:grid;gap:12px;margin-top:8px}
+    .lessonContextSection{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;background:rgba(255,255,255,.9);padding:12px}
+    .lessonContextTitle{font-size:15px;font-weight:900;line-height:1.25;color:var(--textStrong);margin:0 0 8px}
     .lessonSectionHeading{font-size:clamp(26px,4.5vw,34px);line-height:1.06;font-weight:950;color:var(--textStrong);margin:0}
     .lessonBodyText{font-size:16px;line-height:1.55;color:var(--text);margin:0;max-width:58ch}
     .lessonBulletList{margin:0;padding-left:20px;display:grid;gap:8px;font-size:16px;line-height:1.5}
@@ -10125,7 +10128,7 @@ function ensureSlideMeta(slide, index){
 
 function getDefaultModesForSlide(slide, interpretationOrder){
   if(slide.type === "results") return ["overview", "simple", "exam"];
-  if(slide.type === "idea" || slide.type === "briefing" || slide.type === "skill-focus" || slide.type === "quick-check" || slide.type === "next-steps" || slide.type === "rank-factors" || slide.type === "strongest-evidence" || slide.type === "exam-transfer") return ["overview", "simple", "exam"];
+  if(slide.type === "idea" || slide.type === "briefing" || slide.type === "lesson-context" || slide.type === "skill-focus" || slide.type === "quick-check" || slide.type === "next-steps" || slide.type === "rank-factors" || slide.type === "strongest-evidence" || slide.type === "exam-transfer") return ["overview", "simple", "exam"];
   if(slide.type === "interpretation") return interpretationOrder === 1 ? ["simple", "exam"] : ["exam"];
   if(slide.type === "arg-identify") return ["simple", "exam"];
   if(slide.type === "evidence-select") return slide.purpose === "challenge" ? ["exam"] : ["simple", "exam"];
@@ -10378,9 +10381,22 @@ function buildSkillFocusSlide(lesson){
   };
 }
 
+function getLessonContextContent(lesson){
+  const pack = lesson?.contentPack || {};
+  const existingBigPicture = String(lesson?.bigPictureContent || "").trim();
+  const existingCoreKnowledge = String(lesson?.coreKnowledgeContent || "").trim();
+  const fallbackBigPicture = String(pack.bigPicture || "").trim();
+  const fallbackCoreKnowledge = (pack.sf?.briefings || []).map(briefing=>String(briefing?.text || "").trim()).filter(Boolean).join("\n\n");
+  return {
+    bigPictureContent: existingBigPicture || fallbackBigPicture,
+    coreKnowledgeContent: existingCoreKnowledge || fallbackCoreKnowledge
+  };
+}
+
 function buildSlidesFromContentPack(lesson){
   const pack = lesson?.contentPack;
   if(!pack) return [];
+  const lessonContext = getLessonContextContent(lesson);
   const lessonId = lesson.id;
   const plan = getLessonInteractionPlan(lesson.id);
   const quickCheckFromCheck = (slideId, check)=>({
@@ -10395,7 +10411,13 @@ function buildSlidesFromContentPack(lesson){
 
   const slides = [
     { slideId:`${lessonId}-hero`, type:"briefing", heading:"Intro", text:pack.hero?.titleLine ?? "" },
-    { slideId:`${lessonId}-big-picture`, type:"idea", heading:"Big picture idea", text:pack.bigPicture ?? "" }
+    {
+      slideId:`${lessonId}-lesson-context`,
+      type:"lesson-context",
+      heading:"Lesson context",
+      bigPictureContent:lessonContext.bigPictureContent,
+      coreKnowledgeContent:lessonContext.coreKnowledgeContent
+    }
   ];
 
   slides.push(buildSkillFocusSlide(lesson));
@@ -10503,7 +10525,25 @@ function buildSlidesFromContentPack(lesson){
 
 function getLessonSlides(lesson){
   if(!lesson) return [];
-  const rawSlides = Array.isArray(lesson.slides) ? lesson.slides : buildSlidesFromContentPack(lesson);
+  const generatedSlides = Array.isArray(lesson.slides) ? lesson.slides : buildSlidesFromContentPack(lesson);
+  let rawSlides = [...generatedSlides];
+  const hasLessonContextSlide = rawSlides.some(slide=>slide?.type === "lesson-context");
+  const hasLegacyContextSlides = rawSlides.some(slide=>slide?.type === "idea" || slide?.type === "briefing");
+  if(!hasLessonContextSlide && hasLegacyContextSlides){
+    const contextFields = getLessonContextContent(lesson);
+    if(contextFields.bigPictureContent || contextFields.coreKnowledgeContent){
+      rawSlides = [
+        {
+          slideId:`${lesson.id}-lesson-context`,
+          type:"lesson-context",
+          heading:"Lesson context",
+          bigPictureContent:contextFields.bigPictureContent,
+          coreKnowledgeContent:contextFields.coreKnowledgeContent
+        },
+        ...rawSlides.filter(slide=>slide?.type !== "idea" && slide?.type !== "briefing")
+      ];
+    }
+  }
   const baseSlides = rawSlides.map((slide, index)=>ensureSlideMeta(slide, index));
   const withResults = baseSlides.some(slide=>slide.type === "results")
     ? baseSlides
@@ -14542,6 +14582,29 @@ const LESSON_THEME_ALIASES = {
   "opposition-control":"opposition-control"
 };
 
+function deriveLessonContextFields(lesson){
+  const pack = lesson?.contentPack || {};
+  const bigPictureFromPack = String(pack.bigPicture || "").trim();
+  const coreKnowledgeFromPack = (pack.sf?.briefings || []).map(briefing=>String(briefing?.text || "").trim()).filter(Boolean).join("\n\n");
+
+  const slides = Array.isArray(lesson?.slides) ? lesson.slides : [];
+  const bigPictureFromSlides = slides
+    .filter(slide=>slide?.type === "idea")
+    .map(slide=>String(slide?.text || "").trim())
+    .filter(Boolean)
+    .join("\n\n");
+  const coreKnowledgeFromSlides = slides
+    .filter(slide=>slide?.type === "briefing")
+    .map(slide=>String(slide?.text || "").trim())
+    .filter(Boolean)
+    .join("\n\n");
+
+  return {
+    bigPictureContent: String(lesson?.bigPictureContent || "").trim() || bigPictureFromPack || bigPictureFromSlides,
+    coreKnowledgeContent: String(lesson?.coreKnowledgeContent || "").trim() || coreKnowledgeFromPack || coreKnowledgeFromSlides
+  };
+}
+
 (function normalizeLessonsArchitecture(){
   const requiredThemes = [
     { id:"political-authority", title:"Political Authority" },
@@ -14560,8 +14623,10 @@ const LESSON_THEME_ALIASES = {
       lessons.forEach(lesson=>{
         const normalizedLessonThemeId = LESSON_THEME_ALIASES[lesson.themeId] || normalizedThemeId;
         const finalTheme = themeMap.get(normalizedLessonThemeId) || targetTheme;
+        const contextFields = deriveLessonContextFields(lesson);
         finalTheme.lessons.push({
           ...lesson,
+          ...contextFields,
           topicId: topic.id,
           themeId: finalTheme.id
         });
@@ -15905,6 +15970,22 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
         <button class="btn primary" id="examTransferNextBtn" type="button">Next →</button>
       </div>
       ${examTransferRevealed ? `<div class="quickCheckFeedback" style="margin-top:10px"><strong>Model answer:</strong> ${escapeHtml(slide.modelAnswer || "")}</div>` : ""}
+    `;
+  }
+
+  if(slide.type === "lesson-context"){
+    return `
+      ${renderLessonSlideHeading({ ...slide, heading: slide.heading || "Lesson context" })}
+      <div class="lessonContextSections">
+        <section class="lessonContextSection">
+          <h4 class="lessonContextTitle">The Big Picture</h4>
+          ${renderLessonTextBullets(slide.bigPictureContent || "")}
+        </section>
+        <section class="lessonContextSection">
+          <h4 class="lessonContextTitle">Core Knowledge</h4>
+          ${renderLessonTextBullets(slide.coreKnowledgeContent || "")}
+        </section>
+      </div>
     `;
   }
 
