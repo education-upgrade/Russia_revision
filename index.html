@@ -3361,6 +3361,10 @@ section#games.gamePaneActive .gamesHeroCard{
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
           <span class="quizCompleteActionLabel">Return to Home</span>
         </button>
+        <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteClose" type="button">
+          <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12"></path><path d="m18 6-12 12"></path></svg>
+          <span class="quizCompleteActionLabel">Close</span>
+        </button>
       </div>
     </div>
   </div>
@@ -3378,6 +3382,10 @@ section#games.gamePaneActive .gamesHeroCard{
         <button class="btn small quizCompleteActionBtn" id="btnDailyNextTaskHome" type="button">
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
           <span class="quizCompleteActionLabel">Return to Home</span>
+        </button>
+        <button class="btn small quizCompleteActionBtn" id="btnDailyNextTaskClose" type="button">
+          <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12"></path><path d="m18 6-12 12"></path></svg>
+          <span class="quizCompleteActionLabel">Close</span>
         </button>
       </div>
     </div>
@@ -18164,6 +18172,7 @@ $("btnDailyCompleteHome")?.addEventListener("click", ()=>{
   closeDailyChallengeCompleteModal();
   setTab("home");
 });
+$("btnDailyCompleteClose")?.addEventListener("click", closeDailyChallengeCompleteModal);
 
 $("btnDailyCompleteFocus")?.addEventListener("click", ()=>{
   closeDailyChallengeCompleteModal();
@@ -18179,6 +18188,7 @@ $("btnDailyNextTaskHome")?.addEventListener("click", ()=>{
   closeDailyNextTaskModal();
   setTab("home");
 });
+$("btnDailyNextTaskClose")?.addEventListener("click", closeDailyNextTaskModal);
 
 
 $("btnNextQ").addEventListener("click", ()=>{
@@ -18720,6 +18730,7 @@ function init(){
   $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
   $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
   $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
+  $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
   $("dailyNextTaskOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyNextTaskOverlay") closeDailyNextTaskModal(); });
 
   document.addEventListener("visibilitychange", ()=>{
