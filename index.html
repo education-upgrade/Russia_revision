@@ -2944,6 +2944,10 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .lessonHero.isCompact .lessonHeroMeta,
 #lessonsRoot .lessonHero.isCompact .lessonHeroTopic{ font-size:11px; }
 #lessonsRoot .lessonHero.isCompact .lessonHeroQuestion{ margin-top:4px; font-size:15px; line-height:1.25; }
+#lessonsRoot .keyQuestionPanel{margin-bottom:10px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-left:4px solid var(--accent);border-radius:14px;background:color-mix(in srgb, #ffffff 92%, var(--accent3) 8%);padding:12px 14px;display:grid;gap:7px}
+#lessonsRoot .keyQuestionLabel{margin:0;font-size:11px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)}
+#lessonsRoot .keyQuestionTitle{margin:0;font-size:16px;line-height:1.35;font-weight:900;color:var(--textStrong)}
+#lessonsRoot .keyQuestionOverview{margin:0;font-size:14px;line-height:1.55;color:var(--text)}
 #lessonsRoot .slideBody{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
 #lessonsRoot .slideHeadingWrap{display:grid;gap:3px;margin:0 0 8px}
 #lessonsRoot .slideHeadingLabel{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
@@ -10610,26 +10614,26 @@ function getStoredExamTransferRevealState(lessonId, slideId){
 }
 
 const lessonKeyQuestionMap = {
-  "t1-pa-1855-autocracy": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
-  "t1-pa-a2-reforms": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
-  "t1-pa-a3-reaction": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
-  "t1-ed-e4-emancipation": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
-  "t1-oc-s5-control": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?" },
-  "t1-sc-s6-society": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?" },
-  "t2-pa-industrialisation": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
-  "t2-pa-b2-1905": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
-  "t2-pa-1917-authority": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
-  "t2-ed-b1-witte": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
-  "t2-ed-b2-stolypin": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
-  "t2-ed-b3-war-economy": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
-  "t2-oc-b1-pre1905-opposition": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?" },
-  "t2-oc-b2-1905-turning-point": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?" },
-  "t2-oc-b3-collapse-1917": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?" },
-  "t2-sc-b1-modernisation": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?" },
-  "t2-sc-b2-social-tensions": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?" },
-  "t3-pa-lenin-system": { keyQuestionId:5, keyQuestionTitle:"How important were ideas and ideology?" },
-  "t4-ed-fyps": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
-  "t4-sc-thaw": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?" }
+  "t1-pa-1855-autocracy": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?", keyQuestionOverview:"By examining the structure and limits of autocracy in 1855, this lesson establishes the baseline from which later political change is judged. It links military weakness, administrative strain, and elite expectations to the wider question of whether Tsarist authority was resilient or already vulnerable." },
+  "t1-pa-a2-reforms": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?", keyQuestionOverview:"This lesson situates Alexander II’s reforms within the broader tension between modernisation and political continuity. It shows how selective institutional change could strengthen state capacity while preserving the core principles of autocratic sovereignty." },
+  "t1-pa-a3-reaction": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?", keyQuestionOverview:"This lesson connects the era of reaction to longer-term debates about coercion, stability, and regime durability. It explores whether repression under Alexander III restored control in a lasting way or deferred deeper structural pressures." },
+  "t1-ed-e4-emancipation": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson places emancipation within Russia’s wider attempt to modernise after military and fiscal weakness were exposed. It evaluates how social reform affected productivity, mobility, and state development across the late imperial economy." },
+  "t1-oc-s5-control": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?", keyQuestionOverview:"This lesson links changing forms of opposition to the mechanisms of Tsarist surveillance, censorship, and repression. It helps explain how pressures beneath apparent stability shaped the political trajectory of late nineteenth-century Russia." },
+  "t1-sc-s6-society": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?", keyQuestionOverview:"This lesson frames social change as uneven and contested across class, region, and culture. It connects reforms and modernisation to broader continuities in hierarchy, identity, and everyday life in imperial Russia." },
+  "t2-pa-industrialisation": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?", keyQuestionOverview:"This lesson situates industrial growth within the political problem of governing a rapidly changing empire. It explains how urbanisation, labour concentration, and new social actors complicated the maintenance of autocratic authority." },
+  "t2-pa-b2-1905": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?", keyQuestionOverview:"This lesson places 1905 within the wider chronology of crisis and adaptation in Tsarist rule. It examines whether constitutional concessions altered the nature of power or merely reconfigured autocracy under pressure." },
+  "t2-pa-1917-authority": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?", keyQuestionOverview:"This lesson links wartime strain, political miscalculation, and institutional breakdown to the collapse of Tsarist legitimacy. It clarifies why authority failed in 1917 and how this rupture redefined the Russian state." },
+  "t2-ed-b1-witte": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson connects Witte’s programme to larger debates about state-led development in late imperial Russia. It evaluates whether rapid growth translated into balanced modernisation or intensified structural and social instability." },
+  "t2-ed-b2-stolypin": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson situates Stolypin’s reforms in the broader search for post-1905 stability. It assesses whether agrarian restructuring could reconcile economic modernisation with political order in the years before war." },
+  "t2-ed-b3-war-economy": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson places economic collapse in the context of total war and imperial governance limits. It shows how transport failure, inflation, and supply crises undermined both social cohesion and regime authority." },
+  "t2-oc-b1-pre1905-opposition": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?", keyQuestionOverview:"This lesson frames pre-1905 opposition as a spectrum of ideological and social challenges rather than a single movement. It connects underground activism and protest to the longer development of revolutionary politics." },
+  "t2-oc-b2-1905-turning-point": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?", keyQuestionOverview:"This lesson analyses 1905 as a turning point in both state control and oppositional strategy. It links concessions, repression, and political mobilisation to the evolving balance between coercion and participation." },
+  "t2-oc-b3-collapse-1917": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?", keyQuestionOverview:"This lesson connects wartime opposition to the breakdown of coercive capacity and political legitimacy. It explains how cumulative pressure from society, elites, and institutions overwhelmed Tsarist control by 1917." },
+  "t2-sc-b1-modernisation": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?", keyQuestionOverview:"This lesson situates social modernisation within the uneven development of late imperial Russia. It relates education, urban life, and changing aspirations to broader shifts in power, identity, and political expectation." },
+  "t2-sc-b2-social-tensions": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?", keyQuestionOverview:"This lesson frames rising tensions as the social consequence of rapid but unequal transformation. It links labour unrest, rural discontent, and class conflict to the wider instability of the pre-1917 order." },
+  "t3-pa-lenin-system": { keyQuestionId:5, keyQuestionTitle:"How important were ideas and ideology?", keyQuestionOverview:"This lesson places Lenin’s consolidation of power within the wider revolutionary reordering of the state. It examines how ideology, coercion, and institution-building interacted to produce a new model of political authority." },
+  "t4-ed-fyps": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson situates the Five-Year Plans within the Soviet project of accelerated transformation and strategic security. It evaluates achievements in output against human costs, distortion, and long-term sustainability." },
+  "t4-sc-thaw": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?", keyQuestionOverview:"This lesson connects the Thaw to broader debates about reform, control, and continuity in the post-Stalin USSR. It assesses whether cultural liberalisation and policy change represented systemic transformation or bounded adjustment." }
 };
 
 const lessonsData = [
@@ -10654,6 +10658,7 @@ const lessonsData = [
             id:"t1-pa-1855-autocracy",
             keyQuestionId:1,
             keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
+            keyQuestionOverview:"By examining the structure and limits of autocracy in 1855, this lesson establishes the baseline from which later political change is judged. It links military weakness, administrative strain, and elite expectations to the wider question of whether Tsarist authority was resilient or already vulnerable.",
             title:"How secure was autocracy in 1855?",
             yearLabel:"1855",
             theme:"Political Authority",
@@ -10670,6 +10675,7 @@ const lessonsData = [
             id:"t1-pa-a2-reforms",
             keyQuestionId:1,
             keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
+            keyQuestionOverview:"This lesson situates Alexander II’s reforms within the broader tension between modernisation and political continuity. It shows how selective institutional change could strengthen state capacity while preserving the core principles of autocratic sovereignty.",
             title:"How far did Alexander II’s reforms weaken autocracy?",
             yearLabel:"1855–1881",
             theme:"Political Authority",
@@ -10773,6 +10779,7 @@ const lessonsData = [
             id:"t1-pa-a3-reaction",
             keyQuestionId:1,
             keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
+            keyQuestionOverview:"This lesson connects the era of reaction to longer-term debates about coercion, stability, and regime durability. It explores whether repression under Alexander III restored control in a lasting way or deferred deeper structural pressures.",
             title:"Did reaction restore autocracy under Alexander III?",
             yearLabel:"1881–1894",
             theme:"Political Authority",
@@ -11000,6 +11007,7 @@ const lessonsData = [
             id:"t1-ed-e4-emancipation",
             keyQuestionId:3,
             keyQuestionTitle:"How and with what results did the economy develop and change?",
+            keyQuestionOverview:"This lesson places emancipation within Russia’s wider attempt to modernise after military and fiscal weakness were exposed. It evaluates how social reform affected productivity, mobility, and state development across the late imperial economy.",
             title:"Did emancipation modernise the Russian economy?",
             yearLabel:"1861 onwards",
             theme:"Economic Development",
@@ -11227,6 +11235,7 @@ const lessonsData = [
             id:"t1-oc-s5-control",
             keyQuestionId:2,
             keyQuestionTitle:"Why did opposition develop and how effective was it?",
+            keyQuestionOverview:"This lesson links changing forms of opposition to the mechanisms of Tsarist surveillance, censorship, and repression. It helps explain how pressures beneath apparent stability shaped the political trajectory of late nineteenth-century Russia.",
             title:"How effectively did the regime control opposition, 1855–1894?",
             topicId:"t1",
             themeId:"opposition-control",
@@ -11251,6 +11260,7 @@ const lessonsData = [
             id:"t1-sc-s6-society",
             keyQuestionId:4,
             keyQuestionTitle:"What was the extent of social and cultural change?",
+            keyQuestionOverview:"This lesson frames social change as uneven and contested across class, region, and culture. It connects reforms and modernisation to broader continuities in hierarchy, identity, and everyday life in imperial Russia.",
             title:"How far did Russian society change, 1855–1894?",
             topicId:"t1",
             themeId:"social-cultural",
@@ -11495,6 +11505,7 @@ const lessonsData = [
             id:"t2-pa-industrialisation",
             keyQuestionId:1,
             keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
+            keyQuestionOverview:"This lesson situates industrial growth within the political problem of governing a rapidly changing empire. It explains how urbanisation, labour concentration, and new social actors complicated the maintenance of autocratic authority.",
             title:"How far did industrialisation challenge autocracy? (c1890–1905)",
             yearLabel:"c1890–1905",
             theme:"Political Authority",
@@ -11716,6 +11727,7 @@ const lessonsData = [
             id:"t2-pa-b2-1905",
             keyQuestionId:1,
             keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
+            keyQuestionOverview:"This lesson places 1905 within the wider chronology of crisis and adaptation in Tsarist rule. It examines whether constitutional concessions altered the nature of power or merely reconfigured autocracy under pressure.",
             title:"How far did the 1905 Revolution weaken Tsarist autocracy?",
             yearLabel:"1905–1906",
             theme:"Political Authority",
@@ -11940,6 +11952,7 @@ const lessonsData = [
             id:"t2-pa-1917-authority",
             keyQuestionId:1,
             keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
+            keyQuestionOverview:"This lesson links wartime strain, political miscalculation, and institutional breakdown to the collapse of Tsarist legitimacy. It clarifies why authority failed in 1917 and how this rupture redefined the Russian state.",
             title:"Why did Nicholas II lose authority in 1917?",
             yearLabel:"1914–1917",
             theme:"Political Authority",
@@ -12171,6 +12184,7 @@ const lessonsData = [
             id:"t2-ed-b1-witte",
             keyQuestionId:3,
             keyQuestionTitle:"How and with what results did the economy develop and change?",
+            keyQuestionOverview:"This lesson connects Witte’s programme to larger debates about state-led development in late imperial Russia. It evaluates whether rapid growth translated into balanced modernisation or intensified structural and social instability.",
             title:"How successful was Witte’s industrial policy?",
             yearLabel:"1890s–early 1900s",
             theme:"Economic Development",
@@ -12396,6 +12410,7 @@ const lessonsData = [
             id:"t2-ed-b2-stolypin",
             keyQuestionId:3,
             keyQuestionTitle:"How and with what results did the economy develop and change?",
+            keyQuestionOverview:"This lesson situates Stolypin’s reforms in the broader search for post-1905 stability. It assesses whether agrarian restructuring could reconcile economic modernisation with political order in the years before war.",
             title:"How far did Stolypin stabilise Russia?",
             yearLabel:"1906–1911",
             theme:"Economic Development",
@@ -12621,6 +12636,7 @@ const lessonsData = [
             id:"t2-ed-b3-war-economy",
             keyQuestionId:3,
             keyQuestionTitle:"How and with what results did the economy develop and change?",
+            keyQuestionOverview:"This lesson places economic collapse in the context of total war and imperial governance limits. It shows how transport failure, inflation, and supply crises undermined both social cohesion and regime authority.",
             title:"Why did the war economy collapse by 1917?",
             yearLabel:"1914–1917",
             theme:"Economic Development",
@@ -12852,6 +12868,7 @@ const lessonsData = [
             id:"t2-oc-b1-pre1905-opposition",
             keyQuestionId:2,
             keyQuestionTitle:"Why did opposition develop and how effective was it?",
+            keyQuestionOverview:"This lesson frames pre-1905 opposition as a spectrum of ideological and social challenges rather than a single movement. It connects underground activism and protest to the longer development of revolutionary politics.",
             title:"How serious was opposition to Tsarism before 1905?",
             topicId:"t2",
             themeId:"opposition-control",
@@ -13080,6 +13097,7 @@ const lessonsData = [
             id:"t2-oc-b2-1905-turning-point",
             keyQuestionId:2,
             keyQuestionTitle:"Why did opposition develop and how effective was it?",
+            keyQuestionOverview:"This lesson analyses 1905 as a turning point in both state control and oppositional strategy. It links concessions, repression, and political mobilisation to the evolving balance between coercion and participation.",
             title:"How far did 1905 change opposition and control?",
             topicId:"t2",
             themeId:"opposition-control",
@@ -13311,6 +13329,7 @@ const lessonsData = [
             id:"t2-oc-b3-collapse-1917",
             keyQuestionId:2,
             keyQuestionTitle:"Why did opposition develop and how effective was it?",
+            keyQuestionOverview:"This lesson connects wartime opposition to the breakdown of coercive capacity and political legitimacy. It explains how cumulative pressure from society, elites, and institutions overwhelmed Tsarist control by 1917.",
             title:"Why did opposition overwhelm Tsarist control by February 1917?",
             topicId:"t2",
             themeId:"opposition-control",
@@ -13543,6 +13562,7 @@ const lessonsData = [
             id:"t2-sc-b1-modernisation",
             keyQuestionId:4,
             keyQuestionTitle:"What was the extent of social and cultural change?",
+            keyQuestionOverview:"This lesson situates social modernisation within the uneven development of late imperial Russia. It relates education, urban life, and changing aspirations to broader shifts in power, identity, and political expectation.",
             title:"How far did Russian society modernise, 1894–1917?",
             topicId:"t2",
             themeId:"social-cultural",
@@ -13770,6 +13790,7 @@ const lessonsData = [
             id:"t2-sc-b2-social-tensions",
             keyQuestionId:4,
             keyQuestionTitle:"What was the extent of social and cultural change?",
+            keyQuestionOverview:"This lesson frames rising tensions as the social consequence of rapid but unequal transformation. It links labour unrest, rural discontent, and class conflict to the wider instability of the pre-1917 order.",
             title:"How far did social tensions increase before 1917?",
             topicId:"t2",
             themeId:"social-cultural",
@@ -14011,6 +14032,7 @@ const lessonsData = [
             id:"t3-pa-lenin-system",
             keyQuestionId:5,
             keyQuestionTitle:"How important were ideas and ideology?",
+            keyQuestionOverview:"This lesson places Lenin’s consolidation of power within the wider revolutionary reordering of the state. It examines how ideology, coercion, and institution-building interacted to produce a new model of political authority.",
             title:"How far did Lenin create a new political system?",
             yearLabel:"1917–1924",
             theme:"Political Authority",
@@ -14456,6 +14478,7 @@ const lessonsData = [
             id:"t4-ed-fyps",
             keyQuestionId:3,
             keyQuestionTitle:"How and with what results did the economy develop and change?",
+            keyQuestionOverview:"This lesson situates the Five-Year Plans within the Soviet project of accelerated transformation and strategic security. It evaluates achievements in output against human costs, distortion, and long-term sustainability.",
             title:"How successful were the Five-Year Plans?",
             yearLabel:"1928–1941",
             theme:"Economic Development",
@@ -14488,6 +14511,7 @@ const lessonsData = [
             id:"t4-sc-thaw",
             keyQuestionId:4,
             keyQuestionTitle:"What was the extent of social and cultural change?",
+            keyQuestionOverview:"This lesson connects the Thaw to broader debates about reform, control, and continuity in the post-Stalin USSR. It assesses whether cultural liberalisation and policy change represented systemic transformation or bounded adjustment.",
             title:"Was the Khrushchev Thaw a genuine transformation?",
             topicId:"t4",
             themeId:"social-cultural",
@@ -15040,6 +15064,11 @@ function renderLessonPlayer(root){
           <span class="pill modePill ${lessonsNav.mode === "exam" ? "active" : ""}" data-action="lesson-mode" data-mode="exam">Exam+</span>
         </div>
         <button class="btn" id="backToLessonList" type="button">← Theme</button>
+      </div>
+      <div class="keyQuestionPanel">
+        <p class="keyQuestionLabel">KEY QUESTION:</p>
+        <p class="keyQuestionTitle">${lesson.keyQuestionTitle || "Not set"}</p>
+        <p class="keyQuestionOverview">This lesson contributes to answering: ${lesson.keyQuestionOverview || "This lesson links the topic to broader shifts in state power, society, and economic change across the period."}</p>
       </div>
       <div class="lessonHero ${idx > 0 ? "isCompact" : ""}" style="background-image:url('${lesson.heroImage}')">
         <div class="lessonHeroCopy">
