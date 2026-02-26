@@ -10609,6 +10609,29 @@ function getStoredExamTransferRevealState(lessonId, slideId){
   return !!(value && typeof value === "object" && value.revealed);
 }
 
+const lessonKeyQuestionMap = {
+  "t1-pa-1855-autocracy": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
+  "t1-pa-a2-reforms": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
+  "t1-pa-a3-reaction": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
+  "t1-ed-e4-emancipation": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
+  "t1-oc-s5-control": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?" },
+  "t1-sc-s6-society": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?" },
+  "t2-pa-industrialisation": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
+  "t2-pa-b2-1905": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
+  "t2-pa-1917-authority": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?" },
+  "t2-ed-b1-witte": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
+  "t2-ed-b2-stolypin": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
+  "t2-ed-b3-war-economy": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
+  "t2-oc-b1-pre1905-opposition": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?" },
+  "t2-oc-b2-1905-turning-point": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?" },
+  "t2-oc-b3-collapse-1917": { keyQuestionId:2, keyQuestionTitle:"Why did opposition develop and how effective was it?" },
+  "t2-sc-b1-modernisation": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?" },
+  "t2-sc-b2-social-tensions": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?" },
+  "t3-pa-lenin-system": { keyQuestionId:5, keyQuestionTitle:"How important were ideas and ideology?" },
+  "t4-ed-fyps": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?" },
+  "t4-sc-thaw": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?" }
+};
+
 const lessonsData = [
   {
     id:"t1",
@@ -10629,6 +10652,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t1-pa-1855-autocracy",
+            keyQuestionId:1,
+            keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
             title:"How secure was autocracy in 1855?",
             yearLabel:"1855",
             theme:"Political Authority",
@@ -10643,6 +10668,8 @@ const lessonsData = [
           },
           {
             id:"t1-pa-a2-reforms",
+            keyQuestionId:1,
+            keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
             title:"How far did Alexander II’s reforms weaken autocracy?",
             yearLabel:"1855–1881",
             theme:"Political Authority",
@@ -10744,6 +10771,8 @@ const lessonsData = [
           },
           {
             id:"t1-pa-a3-reaction",
+            keyQuestionId:1,
+            keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
             title:"Did reaction restore autocracy under Alexander III?",
             yearLabel:"1881–1894",
             theme:"Political Authority",
@@ -10969,6 +10998,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t1-ed-e4-emancipation",
+            keyQuestionId:3,
+            keyQuestionTitle:"How and with what results did the economy develop and change?",
             title:"Did emancipation modernise the Russian economy?",
             yearLabel:"1861 onwards",
             theme:"Economic Development",
@@ -11194,6 +11225,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t1-oc-s5-control",
+            keyQuestionId:2,
+            keyQuestionTitle:"Why did opposition develop and how effective was it?",
             title:"How effectively did the regime control opposition, 1855–1894?",
             topicId:"t1",
             themeId:"opposition-control",
@@ -11216,6 +11249,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t1-sc-s6-society",
+            keyQuestionId:4,
+            keyQuestionTitle:"What was the extent of social and cultural change?",
             title:"How far did Russian society change, 1855–1894?",
             topicId:"t1",
             themeId:"social-cultural",
@@ -11458,6 +11493,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t2-pa-industrialisation",
+            keyQuestionId:1,
+            keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
             title:"How far did industrialisation challenge autocracy? (c1890–1905)",
             yearLabel:"c1890–1905",
             theme:"Political Authority",
@@ -11677,6 +11714,8 @@ const lessonsData = [
           },
           {
             id:"t2-pa-b2-1905",
+            keyQuestionId:1,
+            keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
             title:"How far did the 1905 Revolution weaken Tsarist autocracy?",
             yearLabel:"1905–1906",
             theme:"Political Authority",
@@ -11899,6 +11938,8 @@ const lessonsData = [
           },
           {
             id:"t2-pa-1917-authority",
+            keyQuestionId:1,
+            keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
             title:"Why did Nicholas II lose authority in 1917?",
             yearLabel:"1914–1917",
             theme:"Political Authority",
@@ -12128,6 +12169,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t2-ed-b1-witte",
+            keyQuestionId:3,
+            keyQuestionTitle:"How and with what results did the economy develop and change?",
             title:"How successful was Witte’s industrial policy?",
             yearLabel:"1890s–early 1900s",
             theme:"Economic Development",
@@ -12351,6 +12394,8 @@ const lessonsData = [
           },
           {
             id:"t2-ed-b2-stolypin",
+            keyQuestionId:3,
+            keyQuestionTitle:"How and with what results did the economy develop and change?",
             title:"How far did Stolypin stabilise Russia?",
             yearLabel:"1906–1911",
             theme:"Economic Development",
@@ -12574,6 +12619,8 @@ const lessonsData = [
           },
           {
             id:"t2-ed-b3-war-economy",
+            keyQuestionId:3,
+            keyQuestionTitle:"How and with what results did the economy develop and change?",
             title:"Why did the war economy collapse by 1917?",
             yearLabel:"1914–1917",
             theme:"Economic Development",
@@ -12803,6 +12850,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t2-oc-b1-pre1905-opposition",
+            keyQuestionId:2,
+            keyQuestionTitle:"Why did opposition develop and how effective was it?",
             title:"How serious was opposition to Tsarism before 1905?",
             topicId:"t2",
             themeId:"opposition-control",
@@ -13029,6 +13078,8 @@ const lessonsData = [
           ,
           {
             id:"t2-oc-b2-1905-turning-point",
+            keyQuestionId:2,
+            keyQuestionTitle:"Why did opposition develop and how effective was it?",
             title:"How far did 1905 change opposition and control?",
             topicId:"t2",
             themeId:"opposition-control",
@@ -13258,6 +13309,8 @@ const lessonsData = [
           },
           {
             id:"t2-oc-b3-collapse-1917",
+            keyQuestionId:2,
+            keyQuestionTitle:"Why did opposition develop and how effective was it?",
             title:"Why did opposition overwhelm Tsarist control by February 1917?",
             topicId:"t2",
             themeId:"opposition-control",
@@ -13488,6 +13541,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t2-sc-b1-modernisation",
+            keyQuestionId:4,
+            keyQuestionTitle:"What was the extent of social and cultural change?",
             title:"How far did Russian society modernise, 1894–1917?",
             topicId:"t2",
             themeId:"social-cultural",
@@ -13713,6 +13768,8 @@ const lessonsData = [
           },
           {
             id:"t2-sc-b2-social-tensions",
+            keyQuestionId:4,
+            keyQuestionTitle:"What was the extent of social and cultural change?",
             title:"How far did social tensions increase before 1917?",
             topicId:"t2",
             themeId:"social-cultural",
@@ -13952,6 +14009,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t3-pa-lenin-system",
+            keyQuestionId:5,
+            keyQuestionTitle:"How important were ideas and ideology?",
             title:"How far did Lenin create a new political system?",
             yearLabel:"1917–1924",
             theme:"Political Authority",
@@ -14395,6 +14454,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t4-ed-fyps",
+            keyQuestionId:3,
+            keyQuestionTitle:"How and with what results did the economy develop and change?",
             title:"How successful were the Five-Year Plans?",
             yearLabel:"1928–1941",
             theme:"Economic Development",
@@ -14425,6 +14486,8 @@ const lessonsData = [
         lessons:[
           {
             id:"t4-sc-thaw",
+            keyQuestionId:4,
+            keyQuestionTitle:"What was the extent of social and cultural change?",
             title:"Was the Khrushchev Thaw a genuine transformation?",
             topicId:"t4",
             themeId:"social-cultural",
