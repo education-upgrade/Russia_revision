@@ -2804,12 +2804,28 @@ section#games.gamePaneActive .gamesHeroCard{
   #lessonsRoot .card{
     padding:10px;
   }
+  #lessonsRoot .lessonsTitle{
+    font-size:21px;
+  }
+  #lessonsRoot .lessonsGrid{
+    grid-template-columns:1fr;
+  }
+  #lessonsRoot .lessonListCard,
+  #lessonsRoot .lessonNavCard,
+  #lessonsRoot .lessonSuggestion{
+    padding:10px;
+  }
   #lessonsRoot .lessonModeRow{
     gap:8px;
     margin-bottom:8px;
+    align-items:stretch;
+    flex-direction:column;
   }
   #lessonsRoot .lessonModeRow .modePills{
     gap:6px;
+    width:100%;
+    justify-content:space-between;
+    flex-wrap:wrap;
   }
   #lessonsRoot .lessonModeRow .modePill{
     padding:5px 8px;
@@ -2821,7 +2837,7 @@ section#games.gamePaneActive .gamesHeroCard{
     font-size:12px;
   }
   #lessonsRoot .lessonHero{
-    min-height:124px;
+    min-height:112px;
     margin-bottom:8px;
     border-radius:12px;
   }
@@ -2857,7 +2873,7 @@ section#games.gamePaneActive .gamesHeroCard{
   #lessonsRoot .quickCheckFeedback,
   #lessonsRoot .hintStrip,
   #lessonsRoot .lessonOutputBox{
-    font-size:13px;
+    font-size:12.5px;
     line-height:1.35;
   }
   #lessonsRoot .quickCheckOptions{
@@ -2870,18 +2886,48 @@ section#games.gamePaneActive .gamesHeroCard{
   #lessonsRoot .playerFooter{
     margin-top:8px;
     gap:6px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    align-items:stretch;
+  }
+  #lessonsRoot .playerFooter .lessonProgressWrap{
+    order:-1;
+    grid-column:1 / -1;
   }
   #lessonsRoot .playerFooter .btn{
     min-height:40px;
     padding:8px 10px;
     font-size:13px;
+    width:100%;
   }
   #lessonsRoot .lessonProgressTrack{
-    height:10px;
+    height:8px;
   }
   #lessonsRoot .lessonProgressPct{
     margin-top:2px;
     font-size:11px;
+  }
+  #lessonsRoot .lessonLessonNav{
+    grid-template-columns:1fr;
+  }
+  #lessonsRoot .lessonTimeline{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+    padding:6px;
+  }
+  #lessonsRoot .timelineSegment{
+    flex:1 1 calc(50% - 5px);
+    font-size:10px;
+    padding:5px 4px;
+  }
+  #lessonsRoot .keyQuestionPanel{
+    padding:10px;
+    gap:5px;
+  }
+  #lessonsRoot .keyQuestionOverview{
+    font-size:13px;
+    line-height:1.4;
   }
 }
 
