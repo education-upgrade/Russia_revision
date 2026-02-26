@@ -2916,6 +2916,32 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .modePill.active{ opacity:1; border-color:var(--accent); color:var(--accent); }
 #lessonsRoot .lessonModeRow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px;}
 #lessonsRoot .lessonModeRow .modePills{margin-bottom:0;flex-wrap:nowrap;}
+#lessonsRoot .lessonTimeline{
+  margin:4px 0 10px;
+  padding:8px;
+  border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
+  border-radius:12px;
+  background:color-mix(in srgb, #ffffff 90%, var(--accent3) 10%);
+  display:grid;
+  grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:6px;
+}
+#lessonsRoot .timelineSegment{
+  text-align:center;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.2px;
+  color:var(--muted);
+  padding:7px 6px;
+  border-radius:10px;
+  border:1px solid transparent;
+  background:rgba(255,255,255,.78);
+}
+#lessonsRoot .timelineSegment.isActive{
+  color:var(--textStrong);
+  border-color:color-mix(in srgb, var(--line) 66%, var(--accent2) 34%);
+  background:color-mix(in srgb, var(--accent2) 42%, #ffffff 58%);
+}
 #lessonsRoot .lessonHero{
   position:relative;
   min-height:180px;
@@ -2949,6 +2975,10 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .lessonHero.isCompact .lessonHeroQuestion{ margin-top:4px; font-size:15px; line-height:1.25; }
 #lessonsRoot .keyQuestionPanel{margin-bottom:10px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-left:4px solid var(--accent);border-radius:14px;background:color-mix(in srgb, #ffffff 92%, var(--accent3) 8%);padding:12px 14px;display:grid;gap:7px}
 #lessonsRoot .keyQuestionLabel{margin:0;font-size:11px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)}
+#lessonsRoot .keyQuestionLabel strong,
+#lessonsRoot .slideHeadingLabel strong,
+#lessonsRoot .lessonContextTitle strong,
+#lessonsRoot .context-panel-title strong{font-weight:1000;color:var(--textStrong)}
 #lessonsRoot .keyQuestionTitle{margin:0;font-size:16px;line-height:1.35;font-weight:900;color:var(--textStrong)}
 #lessonsRoot .keyQuestionOverview{margin:0;font-size:14px;line-height:1.55;color:var(--text)}
 #lessonsRoot .slideBody{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
@@ -2960,6 +2990,8 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .quickCheckFeedback{ margin-top:8px; font-weight:700; }
 #lessonsRoot .playerFooter{ display:flex; align-items:center; gap:8px; margin-top:12px; }
 #lessonsRoot .playerFooter .btn{ flex:0 0 auto; }
+#lessonsRoot .lessonLessonNav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+#lessonsRoot .lessonLessonNav .btn{min-height:42px;font-size:14px}
 #lessonsRoot .lessonProgressWrap{ flex:1 1 auto; min-width:0; }
 #lessonsRoot .lessonProgressTrack{ height:12px; border-radius:999px; background:color-mix(in srgb, var(--accent2) 34%, #ffffff 66%); border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%); overflow:hidden; }
 #lessonsRoot .lessonProgressFill{ height:100%; background:linear-gradient(90deg,var(--warn),var(--good)); width:0; transition:width .25s ease; }
@@ -2991,6 +3023,33 @@ section#games.gamePaneActive .gamesHeroCard{
   color:var(--keyMetric);
 }
 #lessonsRoot .resultsPrompt{ max-width:42ch; font-weight:700; }
+#lessonsRoot .slideBody,
+#lessonsRoot .keyQuestionPanel,
+#lessonsRoot .lessonContextSection,
+#lessonsRoot .context-panel{
+  animation:lessonPanelFade .32s ease;
+}
+#lessonsRoot .lessonContextSection,
+#lessonsRoot .context-panel{
+  border-left:4px solid color-mix(in srgb, var(--accent) 72%, #ffffff 28%);
+}
+#lessonsRoot .aoPanel{
+  border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);
+  border-left:4px solid color-mix(in srgb, var(--accent) 72%, #ffffff 28%);
+  border-radius:12px;
+  padding:10px 12px;
+  background:color-mix(in srgb, #ffffff 92%, var(--accent3) 8%);
+}
+@keyframes lessonPanelFade{
+  from{opacity:0;transform:translateY(3px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@media (prefers-reduced-motion: reduce){
+  #lessonsRoot .slideBody,
+  #lessonsRoot .keyQuestionPanel,
+  #lessonsRoot .lessonContextSection,
+  #lessonsRoot .context-panel{animation:none}
+}
 
 </style>
 </head>
@@ -8657,6 +8716,7 @@ function renderLessonTextBullets(text){
     { title:"Economic change", score:3, match:/\b(industrial|factory|output|railway|tax|grain|harvest|prices?|wages?|econom(?:y|ic)|finance)\b/i },
     { title:"Impact on society", score:2, match:/\b(workers|peasants|nobility|society|class|living conditions?|education|housing|religion)\b/i },
     { title:"Consequences", score:2, match:/\b(result|led to|impact|effect|outcome|consequence|therefore|as a result)\b/i },
+    { title:"Why This Matters", score:3, match:/\b(significant|importance|legacy|long-term|turning point|matters?)\b/i },
     { title:"Overall judgement", score:2, match:/\b(how far|evaluate|judg(?:e|ment)|overall|extent|more important|convincing)\b/i }
   ];
 
@@ -8742,7 +8802,7 @@ function renderLessonTextBullets(text){
 
   return `<div class="context-card">${panels.map(panel=>`
     <div class="context-panel">
-      <div class="context-panel-title">${escapeHtml(panel.title)}</div>
+      <div class="context-panel-title"><strong>${escapeHtml(panel.title)}</strong></div>
       <div class="context-panel-body"><p>${escapeHtml(panel.text)}</p></div>
     </div>
   `).join("")}</div>`;
@@ -14704,6 +14764,26 @@ function getNextLessonInPack(currentLessonId){
   return lessons[currentIndex + 1] || null;
 }
 
+function getPreviousLessonFromCourse(currentLessonId){
+  const orderedLessons = lessonsData.flatMap(topic=>
+    (topic.themes || []).flatMap(theme=>
+      (theme.lessons || []).map(lesson=>({ ...lesson, topicId:lesson.topicId || topic.id, themeId:lesson.themeId || theme.id }))
+    )
+  );
+  const currentIndex = orderedLessons.findIndex(lesson=>lesson.id===currentLessonId);
+  if(currentIndex <= 0) return null;
+  return orderedLessons[currentIndex - 1] || null;
+}
+
+function getTimelineBand(yearLabel){
+  const startYear = Number(String(yearLabel || "").match(/\d{4}/)?.[0]);
+  if(!Number.isFinite(startYear)) return null;
+  if(startYear <= 1894) return "1855-1894";
+  if(startYear <= 1917) return "1894-1917";
+  if(startYear <= 1941) return "1917-41";
+  return "1941-64";
+}
+
 function getNextLessonFromCourse(currentLessonId){
   const orderedLessons = lessonsData.flatMap(topic=>
     (topic.themes || []).flatMap(theme=>
@@ -15093,6 +15173,9 @@ function renderLessonPlayer(root){
   persistLessonSlidePosition(lesson.id, idx);
   const slide = slides[idx];
   const slideId = slide?.slideId;
+  const previousLesson = getPreviousLessonFromCourse(lesson.id);
+  const nextLessonInCourse = getNextLessonFromCourse(lesson.id);
+  const activeTimelineBand = getTimelineBand(lesson.yearLabel);
   const storedAnswer = slide.type === "quick-check" ? getStoredQuickCheckAnswer(lesson.id, slideId) : null;
   const buildAnswerChecked = slide.type === "build-answer" ? getStoredBuildAnswerChecked(lesson.id, slideId) : false;
   const argIdentifyState = slide.type === "arg-identify" ? getStoredArgIdentifyState(lesson.id, slideId) : { checked:false, value:null };
@@ -15130,8 +15213,16 @@ function renderLessonPlayer(root){
         </div>
         <button class="btn" id="backToLessonList" type="button">← Theme</button>
       </div>
+      <div class="lessonTimeline" aria-label="Course timeline">
+        ${[
+          { id:"1855-1894", label:"1855–1894" },
+          { id:"1894-1917", label:"1894–1917" },
+          { id:"1917-41", label:"1917–41" },
+          { id:"1941-64", label:"1941–64" }
+        ].map(segment=>`<span class="timelineSegment ${activeTimelineBand===segment.id ? "isActive" : ""}">${segment.label}</span>`).join("")}
+      </div>
       <div class="keyQuestionPanel">
-        <p class="keyQuestionLabel">KEY QUESTION:</p>
+        <p class="keyQuestionLabel"><strong>Key Question</strong>:</p>
         <p class="keyQuestionTitle">${lesson.keyQuestionTitle || "Not set"}</p>
         <p class="keyQuestionOverview">This lesson contributes to answering: ${lesson.keyQuestionOverview || "This lesson links the topic to broader shifts in state power, society, and economic change across the period."}</p>
       </div>
@@ -15152,6 +15243,10 @@ function renderLessonPlayer(root){
           <div class="lessonProgressPct">${Math.round(((idx+1)/Math.max(total,1))*100)}% complete</div>
         </div>
         <button class="btn primary" id="lessonNextBtn" type="button" ${nextDisabled ? "disabled" : ""}>${onLastBriefingSlide ? "Continue to practice →" : "Next →"}</button>
+      </div>
+      <div class="lessonLessonNav">
+        <button class="btn" id="lessonPrevLessonNavBtn" type="button" ${previousLesson ? "" : "disabled"}>Previous Lesson</button>
+        <button class="btn" id="lessonNextLessonNavBtn" type="button" ${nextLessonInCourse ? "" : "disabled"}>Next Lesson</button>
       </div>
     </div>`;
 
@@ -15193,6 +15288,33 @@ function renderLessonPlayer(root){
       renderLessons();
     }
   });
+  const previousLessonBtn = $("lessonPrevLessonNavBtn");
+  if(previousLessonBtn){
+    previousLessonBtn.addEventListener("click", ()=>{
+      if(!previousLesson) return;
+      lessonsNav.topicId = previousLesson.topicId;
+      lessonsNav.themeId = previousLesson.themeId;
+      lessonsNav.lessonId = previousLesson.id;
+      lessonsNav.view = "player";
+      lessonsNav.slideIdx = 0;
+      lessonsNav.selectedOptionIndex = null;
+      renderLessons();
+    });
+  }
+
+  const nextLessonNavBtn = $("lessonNextLessonNavBtn");
+  if(nextLessonNavBtn){
+    nextLessonNavBtn.addEventListener("click", ()=>{
+      if(!nextLessonInCourse) return;
+      lessonsNav.topicId = nextLessonInCourse.topicId;
+      lessonsNav.themeId = nextLessonInCourse.themeId;
+      lessonsNav.lessonId = nextLessonInCourse.id;
+      lessonsNav.view = "player";
+      lessonsNav.slideIdx = 0;
+      lessonsNav.selectedOptionIndex = null;
+      renderLessons();
+    });
+  }
 
   if(slide.type === "quick-check"){
     root.querySelectorAll('[data-action="quick-option"]').forEach((btn,i)=>{
@@ -15490,7 +15612,7 @@ function getLessonSlideLabel(slideType){
 function renderLessonSlideHeading(slide){
   const title = escapeHtml(slide?.heading || "Lesson panel");
   const label = escapeHtml(getLessonSlideLabel(slide?.type));
-  return `<div class="slideHeadingWrap"><div class="slideHeadingLabel">${label}</div><h4 class="slideHeading">${title}</h4></div>`;
+  return `<div class="slideHeadingWrap"><div class="slideHeadingLabel"><strong>${label}</strong></div><h4 class="slideHeading">${title}</h4></div>`;
 }
 
 function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideIndex, examTransferRevealed){
@@ -15978,11 +16100,11 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
       ${renderLessonSlideHeading({ ...slide, heading: slide.heading || "Lesson context" })}
       <div class="lessonContextSections">
         <section class="lessonContextSection">
-          <h4 class="lessonContextTitle">The Big Picture</h4>
+          <h4 class="lessonContextTitle"><strong>Big Picture</strong></h4>
           ${renderLessonTextBullets(slide.bigPictureContent || "")}
         </section>
         <section class="lessonContextSection">
-          <h4 class="lessonContextTitle">Core Knowledge</h4>
+          <h4 class="lessonContextTitle"><strong>AO1 Core Knowledge</strong></h4>
           ${renderLessonTextBullets(slide.coreKnowledgeContent || "")}
         </section>
       </div>
@@ -15995,8 +16117,8 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
       ${renderLessonSlideHeading({ ...slide, heading: slide.heading || "Exam skill focus" })}
       <div class="quickCheckOptions" style="margin-top:8px">
         ${aoTiles.map(tile=>`
-          <div class="note" style="padding:10px 12px">
-            <div style="font-weight:900;color:var(--textStrong)">${escapeHtml(tile.label || "AO")}</div>
+          <div class="aoPanel">
+            <div style="font-weight:900;color:var(--textStrong)"><strong>${escapeHtml(tile.label || "AO")}</strong></div>
             <ul style="margin:6px 0 0 18px;padding:0;display:grid;gap:6px">
               ${(Array.isArray(tile.points) ? tile.points : []).map(point=>`<li>${escapeHtml(point)}</li>`).join("")}
             </ul>
