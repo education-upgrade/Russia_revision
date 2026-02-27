@@ -2991,6 +2991,12 @@ section#games.gamePaneActive .gamesHeroCard{
   color:var(--keyMetric);
 }
 #lessonsRoot .resultsPrompt{ max-width:42ch; font-weight:700; }
+#lessonsRoot .resultsMatrix{width:100%;max-width:560px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:12px;background:#fff;overflow:hidden}
+#lessonsRoot .resultsMatrixRow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid color-mix(in srgb, var(--line) 78%, var(--accent2) 22%)}
+#lessonsRoot .resultsMatrixRow:first-child{border-top:none}
+#lessonsRoot .resultsMatrixLabel{font-weight:800;color:var(--textStrong);text-align:left}
+#lessonsRoot .resultsMatrixScore{font-weight:900;color:var(--keyMetric);font-variant-numeric:tabular-nums}
+#lessonsRoot .resultsMatrixStatus{font-size:11px;font-weight:900;letter-spacing:.3px;text-transform:uppercase;color:var(--muted)}
 
 
 .lesson-continuous { display: flex; flex-direction: column; gap: 20px; padding-bottom: 40px; }
@@ -10412,9 +10418,15 @@ function getLessonContextContent(lesson){
   const existingCoreKnowledge = String(lesson?.coreKnowledgeContent || "").trim();
   const fallbackBigPicture = String(pack.bigPicture || "").trim();
   const fallbackCoreKnowledge = (pack.sf?.briefings || []).map(briefing=>String(briefing?.text || "").trim()).filter(Boolean).join("\n\n");
+  const heroSummary = [pack?.hero?.titleLine, pack?.hero?.subtitleLine].map(v=>String(v || "").trim()).filter(Boolean).join(" ");
+  const interpretationSummary = [pack?.interpretations?.A?.text, pack?.interpretations?.B?.text]
+    .map(v=>String(v || "").trim())
+    .filter(Boolean)
+    .slice(0,2)
+    .join("\n\n");
   return {
-    bigPictureContent: existingBigPicture || fallbackBigPicture,
-    coreKnowledgeContent: existingCoreKnowledge || fallbackCoreKnowledge
+    bigPictureContent: existingBigPicture || fallbackBigPicture || heroSummary || "Use this section to summarise the wider context before evaluating the enquiry.",
+    coreKnowledgeContent: existingCoreKnowledge || fallbackCoreKnowledge || interpretationSummary || "Use this section to list secure factual knowledge you can deploy in evidence paragraphs."
   };
 }
 
@@ -10445,7 +10457,6 @@ function buildSlidesFromContentPack(lesson){
     }
   ];
 
-  slides.push(buildSkillFocusSlide(lesson));
 
   const sfBriefings = getSfBriefingsForSlides(pack);
   sfBriefings.forEach((briefing, index)=>{
@@ -15537,8 +15548,8 @@ function renderTopicsList(root){
 function renderContinuousLessonBlock(slide, slideId){
   if(slide.type === "lesson-context") return `
     <h4>${escapeHtml(slide.heading || "Lesson context")}</h4>
-    ${renderLessonParagraphs(slide.bigPictureContent || "")}
-    ${renderLessonParagraphs(slide.coreKnowledgeContent || "")}`;
+    ${renderLessonParagraphs(slide.bigPictureContent || "") || '<p>Use this space to outline the wider context before the enquiry.</p>'}
+    ${renderLessonParagraphs(slide.coreKnowledgeContent || "") || '<p>Use this space to record precise core knowledge for evidence paragraphs.</p>'}`;
 
   if(slide.type === "interpretation") return `
     <div class="split-layout">
@@ -15827,6 +15838,23 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
           <div class="resultsScoreValue">${finalPercent}%</div>
         </div>
         <div class="resultsPrompt">${improvementPrompt}</div>
+        <div class="resultsMatrix">
+          ${[
+            { key:"quickCheck", label:"Quick checks" },
+            { key:"argIdentify", label:"Argument identification" },
+            { key:"supportEvidence", label:"Evidence support" },
+            { key:"challengeEvidence", label:"Evidence challenge" },
+            { key:"judgement", label:"Judgement" },
+            { key:"strongestEvidence", label:"Strongest evidence" },
+            { key:"rankFactors", label:"Rank factors" }
+          ].map(item=>{
+            const pct = componentPercents[item.key];
+            const numericPct = Number.isFinite(pct) ? pct : null;
+            const scoreText = numericPct===null ? "—" : `${numericPct}%`;
+            const status = numericPct===null ? "Not used" : numericPct>=70 ? "Secure" : numericPct>=50 ? "Developing" : "Needs work";
+            return `<div class="resultsMatrixRow"><div class="resultsMatrixLabel">${item.label}</div><div class="resultsMatrixScore">${scoreText}</div><div class="resultsMatrixStatus">${status}</div></div>`;
+          }).join("")}
+        </div>
       </div>
       <div class="row" style="margin-top:12px">
         <button class="btn primary" id="lessonRetryBtn" type="button">Retry lesson</button>
@@ -16106,16 +16134,18 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
   }
 
   if(slide.type === "lesson-context"){
+    const bigPictureHtml = renderLessonTextBullets(slide.bigPictureContent || "") || '<div class="note">No big-picture summary available yet.</div>';
+    const coreKnowledgeHtml = renderLessonTextBullets(slide.coreKnowledgeContent || "") || '<div class="note">No core knowledge notes available yet.</div>';
     return `
       ${renderLessonSlideHeading({ ...slide, heading: slide.heading || "Lesson context" })}
       <div class="lessonContextSections">
         <section class="lessonContextSection">
           <h4 class="lessonContextTitle">The Big Picture</h4>
-          ${renderLessonTextBullets(slide.bigPictureContent || "")}
+          ${bigPictureHtml}
         </section>
         <section class="lessonContextSection">
           <h4 class="lessonContextTitle">Core Knowledge</h4>
-          ${renderLessonTextBullets(slide.coreKnowledgeContent || "")}
+          ${coreKnowledgeHtml}
         </section>
       </div>
     `;
