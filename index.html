@@ -10493,11 +10493,11 @@ function buildSlidesFromContentPack(lesson){
     const interpretation = pack.interpretations?.[key];
     if(!interpretation) return [];
     return [
-      { slideId:`${lessonId}-int${key}`, type:"interpretation", heading:`Interpretation ${key}`, text:interpretation.text },
+      { slideId:`${lessonId}-int${key}`, type:"interpretation", heading:`Extract ${key}`, text:interpretation.text },
       {
         slideId:`${lessonId}-int${key}-arg-identify`,
         type:"arg-identify",
-        heading:`30 mark question exam skills`,
+        heading:`Extract ${key} exam skills`,
         prompt:interpretation.argIdentify?.prompt,
         options:interpretation.argIdentify?.options,
         correctIndex:interpretation.argIdentify?.correctIndex,
@@ -10509,7 +10509,7 @@ function buildSlidesFromContentPack(lesson){
         type:"evidence-select",
         purpose:"support",
         heading:`Evidence-support ${key}`,
-        prompt:`Choose ${interpretation.evidenceSupport?.selectionLimit ?? 3} specific examples that best support Interpretation ${key}.`,
+        prompt:`Choose ${interpretation.evidenceSupport?.selectionLimit ?? 3} specific examples that best support Extract ${key}.`,
         selectionLimit:interpretation.evidenceSupport?.selectionLimit,
         statements:interpretation.evidenceSupport?.statements
       },
@@ -10518,12 +10518,25 @@ function buildSlidesFromContentPack(lesson){
         type:"evidence-select",
         purpose:"challenge",
         heading:`Evidence-challenge ${key}`,
-        prompt:`Choose ${interpretation.evidenceChallenge?.selectionLimit ?? 2} specific examples that best challenge Interpretation ${key}.`,
+        prompt:`Choose ${interpretation.evidenceChallenge?.selectionLimit ?? 2} specific examples that best challenge Extract ${key}.`,
         selectionLimit:interpretation.evidenceChallenge?.selectionLimit,
         statements:interpretation.evidenceChallenge?.statements
       }
     ];
   };
+
+  const hasInterpretationContent = ["A", "B"].some(key=>{
+    const text = pack.interpretations?.[key]?.text;
+    return typeof text === "string" && text.trim();
+  });
+  if(hasInterpretationContent){
+    slides.push({
+      slideId:`${lessonId}-interpretation-intro`,
+      type:"interpretation-intro",
+      heading:"30 mark interpretation practice",
+      text:"You are now moving into Extract A and Extract B. Read each extract carefully, then complete the exam-practice tasks that follow."
+    });
+  }
 
   slides.push(...interpretationSlides("A"), ...interpretationSlides("B"));
 
@@ -10564,6 +10577,19 @@ function buildSlidesFromContentPack(lesson){
   return slides;
 }
 
+function slideHasContent(slide){
+  if(!slide || typeof slide !== "object") return false;
+  const hasText = (value)=>typeof value === "string" && value.trim().length > 0;
+  const hasItems = (value)=>Array.isArray(value) && value.length > 0;
+  if(slide.type === "results") return true;
+  if(slide.type === "lesson-context") return hasText(slide.bigPictureContent) || hasText(slide.coreKnowledgeContent);
+  if(slide.type === "quick-check" || slide.type === "arg-identify") return hasText(slide.prompt || slide.text) && hasItems(slide.options);
+  if(slide.type === "evidence-select") return hasText(slide.prompt) && hasItems(slide.statements);
+  if(slide.type === "interpretation" || slide.type === "briefing" || slide.type === "interpretation-intro") return hasText(slide.text);
+  if(slide.type === "judgement") return hasText(slide.prompt) && hasItems(slide.options);
+  return true;
+}
+
 function getLessonSlides(lesson){
   if(!lesson) return [];
   const generatedSlides = Array.isArray(lesson.slides) ? lesson.slides : buildSlidesFromContentPack(lesson);
@@ -10585,7 +10611,8 @@ function getLessonSlides(lesson){
       ];
     }
   }
-  const baseSlides = rawSlides.map((slide, index)=>ensureSlideMeta(slide, index));
+  const filteredSlides = rawSlides.filter(slideHasContent);
+  const baseSlides = filteredSlides.map((slide, index)=>ensureSlideMeta(slide, index));
   const withResults = baseSlides.some(slide=>slide.type === "results")
     ? baseSlides
     : [...baseSlides, ensureSlideMeta({ type:"results", heading:"Results" }, baseSlides.length)];
