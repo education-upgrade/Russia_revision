@@ -2951,6 +2951,11 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .keyQuestionLabel{margin:0;font-size:11px;font-weight:900;letter-spacing:.7px;text-transform:uppercase;color:var(--muted)}
 #lessonsRoot .keyQuestionTitle{margin:0;font-size:16px;line-height:1.35;font-weight:900;color:var(--textStrong)}
 #lessonsRoot .keyQuestionOverview{margin:0;font-size:14px;line-height:1.55;color:var(--text)}
+#lessonsRoot .lessonTitlePanel{position:relative;overflow:hidden;border-radius:16px;margin:10px 0 12px;min-height:150px;border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%);background:var(--lessonTitlePanelBg,linear-gradient(140deg,#294f7d,#3a6aa3));background-size:cover;background-position:center;display:flex;align-items:flex-end}
+#lessonsRoot .lessonTitlePanel::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,24,37,.18) 0%,rgba(13,24,37,.72) 72%)}
+#lessonsRoot .lessonTitlePanelInner{position:relative;z-index:1;color:#fff;padding:14px;display:grid;gap:6px}
+#lessonsRoot .lessonTitlePanelLabel{margin:0;font-size:11px;font-weight:900;letter-spacing:.75px;text-transform:uppercase;opacity:.9}
+#lessonsRoot .lessonTitlePanelQuestion{margin:0;font-size:20px;line-height:1.25;font-weight:900;max-width:28ch;text-wrap:balance}
 #lessonsRoot .slideBody{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:12px; }
 #lessonsRoot .slideHeadingWrap{display:grid;gap:3px;margin:0 0 8px}
 #lessonsRoot .slideHeadingLabel{font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--muted)}
@@ -15165,6 +15170,12 @@ function renderLessonPlayer(root){
           <span class="pill modePill ${lessonsNav.mode === "exam" ? "active" : ""}" data-action="lesson-mode" data-mode="exam">Exam+</span>
         </div>
         <button class="btn" id="backToLessonList" type="button">← Theme</button>
+      </div>
+      <div class="lessonTitlePanel" style="--lessonTitlePanelBg:url('${lesson.heroImage || "section-bg.jpg"}')">
+        <div class="lessonTitlePanelInner">
+          <p class="lessonTitlePanelLabel">Lesson key question</p>
+          <p class="lessonTitlePanelQuestion">${lesson.keyQuestionTitle || lesson.title || "Not set"}</p>
+        </div>
       </div>
       <div class="keyQuestionPanel">
         <p class="keyQuestionLabel">KEY QUESTION:</p>
