@@ -15598,7 +15598,7 @@ function renderLessonPlayer(root){
   const lesson = getLesson();
   if(!lesson){ lessonsNav.view = "topics"; return renderLessons(); }
   const slides = getLessonSlides(lesson).map((slide, i)=>getShuffledSlideData(lesson, slide, i));
-  root.innerHTML = `<div class="card"><div class="lessonPlayerTop"><button class="btn" id="backToLessonList" type="button">← Back</button></div><div class="lesson-continuous">${slides.map((slide,i)=>`<div class="lesson-block">${renderContinuousLessonBlock(slide, slide.slideId || `slide-${i+1}`)}</div>`).join("")}</div></div>`;
+  root.innerHTML = `<div class="card"><div class="lessonPlayerTop"><button class="btn" id="backToLessonList" type="button">← Back</button></div><div class="lessonHero" style="background-image:url('${lesson.heroImage || "section-bg.jpg"}')"><div class="lessonHeroCopy"><p class="lessonHeroMeta">Date: ${lesson.yearLabel || "Not set"}</p><p class="lessonHeroTopic">Topic: ${lesson.theme || "Not set"}</p><h3 class="lessonHeroQuestion">Question: ${lesson.title || "Not set"}</h3></div></div><div class="lesson-continuous">${slides.map((slide,i)=>`<div class="lesson-block">${renderContinuousLessonBlock(slide, slide.slideId || `slide-${i+1}`)}</div>`).join("")}</div></div>`;
   $("backToLessonList")?.addEventListener('click',()=>{ lessonsNav.view = "topics"; renderLessons(); });
 
   root.querySelectorAll('[data-qc-kind="single"]').forEach(btn=>btn.addEventListener('click',()=>{
