@@ -10581,12 +10581,21 @@ function slideHasContent(slide){
   if(!slide || typeof slide !== "object") return false;
   const hasText = (value)=>typeof value === "string" && value.trim().length > 0;
   const hasItems = (value)=>Array.isArray(value) && value.length > 0;
+  const hasReadableItems = (value)=>hasItems(value) && value.some(item=>{
+    if(typeof item === "string") return item.trim().length > 0;
+    if(item && typeof item === "object") return hasText(item.text) || hasText(item.label) || hasText(item.heading);
+    return false;
+  });
   if(slide.type === "results") return true;
   if(slide.type === "lesson-context") return hasText(slide.bigPictureContent) || hasText(slide.coreKnowledgeContent);
-  if(slide.type === "quick-check" || slide.type === "arg-identify") return hasText(slide.prompt || slide.text) && hasItems(slide.options);
-  if(slide.type === "evidence-select") return hasText(slide.prompt) && hasItems(slide.statements);
+  if(slide.type === "quick-check" || slide.type === "arg-identify") return hasText(slide.prompt || slide.text) && hasReadableItems(slide.options);
+  if(slide.type === "evidence-select") return hasText(slide.prompt) && hasReadableItems(slide.statements);
+  if(slide.type === "strongest-evidence") return hasText(slide.prompt) && hasReadableItems(slide.statements);
+  if(slide.type === "rank-factors") return hasText(slide.prompt) && hasReadableItems(slide.items);
+  if(slide.type === "exam-transfer") return hasText(slide.prompt);
+  if(slide.type === "next-steps") return hasText(slide.text);
   if(slide.type === "interpretation" || slide.type === "briefing" || slide.type === "interpretation-intro") return hasText(slide.text);
-  if(slide.type === "judgement") return hasText(slide.prompt) && hasItems(slide.options);
+  if(slide.type === "judgement") return hasText(slide.prompt) && hasReadableItems(slide.options);
   return true;
 }
 
