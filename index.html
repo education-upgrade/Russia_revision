@@ -15607,7 +15607,7 @@ function renderContinuousLessonBlock(slide, slideId){
     const lim = Number(slide.selectionLimit || 2);
     return `<h4>${escapeHtml(slide.heading || "Evidence")}</h4><p>${escapeHtml(slide.prompt || "")}</p>
       <div class="qc-options" data-qc-group="${slideId}" data-limit="${lim}">
-      ${(slide.statements || []).map(st=>`<button class="qc-btn" data-qc-kind="multi" data-correct="${Number(st.score||0)>0?"1":"0"}" type="button">${escapeHtml(st.text||"")}</button>`).join("")}
+      ${(slide.statements || []).map(st=>`<button class="qc-btn" data-qc-kind="multi" data-correct="${Number(st.score||0)>0?"1":"0"}" data-feedback="${escapeHtml(st.feedback || (Number(st.score || 0) > 0 ? "Strong evidence choice." : "This is less direct evidence for the claim."))}" type="button">${escapeHtml(st.text||"")}</button>`).join("")}
       <div class="qc-feedback hidden">Feedback revealed.</div></div>`;
   }
 
@@ -15615,7 +15615,7 @@ function renderContinuousLessonBlock(slide, slideId){
     const lim = Number(slide.evidencePick?.selectionLimit || 2);
     return `<h4>${escapeHtml(slide.heading || "Judgement")}</h4><p>${escapeHtml(slide.prompt || "")}</p>
     <div class="qc-options" data-qc-group="${slideId}-j" data-limit="1">${(slide.options||[]).map((opt,i)=>`<button class="qc-btn" data-qc-kind="single" data-correct="${slide.bestIndex===i?"1":"0"}" type="button">${escapeHtml(opt)}</button>`).join("")}<div class="qc-feedback hidden">${escapeHtml(slide.feedbackCorrect||slide.feedbackWrong||"Feedback revealed.")}</div></div>
-    <div class="qc-options" data-qc-group="${slideId}-e" data-limit="${lim}">${(slide.evidencePick?.statements||[]).map(st=>`<button class="qc-btn" data-qc-kind="multi" data-correct="${Number(st.score||0)>0?"1":"0"}" type="button">${escapeHtml(st.text||"")}</button>`).join("")}<div class="qc-feedback hidden">Feedback revealed.</div></div>`;
+    <div class="qc-options" data-qc-group="${slideId}-e" data-limit="${lim}">${(slide.evidencePick?.statements||[]).map(st=>`<button class="qc-btn" data-qc-kind="multi" data-correct="${Number(st.score||0)>0?"1":"0"}" data-feedback="${escapeHtml(st.feedback || (Number(st.score || 0) > 0 ? "Strong evidence choice." : "This is less direct evidence for the claim."))}" type="button">${escapeHtml(st.text||"")}</button>`).join("")}<div class="qc-feedback hidden">Feedback revealed.</div></div>`;
   }
 
   return `<h4>${escapeHtml(slide.heading || "Lesson")}</h4>${renderLessonParagraphs(slide.text || "")}`;
@@ -15638,7 +15638,21 @@ function renderLessonPlayer(root){
     if(btn.classList.contains('selected-neutral')){ btn.classList.remove('selected-neutral'); return; }
     if(g.querySelectorAll('.selected-neutral').length>=lim) return; btn.classList.add('selected-neutral');
     const selected=[...g.querySelectorAll('.selected-neutral')];
-    if(selected.length===lim){ g.dataset.done='1'; selected.forEach(n=>{n.classList.remove('selected-neutral');n.classList.add(n.dataset.correct==='1'?'correct':'wrong');}); g.querySelectorAll('.qc-btn').forEach(n=>n.disabled=true); g.querySelector('.qc-feedback')?.classList.remove('hidden'); }
+    if(selected.length===lim){
+      g.dataset.done='1';
+      selected.forEach(n=>{n.classList.remove('selected-neutral');n.classList.add(n.dataset.correct==='1'?'correct':'wrong');});
+      g.querySelectorAll('.qc-btn').forEach(n=>n.disabled=true);
+      const feedbackNode = g.querySelector('.qc-feedback');
+      if(feedbackNode){
+        const feedbackText = selected
+          .map(n=>n.dataset.feedback)
+          .filter(Boolean)
+          .map((txt, idx)=>`${idx + 1}. ${txt}`)
+          .join(' ');
+        if(feedbackText) feedbackNode.textContent = feedbackText;
+        feedbackNode.classList.remove('hidden');
+      }
+    }
   }));
 }
 
