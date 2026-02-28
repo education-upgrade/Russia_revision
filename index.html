@@ -808,14 +808,16 @@
     .lessonContextSections{display:grid;gap:12px;margin-top:8px}
     .lessonContextSection{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;background:rgba(255,255,255,.9);padding:12px}
     .lessonContextTitle{font-size:15px;font-weight:900;line-height:1.25;color:var(--textStrong);margin:0 0 8px}
-    .lessonInfographicBtn{width:100%;border:1px solid color-mix(in srgb, var(--line) 58%, var(--accent2) 42%);border-radius:12px;background:#fff;padding:10px;cursor:zoom-in;display:grid;gap:8px;text-align:left}
+    .lessonInfographicBtn{width:100%;border:1px solid color-mix(in srgb, var(--line) 58%, var(--accent2) 42%);border-radius:12px;background:#fff;padding:10px;cursor:zoom-in;display:grid;gap:8px;text-align:left;transition:transform .18s ease, box-shadow .2s ease;border-color .2s ease}
+    .lessonInfographicBtn:hover{transform:scale(1.015);box-shadow:0 10px 22px rgba(18,40,72,.12)}
+    .lessonInfographicBtn:active{transform:scale(1.03)}
     .lessonInfographicBtn img{width:100%;height:auto;display:block;border-radius:10px;image-rendering:auto}
     .lessonInfographicHint{font-size:13px;font-weight:700;color:var(--muted)}
-    .lessonInfographicOverlay{position:fixed;inset:0;z-index:10080;background:rgba(12,22,35,.9);display:grid;grid-template-rows:auto 1fr;padding:12px;gap:10px}
+    .lessonInfographicOverlay{position:fixed;inset:0;z-index:10080;background:rgba(12,22,35,.82);display:grid;grid-template-rows:auto 1fr;padding:12px;gap:10px}
     .lessonInfographicOverlay.hidden{display:none}
-    .lessonInfographicTop{display:flex;justify-content:flex-end;gap:8px}
+    .lessonInfographicTop{display:flex;justify-content:flex-end;gap:8px;max-width:min(980px,94vw);width:100%;margin:0 auto}
     .lessonInfographicTop .btn{min-height:42px}
-    .lessonInfographicStage{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.22);border-radius:12px;touch-action:none;background:rgba(255,255,255,.04)}
+    .lessonInfographicStage{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.22);border-radius:14px;touch-action:none;background:rgba(255,255,255,.08);max-width:min(980px,94vw);width:100%;max-height:min(82vh,920px);height:min(82vh,920px);margin:0 auto}
     .lessonInfographicStage img{position:absolute;left:0;top:0;max-width:none;width:auto;height:auto;transform-origin:0 0;user-select:none;-webkit-user-drag:none;pointer-events:none}
     .lessonSectionHeading{font-size:clamp(26px,4.5vw,34px);line-height:1.06;font-weight:950;color:var(--textStrong);margin:0}
     .lessonBodyText{font-size:16px;line-height:1.55;color:var(--text);margin:0;max-width:58ch}
@@ -9338,6 +9340,7 @@ const lessonInfographicState = {
   scale:1,
   minScale:1,
   maxScale:4,
+  fitScale:1,
   x:0,
   y:0,
   baseDistance:0,
@@ -14694,10 +14697,20 @@ function clampInfographicPosition(stageRect){
   const state = lessonInfographicState;
   const scaledWidth = state.imageWidth * state.scale;
   const scaledHeight = state.imageHeight * state.scale;
-  const minX = Math.min(0, stageRect.width - scaledWidth);
-  const minY = Math.min(0, stageRect.height - scaledHeight);
-  state.x = Math.max(minX, Math.min(0, state.x));
-  state.y = Math.max(minY, Math.min(0, state.y));
+
+  if(scaledWidth <= stageRect.width){
+    state.x = (stageRect.width - scaledWidth) / 2;
+  }else{
+    const minX = stageRect.width - scaledWidth;
+    state.x = Math.max(minX, Math.min(0, state.x));
+  }
+
+  if(scaledHeight <= stageRect.height){
+    state.y = (stageRect.height - scaledHeight) / 2;
+  }else{
+    const minY = stageRect.height - scaledHeight;
+    state.y = Math.max(minY, Math.min(0, state.y));
+  }
 }
 
 function applyInfographicTransform(){
@@ -14710,6 +14723,13 @@ function applyInfographicTransform(){
 function resetInfographicZoom(){
   const { stage } = getLessonInfographicElements();
   if(!stage) return;
+  const stageRect = stage.getBoundingClientRect();
+  const widthScale = lessonInfographicState.imageWidth ? stageRect.width / lessonInfographicState.imageWidth : 1;
+  const heightScale = lessonInfographicState.imageHeight ? stageRect.height / lessonInfographicState.imageHeight : 1;
+  const fitScale = Math.min(widthScale, heightScale);
+  lessonInfographicState.fitScale = Number.isFinite(fitScale) && fitScale > 0 ? fitScale : 1;
+  lessonInfographicState.minScale = lessonInfographicState.fitScale;
+  lessonInfographicState.maxScale = Math.max(lessonInfographicState.fitScale * 5, 2.8);
   lessonInfographicState.scale = lessonInfographicState.minScale;
   lessonInfographicState.x = 0;
   lessonInfographicState.y = 0;
@@ -14822,6 +14842,10 @@ function bindLessonInfographicViewer(){
   if(closeBtn) closeBtn.addEventListener("click", closeLessonInfographic);
   document.addEventListener("keydown", event=>{
     if(event.key === "Escape") closeLessonInfographic();
+  });
+  window.addEventListener("resize", ()=>{
+    if(overlay.classList.contains("hidden")) return;
+    resetInfographicZoom();
   });
 }
 
@@ -15477,7 +15501,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     const coreKnowledgePanel = infographicSrc
       ? `<button class="lessonInfographicBtn" data-action="open-lesson-infographic" data-src="${escapeHtml(infographicSrc)}" type="button" aria-label="Open lesson infographic in full screen">
           <img src="${escapeHtml(infographicSrc)}" alt="Core knowledge infographic for ${escapeHtml(lesson.title || "this lesson")}" loading="lazy" decoding="async" />
-          <span class="lessonInfographicHint">Tap to expand • pinch to zoom</span>
+          <span class="lessonInfographicHint">Tap to expand • full view opens • pinch to zoom</span>
         </button>`
       : coreKnowledgeHtml;
     return `
