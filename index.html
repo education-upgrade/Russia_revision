@@ -10599,36 +10599,6 @@ function slideHasContent(slide){
   return true;
 }
 
-function condenseLessonMcqOptions(slide){
-  if(!slide || typeof slide !== "object") return slide;
-  if(!Array.isArray(slide.options) || slide.options.length <= 3) return slide;
-
-  const answerIndex = Number.isInteger(slide.correctIndex)
-    ? slide.correctIndex
-    : (Number.isInteger(slide.bestIndex) ? slide.bestIndex : 0);
-  const safeAnswerIndex = Math.max(0, Math.min(answerIndex, slide.options.length - 1));
-  const distractorIndices = slide.options.map((_, idx)=>idx).filter(idx=>idx !== safeAnswerIndex);
-  const chosenDistractors = distractorIndices.slice(0, 2);
-  const keepIndices = [safeAnswerIndex, ...chosenDistractors].sort((a,b)=>a-b);
-  const remap = new Map(keepIndices.map((idx, nextIdx)=>[idx, nextIdx]));
-
-  const nextSlide = {
-    ...slide,
-    options: keepIndices.map(idx=>slide.options[idx])
-  };
-
-  if(Array.isArray(slide.feedback)){
-    nextSlide.feedback = keepIndices.map(idx=>slide.feedback[idx] || "");
-  }
-  if(Number.isInteger(slide.correctIndex)){
-    nextSlide.correctIndex = remap.get(safeAnswerIndex) ?? 0;
-  }
-  if(Number.isInteger(slide.bestIndex)){
-    nextSlide.bestIndex = remap.get(safeAnswerIndex) ?? 0;
-  }
-  return nextSlide;
-}
-
 function getLessonSlides(lesson){
   if(!lesson) return [];
   const generatedSlides = Array.isArray(lesson.slides) ? lesson.slides : buildSlidesFromContentPack(lesson);
@@ -10651,9 +10621,7 @@ function getLessonSlides(lesson){
     }
   }
   const filteredSlides = rawSlides.filter(slideHasContent);
-  const baseSlides = filteredSlides
-    .map(condenseLessonMcqOptions)
-    .map((slide, index)=>ensureSlideMeta(slide, index));
+  const baseSlides = filteredSlides.map((slide, index)=>ensureSlideMeta(slide, index));
   const withResults = baseSlides.some(slide=>slide.type === "results")
     ? baseSlides
     : [...baseSlides, ensureSlideMeta({ type:"results", heading:"Results" }, baseSlides.length)];
@@ -10816,7 +10784,7 @@ const lessonsData = [
               { type:"idea", heading:"Big picture idea", text:"Autocracy looked deeply entrenched in 1855, but military failure and administrative weakness exposed vulnerabilities that would pressure reform." },
               { type:"briefing", heading:"Micro-briefing 1", text:"Nicholas I left a heavily centralised state backed by censorship, the Orthodox Church, and the secret police, which discouraged overt political opposition." },
               { type:"briefing", heading:"Micro-briefing 2", text:"However, defeat in the Crimean War revealed Russia's backward infrastructure and command system, making clear that preserving autocracy required change from above." },
-              { type:"quick-check", heading:"Quick Check", text:"Which statement best fits autocracy in 1855?", options:["Autocracy remained strong, but military and administrative weaknesses were becoming clearer.","Autocracy had already become dependent on regular parliamentary consent.","Autocracy was mainly ceremonial because ministers held sovereign authority."], correctIndex:0, feedback:["Correct: formal authority was concentrated, but structural limits were exposed by war and governance strain.","Not quite: parliamentary constraint did not define the regime in 1855.","Not quite: ministers served at the Tsar's pleasure rather than replacing sovereign power."] },
+              { type:"quick-check", heading:"Quick Check", text:"Which statement best fits autocracy in 1855?", options:["It had already been replaced by a constitution.","It seemed strong, but structural weaknesses were increasingly visible.","The Tsar ruled only with approval from an elected Duma."], correctIndex:1, feedback:["Incorrect: constitutional monarchy came much later.","Correct: power was concentrated, but military and administrative failures were serious.","Incorrect: the Duma did not exist in 1855."] },
               { type:"next-steps", heading:"Next steps", text:"This helps you evaluate stability versus fragility in early causation essays on late Tsarist decline." }
             ]
           },
@@ -11395,7 +11363,7 @@ const lessonsData = [
               { type:"idea", heading:"Big picture idea", text:"The regime developed stronger policing and censorship, but repression often showed fear as well as strength." },
               { type:"briefing", heading:"Micro-briefing 1", text:"The Third Section and then the Okhrana (secret police) monitored activists, publications and universities to disrupt opposition networks." },
               { type:"briefing", heading:"Micro-briefing 2", text:"Emergency laws after 1881 widened powers of arrest and censorship, but these measures also suggest that unrest remained a real concern." },
-              { type:"quick-check", heading:"Quick check", text:"Which judgement is most balanced?", options:["Control strengthened by 1894, but dependence on coercion suggests persistent fragility.","Control weakened steadily because central institutions stopped enforcing authority.","Control was unchanged because reforms and repression cancelled each other out exactly."], correctIndex:0, feedback:["Correct: this recognises stronger instruments of rule while noting underlying insecurity.","Not quite: coercive capacity did not disappear.","Not quite: evidence points to change in methods and intensity, not exact stasis."] },
+              { type:"quick-check", heading:"Quick check", text:"Which judgement is most balanced?", options:["Control was complete because opposition disappeared.","Control was stronger by 1894, but reliance on coercion showed continuing insecurity.","Control was weak because the state had no policing powers."], correctIndex:1, feedback:["Incorrect: opposition did not disappear.","Correct: repression increased, but insecurity remained.","Incorrect: policing powers were substantial and expanded."] },
               { type:"next-steps", heading:"Next steps", text:"Use this to weigh short-term control against long-term regime fragility in essay judgements." }
             ]
           }
@@ -14592,126 +14560,17 @@ const lessonsData = [
       {
         id:"economic-development",
         title:"Economic Development",
-        lessons:[
-          {
-            id:"t3-ed-war-to-nep",
-            keyQuestionId:3,
-            keyQuestionTitle:"How and with what results did the economy develop and change?",
-            keyQuestionOverview:"This lesson evaluates the shift from War Communism to the New Economic Policy, focusing on state capacity, economic recovery, and political limits.",
-            title:"How far did the NEP solve Bolshevik economic crisis?",
-            yearLabel:"1918–1928",
-            theme:"Economic Development",
-            heroImage:"./topic3.png",
-            contentPack:{
-              hero:{
-                titleLine:"War Communism sustained victory but deepened collapse. The NEP then restored limited markets while preserving one-party rule.",
-                subtitleLine:"How far did the NEP solve Bolshevik economic crisis?"
-              },
-              bigPicture:"The NEP produced clear recovery in agriculture and trade, but it did not remove structural tension between market incentives and socialist planning.",
-              sf:{
-                briefings:[
-                  { heading:"Micro-briefing 1", text:"War Communism prioritised requisitioning, central direction, and military supply, but output fell sharply and urban hardship intensified." },
-                  { heading:"Micro-briefing 2", text:"From 1921, the NEP replaced requisitioning with a tax in kind and allowed small-scale private trade. Grain and market exchange recovered." },
-                  { heading:"Micro-briefing 3", text:"Recovery was uneven: heavy industry lagged and party leaders feared social and ideological risks from NEP traders and inequality." }
-                ],
-                checks:[
-                  { heading:"Context check 1", prompt:"Why did Bolshevik leaders introduce the NEP in 1921?", options:["To stabilise production and reduce unrest after severe crisis.","To create a multi-party parliamentary economy.","To end state control of major industry permanently."], correctIndex:0, feedbackCorrect:"Correct: recovery and regime survival were immediate priorities.", feedbackWrong:"Not quite: the NEP was a tactical stabilisation measure." },
-                  { heading:"Context check 2", prompt:"Which judgement is most balanced?", options:["The NEP restored output in key sectors, but long-term planning tensions remained.","The NEP fully solved Soviet development problems by 1924.","The NEP had no measurable economic effect."], correctIndex:0, feedbackCorrect:"Correct: this captures both recovery and limits.", feedbackWrong:"Aim for a judgement that weighs success against constraints." }
-                ]
-              },
-              quickCheck:{ heading:"Quick check", prompt:"Most defensible overall claim?", options:["The NEP delivered meaningful recovery but left unresolved strategic and ideological dilemmas.","The NEP immediately created a stable command economy with no market role.","The NEP failed to restore either agricultural or urban exchange."], correctIndex:0, feedbackCorrect:"Correct: balanced on achievement and limitation.", feedbackWrong:"Try balancing evidence of recovery with continuing structural tension." },
-              interpretations:{
-                A:{
-                  text:"Historian A argues that the NEP was a pragmatic success: it restored social stability and rebuilt the economic base needed for later state-directed industrialisation.",
-                  argIdentify:{ prompt:"What is the core argument in Extract A?", options:["The NEP mainly restored stability through pragmatic retreat.","The NEP abolished party authority.","The NEP prevented all future economic conflict."], correctIndex:0, feedbackCorrect:"Correct.", feedbackWrong:"Look for the argument's central claim." },
-                  evidenceSupport:{ selectionLimit:2, statements:[{id:"a1",text:"Agricultural output and market exchange recovered after requisitioning ended.",score:2,feedback:"Strong support."},{id:"a2",text:"Kronstadt and rural unrest declined as conditions stabilised.",score:2,feedback:"Strong support."},{id:"a3",text:"Heavy industry recovered more slowly than agriculture.",score:1,feedback:"Partly supportive but also a limit."},{id:"a4",text:"The USSR covered many time zones.",score:0,feedback:"Irrelevant."}] },
-                  evidenceChallenge:{ selectionLimit:1, statements:[{id:"ac1",text:"Price instability and the 'scissors crisis' exposed ongoing structural strain.",score:2,feedback:"Strong challenge."},{id:"ac2",text:"Party suspicion of market actors persisted.",score:1,feedback:"Relevant challenge."},{id:"ac3",text:"The Red Army won the Civil War.",score:0,feedback:"Not directly about NEP outcomes."}] }
-                }
-              },
-              judgement:{
-                options:["The NEP solved immediate crisis effectively but left major long-term tensions unresolved.","The NEP represented a complete ideological settlement accepted by the party.","The NEP failed in both short-term recovery and political stabilisation."],
-                bestIndex:0,
-                feedbackCorrect:"Strong balanced judgement.",
-                feedbackWrong:"Prefer a judgement that separates short-term success from long-term limits.",
-                evidencePick:{ selectionLimit:2, statements:[{id:"j1",text:"Food supply and trade improved during the 1920s.",score:2,feedback:"Strong."},{id:"j2",text:"Industry lag and pricing imbalance persisted.",score:2,feedback:"Strong."},{id:"j3",text:"The party retained political monopoly throughout.",score:1,feedback:"Relevant context."},{id:"j4",text:"Russia had long winters.",score:0,feedback:"Irrelevant."}] }
-              }
-            }
-          }
-        ]
+        lessons:[]
       },
       {
         id:"opposition-control",
         title:"Opposition & Control",
-        lessons:[
-          {
-            id:"t3-oc-opposition-1917-24",
-            keyQuestionId:2,
-            keyQuestionTitle:"Why did opposition develop and how effective was it?",
-            keyQuestionOverview:"This lesson examines opposition to Bolshevik power and evaluates why coercive control remained effective despite periodic crises.",
-            title:"How effectively did the Bolsheviks suppress opposition, 1917–24?",
-            yearLabel:"1917–1924",
-            theme:"Opposition & Control",
-            heroImage:"./topic3.png",
-            contentPack:{
-              hero:{ titleLine:"Bolshevik rule faced military, social, and political opposition, yet the regime retained power through organisation and coercion.", subtitleLine:"How effectively did the Bolsheviks suppress opposition, 1917–24?" },
-              bigPicture:"Opposition was significant, but fragmentation among opponents and the state's coercive capacity made sustained resistance difficult.",
-              sf:{
-                briefings:[
-                  { heading:"Micro-briefing 1", text:"Civil War opponents included Whites, regional forces, and foreign intervention. Coordination was weak and aims often conflicted." },
-                  { heading:"Micro-briefing 2", text:"The regime used the Cheka, censorship, and emergency powers to neutralise rivals and deter dissent." }
-                ],
-                checks:[
-                  { heading:"Context check 1", prompt:"Which factor most helped Bolshevik control in the Civil War context?", options:["Opposition unity around a single political programme.","Central organisation, Red Army command, and control of key urban zones.","Immediate popular commitment to one-party government across Russia."], correctIndex:1, feedbackCorrect:"Correct.", feedbackWrong:"Focus on coordination and strategic control." }
-                ]
-              },
-              quickCheck:{ heading:"Quick check", prompt:"Most balanced judgement?", options:["Suppression was effective overall, but it depended on emergency coercion and opposition weakness.","Suppression was unnecessary because meaningful opposition quickly disappeared.","Suppression failed because the regime lost control of major centres by 1921."], correctIndex:0, feedbackCorrect:"Correct: this captures outcome and mechanism.", feedbackWrong:"Choose the option that weighs effectiveness with conditions." },
-              judgement:{
-                options:["Control was effective by 1924, though built on coercive methods and unstable conditions.","Control remained weak because opposition institutions kept legal authority.","Control was irrelevant because policy compromise replaced coercion."],
-                bestIndex:0,
-                feedbackCorrect:"Accurate and balanced.",
-                feedbackWrong:"Anchor judgement in both effectiveness and method.",
-                evidencePick:{ selectionLimit:2, statements:[{id:"j1",text:"Cheka repression and surveillance reduced organised dissent.",score:2,feedback:"Strong."},{id:"j2",text:"Opposition groups were divided in aims and command.",score:2,feedback:"Strong."},{id:"j3",text:"Kronstadt showed continuing volatility.",score:1,feedback:"Useful limit."},{id:"j4",text:"Railway gauges varied across regions.",score:0,feedback:"Irrelevant."}] }
-              }
-            }
-          }
-        ]
+        lessons:[]
       },
       {
         id:"social-cultural",
         title:"Social & Cultural Change",
-        lessons:[
-          {
-            id:"t3-sc-social-change-1917-24",
-            keyQuestionId:4,
-            keyQuestionTitle:"What was the extent of social and cultural change?",
-            keyQuestionOverview:"This lesson evaluates revolutionary social policy against practical limits imposed by war, scarcity, and centralised control.",
-            title:"How far did everyday life change under Lenin?",
-            yearLabel:"1917–1924",
-            theme:"Social & Cultural Change",
-            heroImage:"./topic3.png",
-            contentPack:{
-              hero:{ titleLine:"Revolution promised social transformation, but lived experience was shaped by hardship, policy reversals, and uneven implementation.", subtitleLine:"How far did everyday life change under Lenin?" },
-              bigPicture:"There were real shifts in class rhetoric, education, and secular policy, but war and scarcity limited outcomes and preserved many constraints.",
-              sf:{
-                briefings:[
-                  { heading:"Micro-briefing 1", text:"The regime promoted literacy, secular education, and new social values, aiming to break with tsarist hierarchy." },
-                  { heading:"Micro-briefing 2", text:"Civil War disruption, famine, and administrative weakness restricted how far policy transformed daily life across regions." }
-                ],
-                checks:[
-                  { heading:"Context check 1", prompt:"Which statement best captures social change under Lenin?", options:["Policy direction changed significantly, but outcomes were uneven and constrained.","There was no meaningful social policy change after 1917.","Social transformation was complete and uniform by 1921."], correctIndex:0, feedbackCorrect:"Correct.", feedbackWrong:"Look for extent language: change plus limits." }
-                ]
-              },
-              quickCheck:{ heading:"Quick check", prompt:"Best overall conclusion?", options:["Lenin's era brought notable policy shifts, but material conditions prevented full social transformation.","Lenin's era left social structures almost entirely unchanged.","Lenin's era completed a stable egalitarian society within a few years."], correctIndex:0, feedbackCorrect:"Correct: balanced and evidence-led.", feedbackWrong:"Prefer the option that recognises both change and constraint." },
-              judgement:{
-                options:["Social and cultural change was significant in direction, limited in depth.","Change was negligible because war nullified all policy impact.","Change was complete because old elites vanished immediately."],
-                bestIndex:0,
-                feedbackCorrect:"Strong judgement.",
-                feedbackWrong:"Use precise extent language.",
-                evidencePick:{ selectionLimit:2, statements:[{id:"j1",text:"Education and literacy campaigns expanded state social ambitions.",score:2,feedback:"Strong."},{id:"j2",text:"Civil War and famine constrained implementation.",score:2,feedback:"Strong."},{id:"j3",text:"Urban-rural experience differed markedly.",score:1,feedback:"Useful nuance."},{id:"j4",text:"Russia had many rivers.",score:0,feedback:"Irrelevant."}] }
-              }
-            }
-          }
-        ]
+        lessons:[]
       }
     ]
   },
@@ -14745,7 +14604,7 @@ const lessonsData = [
               { type:"idea", heading:"Big picture idea", text:"The Five-Year Plans transformed Soviet industrial capacity, but success came with major inefficiencies and severe human costs." },
               { type:"briefing", heading:"Micro-briefing 1", text:"Heavy industry output rose sharply and helped the USSR build strategic strength, especially in coal, steel, and machine production." },
               { type:"briefing", heading:"Micro-briefing 2", text:"Targets encouraged falsification and poor-quality output, while consumer goods lagged and forced labour, coercion, and harsh conditions underpinned progress." },
-              { type:"quick-check", heading:"Quick Check", text:"Most balanced judgement?", options:["The Plans produced major heavy-industrial growth, but with severe human and efficiency costs.","The Plans mostly failed because strategic sectors did not expand in measurable terms.","The Plans primarily targeted higher consumer welfare above military and industrial priorities."], correctIndex:0, feedback:["Correct: this weighs output gains against coercion, waste, and social cost.","Not quite: key sectors did expand substantially.","Not quite: consumer welfare was generally subordinate to strategic goals."] },
+              { type:"quick-check", heading:"Quick Check", text:"Most balanced judgement?", options:["The Plans failed entirely and produced no industrial growth.","The Plans achieved major industrial growth, but at high economic and human cost.","The Plans were mainly designed to improve luxury consumer living standards."], correctIndex:1, feedback:["Incorrect: industrial expansion was substantial.","Correct: this weighs achievement against cost.","Incorrect: heavy industry and defence were priorities."] },
               { type:"next-steps", heading:"Next steps", text:"This helps you weigh metrics of success in economy questions: output, sustainability, and social impact." }
             ]
           }
@@ -14754,75 +14613,12 @@ const lessonsData = [
       {
         id:"political-authority",
         title:"Political Authority",
-        lessons:[
-          {
-            id:"t4-pa-stalin-control",
-            keyQuestionId:1,
-            keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
-            keyQuestionOverview:"This lesson analyses how Stalin consolidated personal authority and the institutional mechanisms that sustained dictatorship.",
-            title:"How secure was Stalin's political authority by 1939?",
-            yearLabel:"1928–1939",
-            theme:"Political Authority",
-            heroImage:"./topic4.png",
-            contentPack:{
-              hero:{ titleLine:"Stalin built a highly centralised system through party control, patronage, and terror, yet this security depended on continuous coercion.", subtitleLine:"How secure was Stalin's political authority by 1939?" },
-              bigPicture:"Authority became highly concentrated and effective at enforcing compliance, but it remained bound to fear, purges, and institutional distortion.",
-              sf:{
-                briefings:[
-                  { heading:"Micro-briefing 1", text:"Control over appointments, the Secretariat, and party discipline strengthened Stalin's position across state and party institutions." },
-                  { heading:"Micro-briefing 2", text:"The Great Terror removed real and potential rivals, while show trials and purges reshaped elite politics around obedience." }
-                ],
-                checks:[
-                  { heading:"Context check 1", prompt:"What best explains Stalin's authority by the late 1930s?", options:["Institutional control plus terror created high compliance.","A competitive multi-party system legitimised leadership.","Regional autonomy reduced central dependence on coercion."], correctIndex:0, feedbackCorrect:"Correct.", feedbackWrong:"Consider both institutional and coercive mechanisms." }
-                ]
-              },
-              judgement:{
-                options:["Authority was highly secure in practice, though secured through coercive and costly methods.","Authority was weak because central institutions no longer enforced directives.","Authority was mainly symbolic because rivals retained independent power bases."],
-                bestIndex:0,
-                feedbackCorrect:"Balanced judgement.",
-                feedbackWrong:"Prioritise extent plus mechanism.",
-                evidencePick:{ selectionLimit:2, statements:[{id:"j1",text:"Purges removed key rivals and enforced conformity.",score:2,feedback:"Strong."},{id:"j2",text:"Party-state appointments tightened central command.",score:2,feedback:"Strong."},{id:"j3",text:"Terror generated fear and reporting distortions.",score:1,feedback:"Useful limit."},{id:"j4",text:"Soviet geography was vast.",score:0,feedback:"Irrelevant."}] }
-              }
-            }
-          }
-        ]
+        lessons:[]
       },
       {
         id:"opposition-control",
         title:"Opposition & Control",
-        lessons:[
-          {
-            id:"t4-oc-terror-control",
-            keyQuestionId:2,
-            keyQuestionTitle:"Why did opposition develop and how effective was it?",
-            keyQuestionOverview:"This lesson evaluates opposition under Stalin and explains why state control usually neutralised dissent before it could organise effectively.",
-            title:"How effective was Stalinist control of opposition?",
-            yearLabel:"1928–1953",
-            theme:"Opposition & Control",
-            heroImage:"./topic4.png",
-            contentPack:{
-              hero:{ titleLine:"Potential opposition existed in party, society, and national regions, but surveillance and terror made sustained challenge exceptionally difficult.", subtitleLine:"How effective was Stalinist control of opposition?" },
-              bigPicture:"Stalinist control was highly effective at suppressing organised opposition, though it relied on pervasive coercion and produced long-term social trauma.",
-              sf:{
-                briefings:[
-                  { heading:"Micro-briefing 1", text:"The NKVD, informant networks, and legal categories such as 'enemy of the people' expanded the state's reach." },
-                  { heading:"Micro-briefing 2", text:"Purges and labour-camp systems deterred collective resistance, while propaganda framed repression as defence of socialism." }
-                ],
-                checks:[
-                  { heading:"Context check 1", prompt:"Why was organised opposition rare under high Stalinism?", options:["Repression reduced trust, coordination, and safe political space.","The regime encouraged open anti-government debate.","Opposition groups controlled security institutions."], correctIndex:0, feedbackCorrect:"Correct.", feedbackWrong:"Think about surveillance and fear as barriers to organisation." }
-                ]
-              },
-              quickCheck:{ heading:"Quick check", prompt:"Most balanced judgement?", options:["Control of opposition was effective, but depended on systemic coercion and fear.","Control was ineffective because critics operated freely in public institutions.","Control was unnecessary because dissent ceased for ideological reasons alone."], correctIndex:0, feedbackCorrect:"Correct.", feedbackWrong:"Balance outcome with method." },
-              judgement:{
-                options:["Opposition was contained effectively, though by coercive structures rather than consensual legitimacy.","Opposition remained dominant in party and state decision-making.","Opposition disappeared because all social grievances were solved."],
-                bestIndex:0,
-                feedbackCorrect:"Strong.",
-                feedbackWrong:"Use evidence on both effectiveness and coercive basis.",
-                evidencePick:{ selectionLimit:2, statements:[{id:"j1",text:"Security policing and denunciation networks prevented open organisation.",score:2,feedback:"Strong."},{id:"j2",text:"Show trials and camps deterred dissent.",score:2,feedback:"Strong."},{id:"j3",text:"Fear reduced policy feedback and distorted governance.",score:1,feedback:"Useful nuance."},{id:"j4",text:"Harvests varied by climate region.",score:0,feedback:"Irrelevant."}] }
-              }
-            }
-          }
-        ]
+        lessons:[]
       },
       {
         id:"social-cultural",
@@ -14843,7 +14639,7 @@ const lessonsData = [
               { type:"idea", heading:"Big picture idea", text:"The Thaw widened cultural and social space compared with late Stalinism, yet clear political boundaries remained in place." },
               { type:"briefing", heading:"Micro-briefing 1", text:"De-Stalinisation, publication of some critical works, and reduced terror changed the atmosphere of Soviet life for many citizens." },
               { type:"briefing", heading:"Micro-briefing 2", text:"Even so, dissent still faced limits, and party control over media, culture, and public organisation prevented a full liberal transformation." },
-              { type:"quick-check", heading:"Quick Check", text:"Which conclusion best fits the evidence?", options:["The Thaw widened social and cultural space, but core party control remained intact.","The Thaw ended censorship and enabled durable political pluralism.","The Thaw changed rhetoric more than structures, so evidence of relaxation is negligible."], correctIndex:0, feedback:["Correct: this captures limited liberalisation within continuing one-party rule.","Not quite: political boundaries remained clear.","Not quite: there were meaningful, if bounded, shifts in policy and climate."] },
+              { type:"quick-check", heading:"Quick Check", text:"Which conclusion best fits the evidence?", options:["The Thaw created unrestricted political freedom.","The Thaw brought meaningful relaxation but not a complete break from one-party control.","The Thaw was entirely fictional with no social changes at all."], correctIndex:1, feedback:["Incorrect: restrictions remained substantial.","Correct: improvement and limitation both need to be acknowledged.","Incorrect: there were real changes in tone and policy."] },
               { type:"next-steps", heading:"Next steps", text:"This supports nuanced 'extent of change' analysis for post-Stalin society questions." }
             ]
           }
