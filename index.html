@@ -3051,6 +3051,8 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .topicStatusChip[data-state="in-progress"]{color:var(--text);background:color-mix(in srgb, #fff 82%, var(--accent2) 18%)}
 #lessonsRoot .topicStatusChip[data-state="completed"]{color:var(--textStrong);background:color-mix(in srgb, #fff 78%, var(--good) 22%)}
 #lessonsRoot .topicExploreBtn{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:42px;padding:10px 14px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 60%, var(--accent2) 40%);background:rgba(255,255,255,.82);font-size:13px;font-weight:900;letter-spacing:.65px;text-transform:uppercase;color:var(--textStrong);white-space:nowrap}
+#lessonsRoot .topicEraIcon{justify-self:end;display:flex;align-items:center;justify-content:flex-end;width:52px;height:52px;opacity:.32;color:var(--textStrong);pointer-events:none}
+#lessonsRoot .topicEraIcon svg{width:100%;height:100%;display:block}
 #lessonsRoot .topicSummaryMeta .topicStatusChip{justify-self:end}
 #lessonsRoot .lessonTopicItem[open] .topicSummaryMeta{transform:translateY(1px);box-shadow:0 1px 0 color-mix(in srgb, var(--line) 58%, var(--accent2) 42%),0 4px 8px rgba(20,50,90,.14);background:linear-gradient(180deg,color-mix(in srgb,#fff 88%, var(--accent3) 12%) 0%,color-mix(in srgb, #fff 72%, var(--accent3) 28%) 100%)}
 #lessonsRoot .lessonTopicItem[open]>summary{background:color-mix(in srgb, #fff 82%, var(--accent3) 18%);border-bottom:1px solid color-mix(in srgb, var(--line) 82%, var(--accent2) 18%)}
@@ -15102,6 +15104,24 @@ function getMostRecentInProgressLesson(){
   return latest;
 }
 
+function topicEraIconSVG(yearRange){
+  const range = String(yearRange || "").replace(/[()]/g, "").trim();
+  const common = 'viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
+  if(range === "1855–1894"){
+    return `<svg ${common}><path d="M11 19h26"></path><path d="M14 19v16"></path><path d="M24 19v16"></path><path d="M34 19v16"></path><path d="M10 35h28"></path><path d="M13 16l4-5 7 5 7-5 4 5"></path><circle cx="24" cy="10" r="2"></circle></svg>`;
+  }
+  if(range === "1894–1917"){
+    return `<svg ${common}><path d="M6 30h36"></path><path d="M10 30v8"></path><path d="M16 30v8"></path><path d="M22 30v8"></path><path d="M33 18h9v20h-9z"></path><path d="M36 22h3"></path><path d="M36 26h3"></path><path d="M8 24c5-7 12-7 17 0"></path><path d="M8 36c5-7 12-7 17 0"></path></svg>`;
+  }
+  if(range === "1917–1941"){
+    return `<svg ${common}><path d="M24 7l3.8 7.8 8.7 1.2-6.3 6.1 1.5 8.6L24 26.8l-7.7 3.9 1.5-8.6-6.3-6.1 8.7-1.2z"></path><path d="M12 36h24"></path><path d="M12 40h20"></path><path d="M12 32h28l-4 4H16z"></path></svg>`;
+  }
+  if(range === "1941–1964"){
+    return `<svg ${common}><path d="M24 8v8"></path><path d="M24 32v8"></path><path d="M12 24h8"></path><path d="M28 24h8"></path><path d="M15.5 15.5l5.7 5.7"></path><path d="M26.8 26.8l5.7 5.7"></path><path d="M32.5 15.5l-5.7 5.7"></path><path d="M21.2 26.8l-5.7 5.7"></path><path d="M9 38a15 15 0 0 1 30 0"></path></svg>`;
+  }
+  return `<svg ${common}><circle cx="24" cy="24" r="10"></circle></svg>`;
+}
+
 function renderTopicsList(root){
   const continueLesson = getMostRecentInProgressLesson();
   root.innerHTML = `
@@ -15128,6 +15148,7 @@ function renderTopicsList(root){
                 <div class="topicSummaryMeta">
                   <span class="topicStatusChip" data-state="${status.state}" aria-label="Topic status: ${status.label}">${status.label}</span>
                   <span class="topicExploreBtn" aria-hidden="true">Explore lessons</span>
+                  <div class="topicEraIcon" aria-hidden="true">${topicEraIconSVG(topic.years || titleParts.years.replace(/[()]/g, ""))}</div>
                 </div>
               </summary>
               <div class="lessonTopicBody">
