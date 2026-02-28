@@ -3036,6 +3036,12 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .lessonsContinueCard{margin-bottom:10px;padding:12px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;background:color-mix(in srgb, #fff 90%, var(--accent3) 10%);display:grid;gap:8px}
 #lessonsRoot .continueLabel{font-size:12px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
 #lessonsRoot .continueMain{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+#lessonsRoot .continueMain .btn{
+  min-height:44px;
+  padding:10px 18px;
+  font-size:15px;
+  border-radius:12px;
+}
 #lessonsRoot .continueLesson{font-size:15px;font-weight:800;color:var(--textStrong);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #lessonsRoot .continueTopic{font-size:12px;color:var(--muted)}
 #lessonsRoot .topicsAccordion{display:grid;gap:9px}
@@ -3072,22 +3078,25 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .lessonStatusNode.completed{background:color-mix(in srgb, var(--accent2) 72%, #2e6094 28%);border-color:color-mix(in srgb, var(--accent2) 72%, #2e6094 28%)}
 #lessonsRoot .lessonsList.withJourney .lessonRow:not(:last-child) .lessonStatusNode::after{content:"";position:absolute;left:50%;top:15px;transform:translateX(-50%);width:1px;height:22px;background:color-mix(in srgb, var(--line) 78%, var(--accent2) 22%)}
 #lessonsRoot .lessonRowMeta{min-width:0}
+#lessonsRoot .lessonNumberLabel{font-size:12px;font-weight:900;letter-spacing:.45px;text-transform:uppercase;color:#3b6ea8}
 #lessonsRoot .lessonRowTitle{font-size:15px;font-weight:700;line-height:1.3;color:var(--textStrong)}
 #lessonsRoot .lessonRowDate{margin-top:2px;font-size:12px;color:var(--muted)}
 #lessonsRoot .lessonRowBtn{
-  min-height:36px;
-  padding:7px 13px;
+  min-height:46px;
+  min-width:124px;
+  padding:11px 18px;
   border-radius:11px;
   border:1px solid color-mix(in srgb, var(--line) 52%, #3d74b5 48%);
   background:linear-gradient(180deg,#ffffff 0%,color-mix(in srgb, #ffffff 70%, var(--accent3) 30%) 100%);
   box-shadow:
     0 2px 0 color-mix(in srgb, var(--line) 44%, #3d74b5 56%),
     0 8px 16px rgba(30,64,104,.2);
-  font-size:13px;
+  font-size:16px;
   font-weight:900;
   color:#2f6eb7;
   cursor:pointer;
   white-space:nowrap;
+  touch-action:manipulation;
   transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
 }
 #lessonsRoot .lessonRowBtn:hover{filter:brightness(1.04)}
@@ -15163,7 +15172,7 @@ function renderTopicsList(root){
                   <div class="topicProgressTrack"><div class="topicProgressFill" style="width:${summary.percent}%"></div></div>
                 </div>
                 <div class="lessonsList withJourney" data-topic-list="${topic.id}">
-                  ${lessons.length ? lessons.map(lesson=>{
+                  ${lessons.length ? lessons.map((lesson, lessonIndex)=>{
                     const state = getLessonJourneyState(lesson.id);
                     const ui = getLessonJourneyUi(state);
                     const themeId = lesson.themeId || "";
@@ -15171,6 +15180,7 @@ function renderTopicsList(root){
                       <article class="lessonRow" data-lesson-row="${lesson.id}" data-topic="${topic.id}" data-theme="${themeId}" data-lesson="${lesson.id}">
                         <span class="lessonStatusNode ${ui.statusClass}" aria-hidden="true"></span>
                         <div class="lessonRowMeta">
+                          <div class="lessonNumberLabel">Lesson ${lessonIndex + 1}</div>
                           <div class="lessonRowTitle">${escapeHtml(lesson.title || "Lesson")}</div>
                           <div class="lessonRowDate">${escapeHtml(lesson.yearLabel || "")}</div>
                         </div>
