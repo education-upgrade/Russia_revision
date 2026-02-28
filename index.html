@@ -15555,7 +15555,15 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
 
   const storedAnswer = getStoredQuickCheckAnswer(lesson.id, slideId);
   const selected = Number.isInteger(storedAnswer) ? storedAnswer : null;
-  const feedback = selected===null ? "" : (slide.feedback?.[selected] || "");
+  const feedback = (()=>{
+    if(selected===null) return "";
+    const isCorrect = selected === slide.correctIndex;
+    const responseLead = isCorrect ? "Good answer." : "Not quite.";
+    const detail = (slide.feedback?.[selected] || "").trim() || (isCorrect
+      ? "That option best fits the context."
+      : "Review the key idea and try to explain why another option fits better.");
+    return `<strong>${responseLead}</strong> ${detail}`;
+  })();
 
   return `
     ${renderLessonSlideHeading(slide)}
