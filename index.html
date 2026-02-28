@@ -3005,12 +3005,6 @@ section#games.gamePaneActive .gamesHeroCard{
   color:var(--keyMetric);
 }
 #lessonsRoot .resultsPrompt{ max-width:42ch; font-weight:700; }
-#lessonsRoot .resultsMatrix{width:100%;max-width:560px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:12px;background:#fff;overflow:hidden}
-#lessonsRoot .resultsMatrixRow{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid color-mix(in srgb, var(--line) 78%, var(--accent2) 22%)}
-#lessonsRoot .resultsMatrixRow:first-child{border-top:none}
-#lessonsRoot .resultsMatrixLabel{font-weight:800;color:var(--textStrong);text-align:left}
-#lessonsRoot .resultsMatrixScore{font-weight:900;color:var(--keyMetric);font-variant-numeric:tabular-nums}
-#lessonsRoot .resultsMatrixStatus{font-size:11px;font-weight:900;letter-spacing:.3px;text-transform:uppercase;color:var(--muted)}
 
 
 .lesson-continuous { display: flex; flex-direction: column; gap: 20px; padding-bottom: 40px; }
@@ -15217,23 +15211,6 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
           <div class="resultsScoreValue">${finalPercent}%</div>
         </div>
         <div class="resultsPrompt">${improvementPrompt}</div>
-        <div class="resultsMatrix">
-          ${[
-            { key:"quickCheck", label:"Quick checks" },
-            { key:"argIdentify", label:"Argument identification" },
-            { key:"supportEvidence", label:"Evidence support" },
-            { key:"challengeEvidence", label:"Evidence challenge" },
-            { key:"judgement", label:"Judgement" },
-            { key:"strongestEvidence", label:"Strongest evidence" },
-            { key:"rankFactors", label:"Rank factors" }
-          ].map(item=>{
-            const pct = componentPercents[item.key];
-            const numericPct = Number.isFinite(pct) ? pct : null;
-            const scoreText = numericPct===null ? "—" : `${numericPct}%`;
-            const status = numericPct===null ? "Not used" : numericPct>=70 ? "Secure" : numericPct>=50 ? "Developing" : "Needs work";
-            return `<div class="resultsMatrixRow"><div class="resultsMatrixLabel">${item.label}</div><div class="resultsMatrixScore">${scoreText}</div><div class="resultsMatrixStatus">${status}</div></div>`;
-          }).join("")}
-        </div>
       </div>
       <div class="row" style="margin-top:12px">
         <button class="btn primary" id="lessonRetryBtn" type="button">Retry lesson</button>
