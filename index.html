@@ -15004,7 +15004,15 @@ function getLessonSlideLabel(slideType){
 }
 
 function renderLessonSlideHeading(slide){
-  const title = escapeHtml(slide?.heading || "Lesson panel");
+  const rawTitle = String(slide?.heading || "Lesson panel");
+  const shortenedTitle = (function(){
+    if(slide?.type !== "briefing") return rawTitle;
+    const match = rawTitle.match(/^\s*(?:micro-briefing|factor)\s*\d+\s*:\s*(.+)$/i);
+    if(!match) return rawTitle;
+    const concise = match[1].replace(/\s*\([^)]*\)\s*/g, " ").replace(/\s+/g, " ").trim();
+    return concise ? concise.toLowerCase() : rawTitle;
+  })();
+  const title = escapeHtml(shortenedTitle);
   const label = escapeHtml(getLessonSlideLabel(slide?.type));
   return `<div class="slideHeadingWrap"><div class="slideHeadingLabel">${label}</div><h4 class="slideHeading">${title}</h4></div>`;
 }
