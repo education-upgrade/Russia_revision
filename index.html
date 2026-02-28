@@ -3025,13 +3025,76 @@ section#games.gamePaneActive .gamesHeroCard{
 .qc-btn.selected-neutral { background: rgba(110,144,202,.15); border-color: var(--accent); }
 .qc-feedback { padding: 14px; background: #fff; border-radius: 12px; border-left: 4px solid var(--accent); animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
-#lessonsRoot .topicsAccordion{display:grid;gap:10px}
-#lessonsRoot .lessonTopicItem{border:1px solid var(--line);border-radius:12px;background:#fff;padding:8px 12px}
-#lessonsRoot .lessonTopicItem>summary{cursor:pointer;font-weight:800}
-#lessonsRoot .lessonTopicBody{display:grid;gap:10px;padding:8px 2px 2px}
-#lessonsRoot .lessonThemeBlock{display:grid;gap:8px;border-top:1px dashed var(--line);padding-top:8px}
-#lessonsRoot .lessonThemeTitle{font-weight:800;color:var(--textStrong)}
-#lessonsRoot .lessonRow{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+#lessonsRoot .lessonsMenuCard{
+  background:linear-gradient(180deg, rgba(236,244,252,.86), rgba(248,252,255,.95));
+  border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%);
+}
+#lessonsRoot .lessonsMenuCard .lessonsHeader{
+  margin-bottom:12px;
+  padding:2px 2px 8px;
+  border-bottom:1px solid color-mix(in srgb, var(--line) 74%, var(--accent2) 26%);
+}
+#lessonsRoot .lessonsMenuCard .pill{
+  border-color:color-mix(in srgb, var(--line) 60%, var(--accent2) 40%);
+  background:rgba(255,255,255,.94);
+  font-weight:900;
+}
+#lessonsRoot .topicsAccordion{display:grid;gap:12px}
+#lessonsRoot .lessonTopicItem{
+  border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%);
+  border-radius:16px;
+  background:rgba(255,255,255,.95);
+  overflow:hidden;
+  box-shadow:0 8px 18px rgba(24,48,84,.06);
+}
+#lessonsRoot .lessonTopicItem>summary{
+  list-style:none;
+  cursor:pointer;
+  font-weight:900;
+  font-size:clamp(18px,4.6vw,22px);
+  color:var(--textStrong);
+  line-height:1.2;
+  padding:14px 16px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+}
+#lessonsRoot .lessonTopicItem>summary::-webkit-details-marker{display:none}
+#lessonsRoot .lessonTopicItem>summary::before{
+  content:"▶";
+  color:var(--accent);
+  font-size:16px;
+  line-height:1;
+  transform:translateY(3px);
+  transition:transform .2s ease;
+}
+#lessonsRoot .lessonTopicItem[open]>summary::before{transform:translateY(3px) rotate(90deg)}
+#lessonsRoot .lessonTopicItem[open]>summary{
+  background:linear-gradient(135deg, rgba(110,144,202,.14), rgba(163,194,223,.2));
+  border-bottom:1px solid color-mix(in srgb, var(--line) 66%, var(--accent2) 34%);
+}
+#lessonsRoot .lessonTopicBody{display:grid;gap:12px;padding:12px 14px 14px}
+#lessonsRoot .lessonThemeBlock{display:grid;gap:10px;border-top:1px dashed color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);padding-top:12px}
+#lessonsRoot .lessonThemeBlock:first-child{border-top:none;padding-top:0}
+#lessonsRoot .lessonThemeTitle{font-weight:900;color:var(--textStrong);font-size:13px;letter-spacing:.45px;text-transform:uppercase}
+#lessonsRoot .lessonRow{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  align-items:center;
+  flex-wrap:nowrap;
+  padding:10px 11px;
+  border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
+  border-radius:12px;
+  background:rgba(248,252,255,.9);
+}
+#lessonsRoot .lessonRow>div{min-width:0}
+#lessonsRoot .lessonRow .note{margin-top:4px;font-size:12px;line-height:1.3}
+#lessonsRoot .lessonRow .btn.primary{min-height:38px;padding:8px 14px;font-size:13px;white-space:nowrap;flex:0 0 auto}
+@media (max-width:560px){
+  #lessonsRoot .lessonRow{flex-wrap:wrap}
+  #lessonsRoot .lessonRow .btn.primary{width:100%}
+}
 
 </style>
 </head>
@@ -14876,7 +14939,7 @@ function renderLessons(){
 
 function renderTopicsList(root){
   root.innerHTML = `
-    <div class="card">
+    <div class="card lessonsMenuCard">
       <div class="lessonsHeader">
         <h2 class="lessonsTitle"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span>Lessons</span></h2>
         <span class="pill">${lessonsData.length} topics</span>
