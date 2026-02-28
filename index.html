@@ -14716,6 +14716,25 @@ function applyInfographicTransform(){
   image.style.transform = `translate(${lessonInfographicState.x}px, ${lessonInfographicState.y}px) scale(${lessonInfographicState.scale})`;
 }
 
+function zoomInfographicAtPoint(nextScale, clientX, clientY){
+  const { stage } = getLessonInfographicElements();
+  if(!stage) return;
+  const clampedScale = Math.max(lessonInfographicState.minScale, Math.min(lessonInfographicState.maxScale, nextScale));
+  const previousScale = lessonInfographicState.scale;
+  if(!Number.isFinite(clampedScale) || !Number.isFinite(previousScale) || previousScale <= 0) return;
+  if(Math.abs(clampedScale - previousScale) < 0.0001) return;
+
+  const stageRect = stage.getBoundingClientRect();
+  const focalX = clientX - stageRect.left;
+  const focalY = clientY - stageRect.top;
+  const scaleRatio = clampedScale / previousScale;
+
+  lessonInfographicState.x = focalX - (focalX - lessonInfographicState.x) * scaleRatio;
+  lessonInfographicState.y = focalY - (focalY - lessonInfographicState.y) * scaleRatio;
+  lessonInfographicState.scale = clampedScale;
+  applyInfographicTransform();
+}
+
 function resetInfographicZoom(){
   const { stage } = getLessonInfographicElements();
   if(!stage) return;
@@ -14792,9 +14811,10 @@ function bindLessonInfographicViewer(){
       const currentDistance = distanceBetween(first, second);
       if(lessonInfographicState.baseDistance > 0){
         const nextScale = lessonInfographicState.baseScale * (currentDistance / lessonInfographicState.baseDistance);
-        lessonInfographicState.scale = Math.max(lessonInfographicState.minScale, Math.min(lessonInfographicState.maxScale, nextScale));
+        const midpointX = (first.x + second.x) / 2;
+        const midpointY = (first.y + second.y) / 2;
+        zoomInfographicAtPoint(nextScale, midpointX, midpointY);
       }
-      applyInfographicTransform();
       return;
     }
     if(lessonInfographicState.pointers.size === 1 && lessonInfographicState.singlePointerId === event.pointerId){
@@ -14827,8 +14847,7 @@ function bindLessonInfographicViewer(){
     if(overlay.classList.contains("hidden")) return;
     event.preventDefault();
     const direction = event.deltaY < 0 ? 1.08 : 0.92;
-    lessonInfographicState.scale = Math.max(lessonInfographicState.minScale, Math.min(lessonInfographicState.maxScale, lessonInfographicState.scale * direction));
-    applyInfographicTransform();
+    zoomInfographicAtPoint(lessonInfographicState.scale * direction, event.clientX, event.clientY);
   }, { passive:false });
 
   overlay.addEventListener("click", event=>{
