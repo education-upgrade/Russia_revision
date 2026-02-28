@@ -808,6 +808,15 @@
     .lessonContextSections{display:grid;gap:12px;margin-top:8px}
     .lessonContextSection{border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);border-radius:14px;background:rgba(255,255,255,.9);padding:12px}
     .lessonContextTitle{font-size:15px;font-weight:900;line-height:1.25;color:var(--textStrong);margin:0 0 8px}
+    .lessonInfographicBtn{width:100%;border:1px solid color-mix(in srgb, var(--line) 58%, var(--accent2) 42%);border-radius:12px;background:#fff;padding:10px;cursor:zoom-in;display:grid;gap:8px;text-align:left}
+    .lessonInfographicBtn img{width:100%;height:auto;display:block;border-radius:10px;image-rendering:auto}
+    .lessonInfographicHint{font-size:13px;font-weight:700;color:var(--muted)}
+    .lessonInfographicOverlay{position:fixed;inset:0;z-index:10080;background:rgba(12,22,35,.9);display:grid;grid-template-rows:auto 1fr;padding:12px;gap:10px}
+    .lessonInfographicOverlay.hidden{display:none}
+    .lessonInfographicTop{display:flex;justify-content:flex-end;gap:8px}
+    .lessonInfographicTop .btn{min-height:42px}
+    .lessonInfographicStage{position:relative;overflow:hidden;border:1px solid rgba(255,255,255,.22);border-radius:12px;touch-action:none;background:rgba(255,255,255,.04)}
+    .lessonInfographicStage img{position:absolute;left:0;top:0;max-width:none;width:auto;height:auto;transform-origin:0 0;user-select:none;-webkit-user-drag:none;pointer-events:none}
     .lessonSectionHeading{font-size:clamp(26px,4.5vw,34px);line-height:1.06;font-weight:950;color:var(--textStrong);margin:0}
     .lessonBodyText{font-size:16px;line-height:1.55;color:var(--text);margin:0;max-width:58ch}
     .lessonBulletList{margin:0;padding-left:20px;display:grid;gap:8px;font-size:16px;line-height:1.5}
@@ -3462,6 +3471,15 @@ section#games.gamePaneActive .gamesHeroCard{
           </span>
         </button>
       </div>
+    </div>
+  </div>
+
+  <div id="lessonInfographicOverlay" class="lessonInfographicOverlay hidden" role="dialog" aria-modal="true" aria-label="Lesson infographic viewer">
+    <div class="lessonInfographicTop">
+      <button class="btn" id="closeLessonInfographicBtn" type="button">Close</button>
+    </div>
+    <div id="lessonInfographicStage" class="lessonInfographicStage" aria-live="polite">
+      <img id="lessonInfographicZoomImage" alt="Expanded lesson infographic" decoding="async" loading="eager" />
     </div>
   </div>
 
@@ -9307,6 +9325,9 @@ const LESSON_MODES = ["overview", "simple", "exam"];
 
 const LESSON_ACTIVITY_KEY = "LESSON_ACTIVITY_KEY";
 const DRILL_HISTORY_KEY = "lessonsDrillHistoryV1";
+const LESSON_INFOGRAPHICS = {
+  "t1-pa-a2-reforms":"./Lesson infographics/Alexander-II-Reforms-1.png"
+};
 const lessonsNav = {
   view:"topics",
   topicId:null,
@@ -9316,6 +9337,22 @@ const lessonsNav = {
   answers:{},
   libraryFilters:{ topic:"all", theme:"all", search:"" },
   collapsedLessonBlocks:{}
+};
+
+const lessonInfographicState = {
+  pointers:new Map(),
+  scale:1,
+  minScale:1,
+  maxScale:4,
+  x:0,
+  y:0,
+  baseDistance:0,
+  baseScale:1,
+  panStartX:0,
+  panStartY:0,
+  singlePointerId:null,
+  imageWidth:0,
+  imageHeight:0
 };
 
 function getLessonActivityStore(){
@@ -14650,10 +14687,155 @@ function getNextLessonFromCourse(currentLessonId){
   return orderedLessons[currentIndex + 1] || null;
 }
 
+function getLessonInfographicElements(){
+  return {
+    overlay:$("lessonInfographicOverlay"),
+    stage:$("lessonInfographicStage"),
+    image:$("lessonInfographicZoomImage"),
+    closeBtn:$("closeLessonInfographicBtn")
+  };
+}
+
+function clampInfographicPosition(stageRect){
+  const state = lessonInfographicState;
+  const scaledWidth = state.imageWidth * state.scale;
+  const scaledHeight = state.imageHeight * state.scale;
+  const minX = Math.min(0, stageRect.width - scaledWidth);
+  const minY = Math.min(0, stageRect.height - scaledHeight);
+  state.x = Math.max(minX, Math.min(0, state.x));
+  state.y = Math.max(minY, Math.min(0, state.y));
+}
+
+function applyInfographicTransform(){
+  const { stage, image } = getLessonInfographicElements();
+  if(!stage || !image) return;
+  clampInfographicPosition(stage.getBoundingClientRect());
+  image.style.transform = `translate(${lessonInfographicState.x}px, ${lessonInfographicState.y}px) scale(${lessonInfographicState.scale})`;
+}
+
+function resetInfographicZoom(){
+  const { stage } = getLessonInfographicElements();
+  if(!stage) return;
+  lessonInfographicState.scale = lessonInfographicState.minScale;
+  lessonInfographicState.x = 0;
+  lessonInfographicState.y = 0;
+  lessonInfographicState.pointers.clear();
+  lessonInfographicState.baseDistance = 0;
+  lessonInfographicState.singlePointerId = null;
+  applyInfographicTransform();
+}
+
+function closeLessonInfographic(){
+  const { overlay } = getLessonInfographicElements();
+  if(!overlay) return;
+  overlay.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function openLessonInfographic(src){
+  const { overlay, image } = getLessonInfographicElements();
+  if(!overlay || !image || !src) return;
+  image.src = src;
+  overlay.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+  if(image.complete && image.naturalWidth){
+    lessonInfographicState.imageWidth = image.naturalWidth;
+    lessonInfographicState.imageHeight = image.naturalHeight;
+    resetInfographicZoom();
+  }else{
+    image.addEventListener("load", ()=>{
+      lessonInfographicState.imageWidth = image.naturalWidth;
+      lessonInfographicState.imageHeight = image.naturalHeight;
+      resetInfographicZoom();
+    }, { once:true });
+  }
+}
+
+function bindLessonInfographicViewer(){
+  const { overlay, stage, image, closeBtn } = getLessonInfographicElements();
+  if(!overlay || !stage || !image || stage.dataset.bound === "1") return;
+  stage.dataset.bound = "1";
+
+  const distanceBetween = (a, b)=>Math.hypot((b.x - a.x), (b.y - a.y));
+
+  stage.addEventListener("pointerdown", event=>{
+    event.preventDefault();
+    stage.setPointerCapture(event.pointerId);
+    lessonInfographicState.pointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+    if(lessonInfographicState.pointers.size === 1){
+      lessonInfographicState.singlePointerId = event.pointerId;
+      lessonInfographicState.panStartX = event.clientX - lessonInfographicState.x;
+      lessonInfographicState.panStartY = event.clientY - lessonInfographicState.y;
+    }
+    if(lessonInfographicState.pointers.size === 2){
+      const [first, second] = [...lessonInfographicState.pointers.values()];
+      lessonInfographicState.baseDistance = distanceBetween(first, second);
+      lessonInfographicState.baseScale = lessonInfographicState.scale;
+    }
+  });
+
+  stage.addEventListener("pointermove", event=>{
+    if(!lessonInfographicState.pointers.has(event.pointerId)) return;
+    lessonInfographicState.pointers.set(event.pointerId, { x:event.clientX, y:event.clientY });
+    if(lessonInfographicState.pointers.size === 2){
+      const [first, second] = [...lessonInfographicState.pointers.values()];
+      const currentDistance = distanceBetween(first, second);
+      if(lessonInfographicState.baseDistance > 0){
+        const nextScale = lessonInfographicState.baseScale * (currentDistance / lessonInfographicState.baseDistance);
+        lessonInfographicState.scale = Math.max(lessonInfographicState.minScale, Math.min(lessonInfographicState.maxScale, nextScale));
+      }
+      applyInfographicTransform();
+      return;
+    }
+    if(lessonInfographicState.pointers.size === 1 && lessonInfographicState.singlePointerId === event.pointerId){
+      lessonInfographicState.x = event.clientX - lessonInfographicState.panStartX;
+      lessonInfographicState.y = event.clientY - lessonInfographicState.panStartY;
+      applyInfographicTransform();
+    }
+  });
+
+  const clearPointer = event=>{
+    lessonInfographicState.pointers.delete(event.pointerId);
+    if(lessonInfographicState.pointers.size < 2){
+      lessonInfographicState.baseDistance = 0;
+    }
+    if(lessonInfographicState.pointers.size === 1){
+      const [pointerId, pointer] = [...lessonInfographicState.pointers.entries()][0];
+      lessonInfographicState.singlePointerId = pointerId;
+      lessonInfographicState.panStartX = pointer.x - lessonInfographicState.x;
+      lessonInfographicState.panStartY = pointer.y - lessonInfographicState.y;
+    }
+    if(lessonInfographicState.pointers.size === 0){
+      lessonInfographicState.singlePointerId = null;
+      applyInfographicTransform();
+    }
+  };
+
+  stage.addEventListener("pointerup", clearPointer);
+  stage.addEventListener("pointercancel", clearPointer);
+  stage.addEventListener("wheel", event=>{
+    if(overlay.classList.contains("hidden")) return;
+    event.preventDefault();
+    const direction = event.deltaY < 0 ? 1.08 : 0.92;
+    lessonInfographicState.scale = Math.max(lessonInfographicState.minScale, Math.min(lessonInfographicState.maxScale, lessonInfographicState.scale * direction));
+    applyInfographicTransform();
+  }, { passive:false });
+
+  overlay.addEventListener("click", event=>{
+    if(event.target === overlay) closeLessonInfographic();
+  });
+
+  if(closeBtn) closeBtn.addEventListener("click", closeLessonInfographic);
+  document.addEventListener("keydown", event=>{
+    if(event.key === "Escape") closeLessonInfographic();
+  });
+}
+
 function renderLessons(){
   const root = $("lessonsRoot");
   if(!root) return;
   validateLessonsArchitecture();
+  bindLessonInfographicViewer();
 
   if(lessonsNav.view === "player") return renderLessonPlayer(root);
   return renderTopicsList(root);
@@ -14793,6 +14975,7 @@ function renderLessonPlayer(root){
   root.querySelectorAll('[data-action="exam-transfer-starter"]').forEach(btn=>btn.addEventListener("click", ()=>{ const ctx=getContext(btn); if(!ctx) return; const starter=btn.dataset.starter||""; const current=getStoredExamTransferWriting(lesson.id, ctx.slideIndex); const spacer=current && !/\s$/.test(current) ? " " : ""; setStoredExamTransferWriting(lesson.id, ctx.slideIndex, `${current}${spacer}${starter}`.trimStart()); renderLessons(); }));
   root.querySelectorAll('[data-action="exam-transfer-write"]').forEach(input=>input.addEventListener("input", ()=>{ const ctx=getContext(input); if(!ctx) return; setStoredExamTransferWriting(lesson.id, ctx.slideIndex, input.value); }));
   root.querySelectorAll('[data-action="exam-transfer-reveal"]').forEach(btn=>btn.addEventListener("click", ()=>{ const ctx=getContext(btn); if(!ctx) return; const revealed=getStoredExamTransferRevealState(lesson.id, ctx.slideId); setLessonAnswer(lesson.id, ctx.slideId, { revealed:!revealed }); renderLessons(); }));
+  root.querySelectorAll('[data-action="open-lesson-infographic"]').forEach(btn=>btn.addEventListener("click", ()=>openLessonInfographic(btn.dataset.src || "")));
 
   const retryBtn = $("lessonRetryBtn");
   if(retryBtn){ retryBtn.addEventListener("click", ()=>{ lessonsNav.answers[lesson.id] = {}; renderLessons(); }); }
@@ -15305,6 +15488,13 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
   if(slide.type === "lesson-context"){
     const bigPictureHtml = renderLessonParagraphs(slide.bigPictureContent || "") || '<p class="note">No big-picture summary available yet.</p>';
     const coreKnowledgeHtml = renderLessonParagraphs(slide.coreKnowledgeContent || "") || '<p class="note">No core knowledge notes available yet.</p>';
+    const infographicSrc = LESSON_INFOGRAPHICS[lesson.id] || "";
+    const coreKnowledgePanel = infographicSrc
+      ? `<button class="lessonInfographicBtn" data-action="open-lesson-infographic" data-src="${escapeHtml(infographicSrc)}" type="button" aria-label="Open lesson infographic in full screen">
+          <img src="${escapeHtml(infographicSrc)}" alt="Core knowledge infographic for ${escapeHtml(lesson.title || "this lesson")}" loading="lazy" decoding="async" />
+          <span class="lessonInfographicHint">Tap to expand • pinch to zoom</span>
+        </button>`
+      : coreKnowledgeHtml;
     return `
       ${renderLessonSlideHeading({ ...slide, heading: slide.heading || "Lesson context" })}
       <div class="lessonContextSections">
@@ -15314,7 +15504,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
         </section>
         <section class="lessonContextSection">
           <h4 class="lessonContextTitle">Core Knowledge</h4>
-          ${coreKnowledgeHtml}
+          ${coreKnowledgePanel}
         </section>
       </div>
     `;
