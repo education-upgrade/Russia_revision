@@ -3026,74 +3026,51 @@ section#games.gamePaneActive .gamesHeroCard{
 .qc-feedback { padding: 14px; background: #fff; border-radius: 12px; border-left: 4px solid var(--accent); animation: fadeIn 0.3s ease; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
 #lessonsRoot .lessonsMenuCard{
-  background:linear-gradient(180deg, rgba(236,244,252,.86), rgba(248,252,255,.95));
-  border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%);
+  background:linear-gradient(180deg, rgba(242,248,253,.76), rgba(249,252,255,.92));
+  border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
 }
-#lessonsRoot .lessonsMenuCard .lessonsHeader{
-  margin-bottom:12px;
-  padding:2px 2px 8px;
-  border-bottom:1px solid color-mix(in srgb, var(--line) 74%, var(--accent2) 26%);
-}
-#lessonsRoot .lessonsMenuCard .pill{
-  border-color:color-mix(in srgb, var(--line) 60%, var(--accent2) 40%);
-  background:rgba(255,255,255,.94);
-  font-weight:900;
-}
-#lessonsRoot .topicsAccordion{display:grid;gap:12px}
-#lessonsRoot .lessonTopicItem{
-  border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%);
-  border-radius:16px;
-  background:rgba(255,255,255,.95);
-  overflow:hidden;
-  box-shadow:0 8px 18px rgba(24,48,84,.06);
-}
-#lessonsRoot .lessonTopicItem>summary{
-  list-style:none;
-  cursor:pointer;
-  font-weight:900;
-  font-size:clamp(18px,4.6vw,22px);
-  color:var(--textStrong);
-  line-height:1.2;
-  padding:14px 16px;
-  display:flex;
-  align-items:flex-start;
-  gap:10px;
-}
+#lessonsRoot .lessonsMenuCard .lessonsHeader{margin-bottom:10px;padding:2px 2px 8px;border-bottom:1px solid color-mix(in srgb, var(--line) 80%, var(--accent2) 20%)}
+#lessonsRoot .lessonsMenuCard .pill{border-color:color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);background:rgba(255,255,255,.94);font-weight:900}
+#lessonsRoot .topicsAccordion{display:grid;gap:10px}
+#lessonsRoot .lessonTopicItem{border:1px solid color-mix(in srgb, var(--line) 74%, var(--accent2) 26%);border-radius:12px;background:rgba(255,255,255,.96);overflow:hidden}
+#lessonsRoot .lessonTopicItem>summary{list-style:none;cursor:pointer;font-weight:900;font-size:clamp(18px,4.4vw,21px);color:var(--textStrong);line-height:1.2;padding:13px 14px;display:flex;align-items:flex-start;gap:10px}
 #lessonsRoot .lessonTopicItem>summary::-webkit-details-marker{display:none}
-#lessonsRoot .lessonTopicItem>summary::before{
-  content:"▶";
-  color:var(--accent);
-  font-size:16px;
-  line-height:1;
-  transform:translateY(3px);
-  transition:transform .2s ease;
-}
-#lessonsRoot .lessonTopicItem[open]>summary::before{transform:translateY(3px) rotate(90deg)}
-#lessonsRoot .lessonTopicItem[open]>summary{
-  background:linear-gradient(135deg, rgba(110,144,202,.14), rgba(163,194,223,.2));
-  border-bottom:1px solid color-mix(in srgb, var(--line) 66%, var(--accent2) 34%);
-}
-#lessonsRoot .lessonTopicBody{display:grid;gap:12px;padding:12px 14px 14px}
-#lessonsRoot .lessonThemeBlock{display:grid;gap:10px;border-top:1px dashed color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);padding-top:12px}
-#lessonsRoot .lessonThemeBlock:first-child{border-top:none;padding-top:0}
-#lessonsRoot .lessonThemeTitle{font-weight:900;color:var(--textStrong);font-size:13px;letter-spacing:.45px;text-transform:uppercase}
-#lessonsRoot .lessonRow{
-  display:flex;
-  justify-content:space-between;
-  gap:12px;
-  align-items:center;
-  flex-wrap:nowrap;
-  padding:10px 11px;
-  border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
-  border-radius:12px;
-  background:rgba(248,252,255,.9);
-}
-#lessonsRoot .lessonRow>div{min-width:0}
-#lessonsRoot .lessonRow .note{margin-top:4px;font-size:12px;line-height:1.3}
-#lessonsRoot .lessonRow .btn.primary{min-height:38px;padding:8px 14px;font-size:13px;white-space:nowrap;flex:0 0 auto}
+#lessonsRoot .lessonTopicItem>summary::before{content:"▶";color:var(--accent);font-size:14px;line-height:1;transform:translateY(4px);transition:transform .2s ease}
+#lessonsRoot .lessonTopicItem[open]>summary::before{transform:translateY(4px) rotate(90deg)}
+#lessonsRoot .lessonTopicItem[open]>summary{background:color-mix(in srgb, #fff 82%, var(--accent3) 18%);border-bottom:1px solid color-mix(in srgb, var(--line) 82%, var(--accent2) 18%)}
+#lessonsRoot .lessonTopicBody{display:grid;gap:10px;padding:12px 14px 14px}
+#lessonsRoot .topicTimelineStrip{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;font-size:12px;font-weight:800;color:var(--muted)}
+#lessonsRoot .topicTimelineTrack{position:relative;height:6px;border-radius:999px;background:color-mix(in srgb, var(--line) 66%, #fff 34%);overflow:hidden}
+#lessonsRoot .topicTimelineRange{position:absolute;top:1px;bottom:1px;border-radius:999px;background:color-mix(in srgb, var(--accent2) 72%, #2f5d93 28%);opacity:.55;left:0;width:100%}
+#lessonsRoot .topicOverviewPanel{display:grid;gap:6px;padding:10px 12px;border:1px solid color-mix(in srgb, var(--line) 82%, var(--accent2) 18%);border-radius:10px;background:color-mix(in srgb, #fff 88%, var(--accent3) 12%)}
+#lessonsRoot .topicOverviewPanel h4{margin:0;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+#lessonsRoot .topicOverviewPanel p{margin:0;font-size:13px;line-height:1.4}
+#lessonsRoot .topicProgressWrap{display:grid;gap:6px}
+#lessonsRoot .topicProgressLabel{font-size:12px;font-weight:800;color:var(--muted)}
+#lessonsRoot .topicProgressTrack{height:6px;border-radius:999px;background:color-mix(in srgb, var(--line) 66%, #fff 34%);overflow:hidden}
+#lessonsRoot .topicProgressFill{height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent));width:0}
+#lessonsRoot .lessonThemeFilters{display:flex;gap:6px;flex-wrap:wrap}
+#lessonsRoot .themeChip{border:1px solid color-mix(in srgb, var(--line) 76%, var(--accent2) 24%);background:#fff;border-radius:999px;padding:6px 11px;font-size:12px;font-weight:800;color:var(--text);cursor:pointer}
+#lessonsRoot .themeChip.active{border-style:solid;border-color:color-mix(in srgb, var(--accent2) 64%, var(--line) 36%);font-weight:900}
+#lessonsRoot .themeChip:focus-visible,#lessonsRoot .lessonRowBtn:focus-visible,#lessonsRoot .lessonTopicItem>summary:focus-visible{outline:2px solid color-mix(in srgb, var(--accent2) 76%, #2c5aa0 24%);outline-offset:2px}
+#lessonsRoot .lessonsList{display:grid;position:relative}
+#lessonsRoot .lessonRow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid color-mix(in srgb, var(--line) 84%, var(--accent2) 16%)}
+#lessonsRoot .lessonRow:last-child{border-bottom:none}
+#lessonsRoot .lessonStatusNode{position:relative;width:16px;height:16px;border-radius:999px;border:2px solid color-mix(in srgb, var(--line) 54%, var(--accent2) 46%);margin-left:2px}
+#lessonsRoot .lessonStatusNode.in-progress{background:linear-gradient(180deg,color-mix(in srgb, var(--accent2) 70%, #fff 30%) 50%, transparent 50%)}
+#lessonsRoot .lessonStatusNode.completed{background:color-mix(in srgb, var(--accent2) 72%, #2e6094 28%);border-color:color-mix(in srgb, var(--accent2) 72%, #2e6094 28%)}
+#lessonsRoot .lessonsList.withJourney .lessonRow:not(:last-child) .lessonStatusNode::after{content:"";position:absolute;left:50%;top:15px;transform:translateX(-50%);width:1px;height:22px;background:color-mix(in srgb, var(--line) 78%, var(--accent2) 22%)}
+#lessonsRoot .lessonRowMeta{min-width:0}
+#lessonsRoot .lessonRowTitle{font-size:15px;font-weight:700;line-height:1.3;color:var(--textStrong)}
+#lessonsRoot .lessonRowDate{margin-top:2px;font-size:12px;color:var(--muted)}
+#lessonsRoot .lessonRowBtn{min-height:32px;padding:6px 11px;border-radius:9px;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);background:#fff;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap}
+#lessonsRoot .lessonRowBtn.in-progress{font-weight:900;opacity:.96}
+#lessonsRoot .lessonRowBtn.completed{opacity:.84;border-style:dashed}
+#lessonsRoot .lessonEmpty{padding:9px 0;color:var(--muted);font-size:13px}
 @media (max-width:560px){
-  #lessonsRoot .lessonRow{flex-wrap:wrap}
-  #lessonsRoot .lessonRow .btn.primary{width:100%}
+  #lessonsRoot .lessonRow{grid-template-columns:auto minmax(0,1fr)}
+  #lessonsRoot .lessonRowBtn{grid-column:1 / -1;justify-self:stretch}
+  #lessonsRoot .lessonsList.withJourney .lessonRow:not(:last-child) .lessonStatusNode::after{height:30px}
 }
 
 </style>
@@ -14937,6 +14914,89 @@ function renderLessons(){
   return renderTopicsList(root);
 }
 
+function parseLessonYearRange(label){
+  const raw = String(label || "");
+  const matches = [...raw.matchAll(/(\d{4})/g)].map(item=>Number(item[1])).filter(Number.isFinite);
+  if(!matches.length) return { start:null, end:null };
+  const start = Math.min(...matches);
+  const end = Math.max(...matches);
+  return { start, end };
+}
+
+function getTopicYearBounds(topic){
+  const years = getTopicLessons(topic).flatMap(lesson=>{
+    const range = parseLessonYearRange(lesson?.yearLabel);
+    return [range.start, range.end].filter(Number.isFinite);
+  });
+  if(!years.length) return { start:null, end:null };
+  return { start:Math.min(...years), end:Math.max(...years) };
+}
+
+function getTopicFilterState(topicId){
+  if(!lessonsNav.topicFilters || typeof lessonsNav.topicFilters !== "object") lessonsNav.topicFilters = {};
+  return lessonsNav.topicFilters[topicId] || "all";
+}
+
+function setTopicFilterState(topicId, value){
+  if(!topicId) return;
+  if(!lessonsNav.topicFilters || typeof lessonsNav.topicFilters !== "object") lessonsNav.topicFilters = {};
+  lessonsNav.topicFilters[topicId] = value || "all";
+}
+
+function getLessonJourneyState(lessonId){
+  const entry = getLessonProgress(lessonId);
+  const completed = entry?.completed === true || entry?.completion === true;
+  const started = Number.isFinite(entry?.lastStartedAt) || typeof entry?.lastAttemptDate === "string" || Number.isFinite(entry?.lastScorePct) || Number.isFinite(entry?.bestScorePct);
+  if(completed) return "completed";
+  if(started) return "in-progress";
+  return "not-started";
+}
+
+function getLessonJourneyUi(state){
+  if(state === "completed") return { actionLabel:"✓ Review", statusClass:"completed" };
+  if(state === "in-progress") return { actionLabel:"↺ Resume", statusClass:"in-progress" };
+  return { actionLabel:"▶ Start", statusClass:"not-started" };
+}
+
+function getThemeChipLabel(theme){
+  const title = String(theme?.title || "").trim();
+  if(!title) return "Theme";
+  if(/political/i.test(title)) return "Political";
+  if(/economic/i.test(title)) return "Economic";
+  if(/opposition/i.test(title)) return "Opposition";
+  if(/social/i.test(title)) return "Social";
+  return title.split(/\s|&/).filter(Boolean)[0] || title;
+}
+
+function buildTopicOverview(topic){
+  if(topic?.topicOverview?.tension) return String(topic.topicOverview.tension);
+  const themes = (topic?.themes || []).map(theme=>theme.title).filter(Boolean).join(", ");
+  return `This topic explores the key debates across ${themes || "core themes"}, helping you answer AQA-style questions.`;
+}
+
+function computeTopicJourneyProgress(topic){
+  const lessons = getTopicLessons(topic);
+  if(!lessons.length) return 0;
+  const total = lessons.reduce((sum, lesson)=>{
+    const state = getLessonJourneyState(lesson.id);
+    if(state === "completed") return sum + 1;
+    if(state === "in-progress") return sum + 0.5;
+    return sum;
+  }, 0);
+  return Math.round((total / lessons.length) * 100);
+}
+
+function getTimelineRangeStyle(topicBounds, selectedBounds){
+  if(!Number.isFinite(topicBounds?.start) || !Number.isFinite(topicBounds?.end) || topicBounds.end <= topicBounds.start){
+    return 'left:0%;width:100%';
+  }
+  if(!Number.isFinite(selectedBounds?.start) || !Number.isFinite(selectedBounds?.end)) return 'left:0%;width:100%';
+  const total = topicBounds.end - topicBounds.start;
+  const leftPct = Math.max(0, Math.min(100, ((selectedBounds.start - topicBounds.start) / total) * 100));
+  const rightPct = Math.max(leftPct, Math.max(0, Math.min(100, ((selectedBounds.end - topicBounds.start) / total) * 100)));
+  return `left:${leftPct.toFixed(2)}%;width:${Math.max(2, rightPct - leftPct).toFixed(2)}%`;
+}
+
 function renderTopicsList(root){
   root.innerHTML = `
     <div class="card lessonsMenuCard">
@@ -14945,41 +15005,114 @@ function renderTopicsList(root){
         <span class="pill">${lessonsData.length} topics</span>
       </div>
       <div class="topicsAccordion">
-        ${lessonsData.map(topic=>`
-          <details class="lessonTopicItem" ${lessonsNav.topicId===topic.id ? "open" : ""}>
-            <summary data-topic-summary="${topic.id}">${escapeHtml(topic.title || "Topic")}</summary>
-            <div class="lessonTopicBody">
-              ${(topic.themes || []).map(theme=>`
-                <div class="lessonThemeBlock">
-                  <div class="lessonThemeTitle">${escapeHtml(theme.title || "Theme")}</div>
-                  ${(theme.lessons || []).map(lesson=>`
-                    <div class="lessonRow">
-                      <div>
-                        <div style="font-weight:800">${escapeHtml(lesson.title || "Lesson")}</div>
-                        <div class="note">${escapeHtml(lesson.yearLabel || "")}</div>
-                      </div>
-                      <button class="btn primary" data-action="start-lesson" data-topic="${topic.id}" data-theme="${theme.id}" data-lesson="${lesson.id}" type="button">Start</button>
-                    </div>
-                  `).join("")}
+        ${lessonsData.map(topic=>{
+          const selectedFilter = getTopicFilterState(topic.id);
+          const topicBounds = getTopicYearBounds(topic);
+          const themeChips = [{ id:"all", label:"All" }, ...(topic.themes || []).map(theme=>({ id:theme.id, label:getThemeChipLabel(theme) }))];
+          const visibleThemes = (topic.themes || []).filter(theme=>selectedFilter === "all" || theme.id === selectedFilter);
+          const visibleLessons = visibleThemes.flatMap(theme=>(theme.lessons || []).map(lesson=>({ lesson, theme })));
+          const rangeFromVisible = visibleLessons.flatMap(item=>{
+            const parsed = parseLessonYearRange(item.lesson?.yearLabel);
+            return [parsed.start, parsed.end].filter(Number.isFinite);
+          });
+          const activeBounds = rangeFromVisible.length ? { start:Math.min(...rangeFromVisible), end:Math.max(...rangeFromVisible) } : topicBounds;
+          const progressPct = computeTopicJourneyProgress(topic);
+
+          return `
+            <details class="lessonTopicItem" data-topic-panel="${topic.id}" ${lessonsNav.topicId===topic.id ? "open" : ""}>
+              <summary data-topic-summary="${topic.id}">${escapeHtml(topic.title || "Topic")}</summary>
+              <div class="lessonTopicBody">
+                <div class="topicTimelineStrip" aria-label="Topic timeline">
+                  <span>${Number.isFinite(topicBounds.start) ? topicBounds.start : ""}</span>
+                  <div class="topicTimelineTrack"><span class="topicTimelineRange" style="${getTimelineRangeStyle(topicBounds, activeBounds)}"></span></div>
+                  <span>${Number.isFinite(topicBounds.end) ? topicBounds.end : ""}</span>
                 </div>
-              `).join("")}
-            </div>
-          </details>
-        `).join("")}
+                <div class="topicOverviewPanel">
+                  <h4>Topic overview</h4>
+                  <p>${escapeHtml(buildTopicOverview(topic))}</p>
+                </div>
+                <div class="topicProgressWrap" aria-label="Topic progress">
+                  <div class="topicProgressLabel">Progress: ${progressPct}%</div>
+                  <div class="topicProgressTrack"><div class="topicProgressFill" style="width:${progressPct}%"></div></div>
+                </div>
+                <div class="lessonThemeFilters" role="tablist" aria-label="Theme filters for ${escapeHtml(topic.title || "topic")}">
+                  ${themeChips.map(chip=>`<button type="button" class="themeChip ${chip.id===selectedFilter ? "active" : ""}" data-action="filter-theme" data-topic="${topic.id}" data-theme-filter="${chip.id}" role="tab" aria-selected="${chip.id===selectedFilter ? "true" : "false"}">${escapeHtml(chip.label)}</button>`).join("")}
+                </div>
+                <div class="lessonsList withJourney" data-topic-list="${topic.id}" data-topic-start="${Number.isFinite(topicBounds.start) ? topicBounds.start : ""}" data-topic-end="${Number.isFinite(topicBounds.end) ? topicBounds.end : ""}">
+                  ${visibleLessons.length ? visibleLessons.map(({ lesson, theme })=>{
+                    const state = getLessonJourneyState(lesson.id);
+                    const ui = getLessonJourneyUi(state);
+                    const range = parseLessonYearRange(lesson.yearLabel);
+                    return `
+                      <article class="lessonRow" data-lesson-row="${lesson.id}" data-topic="${topic.id}" data-theme="${theme.id}" data-lesson="${lesson.id}" data-range-start="${Number.isFinite(range.start) ? range.start : ""}" data-range-end="${Number.isFinite(range.end) ? range.end : ""}">
+                        <span class="lessonStatusNode ${ui.statusClass}" aria-hidden="true"></span>
+                        <div class="lessonRowMeta">
+                          <div class="lessonRowTitle">${escapeHtml(lesson.title || "Lesson")}</div>
+                          <div class="lessonRowDate">${escapeHtml(lesson.yearLabel || "")}</div>
+                        </div>
+                        <button class="lessonRowBtn ${ui.statusClass}" data-action="start-lesson" data-topic="${topic.id}" data-theme="${theme.id}" data-lesson="${lesson.id}" type="button" aria-label="${escapeHtml(`${ui.actionLabel.replace(/^[^A-Za-z]+\s*/, "")} lesson ${lesson.title || ""}`)}">${ui.actionLabel}</button>
+                      </article>
+                    `;
+                  }).join("") : '<div class="lessonEmpty">No lessons in this filter yet.</div>'}
+                </div>
+              </div>
+            </details>
+          `;
+        }).join("")}
       </div>
     </div>`;
 
-  root.querySelectorAll('[data-topic-summary]').forEach(summary=>summary.addEventListener('click', ()=>{
-    lessonsNav.topicId = summary.dataset.topicSummary || null;
-  }));
-
-  root.querySelectorAll('[data-action="start-lesson"]').forEach(btn=>btn.addEventListener("click", ()=>{
-    lessonsNav.topicId = btn.dataset.topic;
-    lessonsNav.themeId = btn.dataset.theme;
-    lessonsNav.lessonId = btn.dataset.lesson;
+  root.onclick = event=>{
+    const summary = event.target.closest('[data-topic-summary]');
+    if(summary){
+      lessonsNav.topicId = summary.dataset.topicSummary || null;
+      return;
+    }
+    const filterBtn = event.target.closest('[data-action="filter-theme"]');
+    if(filterBtn){
+      setTopicFilterState(filterBtn.dataset.topic, filterBtn.dataset.themeFilter || "all");
+      lessonsNav.topicId = filterBtn.dataset.topic || lessonsNav.topicId;
+      renderLessons();
+      return;
+    }
+    const lessonTrigger = event.target.closest('[data-action="start-lesson"], [data-lesson-row]');
+    if(!lessonTrigger) return;
+    const row = lessonTrigger.closest('[data-lesson-row]');
+    if(!row) return;
+    lessonsNav.topicId = row.dataset.topic;
+    lessonsNav.themeId = row.dataset.theme;
+    lessonsNav.lessonId = row.dataset.lesson;
     lessonsNav.view = "player";
     renderLessons();
-  }));
+  };
+
+  root.onmouseover = event=>{
+    const row = event.target.closest('[data-lesson-row]');
+    if(!row) return;
+    const topicPanel = row.closest('[data-topic-panel]');
+    if(!topicPanel) return;
+    const rangeNode = topicPanel.querySelector('.topicTimelineRange');
+    if(!rangeNode) return;
+    const topicStart = Number(topicPanel.querySelector('[data-topic-list]')?.dataset.topicStart);
+    const topicEnd = Number(topicPanel.querySelector('[data-topic-list]')?.dataset.topicEnd);
+    const hoverStart = Number(row.dataset.rangeStart);
+    const hoverEnd = Number(row.dataset.rangeEnd);
+    rangeNode.setAttribute('style', getTimelineRangeStyle({ start:topicStart, end:topicEnd }, { start:hoverStart, end:hoverEnd }));
+  };
+
+  root.onfocusin = event=>{
+    const row = event.target.closest('[data-lesson-row]');
+    if(!row) return;
+    const topicPanel = row.closest('[data-topic-panel]');
+    if(!topicPanel) return;
+    const rangeNode = topicPanel.querySelector('.topicTimelineRange');
+    if(!rangeNode) return;
+    const topicStart = Number(topicPanel.querySelector('[data-topic-list]')?.dataset.topicStart);
+    const topicEnd = Number(topicPanel.querySelector('[data-topic-list]')?.dataset.topicEnd);
+    const focusStart = Number(row.dataset.rangeStart);
+    const focusEnd = Number(row.dataset.rangeEnd);
+    rangeNode.setAttribute('style', getTimelineRangeStyle({ start:topicStart, end:topicEnd }, { start:focusStart, end:focusEnd }));
+  };
 }
 
 function renderLessonPlayer(root){
