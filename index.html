@@ -10369,11 +10369,7 @@ function buildSlidesFromContentPack(lesson){
   if(ambitionBriefing){
     slides.push({ slideId:`${lessonId}-ambition-b1`, type:"briefing", heading:ambitionBriefing.heading, text:ambitionBriefing.text });
   }
-  const ambitionTask = pack.ambition?.task;
-  if(ambitionTask){
-    if(plan === "B" || plan === "D") slides.push(buildStrongestEvidenceFromQuickCheck(lesson, `${lessonId}-ambition-task`, ambitionTask.heading || "Ambition task"));
-    else slides.push(quickCheckFromCheck(`${lessonId}-ambition-task`, ambitionTask));
-  }
+  // Ambition task panel removed from lesson flow by request.
 
   if(pack.quickCheck){
     if(plan === "A") slides.push(buildStrongestEvidenceFromQuickCheck(lesson, `${lessonId}-quick-check`, pack.quickCheck.heading || "Quick check"));
