@@ -3051,19 +3051,6 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .topicStatusChip[data-state="in-progress"]{color:var(--text);background:color-mix(in srgb, #fff 82%, var(--accent2) 18%)}
 #lessonsRoot .topicStatusChip[data-state="completed"]{color:var(--textStrong);background:color-mix(in srgb, #fff 78%, var(--good) 22%)}
 #lessonsRoot .topicExploreBtn{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:42px;padding:10px 14px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 60%, var(--accent2) 40%);background:rgba(255,255,255,.82);font-size:13px;font-weight:900;letter-spacing:.65px;text-transform:uppercase;color:var(--textStrong);white-space:nowrap}
-/* Era icon stamp under EXPLORE LESSONS */
-.topicEraIcon{
-  margin-top: 12px;
-  display:flex;
-  justify-content:flex-end;
-  opacity:0.32;
-  pointer-events:none;
-}
-.topicEraIcon svg{
-  width:52px;
-  height:52px;
-  display:block;
-}
 #lessonsRoot .topicSummaryMeta .topicStatusChip{justify-self:end}
 #lessonsRoot .lessonTopicItem[open] .topicSummaryMeta{transform:translateY(1px);box-shadow:0 1px 0 color-mix(in srgb, var(--line) 58%, var(--accent2) 42%),0 4px 8px rgba(20,50,90,.14);background:linear-gradient(180deg,color-mix(in srgb,#fff 88%, var(--accent3) 12%) 0%,color-mix(in srgb, #fff 72%, var(--accent3) 28%) 100%)}
 #lessonsRoot .lessonTopicItem[open]>summary{background:color-mix(in srgb, #fff 82%, var(--accent3) 18%);border-bottom:1px solid color-mix(in srgb, var(--line) 82%, var(--accent2) 18%)}
@@ -15057,58 +15044,6 @@ function splitTopicTitleAndYears(rawTitle){
   return { title:match[1].trim(), years:`(${match[3]})` };
 }
 
-function normalizeYearKey(s){
-  return String(s || "").replaceAll("-", "–").replaceAll("—","–").trim();
-}
-
-function topicEraIconSVG(yearRange){
-  yearRange = normalizeYearKey(yearRange);
-  const base = (inner) => `
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"
-         fill="none" stroke="currentColor" stroke-width="2.4"
-         stroke-linecap="round" stroke-linejoin="round">
-      ${inner}
-    </svg>`;
-
-  const icons = {
-    "1855–1894": base(`
-      <path d="M6 9l2 3 4-5 4 5 2-3v6H6V9z"/>
-      <path d="M8 18h8"/>
-      <path d="M9 18v-3"/>
-      <path d="M15 18v-3"/>
-    `),
-
-    "1894–1917": base(`
-      <path d="M6 18V10l4-2v10"/>
-      <path d="M10 18V8l4 2v8"/>
-      <path d="M14 18v-6l4 2v4"/>
-      <path d="M6 20h12"/>
-      <path d="M7 20v-2"/>
-      <path d="M11 20v-2"/>
-      <path d="M15 20v-2"/>
-      <path d="M5 6h4"/>
-      <path d="M9 6l1 2"/>
-    `),
-
-    "1917–1941": base(`
-      <path d="M12 3l2 5 5 .5-3.8 3 1.2 5-4.4-2.6L7.6 16l1.2-5L5 8.5 10 8z"/>
-      <path d="M6 20h12"/>
-      <path d="M8 20c.6-2.2 2.4-3.5 4-3.5s3.4 1.3 4 3.5"/>
-    `),
-
-    "1941–1964": base(`
-      <path d="M12 4v6"/>
-      <path d="M12 10l-2-2"/>
-      <path d="M12 10l2-2"/>
-      <path d="M8 8l4 2 4-2"/>
-      <path d="M6 18c2.2-3 4.4-4 6-4s3.8 1 6 4"/>
-      <path d="M7 18h10"/>
-    `)
-  };
-
-  return icons[yearRange] || "";
-}
-
 function buildTopicDescriptor(topic){
   const lessons = getTopicLessons(topic);
   const keyQuestions = lessons.map(lesson=>String(lesson.keyQuestionTitle || "").trim()).filter(Boolean);
@@ -15193,7 +15128,6 @@ function renderTopicsList(root){
                 <div class="topicSummaryMeta">
                   <span class="topicStatusChip" data-state="${status.state}" aria-label="Topic status: ${status.label}">${status.label}</span>
                   <span class="topicExploreBtn" aria-hidden="true">Explore lessons</span>
-                  <div class="topicEraIcon">${topicEraIconSVG(titleParts.years.replace(/[()]/g, ""))}</div>
                 </div>
               </summary>
               <div class="lessonTopicBody">
