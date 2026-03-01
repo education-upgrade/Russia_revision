@@ -2915,11 +2915,6 @@ section#games.gamePaneActive .gamesHeroCard{
   font-weight:900;
   line-height:1;
 }
-#lessonsRoot .lessonsTitle .navIcon{
-  width:20px;
-  height:20px;
-  stroke-width:2;
-}
 #lessonsRoot .lessonsGrid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:10px; }
 #lessonsRoot .lessonPlayerTop{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
 #lessonsRoot .modePills{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
@@ -3043,20 +3038,18 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .lessonTopicItem>summary{list-style:none;cursor:pointer;padding:11px 12px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start}
 #lessonsRoot .lessonTopicItem>summary::-webkit-details-marker{display:none}
 #lessonsRoot .topicLead{min-width:0}
-#lessonsRoot .topicLeadTop{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:start}
+#lessonsRoot .topicLeadTop{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;align-items:start}
 #lessonsRoot .topicTitleBlock{min-width:0}
 #lessonsRoot .topicTitle{margin:0;font-size:clamp(18px,4.4vw,21px);font-weight:800;line-height:1.2;color:var(--textStrong)}
 #lessonsRoot .topicYears{margin-top:2px;font-size:12px;font-weight:700;color:var(--muted)}
 #lessonsRoot .topicDescriptor{margin-top:6px;font-size:13px;line-height:1.35;color:var(--text)}
-#lessonsRoot .topicSummaryMeta{display:grid;gap:8px;justify-items:stretch;align-content:start;min-width:168px;padding:8px;border-radius:14px;border:1px solid color-mix(in srgb, var(--line) 62%, var(--accent2) 38%);background:linear-gradient(180deg,#ffffff 0%,color-mix(in srgb, #fff 78%, var(--accent3) 22%) 100%);box-shadow:0 2px 0 color-mix(in srgb, var(--line) 58%, var(--accent2) 42%),0 6px 12px rgba(20,50,90,.16);transition:transform .15s ease,box-shadow .15s ease,background .15s ease}
+#lessonsRoot .topicSummaryMeta{display:grid;gap:10px;justify-items:stretch;align-content:start;min-width:210px}
 #lessonsRoot .topicStatusChip{font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 76%, var(--accent2) 24%);background:color-mix(in srgb, #fff 86%, var(--accent3) 14%);color:var(--muted)}
 #lessonsRoot .topicStatusChip[data-state="in-progress"]{color:var(--text);background:color-mix(in srgb, #fff 82%, var(--accent2) 18%)}
 #lessonsRoot .topicStatusChip[data-state="completed"]{color:var(--textStrong);background:color-mix(in srgb, #fff 78%, var(--good) 22%)}
-#lessonsRoot .topicExploreBtn{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:42px;padding:10px 14px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 60%, var(--accent2) 40%);background:rgba(255,255,255,.82);font-size:13px;font-weight:900;letter-spacing:.65px;text-transform:uppercase;color:var(--textStrong);white-space:nowrap}
-#lessonsRoot .topicEraIcon{display:flex;align-items:center;justify-content:center;width:62px;height:62px;opacity:.52;color:color-mix(in srgb, var(--textStrong) 80%, var(--accent) 20%);pointer-events:none;flex-shrink:0}
-#lessonsRoot .topicEraIcon svg{width:100%;height:100%;display:block}
+#lessonsRoot .topicExploreBtn{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:52px;padding:14px 18px;border-radius:999px;border:1px solid color-mix(in srgb, #4f86c4 42%, var(--line) 58%);background:linear-gradient(180deg,#ffffff 0%,color-mix(in srgb, #fff 80%, var(--accent3) 20%) 100%);font-size:16px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--textStrong);white-space:nowrap;box-shadow:0 3px 0 color-mix(in srgb, #4f86c4 52%, var(--line) 48%),0 10px 16px rgba(36,84,144,.22)}
 #lessonsRoot .topicSummaryMeta .topicStatusChip{justify-self:end}
-#lessonsRoot .lessonTopicItem[open] .topicSummaryMeta{transform:translateY(1px);box-shadow:0 1px 0 color-mix(in srgb, var(--line) 58%, var(--accent2) 42%),0 4px 8px rgba(20,50,90,.14);background:linear-gradient(180deg,color-mix(in srgb,#fff 88%, var(--accent3) 12%) 0%,color-mix(in srgb, #fff 72%, var(--accent3) 28%) 100%)}
+#lessonsRoot .lessonTopicItem[open] .topicSummaryMeta{transform:translateY(1px)}
 #lessonsRoot .lessonTopicItem[open]>summary{background:color-mix(in srgb, #fff 82%, var(--accent3) 18%);border-bottom:1px solid color-mix(in srgb, var(--line) 82%, var(--accent2) 18%)}
 #lessonsRoot .lessonTopicItem>summary:focus-visible,#lessonsRoot .lessonRowBtn:focus-visible,#lessonsRoot .continueMain .btn:focus-visible{outline:2px solid color-mix(in srgb, var(--accent2) 76%, #2c5aa0 24%);outline-offset:2px}
 #lessonsRoot .lessonTopicBody{display:grid;gap:10px;padding:10px 12px 12px}
@@ -15106,30 +15099,12 @@ function getMostRecentInProgressLesson(){
   return latest;
 }
 
-function topicEraIconSVG(yearRange){
-  const range = String(yearRange || "").replace(/[()]/g, "").trim();
-  const common = 'viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"';
-  if(range === "1855–1894"){
-    return `<svg ${common}><path d="M8 25h48"></path><path d="M10 25 32 11l22 14"></path><path d="M15 25v20"></path><path d="M25 25v20"></path><path d="M39 25v20"></path><path d="M49 25v20"></path><path d="M12 45h40"></path></svg>`;
-  }
-  if(range === "1894–1917"){
-    return `<svg ${common}><path d="M10 47h44"></path><rect x="40" y="18" width="13" height="29" rx="1.5"></rect><path d="M44 22h5"></path><path d="M44 27h5"></path><path d="M44 32h5"></path><path d="M11 36c4-6 8-8 13-8s9 2 13 8"></path><path d="M11 47v-4c4-6 8-8 13-8s9 2 13 8v4"></path><path d="M16 41v6"></path><path d="M24 39v8"></path><path d="M32 41v6"></path></svg>`;
-  }
-  if(range === "1917–1941"){
-    return `<svg ${common}><path d="M32 11l4.8 10 11 1.6-8 7.6 1.9 10.8L32 36.1 22.3 41l1.9-10.8-8-7.6 11-1.6z"></path><path d="M18 49h28"></path><path d="M14 54h36"></path></svg>`;
-  }
-  if(range === "1941–1964"){
-    return `<svg ${common}><path d="M32 12v10"></path><path d="M32 42v10"></path><path d="M12 32h10"></path><path d="M42 32h10"></path><path d="M18.8 18.8l7.1 7.1"></path><path d="M38.1 38.1l7.1 7.1"></path><path d="M45.2 18.8l-7.1 7.1"></path><path d="M25.9 38.1l-7.1 7.1"></path><circle cx="32" cy="32" r="7.5"></circle></svg>`;
-  }
-  return `<svg ${common}><circle cx="32" cy="32" r="12"></circle></svg>`;
-}
-
 function renderTopicsList(root){
   const continueLesson = getMostRecentInProgressLesson();
   root.innerHTML = `
     <div class="card lessonsMenuCard">
       <div class="lessonsHeader">
-        <h2 class="lessonsTitle"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span>Lessons</span></h2>
+        <h2 class="lessonsTitle"><span>Lessons</span></h2>
         <span class="pill">${lessonsData.length} topics</span>
       </div>
       ${continueLesson ? `<article class="lessonsContinueCard" aria-label="Continue learning"><div class="continueLabel">Continue</div><div class="continueMain"><div><div class="continueLesson">${escapeHtml(continueLesson.lesson.title || "Lesson")}</div><div class="continueTopic">${escapeHtml(continueLesson.topic.title || "")}</div></div><button type="button" class="btn small" data-action="resume-lesson" data-topic="${continueLesson.topic.id}" data-theme="${continueLesson.theme.id}" data-lesson="${continueLesson.lesson.id}" aria-label="Resume ${escapeHtml(continueLesson.lesson.title || "lesson")}">Resume</button></div></article>` : ""}
@@ -15148,7 +15123,6 @@ function renderTopicsList(root){
                       <h3 class="topicTitle">${escapeHtml(titleParts.title || "Topic")}</h3>
                       <div class="topicYears">${escapeHtml(titleParts.years || "")}</div>
                     </div>
-                    <div class="topicEraIcon" aria-hidden="true">${topicEraIconSVG(topic.years || titleParts.years.replace(/[()]/g, ""))}</div>
                   </div>
                   <p class="topicDescriptor">${escapeHtml(buildTopicDescriptor(topic))}</p>
                 </div>
@@ -15241,7 +15215,7 @@ function renderLessonPlayer(root){
     used.add(slide.slideId);
   });
 
-  root.innerHTML = `<div class="card"><div class="lessonsHeader"><h2 class="lessonsTitle"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span>Lessons</span></h2></div><div class="row" style="margin-top:10px"><button class="btn" id="backToTopics" type="button">← All topics</button></div><div class="lessonTitlePanel" style="--lessonTitlePanelBg:url('${lesson.heroImage || "section-bg.jpg"}')"><div class="lessonTitlePanelInner"><p class="lessonTitlePanelLabel">Lesson key question</p><p class="lessonTitlePanelQuestion">${lesson.keyQuestionTitle || lesson.title || "Not set"}</p></div></div><div class="lesson-continuous">${rendered.join("")}</div></div>`;
+  root.innerHTML = `<div class="card"><div class="lessonsHeader"><h2 class="lessonsTitle"><span>Lessons</span></h2></div><div class="row" style="margin-top:10px"><button class="btn" id="backToTopics" type="button">← All topics</button></div><div class="lessonTitlePanel" style="--lessonTitlePanelBg:url('${lesson.heroImage || "section-bg.jpg"}')"><div class="lessonTitlePanelInner"><p class="lessonTitlePanelLabel">Lesson key question</p><p class="lessonTitlePanelQuestion">${lesson.keyQuestionTitle || lesson.title || "Not set"}</p></div></div><div class="lesson-continuous">${rendered.join("")}</div></div>`;
 
   const getContext = el => {
     const panel = el.closest('[data-lesson-slide-id]');
