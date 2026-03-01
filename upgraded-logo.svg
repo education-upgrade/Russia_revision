@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" role="img" aria-labelledby="title desc">
+  <title id="title">Upgraded by Education Upgrade</title>
+  <desc id="desc">Brand logo for splash screen.</desc>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#163b6b"/>
+      <stop offset="100%" stop-color="#78caea"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="520" fill="none"/>
+  <text x="60" y="250" font-size="220" font-family="Brush Script MT, Segoe Script, Snell Roundhand, cursive" fill="url(#g)">Upgraded</text>
+  <text x="960" y="355" font-size="64" font-family="Inter, Segoe UI, Arial, sans-serif" fill="#163b6b">by</text>
+  <text x="745" y="430" font-size="72" font-family="Brush Script MT, Segoe Script, cursive" fill="#163b6b">Educ</text>
+  <text x="870" y="430" font-size="84" font-family="Brush Script MT, Segoe Script, cursive" fill="#78caea">A*</text>
+  <text x="960" y="430" font-size="72" font-family="Brush Script MT, Segoe Script, cursive" fill="#163b6b">tion</text>
+  <text x="800" y="492" font-size="72" font-family="Brush Script MT, Segoe Script, cursive" fill="#163b6b">Up</text>
+  <text x="877" y="492" font-size="84" font-family="Brush Script MT, Segoe Script, cursive" fill="#78caea">9</text>
+  <text x="930" y="492" font-size="72" font-family="Brush Script MT, Segoe Script, cursive" fill="#163b6b">rade</text>
+</svg>
