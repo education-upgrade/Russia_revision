@@ -49,7 +49,7 @@
       --shadow:var(--cardShadow);
 
       --navH: 72px;
-      --lessonTextScale:1.14;
+      --lessonTextScale:1.28;
     }
 
     *{box-sizing:border-box}
@@ -2837,7 +2837,6 @@ section#games.gamePaneActive .gamesHeroCard{
     font-size:calc(12px * var(--lessonTextScale));
   }
   #lessonsRoot .lessonTopControls{margin-top:8px;margin-bottom:8px;gap:8px}
-  #lessonsRoot .lessonFontToggle{width:100%;justify-content:flex-start;border-radius:12px}
   #lessonsRoot .lessonHero{
     min-height:124px;
     margin-bottom:8px;
@@ -2939,10 +2938,6 @@ section#games.gamePaneActive .gamesHeroCard{
 }
 #lessonsRoot .lessonsGrid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px,1fr)); gap:10px; }
 #lessonsRoot .lessonTopControls{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:10px;margin-bottom:10px}
-#lessonsRoot .lessonFontToggle{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:6px 8px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:999px;background:rgba(255,255,255,.95)}
-#lessonsRoot .lessonFontToggleLabel{font-size:11px;font-weight:900;color:var(--muted);letter-spacing:.4px;text-transform:uppercase;padding:0 4px}
-#lessonsRoot .lessonFontOption{min-height:32px;padding:5px 10px;font-size:12px;font-weight:900;border-radius:999px}
-#lessonsRoot .lessonFontOption.active{background:var(--accent3);border-color:var(--accent);color:var(--textStrong)}
 #lessonsRoot .lessonPlayerTop{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; }
 #lessonsRoot .modePills{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
 #lessonsRoot .modePill{ opacity:.78; }
@@ -9452,12 +9447,7 @@ const LESSON_MODES = ["overview", "simple", "exam"];
 
 const LESSON_ACTIVITY_KEY = "LESSON_ACTIVITY_KEY";
 const DRILL_HISTORY_KEY = "lessonsDrillHistoryV1";
-const LESSON_FONT_SIZE_KEY = "lessonsFontSizeV1";
-const LESSON_FONT_SCALE_BY_SIZE = {
-  normal:1,
-  medium:1.14,
-  large:1.28
-};
+const LESSON_DEFAULT_TEXT_SCALE = 1.28;
 const LESSON_INFOGRAPHICS = {
   "t1-pa-a2-reforms":"./Lesson infographics/Alexander-II-Reforms-1.png"
 };
@@ -9466,28 +9456,11 @@ const lessonsNav = {
   topicId:null,
   themeId:null,
   lessonId:null,
-  fontSize:getStoredLessonFontSize(),
   selectedOptionIndex:null,
   answers:{},
   libraryFilters:{ topic:"all", theme:"all", search:"" },
   collapsedLessonBlocks:{}
 };
-
-function getStoredLessonFontSize(){
-  try{
-    const saved = String(localStorage.getItem(LESSON_FONT_SIZE_KEY) || "normal").toLowerCase();
-    return LESSON_FONT_SCALE_BY_SIZE[saved] ? saved : "normal";
-  }catch(_err){
-    return "normal";
-  }
-}
-
-function setStoredLessonFontSize(size){
-  const safeSize = LESSON_FONT_SCALE_BY_SIZE[size] ? size : "normal";
-  lessonsNav.fontSize = safeSize;
-  try{ localStorage.setItem(LESSON_FONT_SIZE_KEY, safeSize); }catch(_err){}
-  return safeSize;
-}
 
 let lastLessonsPageKey = null;
 
@@ -15144,27 +15117,12 @@ function bindLessonInfographicViewer(){
   });
 }
 
-function getLessonScaleForSize(size){
-  return LESSON_FONT_SCALE_BY_SIZE[size] || LESSON_FONT_SCALE_BY_SIZE.normal;
-}
-
 function applyLessonsScale(root){
   if(!root) return;
-  const size = LESSON_FONT_SCALE_BY_SIZE[lessonsNav.fontSize] ? lessonsNav.fontSize : setStoredLessonFontSize("normal");
-  const textScale = getLessonScaleForSize(size);
+  const textScale = LESSON_DEFAULT_TEXT_SCALE;
   const panelScale = 1 + ((textScale - 1) * 0.65);
   root.style.setProperty("--lessonTextScale", String(textScale));
   root.style.setProperty("--lessonPanelScale", String(panelScale));
-}
-
-function renderLessonFontToggle(){
-  const current = LESSON_FONT_SCALE_BY_SIZE[lessonsNav.fontSize] ? lessonsNav.fontSize : "normal";
-  const options = [
-    { value:"normal", label:"Normal" },
-    { value:"medium", label:"Medium" },
-    { value:"large", label:"Large" }
-  ];
-  return `<div class="lessonFontToggle" role="group" aria-label="Lesson font size"><span class="lessonFontToggleLabel">Font size</span>${options.map(option=>`<button type="button" class="btn lessonFontOption ${current === option.value ? "active" : ""}" data-action="lesson-font-size" data-size="${option.value}" aria-pressed="${current === option.value ? "true" : "false"}">${option.label}</button>`).join("")}</div>`;
 }
 
 function renderLessons(){
@@ -15336,7 +15294,6 @@ function renderTopicsList(root){
       </div>
       <div class="lessonTopControls">
         <span class="pill">${lessonsData.length} topics</span>
-        ${renderLessonFontToggle()}
       </div>
       ${continueLesson ? `<article class="lessonsContinueCard" aria-label="Continue learning"><div class="continueLabel">Continue</div><div class="continueMain"><div><div class="continueLesson">${escapeHtml(continueLesson.lesson.title || "Lesson")}</div><div class="continueTopic">${escapeHtml(continueLesson.topic.title || "")}</div></div><button type="button" class="btn small" data-action="resume-lesson" data-topic="${continueLesson.topic.id}" data-theme="${continueLesson.theme.id}" data-lesson="${continueLesson.lesson.id}" aria-label="Resume ${escapeHtml(continueLesson.lesson.title || "lesson")}">Resume</button></div></article>` : ""}
       <div class="topicsAccordion">
@@ -15402,12 +15359,6 @@ function renderTopicsList(root){
   }
 
   root.onclick = event=>{
-    const fontBtn = event.target.closest('[data-action="lesson-font-size"]');
-    if(fontBtn){
-      setStoredLessonFontSize(fontBtn.dataset.size || "normal");
-      renderLessons();
-      return;
-    }
     const summary = event.target.closest('[data-topic-summary]');
     if(summary){
       lessonsNav.topicId = summary.dataset.topicSummary || null;
@@ -15453,7 +15404,7 @@ function renderLessonPlayer(root){
     used.add(slide.slideId);
   });
 
-  root.innerHTML = `<div class="card"><div class="lessonsHeader"><h2 class="lessonsTitle"><svg class="lessonsTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span class="lessonsTitleText">Lessons</span></h2></div><div class="lessonTopControls"><button class="btn" id="backToTopics" type="button">← All topics</button>${renderLessonFontToggle()}</div><div class="lessonTitlePanel" style="--lessonTitlePanelBg:url('${lesson.heroImage || "section-bg.jpg"}')"><div class="lessonTitlePanelInner"><p class="lessonTitlePanelLabel">Lesson key question</p><p class="lessonTitlePanelQuestion">${lesson.keyQuestionTitle || lesson.title || "Not set"}</p></div></div><div class="lesson-continuous">${rendered.join("")}</div></div>`;
+  root.innerHTML = `<div class="card"><div class="lessonsHeader"><h2 class="lessonsTitle"><svg class="lessonsTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span class="lessonsTitleText">Lessons</span></h2></div><div class="lessonTopControls"><button class="btn" id="backToTopics" type="button">← All topics</button></div><div class="lessonTitlePanel" style="--lessonTitlePanelBg:url('${lesson.heroImage || "section-bg.jpg"}')"><div class="lessonTitlePanelInner"><p class="lessonTitlePanelLabel">Lesson key question</p><p class="lessonTitlePanelQuestion">${lesson.keyQuestionTitle || lesson.title || "Not set"}</p></div></div><div class="lesson-continuous">${rendered.join("")}</div></div>`;
 
   const getContext = el => {
     const panel = el.closest('[data-lesson-slide-id]');
@@ -15465,12 +15416,6 @@ function renderLessonPlayer(root){
 
   const backBtn = $("backToTopics");
   if(backBtn) backBtn.addEventListener("click", ()=>{ lessonsNav.view = "topics"; lessonsNav.lessonId = null; renderLessons(); });
-
-  root.querySelectorAll('[data-action="lesson-font-size"]').forEach(btn=>btn.addEventListener("click", ()=>{
-    const size = btn.dataset.size || "normal";
-    setStoredLessonFontSize(size);
-    renderLessons();
-  }));
 
   root.querySelectorAll('[data-action="quick-option"]').forEach(btn=>btn.addEventListener("click", ()=>{
     const ctx = getContext(btn); if(!ctx || btn.disabled) return;
