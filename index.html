@@ -2791,22 +2791,38 @@ section#games.gamePaneActive .gamesHeroCard{
   visibility:hidden;
   pointer-events:none;
 }
+.splashContent{
+  width:min(92vw, 1080px);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:18px;
+}
+.splashTitle{
+  margin:0;
+  text-align:center;
+  color:#163b6b;
+  font-size:clamp(30px, 5vw, 58px);
+  line-height:1.1;
+  letter-spacing:.4px;
+  font-weight:900;
+}
 .splashImage{
-  width:min(82vw, 440px);
-  max-width:440px;
+  width:min(92vw, 980px);
+  max-width:980px;
   height:auto;
-  mix-blend-mode:multiply;
-  opacity:.76;
-  filter:contrast(1.05) saturate(.9);
+  object-fit:contain;
+  opacity:.96;
 }
 
 @media (max-width: 768px){
+  .splashContent{
+    width:min(96vw, 620px);
+    gap:12px;
+  }
   .splashImage{
-    width:100vw;
+    width:100%;
     max-width:none;
-    height:100vh;
-    object-fit:cover;
-    opacity:.84;
   }
 }
 
@@ -3159,7 +3175,10 @@ section#games.gamePaneActive .gamesHeroCard{
 <body>
 
 <div id="splashScreen" class="splashScreen" aria-hidden="true">
-  <img class="splashImage" src="./IMG_2166.PNG" alt="" />
+  <div class="splashContent">
+    <h1 class="splashTitle">Russia 1855-1964</h1>
+    <img class="splashImage" src="./upgraded-logo.svg" alt="Upgraded by Education Upgrade" />
+  </div>
 </div>
 
 <canvas id="confettiCanvas"></canvas>
