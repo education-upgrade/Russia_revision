@@ -15363,6 +15363,7 @@ function renderLessonPlayer(root){
   if(!lesson){ lessonsNav.view = "topics"; return renderLessons(); }
   const slides = getLessonSlides(lesson).map((slide, slideIndex)=>getShuffledSlideData(lesson, slide, slideIndex));
   markLessonActivity(lesson.id, { lastStartedAt:Date.now() });
+  const lessonRenderContext = { seenDefinitionTerms: new Set() };
 
   const slideById = id => slides.find(item=>String(item.slideId)===String(id));
   const rendered = [];
@@ -15379,10 +15380,10 @@ function renderLessonPlayer(root){
       if(arg) used.add(arg.slideId);
       if(support) used.add(support.slideId);
       if(challenge) used.add(challenge.slideId);
-      rendered.push(`<section class="lesson-block" data-slide-index="${idx}"><div class="split-layout"><div class="sticky-pane">${renderLessonSlideHeading(slide)}${renderLessonParagraphs(slide.text || "", lesson)}</div><div>${arg ? `<section class="slideBody" data-lesson-slide-id="${arg.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(arg, lesson, arg.slideId, slides, null, idx, false)}</section>` : ""}${support ? `<section class="slideBody" data-lesson-slide-id="${support.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(support, lesson, support.slideId, slides, null, idx, false)}</section>` : ""}${challenge ? `<section class="slideBody" data-lesson-slide-id="${challenge.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(challenge, lesson, challenge.slideId, slides, null, idx, false)}</section>` : ""}</div></div></section>`);
+      rendered.push(`<section class="lesson-block" data-slide-index="${idx}"><div class="split-layout"><div class="sticky-pane">${renderLessonSlideHeading(slide)}${renderLessonParagraphs(slide.text || "", lesson, lessonRenderContext)}</div><div>${arg ? `<section class="slideBody" data-lesson-slide-id="${arg.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(arg, lesson, arg.slideId, slides, null, idx, false, lessonRenderContext)}</section>` : ""}${support ? `<section class="slideBody" data-lesson-slide-id="${support.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(support, lesson, support.slideId, slides, null, idx, false, lessonRenderContext)}</section>` : ""}${challenge ? `<section class="slideBody" data-lesson-slide-id="${challenge.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(challenge, lesson, challenge.slideId, slides, null, idx, false, lessonRenderContext)}</section>` : ""}</div></div></section>`);
       return;
     }
-    rendered.push(`<section class="lesson-block slideBody" data-lesson-slide-id="${slide.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(slide, lesson, slide.slideId, slides, null, idx, slide.type === "exam-transfer" ? getStoredExamTransferRevealState(lesson.id, slide.slideId) : false)}</section>`);
+    rendered.push(`<section class="lesson-block slideBody" data-lesson-slide-id="${slide.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(slide, lesson, slide.slideId, slides, null, idx, slide.type === "exam-transfer" ? getStoredExamTransferRevealState(lesson.id, slide.slideId) : false, lessonRenderContext)}</section>`);
     used.add(slide.slideId);
   });
 
@@ -15481,7 +15482,7 @@ function escapeRegExp(text){
   return String(text || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function renderLessonTextWithDefinitions(rawText, lesson){
+function renderLessonTextWithDefinitions(rawText, lesson, context){
   if(typeof rawText !== "string") return "";
   const entries = getLessonDefinitionEntries(lesson);
   if(!entries.length) return escapeHtml(rawText);
@@ -15496,22 +15497,26 @@ function renderLessonTextWithDefinitions(rawText, lesson){
   const pattern = entries.map(entry=>escapeRegExp(entry.term)).filter(Boolean).join("|");
   if(!pattern) return escapedHtml;
 
+  const seenDefinitionTerms = context?.seenDefinitionTerms instanceof Set ? context.seenDefinitionTerms : null;
   const matcher = new RegExp(`\\b(${pattern})\\b`, "gi");
   return escapedHtml.replace(matcher, matched=>{
     const found = termMap.get(String(matched).toLowerCase());
     if(!found) return matched;
+    const seenKey = String(found.term || "").toLowerCase();
+    if(seenDefinitionTerms?.has(seenKey)) return matched;
+    seenDefinitionTerms?.add(seenKey);
     const definition = escapeHtml(found.definition);
     return `<button type="button" class="lessonDefinitionTrigger" data-action="lesson-definition" data-term="${escapeHtml(found.term)}" data-definition="${definition}" aria-label="Define ${escapeHtml(found.term)}"><strong>${matched}</strong></button>`;
   });
 }
 
-function renderLessonParagraphs(text, lesson){
+function renderLessonParagraphs(text, lesson, context){
   if(typeof text !== "string") return "";
   return text
     .split(/\n+/)
     .map(part=>part.trim())
     .filter(Boolean)
-    .map(part=>`<p>${renderLessonTextWithDefinitions(part, lesson)}</p>`)
+    .map(part=>`<p>${renderLessonTextWithDefinitions(part, lesson, context)}</p>`)
     .join("");
 }
 
@@ -15548,7 +15553,7 @@ function renderLessonSlideHeading(slide){
   return `<div class="slideHeadingWrap"><div class="slideHeadingLabel">${label}</div><h4 class="slideHeading">${title}</h4></div>`;
 }
 
-function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideIndex, examTransferRevealed){
+function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideIndex, examTransferRevealed, context){
   if(slide.type === "results"){
     const nextLesson = getNextLessonFromCourse(lesson.id);
     const quickCheckSlides = allSlides.filter(s=>s.type === "quick-check");
@@ -15802,7 +15807,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     return `
       ${renderLessonSlideHeading(slide)}
       ${slide.subheading ? `<div class="note" style="margin-bottom:8px">${slide.subheading}</div>` : ""}
-      <div>${renderLessonTextWithDefinitions(slide.text || "", lesson)}</div>
+      <div>${escapeHtml(slide.text || "")}</div>
     `;
   }
 
@@ -16002,8 +16007,8 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
   }
 
   if(slide.type === "lesson-context"){
-    const bigPictureHtml = renderLessonParagraphs(slide.bigPictureContent || "", lesson) || '<p class="note">No big-picture summary available yet.</p>';
-    const coreKnowledgeHtml = renderLessonParagraphs(slide.coreKnowledgeContent || "", lesson) || '<p class="note">No core knowledge notes available yet.</p>';
+    const bigPictureHtml = renderLessonParagraphs(slide.bigPictureContent || "", lesson, context) || '<p class="note">No big-picture summary available yet.</p>';
+    const coreKnowledgeHtml = renderLessonParagraphs(slide.coreKnowledgeContent || "", lesson, context) || '<p class="note">No core knowledge notes available yet.</p>';
     const infographicSrc = LESSON_INFOGRAPHICS[lesson.id] || "";
     const coreKnowledgePanel = infographicSrc
       ? `<button class="lessonInfographicBtn" data-action="open-lesson-infographic" data-src="${escapeHtml(infographicSrc)}" type="button" aria-label="Open lesson infographic in full screen">
@@ -16043,7 +16048,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     `;
   }
 
-  if(slide.type !== "quick-check") return `${renderLessonSlideHeading(slide)}${renderLessonParagraphs(slide.text || "", lesson)}`;
+  if(slide.type !== "quick-check") return `${renderLessonSlideHeading(slide)}${renderLessonParagraphs(slide.text || "", lesson, context)}`;
 
   const storedAnswer = getStoredQuickCheckAnswer(lesson.id, slideId);
   const selected = Number.isInteger(storedAnswer) ? storedAnswer : null;
@@ -16059,7 +16064,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
 
   return `
     ${renderLessonSlideHeading(slide)}
-    <div>${renderLessonTextWithDefinitions(slide.text || "", lesson)}</div>
+    <div>${escapeHtml(slide.text || "")}</div>
     <div class="qc-options">
       ${slide.options.map((opt,i)=>{
         const active = selected===i;
