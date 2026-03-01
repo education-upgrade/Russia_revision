@@ -784,6 +784,10 @@
     .lessonThemeMasteryLine{margin-top:2px}
     .lessonThemeMasteryBadge{display:inline-flex;align-items:center;margin-top:6px;padding:2px 8px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);font-size:11px;font-weight:900;background:rgba(255,255,255,.9);color:var(--textStrong)}
         .lessonPlayerWrap{margin-top:12px}
+    .lessonDefinitionTrigger{display:inline;border:0;padding:0;margin:0;background:transparent;color:inherit;font:inherit;cursor:pointer;text-align:inherit}
+    .lessonDefinitionTrigger strong{text-decoration:underline;text-decoration-thickness:2px;text-underline-offset:2px}
+    .lessonDefinitionTrigger:focus-visible{outline:2px solid color-mix(in srgb, var(--accent) 60%, #fff 40%);outline-offset:2px;border-radius:4px}
+    .lessonDefinitionBody{font-size:14px;line-height:1.5;color:var(--text);white-space:pre-wrap}
     .lessonCard{
       border:1px solid var(--line);
       border-radius:var(--radius);
@@ -3302,6 +3306,17 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
   </div>
 
+
+
+  <div id="lessonDefinitionDialog" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Lesson definition">
+    <div class="onboardingModal" aria-labelledby="lessonDefinitionDialogTitle" aria-describedby="lessonDefinitionDialogBody">
+      <h3 id="lessonDefinitionDialogTitle" class="topicArrowDialogTitle">Definition</h3>
+      <div id="lessonDefinitionDialogBody" class="lessonDefinitionBody"></div>
+      <div class="nextUpActions">
+        <button type="button" id="lessonDefinitionDialogClose" class="btn primary">Close</button>
+      </div>
+    </div>
+  </div>
   <!-- STUDY -->
   <section id="study" class="tabpane hidden">
     <div class="studyWrap">
@@ -15364,7 +15379,7 @@ function renderLessonPlayer(root){
       if(arg) used.add(arg.slideId);
       if(support) used.add(support.slideId);
       if(challenge) used.add(challenge.slideId);
-      rendered.push(`<section class="lesson-block" data-slide-index="${idx}"><div class="split-layout"><div class="sticky-pane">${renderLessonSlideHeading(slide)}${renderLessonParagraphs(slide.text || "")}</div><div>${arg ? `<section class="slideBody" data-lesson-slide-id="${arg.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(arg, lesson, arg.slideId, slides, null, idx, false)}</section>` : ""}${support ? `<section class="slideBody" data-lesson-slide-id="${support.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(support, lesson, support.slideId, slides, null, idx, false)}</section>` : ""}${challenge ? `<section class="slideBody" data-lesson-slide-id="${challenge.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(challenge, lesson, challenge.slideId, slides, null, idx, false)}</section>` : ""}</div></div></section>`);
+      rendered.push(`<section class="lesson-block" data-slide-index="${idx}"><div class="split-layout"><div class="sticky-pane">${renderLessonSlideHeading(slide)}${renderLessonParagraphs(slide.text || "", lesson)}</div><div>${arg ? `<section class="slideBody" data-lesson-slide-id="${arg.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(arg, lesson, arg.slideId, slides, null, idx, false)}</section>` : ""}${support ? `<section class="slideBody" data-lesson-slide-id="${support.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(support, lesson, support.slideId, slides, null, idx, false)}</section>` : ""}${challenge ? `<section class="slideBody" data-lesson-slide-id="${challenge.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(challenge, lesson, challenge.slideId, slides, null, idx, false)}</section>` : ""}</div></div></section>`);
       return;
     }
     rendered.push(`<section class="lesson-block slideBody" data-lesson-slide-id="${slide.slideId}" data-slide-index="${idx}">${renderLessonSlideBody(slide, lesson, slide.slideId, slides, null, idx, slide.type === "exam-transfer" ? getStoredExamTransferRevealState(lesson.id, slide.slideId) : false)}</section>`);
@@ -15433,6 +15448,7 @@ function renderLessonPlayer(root){
   root.querySelectorAll('[data-action="exam-transfer-write"]').forEach(input=>input.addEventListener("input", ()=>{ const ctx=getContext(input); if(!ctx) return; setStoredExamTransferWriting(lesson.id, ctx.slideIndex, input.value); }));
   root.querySelectorAll('[data-action="exam-transfer-reveal"]').forEach(btn=>btn.addEventListener("click", ()=>{ const ctx=getContext(btn); if(!ctx) return; const revealed=getStoredExamTransferRevealState(lesson.id, ctx.slideId); setLessonAnswer(lesson.id, ctx.slideId, { revealed:!revealed }); renderLessons(); }));
   root.querySelectorAll('[data-action="open-lesson-infographic"]').forEach(btn=>btn.addEventListener("click", ()=>openLessonInfographic(btn.dataset.src || "")));
+  root.querySelectorAll('[data-action="lesson-definition"]').forEach(btn=>btn.addEventListener("click", ()=>openLessonDefinitionDialog(btn.dataset.term || "Definition", btn.dataset.definition || "")));
 
   const retryBtn = $("lessonRetryBtn");
   if(retryBtn){ retryBtn.addEventListener("click", ()=>{ lessonsNav.answers[lesson.id] = {}; renderLessons(); }); }
@@ -15442,9 +15458,61 @@ function renderLessonPlayer(root){
 
 
 
-function renderLessonParagraphs(text){
+function getLessonDefinitionEntries(lesson){
+  const pack = FACT_BANK?.[lesson?.topicId] || {};
+  const entries = [];
+  (pack.terms || []).forEach(item=>{
+    const term = String(item?.term || "").trim();
+    const meaning = String(item?.meaning || "").trim();
+    if(term && meaning) entries.push({ term, definition: meaning });
+  });
+  (pack.people || []).forEach(item=>{
+    const name = String(item?.name || "").trim();
+    if(!name) return;
+    const role = String(item?.role || "").trim();
+    const significance = String(item?.significance || "").trim();
+    const definition = [role, significance].filter(Boolean).join(" ");
+    if(definition) entries.push({ term: name, definition });
+  });
+  return entries.sort((a, b)=>b.term.length - a.term.length);
+}
+
+function escapeRegExp(text){
+  return String(text || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function renderLessonTextWithDefinitions(rawText, lesson){
+  if(typeof rawText !== "string") return "";
+  const entries = getLessonDefinitionEntries(lesson);
+  if(!entries.length) return escapeHtml(rawText);
+
+  const escapedHtml = escapeHtml(rawText);
+  const termMap = new Map();
+  entries.forEach(entry=>{
+    const key = entry.term.toLowerCase();
+    if(!termMap.has(key)) termMap.set(key, entry);
+  });
+
+  const pattern = entries.map(entry=>escapeRegExp(entry.term)).filter(Boolean).join("|");
+  if(!pattern) return escapedHtml;
+
+  const matcher = new RegExp(`\\b(${pattern})\\b`, "gi");
+  return escapedHtml.replace(matcher, matched=>{
+    const found = termMap.get(String(matched).toLowerCase());
+    if(!found) return matched;
+    const definition = escapeHtml(found.definition);
+    return `<button type="button" class="lessonDefinitionTrigger" data-action="lesson-definition" data-term="${escapeHtml(found.term)}" data-definition="${definition}" aria-label="Define ${escapeHtml(found.term)}"><strong>${matched}</strong></button>`;
+  });
+}
+
+function renderLessonParagraphs(text, lesson){
   if(typeof text !== "string") return "";
-  return text.split(/\n+/).map(part=>part.trim()).filter(Boolean).map(part=>`<p>${escapeHtml(part)}</p>`).join("");
+  return text
+    .split(/\n+/)
+    .map(part=>part.trim())
+    .filter(Boolean)
+    .map(part=>`<p>${renderLessonTextWithDefinitions(part, lesson)}</p>`)
+    .join("");
 }
 
 function getLessonSlideLabel(slideType){
@@ -15734,7 +15802,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     return `
       ${renderLessonSlideHeading(slide)}
       ${slide.subheading ? `<div class="note" style="margin-bottom:8px">${slide.subheading}</div>` : ""}
-      <div>${slide.text}</div>
+      <div>${renderLessonTextWithDefinitions(slide.text || "", lesson)}</div>
     `;
   }
 
@@ -15934,8 +16002,8 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
   }
 
   if(slide.type === "lesson-context"){
-    const bigPictureHtml = renderLessonParagraphs(slide.bigPictureContent || "") || '<p class="note">No big-picture summary available yet.</p>';
-    const coreKnowledgeHtml = renderLessonParagraphs(slide.coreKnowledgeContent || "") || '<p class="note">No core knowledge notes available yet.</p>';
+    const bigPictureHtml = renderLessonParagraphs(slide.bigPictureContent || "", lesson) || '<p class="note">No big-picture summary available yet.</p>';
+    const coreKnowledgeHtml = renderLessonParagraphs(slide.coreKnowledgeContent || "", lesson) || '<p class="note">No core knowledge notes available yet.</p>';
     const infographicSrc = LESSON_INFOGRAPHICS[lesson.id] || "";
     const coreKnowledgePanel = infographicSrc
       ? `<button class="lessonInfographicBtn" data-action="open-lesson-infographic" data-src="${escapeHtml(infographicSrc)}" type="button" aria-label="Open lesson infographic in full screen">
@@ -15975,7 +16043,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
     `;
   }
 
-  if(slide.type !== "quick-check") return `${renderLessonSlideHeading(slide)}${renderLessonParagraphs(slide.text || "")}`;
+  if(slide.type !== "quick-check") return `${renderLessonSlideHeading(slide)}${renderLessonParagraphs(slide.text || "", lesson)}`;
 
   const storedAnswer = getStoredQuickCheckAnswer(lesson.id, slideId);
   const selected = Number.isInteger(storedAnswer) ? storedAnswer : null;
@@ -15991,7 +16059,7 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
 
   return `
     ${renderLessonSlideHeading(slide)}
-    <div>${slide.text}</div>
+    <div>${renderLessonTextWithDefinitions(slide.text || "", lesson)}</div>
     <div class="qc-options">
       ${slide.options.map((opt,i)=>{
         const active = selected===i;
@@ -16346,6 +16414,33 @@ function closeTopicArrowDialog(){
   const overlay = $("topicArrowDialog");
   if(!overlay) return;
   overlay.classList.add("hidden");
+}
+
+function openLessonDefinitionDialog(term, definition){
+  const overlay = $("lessonDefinitionDialog");
+  const titleEl = $("lessonDefinitionDialogTitle");
+  const bodyEl = $("lessonDefinitionDialogBody");
+  if(!overlay || !titleEl || !bodyEl) return;
+  titleEl.textContent = term || "Definition";
+  bodyEl.textContent = definition || "Definition coming soon.";
+  overlay.classList.remove("hidden");
+}
+
+function closeLessonDefinitionDialog(){
+  const overlay = $("lessonDefinitionDialog");
+  if(!overlay) return;
+  overlay.classList.add("hidden");
+}
+
+function initLessonDefinitionDialog(){
+  const closeBtn = $("lessonDefinitionDialogClose");
+  const overlay = $("lessonDefinitionDialog");
+  if(closeBtn) closeBtn.addEventListener("click", closeLessonDefinitionDialog);
+  if(overlay){
+    overlay.addEventListener("click", (event)=>{
+      if(event.target === overlay) closeLessonDefinitionDialog();
+    });
+  }
 }
 
 function initTopicArrowDialog(){
@@ -16818,6 +16913,7 @@ function computeKpis(){
 computeKpis();
 updateDailyUI();
 initTopicArrowDialog();
+initLessonDefinitionDialog();
 
 /* Home quick buttons (legacy IDs kept for safety) */
 
