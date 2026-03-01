@@ -10790,13 +10790,123 @@ const lessonsData = [
             yearLabel:"1855",
             theme:"Political Authority",
             heroImage:"./topic1.png",
-            slides:[
-              { type:"idea", heading:"Big picture idea", text:"Autocracy looked deeply entrenched in 1855, but military failure and administrative weakness exposed vulnerabilities that would pressure reform." },
-              { type:"briefing", heading:"Micro-briefing 1", text:"Nicholas I left a heavily centralised state backed by censorship, the Orthodox Church, and the secret police, which discouraged overt political opposition." },
-              { type:"briefing", heading:"Micro-briefing 2", text:"However, defeat in the Crimean War revealed Russia's backward infrastructure and command system, making clear that preserving autocracy required change from above." },
-              { type:"quick-check", heading:"Quick Check", text:"Which statement best fits autocracy in 1855?", options:["It had already been replaced by a constitution.","It seemed strong, but structural weaknesses were increasingly visible.","The Tsar ruled only with approval from an elected Duma."], correctIndex:1, feedback:["Incorrect: constitutional monarchy came much later.","Correct: power was concentrated, but military and administrative failures were serious.","Incorrect: the Duma did not exist in 1855."] },
-              { type:"next-steps", heading:"Next steps", text:"This helps you evaluate stability versus fragility in early causation essays on late Tsarist decline." }
-            ]
+            contentPack: {
+  hero: {
+    titleLine: "In 1855, Russia looked like a powerful autocracy — but the Crimean War exposed how fragile that power could be beneath the surface.",
+    subtitleLine: "How secure was autocracy in 1855?"
+  },
+
+  bigPicture: "Russia in 1855 was ruled by a Tsar with near-total authority and no constitutional limits. Yet military backwardness, weak administration, economic underdevelopment and social rigidity made the system vulnerable to crisis and reform pressure.",
+
+  sf: {
+    briefings: [
+      {
+        heading: "Micro-briefing 1: What Tsarist autocracy meant",
+        text: "Autocracy in 1855 meant the Tsar ruled by divine right and was not accountable to any parliament, constitution, or electorate. Russia had no national parliament, no constitution, no legal political parties, and no guaranteed civil liberties. The Tsar’s word was law, and ministers served at his pleasure. This gave the regime strong formal authority, but little legal flexibility if the system came under pressure."
+      },
+      {
+        heading: "Micro-briefing 2: How the system was governed",
+        text: "Nicholas I (until March 1855) upheld Orthodoxy, Autocracy, and Nationality, before Alexander II inherited power. Governance depended on appointed officials, a loyal nobility, and the Orthodox Church. In practice, bureaucracy was often inefficient and corrupt, communication was slow across the huge empire, and local governance quality varied. Autocracy appeared centralised, but everyday administration could be uneven and chaotic."
+      },
+      {
+        heading: "Micro-briefing 3: Repression, society and structural weakness",
+        text: "The regime used censorship, surveillance, the Third Section secret police, and exile to Siberia to suppress dissent. Yet repression was imperfect, and radical ideas still spread among educated elites. Socially, over 80% of people were peasants, many still serfs tied to noble land, limiting mobility and economic growth. With limited industry, poor infrastructure, and very few railways, Russia lagged behind powers like Britain and France."
+      },
+      {
+        heading: "Micro-briefing 4: Why 1855 became a turning point",
+        text: "The Crimean War (1853–56) exposed Russia’s military and logistical weakness: poor transport, outdated organisation, and weak state capacity. This mattered politically because it challenged the credibility of autocracy. After 1855, the key issue was no longer whether reform was desirable, but whether autocracy could survive without it."
+      }
+    ],
+
+    checks: [
+      {
+        heading: "Context check 1",
+        prompt: "Which option best defines Tsarist autocracy in 1855?",
+        options: [
+          "The Tsar ruled within a constitution approved by parliament.",
+          "The Tsar ruled by divine right without accountability to national representative institutions.",
+          "The Tsar shared executive power equally with elected ministers.",
+          "The Tsar was mainly a symbolic religious figure."
+        ],
+        correctIndex: 1,
+        feedbackCorrect: "Correct: Tsarist autocracy meant personal sovereign authority without constitutional accountability.",
+        feedbackWrong: "Look for the option emphasising divine-right rule and lack of national constitutional limits."
+      },
+      {
+        heading: "Context check 2",
+        prompt: "Which was a major practical weakness in governing the empire?",
+        options: [
+          "A strong elected provincial democracy that blocked reforms.",
+          "Too many railways, making central control difficult.",
+          "An inefficient and often corrupt appointed bureaucracy with slow communication.",
+          "Complete administrative equality across all regions."
+        ],
+        correctIndex: 2,
+        feedbackCorrect: "Correct: administration was large but often inefficient, and communication limits undermined effective control.",
+        feedbackWrong: "Focus on the mismatch between formal central power and weak day-to-day administration."
+      },
+      {
+        heading: "Context check 3",
+        prompt: "Why was serfdom a structural weakness for autocracy?",
+        options: [
+          "It increased social mobility and productivity.",
+          "It strengthened industrialisation and urban growth.",
+          "It tied Russia to a pre-modern social order, limited development, and fostered resentment.",
+          "It removed noble influence from local society."
+        ],
+        correctIndex: 2,
+        feedbackCorrect: "Correct: serfdom limited economic change and increased long-term social tension.",
+        feedbackWrong: "Think about how serfdom reduced flexibility, growth, and social stability."
+      },
+      {
+        heading: "Context check 4",
+        prompt: "What did the Crimean War reveal most clearly about Russia by 1855?",
+        options: [
+          "That autocracy had modernised military and infrastructure successfully.",
+          "That repression had ended all dissent.",
+          "That the regime’s military and administrative systems were weaker than they appeared.",
+          "That Russia had matched Britain and France economically."
+        ],
+        correctIndex: 2,
+        feedbackCorrect: "Correct: Crimea exposed the gap between imperial scale and effective modern state capacity.",
+        feedbackWrong: "The best answer links wartime performance to hidden weaknesses in state power."
+      }
+    ]
+  },
+
+  ambition: {
+    briefings: [
+      {
+        heading: "Ambition: judge security versus fragility",
+        text: "Top-band answers do not just describe autocracy; they test it. Use two lenses: (1) coercive strength (Church, nobility, censorship, police) and (2) structural resilience (army, administration, economy, social order). A high-level judgement is that autocracy looked stable institutionally, but Crimea exposed a brittle state that needed reform to preserve itself."
+      }
+    ],
+    task: {
+      heading: "Ambition task",
+      prompt: "Which is the strongest judgement on how secure autocracy was in 1855?",
+      options: [
+        "Autocracy was fully secure because dissent was illegal.",
+        "Autocracy had no strengths and was close to immediate collapse in 1855.",
+        "Autocracy appeared secure due to ideology and repression, but deep military, administrative, economic and social weaknesses made it vulnerable under pressure.",
+        "Autocracy was already a constitutional monarchy in all but name."
+      ],
+      correctIndex: 2
+    }
+  },
+
+  quickCheck: {
+    heading: "Quick check",
+    prompt: "What is the most accurate overall view of Russia in 1855?",
+    options: [
+      "A balanced constitutional system with broad political rights.",
+      "An absolute monarchy with impressive formal authority but serious structural weaknesses revealed by war.",
+      "A fully industrial modern state comparable to Britain.",
+      "A decentralised democracy dominated by elected local institutions."
+    ],
+    correctIndex: 1
+  }
+
+}
           },
           {
             id:"t1-pa-a2-reforms",
