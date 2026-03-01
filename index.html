@@ -3078,18 +3078,21 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .lessonsList{display:grid;position:relative}
 #lessonsRoot .lessonRow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid color-mix(in srgb, var(--line) 84%, var(--accent2) 16%)}
 #lessonsRoot .lessonRow:last-child{border-bottom:none}
+#lessonsRoot .lessonRow[data-lesson-row]{cursor:pointer}
 #lessonsRoot .lessonStatusNode{position:relative;width:16px;height:16px;border-radius:999px;border:2px solid color-mix(in srgb, var(--line) 54%, var(--accent2) 46%);margin-left:2px}
 #lessonsRoot .lessonStatusNode.in-progress{background:linear-gradient(180deg,color-mix(in srgb, var(--accent2) 70%, #fff 30%) 50%, transparent 50%)}
 #lessonsRoot .lessonStatusNode.completed{background:color-mix(in srgb, var(--accent2) 72%, #2e6094 28%);border-color:color-mix(in srgb, var(--accent2) 72%, #2e6094 28%)}
 #lessonsRoot .lessonsList.withJourney .lessonRow:not(:last-child) .lessonStatusNode::after{content:"";position:absolute;left:50%;top:15px;transform:translateX(-50%);width:1px;height:22px;background:color-mix(in srgb, var(--line) 78%, var(--accent2) 22%)}
 #lessonsRoot .lessonRowMetaBtn{
   min-width:0;
+  width:100%;
+  min-height:44px;
   display:grid;
   gap:2px;
   text-align:left;
   border:none;
   background:transparent;
-  padding:4px 0;
+  padding:8px 0;
   margin:0;
   font:inherit;
   color:inherit;
