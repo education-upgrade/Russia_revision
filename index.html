@@ -15558,12 +15558,13 @@ function getLessonSlideLabel(slideType){
 
 function renderLessonSlideHeading(slide){
   const rawTitle = String(slide?.heading || "Lesson panel");
+  const capitalizeHeadingWords = text=>String(text || "").replace(/\b([A-Za-z])/g, letter=>letter.toUpperCase());
   const shortenedTitle = (function(){
     if(slide?.type !== "briefing") return rawTitle;
     const match = rawTitle.match(/^\s*(?:micro-briefing|factor)\s*\d+\s*:\s*(.+)$/i);
     if(!match) return rawTitle;
     const concise = match[1].replace(/\s*\([^)]*\)\s*/g, " ").replace(/\s+/g, " ").trim();
-    return concise ? concise.toLowerCase() : rawTitle;
+    return concise ? capitalizeHeadingWords(concise) : rawTitle;
   })();
   const title = escapeHtml(shortenedTitle);
   const label = escapeHtml(getLessonSlideLabel(slide?.type));
