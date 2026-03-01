@@ -3044,6 +3044,7 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .topicTitle{margin:0;font-size:clamp(18px,4.4vw,21px);font-weight:800;line-height:1.2;color:var(--textStrong)}
 #lessonsRoot .topicYears{margin-top:2px;font-size:12px;font-weight:700;color:var(--muted)}
 #lessonsRoot .topicDescriptor{margin-top:6px;font-size:13px;line-height:1.35;color:var(--text)}
+#lessonsRoot .topicLead .topicExploreBtn{margin-top:10px;max-width:340px}
 #lessonsRoot .topicSummaryMeta{display:grid;gap:10px;justify-items:stretch;align-content:start;min-width:210px}
 #lessonsRoot .topicStatusChip{font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px;border:1px solid color-mix(in srgb, var(--line) 76%, var(--accent2) 24%);background:color-mix(in srgb, #fff 86%, var(--accent3) 14%);color:var(--muted)}
 #lessonsRoot .topicStatusChip[data-state="in-progress"]{color:var(--text);background:color-mix(in srgb, #fff 82%, var(--accent2) 18%)}
@@ -15126,10 +15127,10 @@ function renderTopicsList(root){
                     </div>
                   </div>
                   <p class="topicDescriptor">${escapeHtml(buildTopicDescriptor(topic))}</p>
+                  <span class="topicExploreBtn" aria-hidden="true">Explore lessons</span>
                 </div>
                 <div class="topicSummaryMeta">
                   <span class="topicStatusChip" data-state="${status.state}" aria-label="Topic status: ${status.label}">${status.label}</span>
-                  <span class="topicExploreBtn" aria-hidden="true">Explore lessons</span>
                 </div>
               </summary>
               <div class="lessonTopicBody">
