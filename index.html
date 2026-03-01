@@ -9426,6 +9426,22 @@ const lessonsNav = {
   collapsedLessonBlocks:{}
 };
 
+let lastLessonsPageKey = null;
+
+function getLessonsPageKey(){
+  const view = String(lessonsNav.view || "topics");
+  if(view === "player") return `player:${lessonsNav.topicId || ""}:${lessonsNav.themeId || ""}:${lessonsNav.lessonId || ""}`;
+  return `topics:${lessonsNav.topicId || ""}`;
+}
+
+function scrollLessonsToTopIfPageChanged(){
+  const pageKey = getLessonsPageKey();
+  const changed = pageKey !== lastLessonsPageKey;
+  lastLessonsPageKey = pageKey;
+  if(!changed) return;
+  window.scrollTo({ top:0, behavior:"auto" });
+}
+
 const lessonInfographicState = {
   pointers:new Map(),
   scale:1,
@@ -14960,6 +14976,7 @@ function renderLessons(){
   if(!root) return;
   validateLessonsArchitecture();
   bindLessonInfographicViewer();
+  scrollLessonsToTopIfPageChanged();
 
   if(lessonsNav.view === "player") return renderLessonPlayer(root);
   return renderTopicsList(root);
