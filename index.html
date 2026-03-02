@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#f3f7fb">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="preload" as="image" href="section-bg.jpg?v8">
-  <link rel="preload" as="video" href="gemini_generated_video_EA512AAF.mov" type="video/quicktime">
+  <link rel="preload" as="video" href="gemini_generated_video_EA512AAF.mp4" type="video/mp4">
 <style>
     /* ======================================================
        LIGHT PASTEL BLUE THEME (eye-safe)
@@ -2857,7 +2857,8 @@ section#games.gamePaneActive .gamesHeroCard{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:#f1f3f8;
+  padding:20px;
+  background:linear-gradient(180deg, #f7faff 0%, #f2f6fb 100%);
   opacity:1;
   visibility:visible;
   transition: opacity .65s ease, visibility .65s ease;
@@ -2868,28 +2869,23 @@ section#games.gamePaneActive .gamesHeroCard{
   pointer-events:none;
 }
 .splashMedia{
-  width:min(82vw, 440px);
-  max-width:440px;
-  height:min(82vh, 660px);
-  object-fit:contain;
-  background:#f1f3f8;
-  opacity:.98;
+  width:min(88vw, 520px);
+  max-width:520px;
+  aspect-ratio:1 / 1;
+  object-fit:cover;
+  border-radius:24px;
+  background:transparent;
+  box-shadow:0 14px 28px rgba(22,40,64,.12);
+  opacity:1;
 }
 
 @media (max-width: 768px){
   .splashScreen{
-    padding:24px;
-    align-items:center;
-    background:#f1f3f8;
+    padding:16px;
   }
   .splashMedia{
-    width:min(96vw, 520px);
-    max-width:500px;
-    height:min(78vh, 640px);
-    object-fit:contain;
-    opacity:1;
-    transform:none;
-    filter:none;
+    width:min(96vw, 500px);
+    border-radius:18px;
   }
 }
 
@@ -3238,7 +3234,7 @@ section#games.gamePaneActive .gamesHeroCard{
 
 <div id="splashScreen" class="splashScreen" aria-hidden="true">
   <video class="splashMedia" autoplay muted loop playsinline preload="auto" aria-label="Splash animation">
-    <source src="./gemini_generated_video_EA512AAF.mov" type="video/quicktime" />
+    <source src="./gemini_generated_video_EA512AAF.mp4" type="video/mp4" />
   </video>
 </div>
 
