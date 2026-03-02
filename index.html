@@ -2869,15 +2869,14 @@ section#games.gamePaneActive .gamesHeroCard{
   max-width:440px;
   height:min(82vh, 660px);
   object-fit:contain;
-  border-radius:18px;
-  box-shadow:0 22px 44px rgba(18,34,58,.20);
+  background:#f1f3f8;
   opacity:.98;
 }
 
 @media (max-width: 768px){
   .splashScreen{
     padding:24px;
-    align-items:flex-start;
+    align-items:center;
     background:#f1f3f8;
   }
   .splashMedia{
@@ -2886,9 +2885,8 @@ section#games.gamePaneActive .gamesHeroCard{
     height:min(78vh, 640px);
     object-fit:contain;
     opacity:1;
-    transform:translateY(clamp(64px, 15vh, 148px)) scale(1.04);
-    transform-origin:center;
-    filter:contrast(1.04) saturate(.92) drop-shadow(0 22px 38px rgba(22,40,64,.18));
+    transform:none;
+    filter:none;
   }
 }
 
