@@ -2425,63 +2425,34 @@ section#games.gamePaneActive .gamesHeroCard{
     .protectBtn{
       margin-top:12px;
       width:100%;
-      min-height:96px;
       padding:14px 16px;
-      border-radius:16px;
-      border:1px solid color-mix(in srgb, #7ea4d8 58%, #fff 42%);
-      background:linear-gradient(146deg, #eaf3ff 0%, #dcecff 52%, #cddff5 100%);
-      color:#16233f;
+      min-height:56px;
       font:inherit;
-      text-align:left;
-      position:relative;
-      isolation:isolate;
+      font-size:17px;
+      font-weight:1000;
+      color:#fff;
       cursor:pointer;
-      box-shadow:0 10px 18px rgba(28, 59, 112, .15), 0 3px 8px rgba(25, 52, 101, .1);
-      transition:transform .16s ease, box-shadow .16s ease, filter .16s ease;
-    }
-    .protectBtn::after{
-      content:"";
-      position:absolute;
-      inset:1px;
-      border-radius:15px;
-      border:1px solid rgba(255,255,255,.42);
-      pointer-events:none;
-      z-index:-1;
-    }
-    .protectBtnTitle{
-      font-size:19px;
-      font-weight:700;
-      letter-spacing:.02em;
-      line-height:1.2;
-      color:#13203b;
-    }
-    .protectBtnTopic{
-      margin-top:6px;
-      font-size:16px;
-      font-weight:500;
-      color:color-mix(in srgb, #13203b 84%, #274e83 16%);
-      line-height:1.3;
-    }
-    .protectBtnMeta{
-      margin-top:5px;
-      font-size:12px;
-      font-weight:500;
-      color:color-mix(in srgb, #445269 72%, #8ea0bb 28%);
-      letter-spacing:.01em;
-      line-height:1.25;
+      letter-spacing:.25px;
+      text-shadow:0 1px 0 rgba(0,0,0,.16);
+      transition:transform .14s ease, box-shadow .14s ease, filter .14s ease;
     }
     .protectBtn:hover{
+      border-color: rgba(17,41,93,.58);
+      box-shadow:
+        0 20px 30px rgba(23, 58, 138, .38),
+        0 6px 12px rgba(19, 48, 112, .26);
       transform:translateY(-1px);
-      box-shadow:0 14px 22px rgba(23, 52, 103, .2), 0 5px 12px rgba(25, 51, 94, .14);
-      filter:saturate(1.03);
+      filter:saturate(1.08);
     }
     .protectBtn:active{
       transform:translateY(1px);
-      box-shadow:0 8px 14px rgba(23, 52, 103, .16), 0 2px 6px rgba(25, 51, 94, .1);
+      box-shadow:
+        0 10px 16px rgba(23, 58, 138, .28),
+        0 3px 6px rgba(19, 48, 112, .2);
       filter:saturate(1);
     }
     .protectBtn:focus-visible{
-      outline:3px solid rgba(98,140,202,.35);
+      outline:3px solid rgba(47,115,255,.36);
       outline-offset:2px;
     }
 
@@ -3318,11 +3289,7 @@ section#games.gamePaneActive .gamesHeroCard{
         </button>
       </div>
 
-      <button class="protectBtn" id="protectStreakBtn" type="button" aria-label="Continue learning">
-        <span class="protectBtnTitle" id="protectBtnTitle">Continue learning</span>
-        <span class="protectBtnTopic" id="protectBtnTopic">Revolution &amp; Consolidation (1917–1941)</span>
-        <span class="protectBtnMeta" id="protectBtnMeta">Last studied: Never</span>
-      </button>
+      <button class="protectBtn" id="protectStreakBtn" type="button">Lock streak</button>
     </div>
 
     <div class="card homeSecondaryCard streakAwardsPanel" aria-label="Streak awards">
@@ -9219,16 +9186,14 @@ function renderStreakHero(){
   const btn = $("protectStreakBtn");
   if(btn){
     const cta = getChallengeCtaConfig(d);
-    const titleNode = $("protectBtnTitle");
-    const topicNode = $("protectBtnTopic");
-    const metaNode = $("protectBtnMeta");
     btn.classList.remove("hidden");
-    if(titleNode) titleNode.textContent = cta.title;
-    if(topicNode) topicNode.textContent = cta.topicLabel;
-    if(metaNode) metaNode.textContent = cta.metaLabel;
-    btn.setAttribute("aria-label", `${cta.title}: ${cta.topicLabel}`);
+    btn.textContent = cta.label;
     btn.disabled = cta.disabled;
     btn.onclick = cta.onClick;
+    const homeTitleColor = getComputedStyle(document.documentElement)
+      .getPropertyValue("--accent")
+      .trim() || "#2f73ff";
+    btn.style.background = cta.accentColor || homeTitleColor;
   }
 
 
@@ -17755,11 +17720,9 @@ function closeDailyCoachDialog(){
 function getChallengeCtaConfig(d){
   const step = nextDailyAction(d);
   if(step){
-    const dailyTopic = TOPICS.find(t=>t.id===d.topicId)?.title || d.topicId || "Today’s topic";
     return {
-      title: "Continue learning",
-      topicLabel: compactTopicTitle(dailyTopic) || dailyTopic,
-      metaLabel: `Next step: ${challengeStepName(step)}`,
+      label: `Keep streak going: ${challengeStepName(step)}`,
+      accentColor: challengeStepColor(step),
       disabled: false,
       onClick: step === "flash"
         ? goDailyFocus
@@ -17770,13 +17733,14 @@ function getChallengeCtaConfig(d){
   const coachReco = getDailyCoachRecommendation(false);
   const coachTopic = coachReco?.topicId;
   const useMixed = !coachTopic || coachTopic === "MIXED" || !isTopicEnabled(coachTopic);
-  const coachTopicTitle = useMixed ? "Interleaved mixed quiz" : (TOPICS.find(t=>t.id===coachTopic)?.title || coachTopic);
-  const lastStudied = Number(coachReco?.lastStudiedAt || 0);
+  const coachTopicTitle = useMixed ? "Mixed topics" : (TOPICS.find(t=>t.id===coachTopic)?.title || coachTopic);
+  const label = useMixed
+    ? "Continue learning: Interleaved mixed quiz"
+    : `Continue learning: ${compactTopicTitle(coachTopicTitle) || coachTopicTitle}`;
 
   return {
-    title: "Continue learning",
-    topicLabel: useMixed ? "Interleaved mixed quiz" : (compactTopicTitle(coachTopicTitle) || coachTopicTitle),
-    metaLabel: `Last studied: ${formatCoachWhen(lastStudied)}`,
+    label,
+    accentColor: null,
     disabled: false,
     onClick: ()=>{
       if(useMixed){
