@@ -2611,25 +2611,24 @@ section#games.gamePaneActive .gamesHeroCard{
     .welcomeVideoModal{
       width:min(520px, 100%);
       border-radius:20px;
-      border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
-      background:linear-gradient(180deg, color-mix(in srgb, #ffffff 92%, var(--accent3) 8%), color-mix(in srgb, #ffffff 84%, var(--accent2) 16%));
-      box-shadow:var(--shadow);
-      padding:14px;
+      border:0;
+      background:transparent;
+      box-shadow:none;
+      padding:0;
+      opacity:1;
+      transition:opacity .55s ease;
+    }
+    .welcomeVideoModal.is-fading{
+      opacity:0;
     }
     .welcomeVideoPlayer{
       width:100%;
       display:block;
       border-radius:14px;
-      border:1px solid color-mix(in srgb, var(--line) 75%, var(--accent2) 25%);
+      border:0;
       background:#000;
       aspect-ratio: 16 / 9;
       object-fit:cover;
-    }
-    .welcomeVideoActions{
-      margin-top:10px;
-      display:flex;
-      justify-content:flex-end;
-      gap:8px;
     }
     .coachTitleRow{display:flex;align-items:center;justify-content:flex-start;gap:10px}
     .coachTitle{
@@ -3667,12 +3666,9 @@ section#games.gamePaneActive .gamesHeroCard{
         playsinline
         autoplay
         muted
-        controls
+        controlslist="nodownload noplaybackrate noremoteplayback"
         preload="auto"
       ></video>
-      <div class="welcomeVideoActions">
-        <button class="btn" id="welcomeVideoCloseBtn" type="button">Continue</button>
-      </div>
     </div>
   </div>
 
@@ -17717,10 +17713,13 @@ function closeDailyCoachDialog(){
 
 function openWelcomeVideoDialog(){
   const overlay = $("welcomeVideoOverlay");
+  const modal = overlay?.querySelector(".welcomeVideoModal");
   const player = $("welcomeVideoPlayer");
   if(!overlay || !player) return false;
+  if(modal) modal.classList.remove("is-fading");
   overlay.classList.remove("hidden");
   try{
+    player.currentTime = 0;
     const playAttempt = player.play();
     if(playAttempt && typeof playAttempt.catch === "function"){
       playAttempt.catch(()=>{});
@@ -17731,13 +17730,25 @@ function openWelcomeVideoDialog(){
 
 function closeWelcomeVideoDialog(showCoach=true){
   const overlay = $("welcomeVideoOverlay");
+  const modal = overlay?.querySelector(".welcomeVideoModal");
   const player = $("welcomeVideoPlayer");
-  if(overlay) overlay.classList.add("hidden");
+  const finishClose = ()=>{
+    if(overlay) overlay.classList.add("hidden");
+    if(modal) modal.classList.remove("is-fading");
+    if(showCoach) openDailyCoachDialog(false);
+  };
+
+  if(modal){
+    modal.classList.add("is-fading");
+    setTimeout(finishClose, 560);
+  }else{
+    finishClose();
+  }
+
   if(player){
     try{ player.pause(); }catch(e){}
     try{ player.currentTime = 0; }catch(e){}
   }
-  if(showCoach) openDailyCoachDialog(false);
 }
 
 function getChallengeCtaConfig(d){
@@ -19105,7 +19116,7 @@ function init(){
 
   $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
   $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
-  $("welcomeVideoCloseBtn")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
+  $("welcomeVideoPlayer")?.addEventListener("ended", ()=>closeWelcomeVideoDialog(true));
   $("welcomeVideoOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "welcomeVideoOverlay") closeWelcomeVideoDialog(true); });
   $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
   $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
