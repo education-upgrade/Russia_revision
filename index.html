@@ -1995,7 +1995,6 @@ section#games.gamePaneActive .gamesHeroCard{
       gap:12px;
       margin-bottom:8px;
       position:relative;
-      min-height:92px;
     }
     .homeTitleChip{
       justify-self:start;
@@ -2008,8 +2007,8 @@ section#games.gamePaneActive .gamesHeroCard{
     }
     .educationUpgradeLogo{
       position:absolute;
-      top:-12px;
-      right:-10px;
+      top:0;
+      right:0;
       flex:0 0 auto;
       background:transparent;
       border:0;
@@ -2030,7 +2029,7 @@ section#games.gamePaneActive .gamesHeroCard{
     }
     .educationUpgradeLogoImage{
       display:block;
-      height:clamp(72px, 18vw, 112px);
+      height:clamp(56px, 12.8vw, 80px);
       width:auto;
     }
     .homeLogoSparkSvg{
@@ -2058,38 +2057,12 @@ section#games.gamePaneActive .gamesHeroCard{
       stroke-dashoffset:8;
       opacity:0;
     }
-    .homeLogoSparkParticle,
-    .homeLogoSparkBurst{
-      fill:rgba(255,248,202,.92);
-      transform-box:fill-box;
-      transform-origin:center;
-      opacity:0;
-    }
-    .homeLogoSparkBurst{
-      fill:none;
-      stroke:rgba(255,245,186,.8);
-      stroke-width:1.6;
-      filter:drop-shadow(0 0 5px rgba(255,241,173,.7));
-    }
     .homeTopBrandRow.spark-launch .homeLogoSparkCore{
       animation:homeSparkToLogo 760ms cubic-bezier(.3,.06,.18,1) forwards;
     }
     .homeTopBrandRow.spark-launch .homeLogoSparkTrail{
       animation:homeSparkTrail 760ms cubic-bezier(.3,.06,.18,1) forwards;
     }
-    .homeTopBrandRow.spark-launch .homeLogoSparkParticle{
-      animation:homeSparkParticle 700ms ease-out forwards;
-    }
-    .homeTopBrandRow.spark-launch .homeLogoSparkBurst{
-      animation:homeSparkBurst 680ms ease-out forwards;
-    }
-    .homeTopBrandRow.spark-launch .homeLogoSparkParticle.p1{ animation-delay:470ms; }
-    .homeTopBrandRow.spark-launch .homeLogoSparkParticle.p2{ animation-delay:520ms; }
-    .homeTopBrandRow.spark-launch .homeLogoSparkParticle.p3{ animation-delay:560ms; }
-    .homeTopBrandRow.spark-launch .homeLogoSparkParticle.p4{ animation-delay:610ms; }
-    .homeTopBrandRow.spark-launch .homeLogoSparkParticle.p5{ animation-delay:640ms; }
-    .homeTopBrandRow.spark-launch .homeLogoSparkBurst.r1{ animation-delay:500ms; }
-    .homeTopBrandRow.spark-launch .homeLogoSparkBurst.r2{ animation-delay:570ms; }
     .homeTopBrandRow.spark-done .homeLogoSparkSvg{ opacity:0; transition:opacity 160ms ease; }
     .streakTopicRow{
       display:flex;
@@ -2810,23 +2783,13 @@ section#games.gamePaneActive .gamesHeroCard{
   0%{ transform:translate(0,0) scale(.4); opacity:0; }
   8%{ opacity:1; }
   80%{ opacity:1; }
-  100%{ transform:translate(124px,-58px) scale(1.15); opacity:0; }
+  100%{ transform:translate(106px,-48px) scale(1.15); opacity:0; }
 }
 @keyframes homeSparkTrail{
   0%{ stroke-dashoffset:18; opacity:0; }
   14%{ opacity:.95; }
   86%{ opacity:.55; }
   100%{ stroke-dashoffset:-128; opacity:0; }
-}
-@keyframes homeSparkParticle{
-  0%{ transform:translate(0,0) scale(.2); opacity:0; }
-  22%{ opacity:.95; }
-  100%{ transform:translate(var(--sparkX), var(--sparkY)) scale(1.1); opacity:0; }
-}
-@keyframes homeSparkBurst{
-  0%{ transform:scale(.45); opacity:0; }
-  35%{ opacity:.78; }
-  100%{ transform:scale(1.45); opacity:0; }
 }
 
 
@@ -3273,16 +3236,6 @@ section#games.gamePaneActive .gamesHeroCard{
 }
 #lessonsRoot .lessonEmpty{padding:9px 0;color:var(--muted);font-size:13px}
 @media (max-width:560px){
-  .homeTopBrandRow{
-    min-height:104px;
-  }
-  .educationUpgradeLogo{
-    top:-15px;
-    right:-14px;
-  }
-  .educationUpgradeLogoImage{
-    height:clamp(84px, 27vw, 128px);
-  }
   #lessonsRoot .topicActionRow{gap:8px}
   #lessonsRoot .topicExploreBtn{min-height:48px;font-size:15px;letter-spacing:.7px;padding:12px 14px}
   #lessonsRoot .topicStatusChip{min-height:48px;padding:8px 10px;font-size:11px}
@@ -3310,13 +3263,6 @@ section#games.gamePaneActive .gamesHeroCard{
             <svg class="homeLogoSparkSvg" id="homeLogoSparkSvg" viewBox="0 0 220 96" aria-hidden="true" focusable="false">
               <path class="homeLogoSparkTrail" d="M22 72 C 88 78, 134 42, 176 16"></path>
               <circle class="homeLogoSparkCore" cx="22" cy="72" r="3"></circle>
-              <circle class="homeLogoSparkParticle p1" cx="176" cy="16" r="1.8" style="--sparkX: 12px; --sparkY: -12px;"></circle>
-              <circle class="homeLogoSparkParticle p2" cx="176" cy="16" r="1.4" style="--sparkX: -14px; --sparkY: -9px;"></circle>
-              <circle class="homeLogoSparkParticle p3" cx="176" cy="16" r="1.6" style="--sparkX: 16px; --sparkY: 6px;"></circle>
-              <circle class="homeLogoSparkParticle p4" cx="176" cy="16" r="1.2" style="--sparkX: -11px; --sparkY: 10px;"></circle>
-              <circle class="homeLogoSparkParticle p5" cx="176" cy="16" r="1.3" style="--sparkX: 4px; --sparkY: -16px;"></circle>
-              <circle class="homeLogoSparkBurst r1" cx="176" cy="16" r="4"></circle>
-              <circle class="homeLogoSparkBurst r2" cx="176" cy="16" r="7"></circle>
             </svg>
             <div class="quizPanelTitle homeTitleChip" aria-hidden="true">
               <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
