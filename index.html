@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#f3f7fb">
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="preload" as="image" href="section-bg.jpg?v8">
-  <link rel="preload" as="video" href="gemini_generated_video_EA512AAF.mov" type="video/quicktime">
+  <link rel="preload" as="video" href="gemini_generated_video_EA512AAF.mp4" type="video/mp4">
 <style>
     /* ======================================================
        LIGHT PASTEL BLUE THEME (eye-safe)
@@ -3237,8 +3237,8 @@ section#games.gamePaneActive .gamesHeroCard{
 <body>
 
 <div id="splashScreen" class="splashScreen" aria-hidden="true">
-  <video class="splashMedia" autoplay muted loop playsinline preload="auto" aria-label="Splash animation">
-    <source src="./gemini_generated_video_EA512AAF.mov" type="video/quicktime" />
+  <video id="splashVideo" class="splashMedia" autoplay muted playsinline preload="auto" aria-label="Splash animation">
+    <source src="./gemini_generated_video_EA512AAF.mp4" type="video/mp4" />
   </video>
 </div>
 
@@ -19115,12 +19115,22 @@ function hideSplashScreen(){
 }
 
 function startAppWithSplash(){
-  const splashMinMs = 2600;
-  const startAt = performance.now();
   init();
-  const elapsed = performance.now() - startAt;
-  const wait = Math.max(0, splashMinMs - elapsed);
-  window.setTimeout(hideSplashScreen, wait);
+
+  const splashVideo = $("splashVideo");
+  if(!splashVideo){
+    hideSplashScreen();
+    return;
+  }
+
+  const failSafe = window.setTimeout(hideSplashScreen, 10000);
+  const complete = ()=>{
+    window.clearTimeout(failSafe);
+    hideSplashScreen();
+  };
+
+  splashVideo.addEventListener("ended", complete, { once:true });
+  splashVideo.addEventListener("error", complete, { once:true });
 }
 
 startAppWithSplash();
