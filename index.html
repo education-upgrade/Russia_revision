@@ -2608,6 +2608,29 @@ section#games.gamePaneActive .gamesHeroCard{
       background:linear-gradient(180deg, color-mix(in srgb, #ffffff 90%, var(--accent3) 10%), color-mix(in srgb, #ffffff 80%, var(--accent2) 20%));
       box-shadow:var(--shadow);
     }
+    .welcomeVideoModal{
+      width:min(520px, 100%);
+      border-radius:20px;
+      border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
+      background:linear-gradient(180deg, color-mix(in srgb, #ffffff 92%, var(--accent3) 8%), color-mix(in srgb, #ffffff 84%, var(--accent2) 16%));
+      box-shadow:var(--shadow);
+      padding:14px;
+    }
+    .welcomeVideoPlayer{
+      width:100%;
+      display:block;
+      border-radius:14px;
+      border:1px solid color-mix(in srgb, var(--line) 75%, var(--accent2) 25%);
+      background:#000;
+      aspect-ratio: 16 / 9;
+      object-fit:cover;
+    }
+    .welcomeVideoActions{
+      margin-top:10px;
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+    }
     .coachTitleRow{display:flex;align-items:center;justify-content:flex-start;gap:10px}
     .coachTitle{
       margin:0;
@@ -3631,6 +3654,24 @@ section#games.gamePaneActive .gamesHeroCard{
             <span class="coachActionTitle" id="coachQuizBtnTitle">Start challenge</span>
           </span>
         </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="welcomeVideoOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Welcome video">
+    <div class="welcomeVideoModal">
+      <video
+        id="welcomeVideoPlayer"
+        class="welcomeVideoPlayer"
+        src="./gemini_generated_video_EA512AAF.mp4"
+        playsinline
+        autoplay
+        muted
+        controls
+        preload="auto"
+      ></video>
+      <div class="welcomeVideoActions">
+        <button class="btn" id="welcomeVideoCloseBtn" type="button">Continue</button>
       </div>
     </div>
   </div>
@@ -17674,6 +17715,31 @@ function closeDailyCoachDialog(){
   if(overlay) overlay.classList.add("hidden");
 }
 
+function openWelcomeVideoDialog(){
+  const overlay = $("welcomeVideoOverlay");
+  const player = $("welcomeVideoPlayer");
+  if(!overlay || !player) return false;
+  overlay.classList.remove("hidden");
+  try{
+    const playAttempt = player.play();
+    if(playAttempt && typeof playAttempt.catch === "function"){
+      playAttempt.catch(()=>{});
+    }
+  }catch(e){}
+  return true;
+}
+
+function closeWelcomeVideoDialog(showCoach=true){
+  const overlay = $("welcomeVideoOverlay");
+  const player = $("welcomeVideoPlayer");
+  if(overlay) overlay.classList.add("hidden");
+  if(player){
+    try{ player.pause(); }catch(e){}
+    try{ player.currentTime = 0; }catch(e){}
+  }
+  if(showCoach) openDailyCoachDialog(false);
+}
+
 function getChallengeCtaConfig(d){
   const step = nextDailyAction(d);
   if(step){
@@ -19034,10 +19100,13 @@ function init(){
   // start on Home
   setTab("home");
   renderHomeRecommendation();
-  openDailyCoachDialog(false);
+  const openedWelcomeVideo = openWelcomeVideoDialog();
+  if(!openedWelcomeVideo) openDailyCoachDialog(false);
 
   $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
   $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
+  $("welcomeVideoCloseBtn")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
+  $("welcomeVideoOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "welcomeVideoOverlay") closeWelcomeVideoDialog(true); });
   $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
   $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
   $("dailyNextTaskOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyNextTaskOverlay") closeDailyNextTaskModal(); });
