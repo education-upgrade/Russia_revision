@@ -2853,7 +2853,7 @@ section#games.gamePaneActive .gamesHeroCard{
   display:flex;
   align-items:center;
   justify-content:center;
-  background:#eaf4ff;
+  background:linear-gradient(180deg, var(--card), color-mix(in srgb, var(--card) 72%, #ffffff 28%));
   opacity:1;
   visibility:visible;
   transition: opacity .65s ease, visibility .65s ease;
@@ -2875,15 +2875,15 @@ section#games.gamePaneActive .gamesHeroCard{
 @media (max-width: 768px){
   .splashScreen{
     padding:24px;
-    background: radial-gradient(circle at center, #f4f9ff 0%, #e3eefb 100%);
+    background:linear-gradient(180deg, var(--card), color-mix(in srgb, var(--card) 74%, #ffffff 26%));
   }
   .splashImage{
-    width:min(92vw, 460px);
-    max-width:460px;
+    width:min(96vw, 520px);
+    max-width:520px;
     height:auto;
     object-fit:contain;
     opacity:.86;
-    transform:perspective(1100px) rotateX(7deg) scale(.96);
+    transform:perspective(1100px) rotateX(6deg) scale(1.04);
     transform-origin:center bottom;
     filter:contrast(1.04) saturate(.92) drop-shadow(0 22px 38px rgba(22,40,64,.18));
   }
