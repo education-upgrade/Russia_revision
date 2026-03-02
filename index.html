@@ -2080,19 +2080,19 @@ section#games.gamePaneActive .gamesHeroCard{
       gap:10px;
     }
     .streakAward{
-      border-radius:16px;
+      border-radius:14px;
       border:1px solid rgba(0,0,0,.1);
       background:#fff;
       color:var(--muted);
-      min-height:84px;
-      padding:10px 8px;
-      font-size:12px;
+      min-height:78px;
+      padding:8px 7px;
+      font-size:11px;
       font-weight:700;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:8px;
+      gap:6px;
       text-align:center;
       opacity:.65;
       transition:opacity .2s ease, border-color .2s ease, color .2s ease;
@@ -2104,14 +2104,14 @@ section#games.gamePaneActive .gamesHeroCard{
       box-shadow:0 6px 14px rgba(30,60,100,.14);
     }
     .streakAwardIcon{
-      width:28px;
-      height:28px;
+      width:24px;
+      height:24px;
       border-radius:999px;
       border:2px dotted color-mix(in srgb, var(--muted) 56%, #fff 44%);
       color:transparent;
       display:grid;
       place-items:center;
-      font-size:17px;
+      font-size:15px;
       line-height:1;
     }
     .streakAward.unlocked .streakAwardIcon{
@@ -2119,9 +2119,21 @@ section#games.gamePaneActive .gamesHeroCard{
       color:inherit;
     }
     .streakAwardLabel{
-      font-size:16px;
+      font-size:14px;
       font-weight:850;
-      line-height:1.1;
+      line-height:1.05;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:1px;
+    }
+    .streakAwardLabelNumber{
+      font-size:1.2em;
+      line-height:1;
+    }
+    .streakAwardLabelUnit{
+      font-size:1em;
+      line-height:1;
     }
     .streakMiniLabel{
       color:var(--muted);
@@ -3283,10 +3295,10 @@ section#games.gamePaneActive .gamesHeroCard{
     <div class="card homeSecondaryCard streakAwardsPanel" aria-label="Streak awards">
       <div class="streakAwardsHeader">Streak awards</div>
       <div class="streakAwardsRow">
-        <div class="streakAward" id="streakAward5" aria-label="Bronze coin at 5 days"><span class="streakAwardIcon" aria-hidden="true">🥉</span><span class="streakAwardLabel">5 days</span></div>
-        <div class="streakAward" id="streakAward10" aria-label="Silver coin at 10 days"><span class="streakAwardIcon" aria-hidden="true">🥈</span><span class="streakAwardLabel">10 days</span></div>
-        <div class="streakAward" id="streakAward15" aria-label="Gold coin at 15 days"><span class="streakAwardIcon" aria-hidden="true">🥇</span><span class="streakAwardLabel">15 days</span></div>
-        <div class="streakAward" id="streakAward20" aria-label="Diamond at 20 days"><span class="streakAwardIcon" aria-hidden="true">💎</span><span class="streakAwardLabel">20 days</span></div>
+        <div class="streakAward" id="streakAward5" aria-label="Bronze coin at 5 days"><span class="streakAwardIcon" aria-hidden="true">🥉</span><span class="streakAwardLabel"><span class="streakAwardLabelNumber">5</span><span class="streakAwardLabelUnit">Days</span></span></div>
+        <div class="streakAward" id="streakAward10" aria-label="Silver coin at 10 days"><span class="streakAwardIcon" aria-hidden="true">🥈</span><span class="streakAwardLabel"><span class="streakAwardLabelNumber">10</span><span class="streakAwardLabelUnit">Days</span></span></div>
+        <div class="streakAward" id="streakAward15" aria-label="Gold coin at 15 days"><span class="streakAwardIcon" aria-hidden="true">🥇</span><span class="streakAwardLabel"><span class="streakAwardLabelNumber">15</span><span class="streakAwardLabelUnit">Days</span></span></div>
+        <div class="streakAward" id="streakAward20" aria-label="Diamond at 20 days"><span class="streakAwardIcon" aria-hidden="true">💎</span><span class="streakAwardLabel"><span class="streakAwardLabelNumber">20</span><span class="streakAwardLabelUnit">Days</span></span></div>
       </div>
     </div>
 
