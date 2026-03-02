@@ -2063,6 +2063,43 @@ section#games.gamePaneActive .gamesHeroCard{
       background:#fff;
       display:flex; align-items:center; gap:8px;
     }
+    .streakAwardsPanel{
+      padding:10px 14px;
+    }
+    .streakAwardsHeader{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.45px;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:8px;
+    }
+    .streakAwardsRow{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .streakAward{
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,.1);
+      background:#fff;
+      color:var(--muted);
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      opacity:.65;
+      transition:opacity .2s ease, border-color .2s ease, color .2s ease;
+    }
+    .streakAward.unlocked{
+      opacity:1;
+      color:var(--textStrong);
+      border-color:color-mix(in srgb, var(--accent) 40%, var(--line) 60%);
+      box-shadow:0 6px 14px rgba(30,60,100,.14);
+    }
+    .streakAwardIcon{ font-size:15px; line-height:1; }
     .streakMiniLabel{
       color:var(--muted);
       font-weight:800;
@@ -3218,6 +3255,16 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
 
       <button class="protectBtn" id="protectStreakBtn" type="button">Lock streak</button>
+    </div>
+
+    <div class="card homeSecondaryCard streakAwardsPanel" aria-label="Streak awards">
+      <div class="streakAwardsHeader">Streak awards</div>
+      <div class="streakAwardsRow">
+        <div class="streakAward" id="streakAward5" aria-label="Bronze coin at 5 days"><span class="streakAwardIcon" aria-hidden="true">🥉</span>5 days</div>
+        <div class="streakAward" id="streakAward10" aria-label="Silver coin at 10 days"><span class="streakAwardIcon" aria-hidden="true">🥈</span>10 days</div>
+        <div class="streakAward" id="streakAward15" aria-label="Gold coin at 15 days"><span class="streakAwardIcon" aria-hidden="true">🥇</span>15 days</div>
+        <div class="streakAward" id="streakAward20" aria-label="Diamond at 20 days"><span class="streakAwardIcon" aria-hidden="true">💎</span>20 days</div>
+      </div>
     </div>
 
     <div class="card valuePropCard homeTertiaryCard">
@@ -9015,6 +9062,11 @@ function renderStreakHero(){
   const d = ensureDaily();
   const count = STATE.dailyStreak?.count || 0;
   const best  = STATE.dailyStreak?.best || 0;
+
+  [["streakAward5",5],["streakAward10",10],["streakAward15",15],["streakAward20",20]].forEach(([id, milestone])=>{
+    const badge = $(id);
+    if(badge) badge.classList.toggle("unlocked", count >= milestone);
+  });
 
   const big = $("streakBigNum"); if(big) big.textContent = String(count);
   const bestEl = $("streakBestNum"); if(bestEl) bestEl.textContent = String(best);
