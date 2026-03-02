@@ -1,0 +1,32 @@
+<svg width="1366" height="768" viewBox="0 0 1366 768" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Upgraded by Education Upgrade logo</title>
+  <desc id="desc">Wordmark reading Upgraded with by Education Upgrade underneath.</desc>
+  <defs>
+    <linearGradient id="upgradedGradient" x1="124" y1="120" x2="1038" y2="188" gradientUnits="userSpaceOnUse">
+      <stop offset="0.74" stop-color="#143A6E"/>
+      <stop offset="1" stop-color="#78CDEC"/>
+    </linearGradient>
+  </defs>
+
+  <text x="120" y="365" fill="url(#upgradedGradient)" font-size="290" font-weight="500"
+        font-family="Segoe Script, Bradley Hand, Comic Sans MS, cursive" letter-spacing="3">
+    Upgraded
+  </text>
+
+  <text x="1008" y="500" fill="#143A6E" font-size="80" font-weight="500"
+        font-family="Inter, Segoe UI, Arial, sans-serif">by</text>
+
+  <text x="820" y="620" fill="#143A6E" font-size="88" font-weight="500"
+        font-family="Segoe Script, Bradley Hand, Comic Sans MS, cursive">Educ</text>
+  <text x="1017" y="620" fill="#78CDEC" font-size="88" font-weight="500"
+        font-family="Segoe Script, Bradley Hand, Comic Sans MS, cursive">A*</text>
+  <text x="1098" y="620" fill="#143A6E" font-size="88" font-weight="500"
+        font-family="Segoe Script, Bradley Hand, Comic Sans MS, cursive">tion</text>
+
+  <text x="820" y="710" fill="#143A6E" font-size="88" font-weight="500"
+        font-family="Segoe Script, Bradley Hand, Comic Sans MS, cursive">Up</text>
+  <text x="918" y="710" fill="#78CDEC" font-size="88" font-weight="500"
+        font-family="Segoe Script, Bradley Hand, Comic Sans MS, cursive">9</text>
+  <text x="960" y="710" fill="#143A6E" font-size="88" font-weight="500"
+        font-family="Segoe Script, Bradley Hand, Comic Sans MS, cursive">rade</text>
+</svg>
