@@ -2637,15 +2637,9 @@ section#games.gamePaneActive .gamesHeroCard{
       background:linear-gradient(180deg, color-mix(in srgb, #ffffff 90%, var(--accent3) 10%), color-mix(in srgb, #ffffff 80%, var(--accent2) 20%));
       box-shadow:var(--shadow);
     }
-
-    #welcomeVideoOverlay{
-      padding:0;
-      background:#000;
-    }
     .welcomeVideoModal{
-      width:100vw;
-      height:100vh;
-      border-radius:0;
+      width:min(520px, 100%);
+      border-radius:20px;
       border:0;
       background:transparent;
       box-shadow:none;
@@ -2658,12 +2652,12 @@ section#games.gamePaneActive .gamesHeroCard{
     }
     .welcomeVideoPlayer{
       width:100%;
-      height:100%;
       display:block;
-      border-radius:0;
+      border-radius:14px;
       border:0;
       background:#000;
-      object-fit:contain;
+      aspect-ratio: 16 / 9;
+      object-fit:cover;
     }
     .coachTitleRow{display:flex;align-items:center;justify-content:flex-start;gap:10px}
     .coachTitle{
