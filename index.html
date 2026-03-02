@@ -2008,32 +2008,16 @@ section#games.gamePaneActive .gamesHeroCard{
       position:absolute;
       top:0;
       right:0;
-      flex:0 0 auto;
-      background:transparent;
-      border:0;
-      box-shadow:none;
-      text-align:right;
-      line-height:.95;
-      color:#142846;
-      font-weight:500;
-      font-family:"Comic Sans MS", "Segoe Script", "Bradley Hand", cursive;
-      user-select:none;
-      margin:0;
+      width:clamp(140px, 30vw, 220px);
+      display:block;
       z-index:1;
+      user-select:none;
+      -webkit-user-drag:none;
     }
-    .educationUpgradeLine{
-      font-size:clamp(20px, 4.7vw, 30px);
-      white-space:nowrap;
-    }
-    .educationUpgradeLine + .educationUpgradeLine{ margin-top:4px; }
-    .educationUpgradeAccent{ color:#72c8ed; }
-    .educationUpgradeAsterisk{
-      color:#72c8ed;
-      font-size:.72em;
-      vertical-align:top;
-      margin-left:1px;
-      display:inline-block;
-      transform: translateY(-1px);
+    .educationUpgradeLogo img{
+      display:block;
+      width:100%;
+      height:auto;
     }
     .streakTopicRow{
       display:flex;
@@ -2164,8 +2148,7 @@ section#games.gamePaneActive .gamesHeroCard{
     @media (max-width: 420px){
       .streakCountPill{ width:72px; height:72px; }
       .streakCountNum{ font-size:26px; }
-      .educationUpgradeLogo{ max-width:48%; }
-      .educationUpgradeLine{ font-size:clamp(18px, 4.5vw, 24px); }
+      .educationUpgradeLogo{ width:min(47vw, 180px); }
     }
 
     .streakPillBtn{
@@ -2548,10 +2531,9 @@ section#games.gamePaneActive .gamesHeroCard{
 
       .streakTopicRow{ gap:8px; }
       .homeTopBrandRow{ align-items:center; }
-      .educationUpgradeLine{ font-size:clamp(16px, 5vw, 22px); }
       .streakCountPill{ padding:8px 10px; }
       .streakHeader .streakCountPill{ margin-top:66px; }
-      .educationUpgradeLogo{ right:8px; }
+      .educationUpgradeLogo{ right:8px; width:min(45vw, 170px); }
       .dailyTopicInline{ font-size:12px; }
       .streakCountNum{ font-size:44px; }
 
@@ -3224,9 +3206,8 @@ section#games.gamePaneActive .gamesHeroCard{
               <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
               <span class="quizPanelTitleText">Home</span>
             </div>
-            <div class="educationUpgradeLogo" aria-label="Education Upgrade">
-              <div class="educationUpgradeLine">Educ<span class="educationUpgradeAccent">A<span class="educationUpgradeAsterisk">*</span></span>tion</div>
-              <div class="educationUpgradeLine">Up<span class="educationUpgradeAccent">9</span>rade</div>
+            <div class="educationUpgradeLogo" aria-label="Upgraded by Education Upgrade">
+              <img src="upgraded-logo.svg" alt="Upgraded by Education Upgrade">
             </div>
           </div>
           <div class="dailyChallengeCopy">
