@@ -2012,28 +2012,15 @@ section#games.gamePaneActive .gamesHeroCard{
       background:transparent;
       border:0;
       box-shadow:none;
-      text-align:right;
-      line-height:.95;
-      color:#142846;
-      font-weight:500;
-      font-family:"Comic Sans MS", "Segoe Script", "Bradley Hand", cursive;
       user-select:none;
       margin:0;
       z-index:1;
+      display:block;
     }
-    .educationUpgradeLine{
-      font-size:clamp(20px, 4.7vw, 30px);
-      white-space:nowrap;
-    }
-    .educationUpgradeLine + .educationUpgradeLine{ margin-top:4px; }
-    .educationUpgradeAccent{ color:#72c8ed; }
-    .educationUpgradeAsterisk{
-      color:#72c8ed;
-      font-size:.72em;
-      vertical-align:top;
-      margin-left:1px;
-      display:inline-block;
-      transform: translateY(-1px);
+    .educationUpgradeLogoImage{
+      display:block;
+      height:clamp(44px, 10.2vw, 64px);
+      width:auto;
     }
     .streakTopicRow{
       display:flex;
@@ -2165,7 +2152,7 @@ section#games.gamePaneActive .gamesHeroCard{
       .streakCountPill{ width:72px; height:72px; }
       .streakCountNum{ font-size:26px; }
       .educationUpgradeLogo{ max-width:48%; }
-      .educationUpgradeLine{ font-size:clamp(18px, 4.5vw, 24px); }
+      .educationUpgradeLogoImage{ height:clamp(40px, 10vw, 56px); }
     }
 
     .streakPillBtn{
@@ -2548,7 +2535,7 @@ section#games.gamePaneActive .gamesHeroCard{
 
       .streakTopicRow{ gap:8px; }
       .homeTopBrandRow{ align-items:center; }
-      .educationUpgradeLine{ font-size:clamp(16px, 5vw, 22px); }
+      .educationUpgradeLogoImage{ height:clamp(38px, 11vw, 52px); }
       .streakCountPill{ padding:8px 10px; }
       .streakHeader .streakCountPill{ margin-top:66px; }
       .educationUpgradeLogo{ right:8px; }
@@ -3224,8 +3211,7 @@ section#games.gamePaneActive .gamesHeroCard{
               <span class="quizPanelTitleText">Home</span>
             </div>
             <div class="educationUpgradeLogo" aria-label="Education Upgrade">
-              <div class="educationUpgradeLine">Educ<span class="educationUpgradeAccent">A<span class="educationUpgradeAsterisk">*</span></span>tion</div>
-              <div class="educationUpgradeLine">Up<span class="educationUpgradeAccent">9</span>rade</div>
+              <img class="educationUpgradeLogoImage" src="1.png" alt="Education Upgrade logo">
             </div>
           </div>
           <div class="dailyChallengeCopy">
