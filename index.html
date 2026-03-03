@@ -2471,23 +2471,48 @@ section#games.gamePaneActive .gamesHeroCard{
       color:var(--textStrong);
       cursor:pointer;
       letter-spacing:.25px;
-      box-shadow:0 3px 0 color-mix(in srgb, #4f86c4 52%, var(--line) 48%),0 10px 16px rgba(36,84,144,.22);
+      box-shadow:0 3px 0 color-mix(in srgb, #86abd8 58%, var(--line) 42%),0 10px 16px rgba(127,171,224,.26);
       transition:transform .14s ease, box-shadow .14s ease, filter .14s ease;
     }
     .protectBtn:hover{
       border-color: color-mix(in srgb, #4f86c4 60%, var(--line) 40%);
-      box-shadow:0 3px 0 color-mix(in srgb, #4f86c4 60%, var(--line) 40%),0 12px 18px rgba(36,84,144,.24);
+      box-shadow:0 3px 0 color-mix(in srgb, #8cb3df 64%, var(--line) 36%),0 12px 18px rgba(135,178,229,.3);
       transform:translateY(-1px);
       filter:brightness(1.02);
     }
     .protectBtn:active{
       transform:translateY(1px);
-      box-shadow:0 2px 0 color-mix(in srgb, #4f86c4 52%, var(--line) 48%),0 7px 12px rgba(36,84,144,.2);
+      box-shadow:0 2px 0 color-mix(in srgb, #86abd8 58%, var(--line) 42%),0 7px 12px rgba(127,171,224,.22);
       filter:saturate(1);
     }
     .protectBtn:focus-visible{
       outline:3px solid rgba(47,115,255,.36);
       outline-offset:2px;
+    }
+    .protectBtnText{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      line-height:1.2;
+      gap:3px;
+    }
+    .protectBtnTitle{
+      font-weight:1000;
+      font-size:clamp(16px, 3.8vw, 18px);
+      text-align:center;
+      display:block;
+    }
+    .protectBtnTopic{
+      display:block;
+      font-size:clamp(12px, 3vw, 14px);
+      font-weight:500;
+      color:var(--muted);
+      text-align:center;
+      white-space:nowrap;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
 
     .recommendedCardTitle{
@@ -3314,7 +3339,7 @@ section#games.gamePaneActive .gamesHeroCard{
         </button>
       </div>
 
-      <button class="protectBtn" id="protectStreakBtn" type="button">Lock streak</button>
+      <button class="protectBtn" id="protectStreakBtn" type="button"><span class="protectBtnText"><span class="protectBtnTitle">Continue learning</span><span class="protectBtnTopic">Your next task</span></span></button>
     </div>
 
     <div class="card homeSecondaryCard streakAwardsPanel" aria-label="Streak awards">
@@ -9227,10 +9252,13 @@ function renderStreakHero(){
   if(btn){
     const cta = getChallengeCtaConfig(d);
     btn.classList.remove("hidden");
-    btn.textContent = cta.label;
+    const safeTitle = escapeHtml(cta.title || "Continue learning");
+    const safeTopic = escapeHtml(cta.topic || "");
+    btn.innerHTML = `<span class="protectBtnText"><span class="protectBtnTitle">${safeTitle}</span><span class="protectBtnTopic">${safeTopic}</span></span>`;
     btn.disabled = cta.disabled;
     btn.onclick = cta.onClick;
     btn.style.background = "";
+    btn.setAttribute("aria-label", `${cta.title || "Continue learning"}: ${cta.topic || ""}`.trim());
   }
 
 
@@ -17798,7 +17826,8 @@ function getChallengeCtaConfig(d){
   const step = nextDailyAction(d);
   if(step){
     return {
-      label: `Keep streak going: ${challengeStepName(step)}`,
+      title: "Start challenge",
+      topic: challengeStepName(step),
       accentColor: challengeStepColor(step),
       disabled: false,
       onClick: step === "flash"
@@ -17810,13 +17839,11 @@ function getChallengeCtaConfig(d){
   const coachReco = getDailyCoachRecommendation(false);
   const coachTopic = coachReco?.topicId;
   const useMixed = !coachTopic || coachTopic === "MIXED" || !isTopicEnabled(coachTopic);
-  const coachTopicTitle = useMixed ? "Mixed topics" : (TOPICS.find(t=>t.id===coachTopic)?.title || coachTopic);
-  const label = useMixed
-    ? "Continue learning: Interleaved mixed quiz"
-    : `Continue learning: ${compactTopicTitle(coachTopicTitle) || coachTopicTitle}`;
+  const coachTopicTitle = useMixed ? "Interleaved mixed quiz" : (compactTopicTitle(TOPICS.find(t=>t.id===coachTopic)?.title || coachTopic) || coachTopic);
 
   return {
-    label,
+    title: "Continue learning",
+    topic: coachTopicTitle,
     accentColor: null,
     disabled: false,
     onClick: ()=>{
