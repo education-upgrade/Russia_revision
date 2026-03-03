@@ -17849,15 +17849,9 @@ function getChallengeCtaConfig(d){
     accentColor: null,
     disabled: false,
     onClick: ()=>{
-      if(useMixed){
-        setTab("quiz");
-        $("mcqTopicSelect").value = "MIXED";
-        $("mcqCount").value = "10";
-        trackTaskStarted("QUIZ", ensureDaily().topicId);
-        startQuiz();
-      }else{
-        goDailyQuiz(coachTopic);
-      }
+      const fallbackTopicId = ensureDaily().topicId;
+      const targetTopicId = useMixed ? fallbackTopicId : coachTopic;
+      openStudyForTopic(targetTopicId, "all");
     }
   };
 }
