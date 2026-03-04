@@ -2664,24 +2664,20 @@ section#games.gamePaneActive .gamesHeroCard{
       background:linear-gradient(180deg, color-mix(in srgb, #ffffff 90%, var(--accent3) 10%), color-mix(in srgb, #ffffff 80%, var(--accent2) 20%));
       box-shadow:var(--shadow);
     }
-    .welcomeVideoModal{
-      width:min(520px, 100%);
-      border-radius:20px;
-      border:0;
-      background:transparent;
-      box-shadow:none;
-      padding:0;
-      opacity:1;
-      transition:opacity .55s ease;
+    .welcomeSplashCard{
+      padding:10px;
+      margin-top:10px;
+      transition:opacity .45s ease, transform .45s ease;
     }
-    .welcomeVideoModal.is-fading{
+    .welcomeSplashCard.is-fading{
       opacity:0;
+      transform:translateY(-4px);
     }
     .welcomeVideoPlayer{
       width:100%;
       display:block;
       border-radius:14px;
-      border:0;
+      border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
       background:#000;
       aspect-ratio: 16 / 9;
       object-fit:cover;
@@ -3342,6 +3338,20 @@ section#games.gamePaneActive .gamesHeroCard{
       <button class="protectBtn" id="protectStreakBtn" type="button"><span class="protectBtnText"><span class="protectBtnTitle">Continue learning</span><span class="protectBtnTopic">Your next task</span></span></button>
     </div>
 
+    <div id="welcomeSplashCard" class="card homeSecondaryCard welcomeSplashCard hidden" aria-label="Welcome splash video">
+      <video
+        id="welcomeVideoPlayer"
+        class="welcomeVideoPlayer"
+        src="./gemini_generated_video_EA512AAF.mp4"
+        playsinline
+        autoplay
+        muted
+        loop
+        controlslist="nodownload noplaybackrate noremoteplayback"
+        preload="auto"
+      ></video>
+    </div>
+
     <div class="card homeSecondaryCard streakAwardsPanel" aria-label="Streak awards">
       <div class="streakAwardsHeader">Streak awards</div>
       <div class="streakAwardsRow">
@@ -3725,21 +3735,6 @@ section#games.gamePaneActive .gamesHeroCard{
           </span>
         </button>
       </div>
-    </div>
-  </div>
-
-  <div id="welcomeVideoOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Welcome video">
-    <div class="welcomeVideoModal">
-      <video
-        id="welcomeVideoPlayer"
-        class="welcomeVideoPlayer"
-        src="./gemini_generated_video_EA512AAF.mp4"
-        playsinline
-        autoplay
-        muted
-        controlslist="nodownload noplaybackrate noremoteplayback"
-        preload="auto"
-      ></video>
     </div>
   </div>
 
@@ -17783,13 +17778,11 @@ function closeDailyCoachDialog(){
 }
 
 function openWelcomeVideoDialog(){
-  const overlay = $("welcomeVideoOverlay");
-  const modal = overlay?.querySelector(".welcomeVideoModal");
+  const splashCard = $("welcomeSplashCard");
   const player = $("welcomeVideoPlayer");
-  const welcomeVideoPlaybackRate = 2.5;
-  if(!overlay || !player) return false;
-  if(modal) modal.classList.remove("is-fading");
-  overlay.classList.remove("hidden");
+  const welcomeVideoPlaybackRate = 1;
+  if(!splashCard || !player) return false;
+  splashCard.classList.remove("hidden", "is-fading");
   try{
     player.currentTime = 0;
     player.playbackRate = welcomeVideoPlaybackRate;
@@ -17802,18 +17795,19 @@ function openWelcomeVideoDialog(){
 }
 
 function closeWelcomeVideoDialog(showCoach=true){
-  const overlay = $("welcomeVideoOverlay");
-  const modal = overlay?.querySelector(".welcomeVideoModal");
+  const splashCard = $("welcomeSplashCard");
   const player = $("welcomeVideoPlayer");
   const finishClose = ()=>{
-    if(overlay) overlay.classList.add("hidden");
-    if(modal) modal.classList.remove("is-fading");
+    if(splashCard){
+      splashCard.classList.add("hidden");
+      splashCard.classList.remove("is-fading");
+    }
     if(showCoach) openDailyCoachDialog(false);
   };
 
-  if(modal){
-    modal.classList.add("is-fading");
-    setTimeout(finishClose, 560);
+  if(splashCard){
+    splashCard.classList.add("is-fading");
+    setTimeout(finishClose, 460);
   }else{
     finishClose();
   }
@@ -19206,12 +19200,15 @@ function init(){
   playHomeLogoSparkReveal();
   renderHomeRecommendation();
   const openedWelcomeVideo = openWelcomeVideoDialog();
-  if(!openedWelcomeVideo) openDailyCoachDialog(false);
+  if(openedWelcomeVideo){
+    setTimeout(()=>closeWelcomeVideoDialog(true), 5200);
+  }else{
+    openDailyCoachDialog(false);
+  }
 
   $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
   $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
-  $("welcomeVideoPlayer")?.addEventListener("ended", ()=>closeWelcomeVideoDialog(true));
-  $("welcomeVideoOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "welcomeVideoOverlay") closeWelcomeVideoDialog(true); });
+  $("welcomeSplashCard")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
   $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
   $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
   $("dailyNextTaskOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyNextTaskOverlay") closeDailyNextTaskModal(); });
