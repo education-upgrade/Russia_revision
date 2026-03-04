@@ -1,7 +1,7 @@
 /* service-worker.js
    Minimal PWA cache with explicit precache list (includes header-bg.jpg)
 */
-const CACHE_NAME = "russia-1855-1964-v10";
+const CACHE_NAME = "russia-1855-1964-v11";
 
 const PRECACHE_URLS = [
   "./",
@@ -16,7 +16,15 @@ const PRECACHE_URLS = [
   "./section-bg.jpg",
   "./topic1.png",
   "./topic2.png",
-  "./gemini_generated_video_EA512AAF.mov",
+  "./topic3.png",
+  "./topic4.png",
+  "./1.png",
+  "./Lesson Timelines/Topic_1.png",
+  "./Lesson Timelines/topic_2.png",
+  "./Lesson Timelines/topic_3.png",
+  "./Lesson Timelines/topic_4.png",
+  "./Lesson infographics/Alexander-II-Reforms-1.png",
+  "./gemini_generated_video_EA512AAF.mp4",
   "./README_PWA.txt"
 ];
 

@@ -19326,7 +19326,7 @@ init();
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try{
-        const reg = await navigator.serviceWorker.register("./service-worker.js?v10", { scope: "./" });
+        const reg = await navigator.serviceWorker.register("./service-worker.js?v11", { scope: "./" });
         // Ask the browser to check for an updated SW file
         if (reg && reg.update) reg.update();
 
