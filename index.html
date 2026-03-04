@@ -3202,6 +3202,8 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .topicYears{margin-top:2px;font-size:12px;font-weight:700;color:var(--muted)}
 #lessonsRoot .topicDescriptor{margin-top:6px;font-size:13px;line-height:1.35;color:var(--text)}
 #lessonsRoot .topicTimelinePreview{margin-top:8px}
+#lessonsRoot .topicTimelinePreviewBtn{width:100%;padding:0;border:0;background:transparent;display:grid;gap:8px;text-align:left;cursor:zoom-in}
+#lessonsRoot .topicTimelinePreviewBtn .lessonInfographicHint{padding:0 2px}
 #lessonsRoot .topicTimelineImage{display:block;width:100%;height:auto;border-radius:10px;border:1px solid color-mix(in srgb, var(--line) 74%, var(--accent2) 26%);background:#fff;box-shadow:0 4px 10px rgba(20,50,90,.12)}
 #lessonsRoot .topicActionRow{margin-top:10px;display:flex;align-items:center;gap:10px}
 #lessonsRoot .topicExploreBtn{display:inline-flex;align-items:center;justify-content:center;flex:1 1 auto;min-height:52px;padding:14px 18px;border-radius:999px;border:1px solid color-mix(in srgb, #4f86c4 42%, var(--line) 58%);background:linear-gradient(180deg,#ffffff 0%,color-mix(in srgb, #fff 80%, var(--accent3) 20%) 100%);font-size:16px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--textStrong);white-space:nowrap;box-shadow:0 3px 0 color-mix(in srgb, #4f86c4 52%, var(--line) 48%),0 10px 16px rgba(36,84,144,.22)}
@@ -15487,7 +15489,7 @@ function renderTopicsList(root){
                     </div>
                   </div>
                   ${timelineImage
-                    ? `<div class="topicTimelinePreview"><img class="topicTimelineImage" src="${escapeHtml(timelineImage)}" alt="Topic ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} timeline"></div>`
+                    ? `<button class="topicTimelinePreview topicTimelinePreviewBtn" data-action="open-lesson-infographic" data-src="${escapeHtml(timelineImage)}" type="button" aria-label="Open timeline for ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} in full view"><img class="topicTimelineImage" src="${escapeHtml(timelineImage)}" alt="Topic ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} timeline"><span class="lessonInfographicHint">Tap timeline to expand • pinch or scroll to zoom</span></button>`
                     : `<p class="topicDescriptor">${escapeHtml(buildTopicDescriptor(topic))}</p>`}
                   <div class="topicActionRow">
                     <span class="topicExploreBtn" aria-hidden="true">Explore lessons</span>
@@ -15535,6 +15537,13 @@ function renderTopicsList(root){
   }
 
   root.onclick = event=>{
+    const infographicBtn = event.target.closest('[data-action="open-lesson-infographic"]');
+    if(infographicBtn){
+      event.preventDefault();
+      event.stopPropagation();
+      openLessonInfographic(infographicBtn.dataset.src || "");
+      return;
+    }
     const summary = event.target.closest('[data-topic-summary]');
     if(summary){
       lessonsNav.topicId = summary.dataset.topicSummary || null;
