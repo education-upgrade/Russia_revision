@@ -3287,7 +3287,6 @@ section#games.gamePaneActive .gamesHeroCard{
         playsinline
         autoplay
         muted
-        loop
         controlslist="nodownload noplaybackrate noremoteplayback"
         preload="auto"
       ></video>
@@ -19200,14 +19199,13 @@ function init(){
   playHomeLogoSparkReveal();
   renderHomeRecommendation();
   const openedWelcomeVideo = openWelcomeVideoDialog();
-  if(openedWelcomeVideo){
-    setTimeout(()=>closeWelcomeVideoDialog(true), 5200);
-  }else{
+  if(!openedWelcomeVideo){
     openDailyCoachDialog(false);
   }
 
   $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
   $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
+  $("welcomeVideoPlayer")?.addEventListener("ended", ()=>closeWelcomeVideoDialog(true));
   $("welcomeSplashCard")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
   $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
   $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
