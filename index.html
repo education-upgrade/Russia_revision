@@ -3279,6 +3279,20 @@ section#games.gamePaneActive .gamesHeroCard{
 
   <!-- HOME -->
   <section id="home" class="tabpane">
+    <div id="welcomeSplashCard" class="card homeSecondaryCard welcomeSplashCard hidden" aria-label="Welcome splash video">
+      <video
+        id="welcomeVideoPlayer"
+        class="welcomeVideoPlayer"
+        src="./gemini_generated_video_EA512AAF.mp4"
+        playsinline
+        autoplay
+        muted
+        loop
+        controlslist="nodownload noplaybackrate noremoteplayback"
+        preload="auto"
+      ></video>
+    </div>
+
     <div class="card homeSecondaryCard" id="streakHeroCard">
       <div class="streakHeader">
         <div class="streakHeaderCopy">
@@ -3336,20 +3350,6 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
 
       <button class="protectBtn" id="protectStreakBtn" type="button"><span class="protectBtnText"><span class="protectBtnTitle">Continue learning</span><span class="protectBtnTopic">Your next task</span></span></button>
-    </div>
-
-    <div id="welcomeSplashCard" class="card homeSecondaryCard welcomeSplashCard hidden" aria-label="Welcome splash video">
-      <video
-        id="welcomeVideoPlayer"
-        class="welcomeVideoPlayer"
-        src="./gemini_generated_video_EA512AAF.mp4"
-        playsinline
-        autoplay
-        muted
-        loop
-        controlslist="nodownload noplaybackrate noremoteplayback"
-        preload="auto"
-      ></video>
     </div>
 
     <div class="card homeSecondaryCard streakAwardsPanel" aria-label="Streak awards">
