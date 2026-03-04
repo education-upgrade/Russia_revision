@@ -2664,17 +2664,22 @@ section#games.gamePaneActive .gamesHeroCard{
       background:linear-gradient(180deg, color-mix(in srgb, #ffffff 90%, var(--accent3) 10%), color-mix(in srgb, #ffffff 80%, var(--accent2) 20%));
       box-shadow:var(--shadow);
     }
-    .welcomeSplashCard{
-      padding:10px;
-      margin-top:10px;
-      transition:opacity .45s ease, transform .45s ease;
+    .welcomeSplashScreen{
+      position:fixed;
+      inset:0;
+      z-index:10070;
+      background:#fff;
+      display:grid;
+      place-items:center;
+      padding:24px;
+      transition:opacity .45s ease;
     }
-    .welcomeSplashCard.is-fading{
+    .welcomeSplashScreen.is-fading{
       opacity:0;
-      transform:translateY(-4px);
     }
     .welcomeVideoPlayer{
-      width:100%;
+      width:min(1100px, 100%);
+      max-height:calc(100vh - 48px);
       display:block;
       border-radius:14px;
       border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
@@ -3279,7 +3284,7 @@ section#games.gamePaneActive .gamesHeroCard{
 
   <!-- HOME -->
   <section id="home" class="tabpane">
-    <div id="welcomeSplashCard" class="card homeSecondaryCard welcomeSplashCard hidden" aria-label="Welcome splash video">
+    <div id="welcomeSplashScreen" class="welcomeSplashScreen hidden" aria-label="Welcome splash video">
       <video
         id="welcomeVideoPlayer"
         class="welcomeVideoPlayer"
@@ -17777,11 +17782,11 @@ function closeDailyCoachDialog(){
 }
 
 function openWelcomeVideoDialog(){
-  const splashCard = $("welcomeSplashCard");
+  const splashScreen = $("welcomeSplashScreen");
   const player = $("welcomeVideoPlayer");
   const welcomeVideoPlaybackRate = 2.5;
-  if(!splashCard || !player) return false;
-  splashCard.classList.remove("hidden", "is-fading");
+  if(!splashScreen || !player) return false;
+  splashScreen.classList.remove("hidden", "is-fading");
   try{
     player.currentTime = 0;
     player.playbackRate = welcomeVideoPlaybackRate;
@@ -17794,21 +17799,21 @@ function openWelcomeVideoDialog(){
 }
 
 function closeWelcomeVideoDialog(showCoach=true){
-  const splashCard = $("welcomeSplashCard");
+  const splashScreen = $("welcomeSplashScreen");
   const player = $("welcomeVideoPlayer");
   const finishClose = ()=>{
     if(player){
       try{ player.currentTime = 0; }catch(e){}
     }
-    if(splashCard){
-      splashCard.classList.add("hidden");
-      splashCard.classList.remove("is-fading");
+    if(splashScreen){
+      splashScreen.classList.add("hidden");
+      splashScreen.classList.remove("is-fading");
     }
     if(showCoach) openDailyCoachDialog(false);
   };
 
-  if(splashCard){
-    splashCard.classList.add("is-fading");
+  if(splashScreen){
+    splashScreen.classList.add("is-fading");
     setTimeout(finishClose, 460);
   }else{
     finishClose();
@@ -19208,7 +19213,7 @@ function init(){
   $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
   $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
   $("welcomeVideoPlayer")?.addEventListener("ended", ()=>closeWelcomeVideoDialog(true));
-  $("welcomeSplashCard")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
+  $("welcomeSplashScreen")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
   $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
   $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
   $("dailyNextTaskOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyNextTaskOverlay") closeDailyNextTaskModal(); });
