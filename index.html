@@ -3201,6 +3201,8 @@ section#games.gamePaneActive .gamesHeroCard{
 #lessonsRoot .topicTitle{margin:0;font-size:clamp(18px,4.4vw,21px);font-weight:800;line-height:1.2;color:var(--textStrong)}
 #lessonsRoot .topicYears{margin-top:2px;font-size:12px;font-weight:700;color:var(--muted)}
 #lessonsRoot .topicDescriptor{margin-top:6px;font-size:13px;line-height:1.35;color:var(--text)}
+#lessonsRoot .topicTimelinePreview{margin-top:8px}
+#lessonsRoot .topicTimelineImage{display:block;width:100%;height:auto;border-radius:10px;border:1px solid color-mix(in srgb, var(--line) 74%, var(--accent2) 26%);background:#fff;box-shadow:0 4px 10px rgba(20,50,90,.12)}
 #lessonsRoot .topicActionRow{margin-top:10px;display:flex;align-items:center;gap:10px}
 #lessonsRoot .topicExploreBtn{display:inline-flex;align-items:center;justify-content:center;flex:1 1 auto;min-height:52px;padding:14px 18px;border-radius:999px;border:1px solid color-mix(in srgb, #4f86c4 42%, var(--line) 58%);background:linear-gradient(180deg,#ffffff 0%,color-mix(in srgb, #fff 80%, var(--accent3) 20%) 100%);font-size:16px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--textStrong);white-space:nowrap;box-shadow:0 3px 0 color-mix(in srgb, #4f86c4 52%, var(--line) 48%),0 10px 16px rgba(36,84,144,.22)}
 #lessonsRoot .topicStatusChip{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:8px 14px;border-radius:12px;border:1px solid color-mix(in srgb, var(--line) 76%, var(--accent2) 24%);background:color-mix(in srgb, #fff 86%, var(--accent3) 14%);color:var(--muted);font-size:12px;font-weight:800;white-space:nowrap;text-align:center}
@@ -15449,6 +15451,13 @@ function getMostRecentInProgressLesson(){
   return latest;
 }
 
+const TOPIC_TIMELINE_IMAGES = {
+  t1: "Lesson Timelines/Topic_1.png",
+  t2: "Lesson Timelines/topic_2.png",
+  t3: "Lesson Timelines/topic_3.png",
+  t4: "Lesson Timelines/topic_4.png"
+};
+
 function renderTopicsList(root){
   const continueLesson = getMostRecentInProgressLesson();
   root.innerHTML = `
@@ -15466,6 +15475,7 @@ function renderTopicsList(root){
           const summary = getTopicProgressSummary(topic);
           const status = getTopicStatusChip(summary);
           const titleParts = splitTopicTitleAndYears(topic.title || "Topic");
+          const timelineImage = TOPIC_TIMELINE_IMAGES[topic.id] || "";
           return `
             <details class="lessonTopicItem" data-topic-panel="${topic.id}" ${lessonsNav.topicId===topic.id ? "open" : ""}>
               <summary data-topic-summary="${topic.id}" aria-label="${escapeHtml(`${titleParts.title} ${titleParts.years}`.trim())}">
@@ -15476,7 +15486,9 @@ function renderTopicsList(root){
                       <div class="topicYears">${escapeHtml(titleParts.years || "")}</div>
                     </div>
                   </div>
-                  <p class="topicDescriptor">${escapeHtml(buildTopicDescriptor(topic))}</p>
+                  ${timelineImage
+                    ? `<div class="topicTimelinePreview"><img class="topicTimelineImage" src="${escapeHtml(timelineImage)}" alt="Topic ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} timeline"></div>`
+                    : `<p class="topicDescriptor">${escapeHtml(buildTopicDescriptor(topic))}</p>`}
                   <div class="topicActionRow">
                     <span class="topicExploreBtn" aria-hidden="true">Explore lessons</span>
                     <span class="topicStatusChip" data-state="${status.state}" aria-label="Topic status: ${status.label}">${status.label}</span>
