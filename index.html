@@ -1880,6 +1880,12 @@ section#games.gamePaneActive .gamesHeroCard{
       transform: translateZ(0);
       will-change: transform;
     }
+    body.flashScreenActive nav{
+      display:none;
+    }
+    body.flashScreenActive main{
+      padding-bottom:16px;
+    }
 
     /* iOS/Safari can intermittently de-anchor fixed bars during momentum scroll
        when heavy compositing effects are applied. Use a more stable nav surface
@@ -9532,6 +9538,7 @@ const confetti = (() => {
 function setTab(tabId){
   document.querySelectorAll(".navBtn").forEach(b=>b.classList.toggle("active", b.dataset.tab===tabId));
   document.querySelectorAll(".tabpane").forEach(p=>p.classList.toggle("hidden", p.id!==tabId));
+  document.body.classList.toggle("flashScreenActive", tabId === "study");
 
   // Reset viewport position whenever changing tabs
   window.scrollTo({ top: 0, left: 0, behavior: "auto" });
