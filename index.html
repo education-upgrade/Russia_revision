@@ -17797,6 +17797,9 @@ function closeWelcomeVideoDialog(showCoach=true){
   const splashCard = $("welcomeSplashCard");
   const player = $("welcomeVideoPlayer");
   const finishClose = ()=>{
+    if(player){
+      try{ player.currentTime = 0; }catch(e){}
+    }
     if(splashCard){
       splashCard.classList.add("hidden");
       splashCard.classList.remove("is-fading");
@@ -17813,7 +17816,6 @@ function closeWelcomeVideoDialog(showCoach=true){
 
   if(player){
     try{ player.pause(); }catch(e){}
-    try{ player.currentTime = 0; }catch(e){}
   }
 }
 
