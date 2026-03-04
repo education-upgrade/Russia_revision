@@ -2668,23 +2668,23 @@ section#games.gamePaneActive .gamesHeroCard{
       position:fixed;
       inset:0;
       z-index:10070;
-      background:#fff;
+      background:#000;
       display:grid;
       place-items:center;
-      padding:24px;
+      padding:0;
       transition:opacity .45s ease;
     }
     .welcomeSplashScreen.is-fading{
       opacity:0;
     }
     .welcomeVideoPlayer{
-      width:min(1100px, 100%);
-      max-height:calc(100vh - 48px);
+      width:100vw;
+      height:100dvh;
+      max-height:none;
       display:block;
-      border-radius:14px;
-      border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
+      border-radius:0;
+      border:none;
       background:#000;
-      aspect-ratio: 16 / 9;
       object-fit:cover;
     }
     .coachTitleRow{display:flex;align-items:center;justify-content:flex-start;gap:10px}
