@@ -9533,6 +9533,10 @@ const confetti = (() => {
    NAV RULE
    ========================================================== */
 function setTab(tabId){
+  const activePane = document.querySelector(".tabpane:not(.hidden)");
+  if(activePane && activePane.id === tabId){
+    return;
+  }
   document.querySelectorAll(".navBtn").forEach(b=>b.classList.toggle("active", b.dataset.tab===tabId));
   document.querySelectorAll(".tabpane").forEach(p=>p.classList.toggle("hidden", p.id!==tabId));
   // Reset viewport position whenever changing tabs
@@ -9633,9 +9637,11 @@ function getLessonsPageKey(){
 function scrollLessonsToTopIfPageChanged(){
   const pageKey = getLessonsPageKey();
   const changed = pageKey !== lastLessonsPageKey;
+  const isInitialLessonsRender = lastLessonsPageKey === null;
   lastLessonsPageKey = pageKey;
   if(!changed) return;
-  window.scrollTo({ top:0, behavior:"auto" });
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top:0, behavior:(isInitialLessonsRender || prefersReducedMotion) ? "auto" : "smooth" });
 }
 
 const lessonInfographicState = {
