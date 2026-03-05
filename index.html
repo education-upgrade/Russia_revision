@@ -10975,6 +10975,7 @@ const lessonKeyQuestionMap = {
   "t3-pa-lenin-system": { keyQuestionId:5, keyQuestionTitle:"How important were ideas and ideology?", keyQuestionOverview:"This lesson places Lenin’s consolidation of power within the wider revolutionary reordering of the state. It examines how ideology, coercion, and institution-building interacted to produce a new model of political authority." },
   "t3-pa-bolshevik-power": { keyQuestionId:5, keyQuestionTitle:"How important were ideas and ideology?", keyQuestionOverview:"This lesson examines how the Bolsheviks translated revolutionary ideology into institutions of control after October 1917. It evaluates how decrees, coercion, civil war mobilisation, and party organisation secured a durable monopoly of political power." },
   "t3-pa-stalin-rise": { keyQuestionId:5, keyQuestionTitle:"How important were ideas and ideology?", keyQuestionOverview:"This lesson examines the leadership struggle after Lenin's death and explains how Stalin used party office, alliances, and ideological positioning to defeat rivals and secure control by 1929." },
+  "t3-ed-lenin-stalin-economy": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson compares Lenin's and Stalin's economic systems and evaluates whether Soviet development represented transformation or continuity in state control. It weighs recovery, industrial growth, coercion, and social cost to judge the extent of change across 1917–1941." },
   "t4-ed-fyps": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson situates the Five-Year Plans within the Soviet project of accelerated transformation and strategic security. It evaluates achievements in output against human costs, distortion, and long-term sustainability." },
   "t4-sc-thaw": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?", keyQuestionOverview:"This lesson connects the Thaw to broader debates about reform, control, and continuity in the post-Stalin USSR. It assesses whether cultural liberalisation and policy change represented systemic transformation or bounded adjustment." }
 };
@@ -15496,7 +15497,181 @@ const lessonsData = [
       {
         id:"economic-development",
         title:"Economic Development",
-        lessons:[]
+        lessons:[
+          {
+            id:"t3-ed-lenin-stalin-economy",
+            keyQuestionId:3,
+            keyQuestionTitle:"How and with what results did the economy develop and change?",
+            keyQuestionOverview:"This lesson compares Lenin's and Stalin's economic systems and evaluates whether Soviet development represented transformation or continuity in state control. It weighs recovery, industrial growth, coercion, and social cost to judge the extent of change across 1917–1941.",
+            title:"How far did the Soviet economy change under Lenin and Stalin?",
+            yearLabel:"1918–1941",
+            theme:"Economic Development",
+            heroImage:"./topic3.png",
+            contentPack:{
+              hero:{
+                titleLine:"From War Communism and NEP to collectivisation and Five-Year Plans, Soviet leaders repeatedly redesigned the economy — but state priorities of control and mobilisation persisted.",
+                subtitleLine:"How far did the Soviet economy change under Lenin and Stalin?",
+                imageUrl:"./topic3.png"
+              },
+              bigPicture:"The Soviet economy changed substantially in methods and scale between Lenin and Stalin, shifting from crisis requisitioning to mixed recovery and then command-planned industrialisation. Yet continuity remained in one-party control, coercive extraction from the countryside, and the subordination of living standards to state goals.",
+              sf:{
+                briefings:[
+                  {
+                    heading:"SF briefing 1: Lenin's emergency and retreat, 1918–1928",
+                    text:"War Communism (1918–21) placed major industry under state control, banned most private trade, and requisitioned grain to feed cities and the Red Army. Output collapsed, inflation intensified, and famine contributed to severe hardship by 1921. Lenin then launched the New Economic Policy (NEP), replacing requisitioning with a tax in kind and allowing small-scale private trade and light industry. This revived markets and improved recovery in agriculture and urban supply. The significance is that Lenin's era already contained sharp internal change: from coercive wartime centralisation to pragmatic mixed economy. But political control remained unchanged because commanding heights stayed under the state and opposition was suppressed."
+                  },
+                  {
+                    heading:"SF briefing 2: Stalin's Great Break, 1928–1937",
+                    text:"From 1928, Stalin ended NEP and pursued rapid industrialisation through centrally planned Five-Year Plans. Gosplan targets prioritised coal, steel, machinery, and later defence sectors, while consumer industries received lower priority. Collectivisation transformed agriculture through kolkhozy and sovkhozy, aiming to secure grain for cities and exports. Resistance, dekulakisation, and forced procurement contributed to disruption and famine, especially in 1932–33. Industrial output rose dramatically in headline terms and new industrial centres expanded. The significance is major structural transformation in pace, priorities, and the command mechanism compared with NEP, though achieved through coercion and severe social cost."
+                  },
+                  {
+                    heading:"SF briefing 3: Judging extent of change by 1941",
+                    text:"By 1941 the USSR was far more urban-industrial and militarily prepared than in 1917, with expanded heavy industry, electrification, and a larger technical workforce. However, agriculture remained inefficient and vulnerable, while living standards, housing, and consumer goods often lagged. Both Lenin and Stalin treated economic policy as a tool of regime survival and state-building rather than market welfare. Continuity therefore included central political direction, use of coercion against rural producers, and prioritisation of strategic objectives. Change lay in scale and institutional form: NEP's mixed economy gave way to full command planning and mass collectivisation. A high-level judgement must therefore distinguish transformational outcomes from persistent authoritarian economic logic."
+                  }
+                ],
+                checks:[
+                  {
+                    slideId:"t3econ-sf-c1",
+                    heading:"SF check 1",
+                    prompt:"Which statement best captures the shift from War Communism to NEP?",
+                    options:[
+                      "The USSR moved from market freedom to total requisitioning.",
+                      "The state abolished all control and restored capitalism fully.",
+                      "The regime moved from emergency coercive extraction to a limited mixed economy while keeping political control.",
+                      "NEP immediately collectivised all farms."
+                    ],
+                    correctIndex:2,
+                    feedbackCorrect:"Correct: this identifies both economic change and political continuity.",
+                    feedbackWrong:"Focus on direction of change: NEP relaxed controls in parts of the economy but did not end one-party rule."
+                  },
+                  {
+                    slideId:"t3econ-sf-c2",
+                    heading:"SF check 2",
+                    prompt:"What was the central economic priority of the early Five-Year Plans?",
+                    options:[
+                      "Consumer comfort and luxury imports.",
+                      "Heavy industry and strategic capacity, financed partly through pressure on agriculture.",
+                      "Immediate wage equality and peasant autonomy.",
+                      "Ending state planning."
+                    ],
+                    correctIndex:1,
+                    feedbackCorrect:"Correct: heavy industry and strategic strength were prioritised.",
+                    feedbackWrong:"Remember the plans focused on coal, steel, machinery, and defence-related capacity."
+                  }
+                ]
+              },
+              quickCheck:{
+                heading:"Quick check",
+                prompt:"Which overall judgement is strongest?",
+                options:[
+                  "There was no real change because both leaders were communists.",
+                  "The economy changed in methods and scale, but continuity remained in state control and coercive priorities.",
+                  "Lenin and Stalin both ran the same mixed-market NEP model throughout.",
+                  "Change was only social, not economic."
+                ],
+                correctIndex:1,
+                feedbackCorrect:"Strong: this balances transformation with continuity.",
+                feedbackWrong:"Aim for extent: identify both significant change and key continuities."
+              },
+              interpretations:{
+                A:{
+                  text:"The Soviet economy changed fundamentally under Lenin and Stalin. Lenin's NEP accepted limited market mechanisms, but Stalin replaced this with full command planning, collectivisation, and rapid heavy-industrial growth. By 1941 the USSR had a transformed economic structure, new industrial cities, and enhanced strategic capability. In this interpretation, scale and institutional redesign outweigh continuity.",
+                  argIdentify:{
+                    prompt:"What is Interpretation A's main claim?",
+                    options:[
+                      "Economic policy stayed essentially the same from 1918 to 1941.",
+                      "Stalin restored NEP permanently.",
+                      "Command planning and collectivisation created a fundamental economic transformation by 1941.",
+                      "Only agriculture changed; industry did not."
+                    ],
+                    correctIndex:2,
+                    feedbackCorrect:"Correct: A emphasises structural transformation.",
+                    feedbackWrong:"A argues for major, not limited, change."
+                  },
+                  evidenceSupport:{
+                    selectionLimit:3,
+                    statements:[
+                      { id:"t3econ_a_sup1", text:"NEP's mixed economy was replaced by centrally planned Five-Year Plans.", score:2, feedback:"Strong evidence of systemic change." },
+                      { id:"t3econ_a_sup2", text:"Heavy-industry output and industrial workforce expanded sharply in the 1930s.", score:2, feedback:"Strong: supports transformation in scale." },
+                      { id:"t3econ_a_sup3", text:"Collectivisation reorganised agriculture into state-directed structures.", score:2, feedback:"Strong: institutional transformation in countryside." },
+                      { id:"t3econ_a_sup4", text:"Some continuity in coercion existed.", score:1, feedback:"Relevant, but weakens A if overused." },
+                      { id:"t3econ_a_sup5", text:"Russia was geographically large.", score:0, feedback:"Irrelevant." },
+                      { id:"t3econ_a_sup6", text:"All workers became wealthy by 1932.", score:-1, feedback:"Incorrect." }
+                    ]
+                  },
+                  evidenceChallenge:{
+                    selectionLimit:2,
+                    statements:[
+                      { id:"t3econ_a_ch1", text:"State control of commanding sectors existed under both Lenin and Stalin.", score:2, feedback:"Strong challenge: continuity in core control." },
+                      { id:"t3econ_a_ch2", text:"Both periods used coercion to extract grain/resources from peasants.", score:2, feedback:"Strong challenge: continuity in methods of extraction." },
+                      { id:"t3econ_a_ch3", text:"Living standards and consumer supply often remained poor despite growth.", score:1, feedback:"Relevant but indirect." },
+                      { id:"t3econ_a_ch4", text:"The USSR used the rouble.", score:0, feedback:"Too general." },
+                      { id:"t3econ_a_ch5", text:"Industrialisation happened in one year.", score:-1, feedback:"Incorrect." }
+                    ]
+                  }
+                },
+                B:{
+                  text:"Economic change under Lenin and Stalin was more limited than it appeared because core priorities remained constant: regime survival, state control, and forced mobilisation of resources. NEP was a tactical pause, not a liberal alternative, and Stalin's command model intensified earlier coercive tendencies rather than creating a wholly new logic. In this interpretation, continuity in political economy outweighs institutional shifts.",
+                  argIdentify:{
+                    prompt:"What is Interpretation B's core argument?",
+                    options:[
+                      "NEP and Stalinism were identical in policy detail.",
+                      "Continuity in state priorities and coercive control outweighs visible policy shifts.",
+                      "The Soviet economy became a free market by 1941.",
+                      "Economic policy had no political purpose."
+                    ],
+                    correctIndex:1,
+                    feedbackCorrect:"Correct: B prioritises continuity in political-economic logic.",
+                    feedbackWrong:"B accepts policy shifts, but argues underlying priorities stayed consistent."
+                  },
+                  evidenceSupport:{
+                    selectionLimit:3,
+                    statements:[
+                      { id:"t3econ_b_sup1", text:"Both leaders kept one-party control and state command over key sectors.", score:2, feedback:"Strong continuity evidence." },
+                      { id:"t3econ_b_sup2", text:"Both periods used coercive pressure on peasants to secure grain/supplies.", score:2, feedback:"Strong continuity in extraction methods." },
+                      { id:"t3econ_b_sup3", text:"Economic policy in both eras prioritised state survival and power over consumption.", score:2, feedback:"Strong thematic continuity." },
+                      { id:"t3econ_b_sup4", text:"Industrial output increased in the 1930s.", score:1, feedback:"Relevant but can support change if not framed." },
+                      { id:"t3econ_b_sup5", text:"USSR maps changed over time.", score:0, feedback:"Irrelevant." },
+                      { id:"t3econ_b_sup6", text:"Collectivisation improved peasant living standards immediately everywhere.", score:-1, feedback:"Incorrect." }
+                    ]
+                  },
+                  evidenceChallenge:{
+                    selectionLimit:2,
+                    statements:[
+                      { id:"t3econ_b_ch1", text:"NEP legalised private trade and small enterprise, unlike Stalin's command system.", score:2, feedback:"Strong challenge: policy mechanisms changed substantially." },
+                      { id:"t3econ_b_ch2", text:"Five-Year Plans created new industrial regions and transformed economic scale.", score:2, feedback:"Strong challenge to a limited-change view." },
+                      { id:"t3econ_b_ch3", text:"Urbanisation accelerated significantly by the late 1930s.", score:1, feedback:"Useful challenge but less direct." },
+                      { id:"t3econ_b_ch4", text:"The USSR had winter weather.", score:0, feedback:"Irrelevant." },
+                      { id:"t3econ_b_ch5", text:"Lenin introduced full collectivisation in 1921.", score:-1, feedback:"Incorrect." }
+                    ]
+                  }
+                }
+              },
+              judgement:{
+                options:[
+                  "The Soviet economy did not change at all between Lenin and Stalin.",
+                  "The Soviet economy changed profoundly in structure and pace, but continuity remained in authoritarian state control and the subordination of welfare to strategic goals.",
+                  "Change was total because coercion ended under Stalin.",
+                  "The economy changed only because foreign trade disappeared completely."
+                ],
+                bestIndex:1,
+                feedbackCorrect:"Excellent: this is a balanced extent judgement with clear criteria.",
+                feedbackWrong:"A top judgement must evaluate both transformation (NEP to command planning) and continuity (control, coercion, priorities).",
+                evidencePick:{
+                  selectionLimit:2,
+                  statements:[
+                    { id:"t3econ_j1", text:"NEP permitted limited market activity, while Stalin imposed comprehensive central planning.", score:2, feedback:"High-value change evidence." },
+                    { id:"t3econ_j2", text:"Collectivisation and rapid heavy industrialisation transformed economic structure by 1941.", score:2, feedback:"High-value transformational evidence." },
+                    { id:"t3econ_j3", text:"Both regimes prioritised state power and used coercion to mobilise resources.", score:2, feedback:"High-value continuity evidence." },
+                    { id:"t3econ_j4", text:"Economic outcomes included industrial gains but persistent shortages and human costs.", score:2, feedback:"High-value evaluative evidence." },
+                    { id:"t3econ_j5", text:"Russia had railways.", score:0, feedback:"Too general." },
+                    { id:"t3econ_j6", text:"NEP and collectivisation happened at the same time nationally.", score:-1, feedback:"Incorrect." }
+                  ]
+                }
+              }
+            }
+          }
+        ]
       },
       {
         id:"opposition-control",
