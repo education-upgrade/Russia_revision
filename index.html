@@ -11666,13 +11666,215 @@ const lessonsData = [
             yearLabel:"1855–1894",
             theme:"Opposition & Control",
             heroImage:"./topic1.png",
-            slides:[
-              { type:"idea", heading:"Big picture idea", text:"The regime developed stronger policing and censorship, but repression often showed fear as well as strength." },
-              { type:"briefing", heading:"Micro-briefing 1", text:"The Third Section and then the Okhrana (secret police) monitored activists, publications and universities to disrupt opposition networks." },
-              { type:"briefing", heading:"Micro-briefing 2", text:"Emergency laws after 1881 widened powers of arrest and censorship, but these measures also suggest that unrest remained a real concern." },
-              { type:"quick-check", heading:"Quick check", text:"Which judgement is most balanced?", options:["Control was complete because opposition disappeared.","Control was stronger by 1894, but reliance on coercion showed continuing insecurity.","Control was weak because the state had no policing powers."], correctIndex:1, feedback:["Incorrect: opposition did not disappear.","Correct: repression increased, but insecurity remained.","Incorrect: policing powers were substantial and expanded."] },
-              { type:"next-steps", heading:"Next steps", text:"Use this to weigh short-term control against long-term regime fragility in essay judgements." }
-            ]
+            contentPack: {
+  hero: {
+    titleLine: "Opposition in late imperial Russia did not disappear: it changed shape as the regime expanded surveillance, censorship and coercion. The key issue is whether tighter control meant real security or only temporary containment.",
+    subtitleLine: "How effectively did the regime control opposition, 1855–1894?"
+  },
+
+  bigPicture: "The regime became better at monitoring and disrupting opposition through the Third Section, the Okhrana, censorship and emergency powers. However, growing radicalism, underground networks and periodic unrest suggest control was significant but never complete.",
+
+  sf: {
+    briefings: [
+      {
+        heading: "Micro-briefing 1: Why opposition grew after 1855",
+        text: "Opposition expanded because reform raised expectations while preserving autocratic limits. Emancipation and education produced a larger intelligentsia (educated groups discussing politics and society), and some students and professionals became critical of the regime’s pace of change. Disappointment after reform slowdowns, plus continuing social hardship, encouraged radical alternatives. Populist groups (‘going to the people’ in the 1870s) and later revolutionary circles developed because legal channels for opposition remained very limited."
+      },
+      {
+        heading: "Micro-briefing 2: Instruments of control — police and censorship",
+        text: "The Third Section under Nicholas I and Alexander II was replaced in 1880, but surveillance was restructured and strengthened after 1881 through the Okhrana (secret police). The state monitored publications, universities and suspected activists, using informers, interception and arrests. Preventive censorship and tighter press rules restricted open criticism. These tools were effective at disrupting networks and forcing movements underground, but repression could not remove the social and political causes of opposition."
+      },
+      {
+        heading: "Micro-briefing 3: Emergency powers and outcomes by 1894",
+        text: "After Alexander II’s assassination in 1881, emergency powers allowed governors and police to detain suspects, restrict meetings and increase administrative control. Universities and local institutions faced tighter supervision. In the short term, this reduced open revolutionary activity and helped stabilise Alexander III’s rule. Yet terrorism, labour unrest and underground organisation did not vanish. Control improved, but dependence on coercion suggests the regime managed symptoms more effectively than causes."
+      }
+    ],
+
+    checks: [
+      {
+        heading: "Context check 1",
+        prompt: "Which factor best explains why opposition expanded in the later 19th century?",
+        options: [
+          "The creation of a fully democratic parliament allowed legal opposition to dominate politics.",
+          "Reform and social change raised expectations, but autocratic limits blocked peaceful political participation.",
+          "Opposition ended after serfdom was abolished.",
+          "Industrial growth removed all social grievances."
+        ],
+        correctIndex: 1,
+        feedbackCorrect: "Correct: rising expectations plus blocked legal channels helped opposition grow.",
+        feedbackWrong: "Look for the combination of social change and continued autocratic political limits."
+      },
+      {
+        heading: "Context check 2",
+        prompt: "What was the main function of the Okhrana?",
+        options: [
+          "To run local elected councils in the countryside.",
+          "To supervise trade unions as legal representatives in parliament.",
+          "To monitor, infiltrate and disrupt political opposition through surveillance and policing.",
+          "To draft constitutional reforms for the Tsar."
+        ],
+        correctIndex: 2,
+        feedbackCorrect: "Correct: the Okhrana was the state’s main political security police in this period.",
+        feedbackWrong: "The Okhrana was a secret police body focused on surveillance and repression of opposition."
+      },
+      {
+        heading: "Context check 3",
+        prompt: "Why do the 1881 emergency powers show both strength and weakness?",
+        options: [
+          "They were unnecessary because opposition had disappeared.",
+          "They expanded coercive control, but also show the regime still feared serious unrest.",
+          "They created a fully constitutional monarchy.",
+          "They transferred power from the Tsar to the Duma."
+        ],
+        correctIndex: 1,
+        feedbackCorrect: "Correct: emergency laws increased state power but reveal insecurity as well as confidence.",
+        feedbackWrong: "The best answer recognises both sides: stronger repression and persistent fear of opposition."
+      },
+      {
+        heading: "Context check 4",
+        prompt: "Which judgement best fits opposition and control by 1894?",
+        options: [
+          "Control was complete because all opposition disappeared permanently.",
+          "Control improved significantly, but opposition adapted and survived underground.",
+          "The regime had no policing or censorship powers.",
+          "Opposition succeeded in ending autocracy before 1894."
+        ],
+        correctIndex: 1,
+        feedbackCorrect: "Correct: this captures stronger containment without claiming complete elimination of opposition.",
+        feedbackWrong: "Aim for a balanced judgement: stronger state control, but incomplete long-term success."
+      }
+    ]
+  },
+
+  ambition: {
+    briefings: [
+      {
+        heading: "Ambition: evaluate effectiveness over time",
+        text: "Top-band judgement tracks both immediate and long-term effectiveness. In the short term, surveillance and emergency powers improved containment, especially after 1881. In the longer term, continued radical organisation and social tension suggest coercion protected autocracy but did not fully resolve the pressures generating opposition."
+      }
+    ],
+    task: {
+      heading: "Ambition task",
+      prompt: "Which is the strongest overall judgement on state control of opposition, 1855–1894?",
+      options: [
+        "State control failed completely because opposition quickly overthrew autocracy.",
+        "State control was fully successful because opposition disappeared by 1894.",
+        "State control was effective in containing and disrupting opposition, but not in removing the underlying causes of unrest.",
+        "State control had no impact because censorship and surveillance were never used."
+      ],
+      correctIndex: 2
+    }
+  },
+
+  interpretations: {
+    A: {
+      text: "Tsarist control over opposition between 1855 and 1894 was largely effective because the regime adapted its methods and prevented revolutionary groups from creating sustained, mass political change. Surveillance, censorship, infiltration and emergency laws disrupted opposition networks and made open organisation difficult. Even after major shocks, the autocracy remained in power and restored order. In this view, the regime proved resilient: opponents could threaten and provoke repression, but they could not break the political system in this period.",
+      argIdentify: {
+        prompt: "What is Interpretation A’s central claim?",
+        options: [
+          "Control was largely effective because repression and surveillance prevented opposition from turning into decisive regime change.",
+          "Control collapsed and opposition formed a legal parliament by 1881.",
+          "Control mattered little because there was no opposition at all.",
+          "Control succeeded only because censorship was abolished."
+        ],
+        correctIndex: 0,
+        feedbackCorrect: "Correct: A argues that repression was largely effective at containment.",
+        feedbackWrong: "A emphasises resilient state control and limited opposition impact."
+      },
+      evidenceSupport: {
+        selectionLimit: 3,
+        statements: [
+          { id:"a_sup1", text:"After 1881, emergency powers widened arrest and censorship authority, making open opposition activity riskier.", score: 2, feedback:"Strong: direct evidence of stronger control capacity." },
+          { id:"a_sup2", text:"Okhrana surveillance and infiltration disrupted revolutionary organisations and publications.", score: 2, feedback:"Strong: shows practical containment tools." },
+          { id:"a_sup3", text:"Despite terrorist actions, autocracy remained in power through 1894 and restored order after crises.", score: 2, feedback:"Strong: supports effectiveness in preserving regime survival." },
+          { id:"a_sup4", text:"Some opposition ideas spread among students and intellectuals.", score: 1, feedback:"Relevant context but can also challenge A if not framed carefully." },
+          { id:"a_sup5", text:"Local unrest continued in parts of the empire.", score: 1, feedback:"Relevant but needs explanation to support A (contained, not decisive)." },
+          { id:"a_sup6", text:"Russia was geographically large.", score: 0, feedback:"Too general." },
+          { id:"a_sup7", text:"Alexander III ruled from 1881 to 1894.", score: 0, feedback:"Fact only." },
+          { id:"a_sup8", text:"Emergency powers created universal civil liberty.", score: -1, feedback:"Incorrect." }
+        ]
+      },
+      evidenceChallenge: {
+        selectionLimit: 2,
+        statements: [
+          { id:"a_ch1", text:"The assassination of Alexander II in 1881 shows that repression did not prevent major opposition violence.", score: 2, feedback:"Strong: direct limit to claims of high effectiveness." },
+          { id:"a_ch2", text:"Reliance on coercion suggests the regime feared opposition and lacked broader political legitimacy.", score: 2, feedback:"Strong: challenges durability of ‘effective control’." },
+          { id:"a_ch3", text:"Underground movements adapted to repression, so opposition survived even when forced out of public view.", score: 2, feedback:"Strong: shows control was incomplete." },
+          { id:"a_ch4", text:"Russia had many peasants.", score: 0, feedback:"Not direct evidence about control effectiveness." },
+          { id:"a_ch5", text:"Some people disliked taxes.", score: 1, feedback:"Too vague without clear link to opposition outcomes." },
+          { id:"a_ch6", text:"The Tsar lived in St Petersburg and other residences.", score: 0, feedback:"Irrelevant." },
+          { id:"a_ch7", text:"Opposition disappeared completely by 1885.", score: -1, feedback:"Incorrect." },
+          { id:"a_ch8", text:"The Okhrana was an elected assembly.", score: -1, feedback:"Incorrect." }
+        ]
+      }
+    },
+
+    B: {
+      text: "Tsarist control was only partly effective because it relied too heavily on coercion and failed to eliminate the deeper sources of opposition. Secret policing and censorship could disrupt groups, but they also drove movements underground, where radical ideas continued to spread. Political exclusion, social inequality and uneven modernisation sustained discontent. In this view, apparent stability by 1894 reflected strong repression rather than durable consent, leaving unresolved tensions that would reappear more forcefully later.",
+      argIdentify: {
+        prompt: "What is Interpretation B’s main argument?",
+        options: [
+          "Control was partial: coercion contained unrest but failed to remove underlying causes of opposition.",
+          "Control was fully successful because all dissent became legal.",
+          "Control failed only because Russia had no police force.",
+          "Control ended because the Tsar accepted parliamentary sovereignty in the 1880s."
+        ],
+        correctIndex: 0,
+        feedbackCorrect: "Correct: B stresses containment without long-term resolution.",
+        feedbackWrong: "B focuses on limits of coercive control, not complete success or total collapse."
+      },
+      evidenceSupport: {
+        selectionLimit: 3,
+        statements: [
+          { id:"b_sup1", text:"Alexander II’s assassination in 1881 demonstrates that severe repression did not prevent major opposition violence.", score: 2, feedback:"Strong: direct evidence of control limits." },
+          { id:"b_sup2", text:"Opposition groups adapted through underground organisation, showing surveillance could disrupt but not eradicate dissent.", score: 2, feedback:"Strong: supports partial, not total, effectiveness." },
+          { id:"b_sup3", text:"Emergency powers suggest persistent regime insecurity and dependence on coercion rather than consent.", score: 2, feedback:"Strong: supports B’s argument about fragility." },
+          { id:"b_sup4", text:"The regime remained in power by 1894.", score: 1, feedback:"Relevant but can support A unless used as ‘short-term containment only’." },
+          { id:"b_sup5", text:"Censorship and policing expanded after 1881.", score: 1, feedback:"Relevant context; stronger when linked to why this still fell short." },
+          { id:"b_sup6", text:"Russia had a large army.", score: 0, feedback:"Too general for this claim." },
+          { id:"b_sup7", text:"Opposition controlled the central government by 1890.", score: -1, feedback:"Incorrect." },
+          { id:"b_sup8", text:"All censorship ended after 1881.", score: -1, feedback:"Incorrect." }
+        ]
+      },
+      evidenceChallenge: {
+        selectionLimit: 2,
+        statements: [
+          { id:"b_ch1", text:"The expansion of surveillance and emergency policing made open organisation far more difficult for opposition groups.", score: 2, feedback:"Strong: challenges B by showing substantial containment capacity." },
+          { id:"b_ch2", text:"Autocracy survived repeated pressures and maintained order through 1894.", score: 2, feedback:"Strong: challenges claims of weak control." },
+          { id:"b_ch3", text:"Censorship and administrative repression reduced the public visibility and coordination of dissent.", score: 2, feedback:"Strong: evidence that control had real effects." },
+          { id:"b_ch4", text:"Russia had cold winters.", score: 0, feedback:"Irrelevant." },
+          { id:"b_ch5", text:"Some students discussed politics.", score: 1, feedback:"Relevant but too vague without outcome evidence." },
+          { id:"b_ch6", text:"Railways expanded in parts of Russia.", score: 0, feedback:"Context only." },
+          { id:"b_ch7", text:"The Okhrana had no policing role.", score: -1, feedback:"Incorrect." },
+          { id:"b_ch8", text:"Emergency powers gave full civil liberty.", score: -1, feedback:"Incorrect." }
+        ]
+      }
+    }
+  },
+
+  judgement: {
+    options: [
+      "State control over opposition was completely effective because dissent disappeared and coercion was no longer needed.",
+      "State control was effective only in the short term and had no impact on opposition activity at all.",
+      "State control was effective to a significant extent in containing opposition, but it relied on coercion and failed to remove deeper political and social causes of dissent.",
+      "State control was ineffective because the regime had no surveillance, censorship or emergency powers."
+    ],
+    bestIndex: 2,
+    feedbackCorrect: "Strong: this balances real containment with the key long-term limitation.",
+    feedbackWrong: "Aim for a two-sided judgement: what control achieved, and what it could not solve.",
+    evidencePick: {
+      selectionLimit: 2,
+      statements: [
+        { id:"j1", text:"Post-1881 emergency powers and expanded surveillance improved the regime’s ability to disrupt opposition networks.", score: 2, feedback:"High value: clear evidence of stronger control." },
+        { id:"j2", text:"The assassination of Alexander II and continued underground activism show opposition was not eliminated.", score: 2, feedback:"High value: direct evidence of limits." },
+        { id:"j3", text:"By 1894 autocracy had preserved political order, but largely through coercion rather than participation.", score: 2, feedback:"High value: balanced outcome evidence." },
+        { id:"j4", text:"Alexander III ruled from 1881 to 1894.", score: 1, feedback:"Useful context but not a mechanism/outcome argument." },
+        { id:"j5", text:"Russia covered a large territory.", score: 0, feedback:"Not direct evidence about control effectiveness." },
+        { id:"j6", text:"Emergency powers abolished state repression.", score: -1, feedback:"Incorrect." }
+      ]
+    }
+  }
+}
           }
         ]
       },
