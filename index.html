@@ -10409,6 +10409,16 @@ function extractFactorLabel(text, fallback){
   return fallback;
 }
 
+function deriveSlideSubheading(content, fallback="Key focus"){
+  const raw = String(content || "").replace(/\s+/g, " ").trim();
+  if(!raw) return fallback;
+  const firstSentence = raw.split(/[.!?]/)[0].trim();
+  const concise = (firstSentence || raw).replace(/^\W+/, "").trim();
+  if(!concise) return fallback;
+  const clipped = concise.length > 88 ? `${concise.slice(0, 85).trimEnd()}…` : concise;
+  return `Focus: ${clipped}`;
+}
+
 function buildRankFactorsSlide(lesson, slideId, sourceLabel){
   const pack = lesson?.contentPack || {};
   const enquiry = (pack.hero?.subtitleLine || lesson?.title || "this lesson enquiry").trim();
@@ -10646,6 +10656,7 @@ function buildSlidesFromContentPack(lesson){
     slideId,
     type:"quick-check",
     heading:check.heading,
+    subheading:String(check.subheading || "").trim() || deriveSlideSubheading(check.prompt, "Focus: test the key claim"),
     text:check.prompt,
     options:check.options,
     correctIndex:check.correctIndex,
@@ -10667,7 +10678,13 @@ function buildSlidesFromContentPack(lesson){
   const sfBriefings = getSfBriefingsForSlides(pack);
   sfBriefings.forEach((briefing, index)=>{
     const order = index + 1;
-    slides.push({ slideId:`${lessonId}-sf-b${order}`, type:"briefing", heading:briefing.heading, text:briefing.text });
+    slides.push({
+      slideId:`${lessonId}-sf-b${order}`,
+      type:"briefing",
+      heading:briefing.heading,
+      subheading:String(briefing.subheading || "").trim() || deriveSlideSubheading(briefing.text, `Focus: ${extractFactorLabel(briefing.heading, `Briefing ${order}`)}`),
+      text:briefing.text
+    });
     const check = (pack.sf?.checks || [])[index];
     if(check){
       slides.push(quickCheckFromCheck(`${lessonId}-sf-c${order}`, check));
@@ -10676,7 +10693,13 @@ function buildSlidesFromContentPack(lesson){
 
   const ambitionBriefing = pack.ambition?.briefings?.[0];
   if(ambitionBriefing){
-    slides.push({ slideId:`${lessonId}-ambition-b1`, type:"briefing", heading:ambitionBriefing.heading, text:ambitionBriefing.text });
+    slides.push({
+      slideId:`${lessonId}-ambition-b1`,
+      type:"briefing",
+      heading:ambitionBriefing.heading,
+      subheading:String(ambitionBriefing.subheading || "").trim() || deriveSlideSubheading(ambitionBriefing.text, "Focus: apply this to an exam judgement"),
+      text:ambitionBriefing.text
+    });
   }
   // Ambition task panel removed from lesson flow by request.
 
@@ -16264,7 +16287,9 @@ function renderLessonSlideHeading(slide){
   })();
   const title = escapeHtml(shortenedTitle);
   const label = escapeHtml(getLessonSlideLabel(slide?.type));
-  return `<div class="slideHeadingWrap"><div class="slideHeadingLabel">${label}</div><h4 class="slideHeading">${title}</h4></div>`;
+  const subheading = String(slide?.subheading || "").trim();
+  const subheadingHtml = subheading ? `<div class="note" style="margin:0 0 8px">${escapeHtml(subheading)}</div>` : "";
+  return `<div class="slideHeadingWrap"><div class="slideHeadingLabel">${label}</div><h4 class="slideHeading">${title}</h4></div>${subheadingHtml}`;
 }
 
 function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideIndex, examTransferRevealed, context){
@@ -16520,7 +16545,6 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
   if(slide.type === "interpretation"){
     return `
       ${renderLessonSlideHeading(slide)}
-      ${slide.subheading ? `<div class="note" style="margin-bottom:8px">${slide.subheading}</div>` : ""}
       <div>${escapeHtml(slide.text || "")}</div>
     `;
   }
