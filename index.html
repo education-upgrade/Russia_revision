@@ -15397,6 +15397,12 @@ function splitTopicTitleAndYears(rawTitle){
   return { title:match[1].trim(), years:`(${match[3]})` };
 }
 
+function getHomeTopicTitle(topic){
+  if(!topic) return "Topic";
+  const homeTopicTitle = String(FACT_BANK?.[topic.id]?.title || "").trim();
+  return homeTopicTitle || String(topic.title || "Topic").trim();
+}
+
 function buildTopicDescriptor(topic){
   const lessons = getTopicLessons(topic);
   const keyQuestions = lessons.map(lesson=>String(lesson.keyQuestionTitle || "").trim()).filter(Boolean);
@@ -15472,7 +15478,7 @@ function renderTopicLessonsView(root, topic){
   const lessons = getTopicLessons(topic);
   const summary = getTopicProgressSummary(topic);
   const status = getTopicStatusChip(summary);
-  const titleParts = splitTopicTitleAndYears(topic.title || "Topic");
+  const titleParts = splitTopicTitleAndYears(getHomeTopicTitle(topic));
   const timelineImage = TOPIC_TIMELINE_IMAGES[topic.id] || "";
 
   root.innerHTML = `
@@ -15494,7 +15500,7 @@ function renderTopicLessonsView(root, topic){
               </div>
             </div>
             ${timelineImage
-              ? `<button class="topicTimelinePreview topicTimelinePreviewBtn" data-action="open-lesson-infographic" data-src="${escapeHtml(timelineImage)}" type="button" aria-label="Open timeline for ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} in full view"><img class="topicTimelineImage" src="${escapeHtml(timelineImage)}" alt="Topic ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} timeline"><span class="lessonInfographicHint">Tap timeline to expand • pinch or scroll to zoom</span></button>`
+              ? `<button class="topicTimelinePreview topicTimelinePreviewBtn" data-action="open-lesson-infographic" data-src="${escapeHtml(timelineImage)}" type="button" aria-label="Open timeline for ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} in full view"><img class="topicTimelineImage" src="${escapeHtml(timelineImage)}" alt="Topic ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} timeline"><span class="lessonInfographicHint">Tap timeline to expand</span></button>`
               : `<p class="topicDescriptor">${escapeHtml(buildTopicDescriptor(topic))}</p>`}
             <div class="topicActionRow">
               <span class="topicExploreBtn" aria-hidden="true">Topic lessons</span>
@@ -15564,12 +15570,12 @@ function renderTopicsList(root){
       <div class="lessonTopControls">
         <span class="pill">${lessonsData.length} topics</span>
       </div>
-      ${continueLesson ? `<article class="lessonsContinueCard" aria-label="Continue learning"><div class="continueLabel">Continue</div><div class="continueMain"><div><div class="continueLesson">${escapeHtml(continueLesson.lesson.title || "Lesson")}</div><div class="continueTopic">${escapeHtml(continueLesson.topic.title || "")}</div></div><button type="button" class="btn small" data-action="resume-lesson" data-topic="${continueLesson.topic.id}" data-theme="${continueLesson.theme.id}" data-lesson="${continueLesson.lesson.id}" aria-label="Resume ${escapeHtml(continueLesson.lesson.title || "lesson")}">Resume</button></div></article>` : ""}
+      ${continueLesson ? `<article class="lessonsContinueCard" aria-label="Continue learning"><div class="continueLabel">Continue</div><div class="continueMain"><div><div class="continueLesson">${escapeHtml(continueLesson.lesson.title || "Lesson")}</div><div class="continueTopic">${escapeHtml(getHomeTopicTitle(continueLesson.topic))}</div></div><button type="button" class="btn small" data-action="resume-lesson" data-topic="${continueLesson.topic.id}" data-theme="${continueLesson.theme.id}" data-lesson="${continueLesson.lesson.id}" aria-label="Resume ${escapeHtml(continueLesson.lesson.title || "lesson")}">Resume</button></div></article>` : ""}
       <div class="topicsAccordion">
         ${lessonsData.map(topic=>{
           const summary = getTopicProgressSummary(topic);
           const status = getTopicStatusChip(summary);
-          const titleParts = splitTopicTitleAndYears(topic.title || "Topic");
+          const titleParts = splitTopicTitleAndYears(getHomeTopicTitle(topic));
           const timelineImage = TOPIC_TIMELINE_IMAGES[topic.id] || "";
           return `
             <article class="lessonTopicItem" data-topic-card="${topic.id}">
@@ -15582,7 +15588,7 @@ function renderTopicsList(root){
                     </div>
                   </div>
                   ${timelineImage
-                    ? `<button class="topicTimelinePreview topicTimelinePreviewBtn" data-action="open-lesson-infographic" data-src="${escapeHtml(timelineImage)}" type="button" aria-label="Open timeline for ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} in full view"><img class="topicTimelineImage" src="${escapeHtml(timelineImage)}" alt="Topic ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} timeline"><span class="lessonInfographicHint">Tap timeline to expand • pinch or scroll to zoom</span></button>`
+                    ? `<button class="topicTimelinePreview topicTimelinePreviewBtn" data-action="open-lesson-infographic" data-src="${escapeHtml(timelineImage)}" type="button" aria-label="Open timeline for ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} in full view"><img class="topicTimelineImage" src="${escapeHtml(timelineImage)}" alt="Topic ${escapeHtml((titleParts.title || "").replace(/^[0-9]+\.\s*/, "") || topic.id)} timeline"><span class="lessonInfographicHint">Tap timeline to expand</span></button>`
                     : `<p class="topicDescriptor">${escapeHtml(buildTopicDescriptor(topic))}</p>`}
                   <div class="topicActionRow">
                     <button class="topicExploreBtn" type="button" data-action="open-topic-lessons" data-topic="${topic.id}">Explore lessons</button>
