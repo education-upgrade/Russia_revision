@@ -15553,6 +15553,22 @@ function getLessonJourneyUi(state){
   return { actionLabel:"▶ Start", statusClass:"not-started" };
 }
 
+function getLessonEnquiryQuestion(lesson){
+  return String(lesson?.hero?.subtitleLine || lesson?.title || "Lesson").trim();
+}
+
+function getLessonAlphaLabel(index){
+  const alphabet = "abcdefghijklmnopqrstuvwxyz";
+  let value = Number(index);
+  if(!Number.isFinite(value) || value < 0) return "a";
+  let label = "";
+  do{
+    label = alphabet[value % 26] + label;
+    value = Math.floor(value / 26) - 1;
+  }while(value >= 0);
+  return label;
+}
+
 function getThemeChipLabel(theme){
   const title = String(theme?.title || "").trim();
   if(!title) return "Theme";
@@ -15716,18 +15732,20 @@ function renderTopicLessonsView(root, topic){
             <div class="topicProgressTrack"><div class="topicProgressFill" style="width:${summary.percent}%"></div></div>
           </div>
           <div class="lessonsList withJourney" data-topic-list="${topic.id}">
-            ${lessons.length ? lessons.map(lesson=>{
+            ${lessons.length ? lessons.map((lesson, lessonIndex)=>{
               const state = getLessonJourneyState(lesson.id);
               const ui = getLessonJourneyUi(state);
               const themeId = lesson.themeId || "";
+              const enquiryQuestion = getLessonEnquiryQuestion(lesson);
+              const alphaLabel = getLessonAlphaLabel(lessonIndex);
               return `
                 <article class="lessonRow" data-lesson-row="${lesson.id}" data-topic="${topic.id}" data-theme="${themeId}" data-lesson="${lesson.id}">
                   <span class="lessonStatusNode ${ui.statusClass}" aria-hidden="true"></span>
-                  <button class="lessonRowMetaBtn" data-action="start-lesson" data-topic="${topic.id}" data-theme="${themeId}" data-lesson="${lesson.id}" type="button" aria-label="${escapeHtml(`Open lesson ${lesson.title || ""}`)}">
-                    <div class="lessonRowTitle">${escapeHtml(lesson.title || "Lesson")}</div>
+                  <button class="lessonRowMetaBtn" data-action="start-lesson" data-topic="${topic.id}" data-theme="${themeId}" data-lesson="${lesson.id}" type="button" aria-label="${escapeHtml(`Open lesson ${alphaLabel}) ${enquiryQuestion}`)}">
+                    <div class="lessonRowTitle">${escapeHtml(`${alphaLabel}) ${enquiryQuestion}`)}</div>
                     <div class="lessonRowDate">${escapeHtml(lesson.yearLabel || "")}</div>
                   </button>
-                  <button class="lessonRowBtn ${ui.statusClass}" data-action="start-lesson" data-topic="${topic.id}" data-theme="${themeId}" data-lesson="${lesson.id}" type="button" aria-label="${escapeHtml(`${ui.actionLabel.replace(/^[^A-Za-z]+\s*/, "")} lesson ${lesson.title || ""}`)}">${ui.actionLabel}</button>
+                  <button class="lessonRowBtn ${ui.statusClass}" data-action="start-lesson" data-topic="${topic.id}" data-theme="${themeId}" data-lesson="${lesson.id}" type="button" aria-label="${escapeHtml(`${ui.actionLabel.replace(/^[^A-Za-z]+\s*/, "")} lesson ${alphaLabel}) ${enquiryQuestion}`)}">${ui.actionLabel}</button>
                 </article>
               `;
             }).join("") : '<div class="lessonEmpty">No lessons in this topic yet.</div>'}
@@ -15772,7 +15790,7 @@ function renderTopicsList(root){
       <div class="lessonTopControls">
         <span class="pill">${lessonsData.length} topics</span>
       </div>
-      ${continueLesson ? `<article class="lessonsContinueCard" aria-label="Continue learning"><div class="continueLabel">Continue</div><div class="continueMain"><div><div class="continueLesson">${escapeHtml(continueLesson.lesson.title || "Lesson")}</div><div class="continueTopic">${escapeHtml(getHomeTopicTitle(continueLesson.topic))}</div></div><button type="button" class="btn small" data-action="resume-lesson" data-topic="${continueLesson.topic.id}" data-theme="${continueLesson.theme.id}" data-lesson="${continueLesson.lesson.id}" aria-label="Resume ${escapeHtml(continueLesson.lesson.title || "lesson")}">Resume</button></div></article>` : ""}
+      ${continueLesson ? `<article class="lessonsContinueCard" aria-label="Continue learning"><div class="continueLabel">Continue</div><div class="continueMain"><div><div class="continueLesson">${escapeHtml(getLessonEnquiryQuestion(continueLesson.lesson))}</div><div class="continueTopic">${escapeHtml(getHomeTopicTitle(continueLesson.topic))}</div></div><button type="button" class="btn small" data-action="resume-lesson" data-topic="${continueLesson.topic.id}" data-theme="${continueLesson.theme.id}" data-lesson="${continueLesson.lesson.id}" aria-label="Resume ${escapeHtml(getLessonEnquiryQuestion(continueLesson.lesson) || "lesson")}">Resume</button></div></article>` : ""}
       <div class="topicsAccordion">
         ${lessonsData.map(topic=>{
           const summary = getTopicProgressSummary(topic);
@@ -15862,7 +15880,7 @@ function renderLessonPlayer(root){
     used.add(slide.slideId);
   });
 
-  root.innerHTML = `<div class="card"><div class="lessonsHeader"><h2 class="lessonsTitle"><svg class="lessonsTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span class="lessonsTitleText">Lessons</span></h2></div><div class="lessonTopControls"><button class="btn" id="backToTopics" type="button">← All topics</button></div><div class="lessonTitlePanel" style="--lessonTitlePanelBg:url('${lesson.heroImage || "section-bg.jpg"}')"><div class="lessonTitlePanelInner"><p class="lessonTitlePanelLabel">Lesson key question</p><p class="lessonTitlePanelQuestion">${lesson.keyQuestionTitle || lesson.title || "Not set"}</p></div></div><div class="lesson-continuous">${rendered.join("")}</div></div>`;
+  root.innerHTML = `<div class="card"><div class="lessonsHeader"><h2 class="lessonsTitle"><svg class="lessonsTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span class="lessonsTitleText">Lessons</span></h2></div><div class="lessonTopControls"><button class="btn" id="backToTopics" type="button">← All topics</button></div><div class="lessonTitlePanel" style="--lessonTitlePanelBg:url('${lesson.heroImage || "section-bg.jpg"}')"><div class="lessonTitlePanelInner"><p class="lessonTitlePanelLabel">Lesson enquiry question</p><p class="lessonTitlePanelQuestion">${getLessonEnquiryQuestion(lesson) || "Not set"}</p></div></div><div class="lesson-continuous">${rendered.join("")}</div></div>`;
 
   const getContext = el => {
     const panel = el.closest('[data-lesson-slide-id]');
