@@ -10413,9 +10413,13 @@ function deriveSlideSubheading(content, fallback="Key focus"){
   const raw = String(content || "").replace(/\s+/g, " ").trim();
   if(!raw) return fallback;
   const firstSentence = raw.split(/[.!?]/)[0].trim();
-  const concise = (firstSentence || raw).replace(/^\W+/, "").trim();
+  let concise = (firstSentence || raw).replace(/^\W+/, "").trim();
+  if(/^(after|before|during|in|by)\b/i.test(concise) && concise.includes(",")){
+    concise = concise.slice(concise.indexOf(",") + 1).trim();
+  }
+  concise = concise.replace(/[?!.]+$/, "").trim();
   if(!concise) return fallback;
-  const clipped = concise.length > 88 ? `${concise.slice(0, 85).trimEnd()}…` : concise;
+  const clipped = concise.length > 64 ? `${concise.slice(0, 61).trimEnd()}…` : concise;
   return `Focus: ${clipped}`;
 }
 
