@@ -10976,6 +10976,7 @@ const lessonKeyQuestionMap = {
   "t3-pa-bolshevik-power": { keyQuestionId:5, keyQuestionTitle:"How important were ideas and ideology?", keyQuestionOverview:"This lesson examines how the Bolsheviks translated revolutionary ideology into institutions of control after October 1917. It evaluates how decrees, coercion, civil war mobilisation, and party organisation secured a durable monopoly of political power." },
   "t3-pa-stalin-rise": { keyQuestionId:5, keyQuestionTitle:"How important were ideas and ideology?", keyQuestionOverview:"This lesson examines the leadership struggle after Lenin's death and explains how Stalin used party office, alliances, and ideological positioning to defeat rivals and secure control by 1929." },
   "t3-ed-lenin-stalin-economy": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson compares Lenin's and Stalin's economic systems and evaluates whether Soviet development represented transformation or continuity in state control. It weighs recovery, industrial growth, coercion, and social cost to judge the extent of change across 1917–1941." },
+  "t3-sc-communist-society": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?", keyQuestionOverview:"This lesson evaluates how Communist rule reshaped Soviet society from Revolution to war. It weighs social mobility, education, and welfare expansion against coercion, terror, and ideological conformity to judge how far transformation occurred by 1941." },
   "t4-ed-fyps": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson situates the Five-Year Plans within the Soviet project of accelerated transformation and strategic security. It evaluates achievements in output against human costs, distortion, and long-term sustainability." },
   "t4-sc-thaw": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?", keyQuestionOverview:"This lesson connects the Thaw to broader debates about reform, control, and continuity in the post-Stalin USSR. It assesses whether cultural liberalisation and policy change represented systemic transformation or bounded adjustment." }
 };
@@ -15681,7 +15682,107 @@ const lessonsData = [
       {
         id:"social-cultural",
         title:"Social & Cultural Change",
-        lessons:[]
+        lessons:[
+          {
+            id:"t3-sc-communist-society",
+            keyQuestionId:4,
+            keyQuestionTitle:"What was the extent of social and cultural change?",
+            keyQuestionOverview:"This lesson evaluates how Communist rule reshaped Soviet society from Revolution to war. It weighs social mobility, education, and welfare expansion against coercion, terror, and ideological conformity to judge how far transformation occurred by 1941.",
+            title:"How did Communist rule transform Soviet society?",
+            yearLabel:"1917–1941",
+            theme:"Social & Cultural Change",
+            heroImage:"./topic3.png",
+            contentPack:{
+              hero:{
+                titleLine:"Communist rule transformed Soviet society through mass literacy, urban migration, women’s mobilisation, and state welfare — but these gains sat alongside terror, coercion, and strict ideological control.",
+                subtitleLine:"How did Communist rule transform Soviet society?",
+                imageUrl:"./topic3.png"
+              },
+              bigPicture:"Between 1917 and 1941, Soviet society changed profoundly in structure and expectations: education expanded, religion weakened in public life, women entered paid labour in larger numbers, and industrialisation accelerated urban growth. Yet social transformation was imposed from above, with collectivisation violence, surveillance, censorship, and purges shaping everyday experience. Judgements must therefore balance modernisation against coercive continuity.",
+              sf:{
+                briefings:[
+                  {
+                    heading:"SF briefing 1: Revolution, class policy, and new social hierarchies",
+                    text:"The Bolsheviks declared war on old class privilege, abolishing noble legal status and promoting workers' and peasants' identities in politics and culture. Campaigns in literacy, propaganda, and political education aimed to create a new socialist citizenry. Opportunities for advancement expanded for people from non-elite backgrounds through party, army, and technical institutions. This was a real break from Tsarist social hierarchy. However, power remained concentrated in party structures, and access to advancement increasingly depended on conformity and political reliability."
+                  },
+                  {
+                    heading:"SF briefing 2: Family, gender, education, and culture",
+                    text:"Early Soviet reforms liberalised marriage and divorce law and encouraged female participation in work and public life, while mass schooling and technical education expanded rapidly in the 1920s and 1930s. By the late 1930s, policy shifted toward social discipline, pronatalism, and more conservative family messaging, even as women remained central to labour mobilisation. Anti-religious campaigns reduced church influence in education and public culture. The significance is uneven transformation: literacy, schooling, and workforce participation changed society deeply, but gender equality and private autonomy remained limited in practice."
+                  },
+                  {
+                    heading:"SF briefing 3: Stalinism, coercion, and the cost of change",
+                    text:"Collectivisation and rapid industrialisation uprooted millions, driving migration to towns and new industrial regions while imposing severe hardship in the countryside. The famine of 1932–33, dekulakisation, labour discipline laws, and the Great Terror embedded fear within social life. Although some citizens experienced upward mobility and improved access to education or urban services, many also experienced surveillance, denunciation, and arbitrary punishment. By 1941 the USSR was more urban, literate, and mobilised than in 1917, but transformation had been achieved through an authoritarian social order rather than participatory emancipation."
+                  }
+                ],
+                checks:[
+                  {
+                    slideId:"t3soc-sf-c1",
+                    heading:"SF check 1",
+                    prompt:"Which statement best captures the social impact of Communist rule by 1941?",
+                    options:[
+                      "Soviet society remained almost unchanged from the Tsarist era.",
+                      "Soviet society was transformed by education, urbanisation, and state mobilisation, though under coercive political control.",
+                      "Transformation happened only in agriculture, with no urban change.",
+                      "Political pluralism allowed communities to choose policy freely."
+                    ],
+                    correctIndex:1,
+                    feedbackCorrect:"Correct: this captures both major structural change and authoritarian limits.",
+                    feedbackWrong:"Look for the option that balances real transformation with coercive continuity."
+                  },
+                  {
+                    slideId:"t3soc-sf-c2",
+                    heading:"SF check 2",
+                    prompt:"Why are literacy and schooling important evidence in this enquiry?",
+                    options:[
+                      "They show no relationship to social transformation.",
+                      "They indicate widening state capacity and changing social opportunity, even if controlled ideologically.",
+                      "They prove the Soviet Union became politically democratic.",
+                      "They matter only for military history, not society."
+                    ],
+                    correctIndex:1,
+                    feedbackCorrect:"Correct: education expanded opportunity and state influence at the same time.",
+                    feedbackWrong:"Think about how schooling can drive both mobility and ideological control."
+                  },
+                  {
+                    slideId:"t3soc-sf-c3",
+                    heading:"SF check 3",
+                    prompt:"Which development most clearly shows the coercive side of social change under Stalin?",
+                    options:[
+                      "Wider access to technical training.",
+                      "Mass apartment construction in the 1950s.",
+                      "Collectivisation, famine, and terror campaigns that enforced conformity.",
+                      "Growth of independent political parties."
+                    ],
+                    correctIndex:2,
+                    feedbackCorrect:"Correct: coercive mobilisation and terror were central to Stalin-era social transformation.",
+                    feedbackWrong:"Focus on policies that imposed change through force and fear."
+                  }
+                ]
+              },
+              judgement:{
+                options:[
+                  "Communist rule did not significantly alter Soviet society before 1941.",
+                  "Communist rule transformed Soviet society in education, class structure, and urban life, but the transformation was shaped and limited by coercive authoritarian control.",
+                  "Social change was complete because citizens gained full personal and political freedom.",
+                  "Transformation happened only because peasants voluntarily joined collective farms."
+                ],
+                bestIndex:1,
+                feedbackCorrect:"Excellent judgement: this weighs substantial change against the coercive methods used to create it.",
+                feedbackWrong:"A strong judgement must evaluate both the scale of social change and the limits imposed by dictatorship.",
+                evidencePick:{
+                  selectionLimit:2,
+                  statements:[
+                    { id:"t3soc_j1", text:"Mass literacy and technical education expanded across the interwar period.", score:2, feedback:"High-value transformation evidence." },
+                    { id:"t3soc_j2", text:"Collectivisation and industrialisation drove huge social dislocation and migration.", score:2, feedback:"High-value evidence on structural change and cost." },
+                    { id:"t3soc_j3", text:"The Great Terror and surveillance constrained autonomy and public expression.", score:2, feedback:"High-value evidence on continuity of coercion." },
+                    { id:"t3soc_j4", text:"Women entered paid labour in greater numbers, though inequality persisted.", score:1, feedback:"Useful supporting evidence on mixed change." },
+                    { id:"t3soc_j5", text:"Soviet citizens elected competing parties nationally in the 1930s.", score:-1, feedback:"Incorrect." }
+                  ]
+                }
+              }
+            }
+          }
+        ]
       }
     ]
   },
