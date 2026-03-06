@@ -15677,7 +15677,164 @@ const lessonsData = [
       {
         id:"opposition-control",
         title:"Opposition & Control",
-        lessons:[]
+        lessons:[
+          {
+            id:"t3-oc-dictatorship-security",
+            keyQuestionId:3,
+            keyQuestionTitle:"How secure was Communist rule by 1941?",
+            keyQuestionOverview:"This lesson assesses the security of Stalin's dictatorship on the eve of war by weighing repression, propaganda, and institutional control against persistent risks such as fear-driven instability, social resentment, and dependence on coercion.",
+            title:"How secure was the Communist dictatorship by 1941?",
+            yearLabel:"1928–1941",
+            theme:"Opposition & Control",
+            heroImage:"./topic3.png",
+            contentPack:{
+              hero:{
+                titleLine:"By 1941 Stalin had built an exceptionally powerful dictatorship through terror, surveillance, propaganda, and party control — but that security relied heavily on coercion and remained vulnerable to crisis.",
+                subtitleLine:"How secure was the Communist dictatorship by 1941?",
+                image:"./topic3.png"
+              },
+              starterQuiz:{
+                question:"Which institution was most central to political terror in the 1930s USSR?",
+                options:["The Duma","The NKVD","The Zemstva","The Comintern"],
+                correctIndex:1,
+                explanation:"Correct. The NKVD organised surveillance, arrests, and the Great Terror, making it central to regime security under Stalin."
+              },
+              bigPicture:"The dictatorship became highly secure in terms of eliminating organised opposition and enforcing obedience. Yet this security was brittle in some respects: it depended on fear, distorted information flows, and the personal authority of Stalin.",
+              sf:{
+                title:"Security through coercion, control, and mobilisation",
+                briefings:[
+                  { id:"t3sec_b1", text:"The one-party state removed legal political alternatives. Opposition parties had disappeared, and internal party dissent was crushed by the late 1920s." },
+                  { id:"t3sec_b2", text:"The Great Terror (1936–38) destroyed real and imagined enemies. Show trials, purges, and mass arrests intimidated elites and ordinary citizens alike." },
+                  { id:"t3sec_b3", text:"The NKVD, informant culture, censorship, and propaganda made resistance dangerous and difficult to coordinate." },
+                  { id:"t3sec_b4", text:"Mass organisations, education, and media promoted loyalty, while industrial and military mobilisation gave the regime practical authority across society." },
+                  { id:"t3sec_b5", text:"However, widespread fear, resentment in the countryside, and disruption caused by purges suggest that stability was not the same as genuine popular consent." }
+                ]
+              },
+              checkpoint:{
+                prompt:"Which judgement is most convincing?",
+                options:[
+                  "The dictatorship was fully secure because everyone supported Stalin willingly.",
+                  "The dictatorship was highly secure by 1941 in political control, but much of that security depended on coercion and fear.",
+                  "The dictatorship was weak because no coercive institutions existed.",
+                  "The dictatorship was secure only in foreign policy, not at home."
+                ],
+                correctIndex:1,
+                feedbackCorrect:"Good judgement: this balances strength in control with limits in legitimacy.",
+                feedbackWrong:"A high-level answer should separate political control from genuine social consent."
+              },
+              retrieval:{
+                prompt:"Which factor most directly reduced open opposition by the late 1930s?",
+                answer:"The Great Terror and NKVD repression, which eliminated opponents and deterred dissent through fear."
+              },
+              examPractice:{
+                title:"Exam practice",
+                question:"How far was the Communist dictatorship secure by 1941?",
+                points:[
+                  "Define criteria for ‘secure’ (elimination of opposition, control of institutions, social compliance, resilience).",
+                  "Use evidence of security: purges, propaganda, censorship, one-party rule, control of army/state, wartime mobilisation capacity.",
+                  "Use evidence of limits: fear-based loyalty, social grievances, economic hardship, damage from purges, dependence on Stalin’s authority.",
+                  "Conclude with an extent judgement that balances strong political control against structural fragility."
+                ]
+              },
+              interpretations:{
+                A:{
+                  text:"By 1941 the Communist dictatorship was deeply secure because Stalin had neutralised opposition at every level. The party, police, military, and media all operated under central control, while terror made organised resistance almost impossible. In this view, the regime achieved durable authoritarian consolidation.",
+                  argIdentify:{
+                    prompt:"What is Interpretation A's core argument?",
+                    options:[
+                      "The dictatorship remained mostly unchanged from 1917 and lacked strong institutions.",
+                      "The dictatorship was highly secure by 1941 due to comprehensive political control.",
+                      "Security depended mainly on foreign alliances.",
+                      "Opposition movements grew stronger after the purges."
+                    ],
+                    correctIndex:1,
+                    feedbackCorrect:"Correct: A argues Stalin achieved extensive and effective consolidation.",
+                    feedbackWrong:"A emphasises strong regime security by 1941."
+                  },
+                  evidenceSupport:{
+                    selectionLimit:3,
+                    statements:[
+                      { id:"t3sec_a_sup1", text:"One-party rule and censorship prevented legal or public political opposition.", score:2, feedback:"Strong evidence of institutional control." },
+                      { id:"t3sec_a_sup2", text:"The Great Terror removed real and potential rivals across party, state, and army.", score:2, feedback:"Strong evidence of elite control." },
+                      { id:"t3sec_a_sup3", text:"NKVD surveillance and arrests deterred collective resistance.", score:2, feedback:"Strong coercive security evidence." },
+                      { id:"t3sec_a_sup4", text:"Propaganda and youth organisations promoted loyalty to Stalin.", score:1, feedback:"Relevant support, though harder to measure." },
+                      { id:"t3sec_a_sup5", text:"The USSR had many rivers.", score:0, feedback:"Irrelevant." },
+                      { id:"t3sec_a_sup6", text:"The regime allowed free competitive elections.", score:-1, feedback:"Incorrect." }
+                    ]
+                  },
+                  evidenceChallenge:{
+                    selectionLimit:2,
+                    statements:[
+                      { id:"t3sec_a_ch1", text:"Security relied heavily on fear, suggesting weak voluntary legitimacy.", score:2, feedback:"Strong challenge: coercive stability can be brittle." },
+                      { id:"t3sec_a_ch2", text:"Purges damaged military and administrative effectiveness before war.", score:2, feedback:"Strong challenge to durability." },
+                      { id:"t3sec_a_ch3", text:"Rural resentment persisted after collectivisation and famine.", score:1, feedback:"Useful social limitation evidence." },
+                      { id:"t3sec_a_ch4", text:"The USSR used railways.", score:0, feedback:"Too general." },
+                      { id:"t3sec_a_ch5", text:"No repression occurred in the 1930s.", score:-1, feedback:"Incorrect." }
+                    ]
+                  }
+                },
+                B:{
+                  text:"The dictatorship appeared secure by 1941, but its foundations were less stable than they looked. Control rested on terror, manipulated information, and personal dictatorship, all of which could produce compliance without trust. In this interpretation, Stalin's system was formidable yet structurally fragile.",
+                  argIdentify:{
+                    prompt:"What is Interpretation B's core argument?",
+                    options:[
+                      "The dictatorship was entirely insecure and close to collapse by 1930.",
+                      "The dictatorship looked secure but depended on brittle mechanisms of coercion and fear.",
+                      "Security came mainly from democratic participation.",
+                      "The regime rejected propaganda and policing."
+                    ],
+                    correctIndex:1,
+                    feedbackCorrect:"Correct: B highlights apparent strength but underlying fragility.",
+                    feedbackWrong:"B argues security existed, but in a brittle and coercive form."
+                  },
+                  evidenceSupport:{
+                    selectionLimit:3,
+                    statements:[
+                      { id:"t3sec_b_sup1", text:"Mass fear and denunciation created obedience without genuine consent.", score:2, feedback:"Strong evidence for brittle legitimacy." },
+                      { id:"t3sec_b_sup2", text:"Purges removed experienced officials and commanders, reducing institutional resilience.", score:2, feedback:"Strong structural fragility evidence." },
+                      { id:"t3sec_b_sup3", text:"Policy failure was often concealed, distorting decision-making at the top.", score:2, feedback:"Strong evidence of system weakness." },
+                      { id:"t3sec_b_sup4", text:"Propaganda praised Stalin's leadership.", score:1, feedback:"Relevant but could support either view." },
+                      { id:"t3sec_b_sup5", text:"The USSR was geographically large.", score:0, feedback:"Irrelevant." },
+                      { id:"t3sec_b_sup6", text:"The NKVD had no role in political control.", score:-1, feedback:"Incorrect." }
+                    ]
+                  },
+                  evidenceChallenge:{
+                    selectionLimit:2,
+                    statements:[
+                      { id:"t3sec_b_ch1", text:"No organised alternative political centre survived by 1941.", score:2, feedback:"Strong challenge: practical opposition capacity was minimal." },
+                      { id:"t3sec_b_ch2", text:"The regime could mobilise society rapidly for war in 1941.", score:2, feedback:"Strong challenge to claims of deep weakness." },
+                      { id:"t3sec_b_ch3", text:"State institutions penetrated workplaces, schools, and local government.", score:1, feedback:"Useful control evidence." },
+                      { id:"t3sec_b_ch4", text:"The Soviet Union had forests.", score:0, feedback:"Irrelevant." },
+                      { id:"t3sec_b_ch5", text:"Opposition parties won elections in 1940.", score:-1, feedback:"Incorrect." }
+                    ]
+                  }
+                }
+              },
+              judgement:{
+                options:[
+                  "The Communist dictatorship was completely insecure by 1941.",
+                  "The Communist dictatorship was highly secure in political control by 1941, but this security was coercive and potentially fragile in a major crisis.",
+                  "Security was based only on economic prosperity.",
+                  "The dictatorship had no significant control over society by 1941."
+                ],
+                bestIndex:1,
+                feedbackCorrect:"Excellent: this weighs extent and nature of security.",
+                feedbackWrong:"A strong judgement should separate effective control from deeper legitimacy and resilience.",
+                evidencePick:{
+                  selectionLimit:2,
+                  statements:[
+                    { id:"t3sec_j1", text:"One-party institutions, censorship, and NKVD coercion eliminated organised opposition.", score:2, feedback:"High-value evidence for strong control." },
+                    { id:"t3sec_j2", text:"The Great Terror intimidated society and consolidated Stalin's authority by the late 1930s.", score:2, feedback:"High-value consolidation evidence." },
+                    { id:"t3sec_j3", text:"Fear-based compliance and purge damage suggest limits to long-term resilience.", score:2, feedback:"High-value limitation evidence." },
+                    { id:"t3sec_j4", text:"Rural resentment and social strain persisted despite surface stability.", score:2, feedback:"High-value social fragility evidence." },
+                    { id:"t3sec_j5", text:"The USSR had mountains.", score:0, feedback:"Irrelevant." },
+                    { id:"t3sec_j6", text:"The dictatorship legalised multi-party competition before war.", score:-1, feedback:"Incorrect." }
+                  ]
+                }
+              }
+            }
+          }
+        ]
       },
       {
         id:"social-cultural",
