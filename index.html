@@ -16501,7 +16501,7 @@ function renderLessonPlayer(root){
     used.add(slide.slideId);
   });
 
-  root.innerHTML = `<div class="card"><div class="lessonsHeader"><h2 class="lessonsTitle"><svg class="lessonsTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span class="lessonsTitleText">Lessons</span></h2></div><div class="lessonTopControls"><button class="btn" id="backToTopics" type="button">← All topics</button></div><div class="lessonTitlePanel" style="--lessonTitlePanelBg:url('${lesson.heroImage || "section-bg.jpg"}')"><div class="lessonTitlePanelInner"><p class="lessonTitlePanelLabel">Lesson enquiry question</p><p class="lessonTitlePanelQuestion">${getLessonEnquiryQuestion(lesson) || "Not set"}</p></div></div><div class="lesson-continuous">${rendered.join("")}</div></div>`;
+  root.innerHTML = `<div class="card"><div class="lessonsHeader"><h2 class="lessonsTitle"><svg class="lessonsTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span class="lessonsTitleText">Lessons</span></h2></div><div class="lessonTopControls"><button class="btn" id="backToLessons" type="button">← All lessons</button></div><div class="lessonTitlePanel" style="--lessonTitlePanelBg:url('${lesson.heroImage || "section-bg.jpg"}')"><div class="lessonTitlePanelInner"><p class="lessonTitlePanelLabel">Lesson enquiry question</p><p class="lessonTitlePanelQuestion">${getLessonEnquiryQuestion(lesson) || "Not set"}</p></div></div><div class="lesson-continuous">${rendered.join("")}</div></div>`;
 
   const getContext = el => {
     const panel = el.closest('[data-lesson-slide-id]');
@@ -16511,8 +16511,12 @@ function renderLessonPlayer(root){
     return { panel, slideId, slideIndex, slide: slideById(slideId) };
   };
 
-  const backBtn = $("backToTopics");
-  if(backBtn) backBtn.addEventListener("click", ()=>{ lessonsNav.view = "topics"; lessonsNav.lessonId = null; renderLessons(); });
+  const backBtn = $("backToLessons");
+  if(backBtn) backBtn.addEventListener("click", ()=>{
+    lessonsNav.lessonId = null;
+    lessonsNav.view = lessonsNav.topicId ? "topic-lessons" : "topics";
+    renderLessons();
+  });
 
   root.querySelectorAll('[data-action="quick-option"]').forEach(btn=>btn.addEventListener("click", ()=>{
     const ctx = getContext(btn); if(!ctx || btn.disabled) return;
