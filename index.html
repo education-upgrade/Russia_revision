@@ -4259,11 +4259,6 @@ section#games.gamePaneActive .gamesHeroCard{
           <p class="gameMissionHint">Eat the correct A/B/C block to grow. Wrong answer ends the run.</p>
         </div>
 
-        <div class="snakeQuestionBox">
-          <div class="note" id="snakeQuizQ">Press Start run to begin.</div>
-          <ol class="snakeChoiceList" id="snakeQuizChoices"></ol>
-        </div>
-
         <div class="snakeQuizCanvasWrap" style="margin-top:10px">
           <canvas id="snakeQuizCanvas" width="520" height="520" aria-label="Snake quiz board"></canvas>
           <div class="snakePad" aria-label="Snake controls">
@@ -8870,8 +8865,6 @@ function snakeNewQuestion(){
   const pool = snakePool(SNAKE_QUIZ.topicId);
   if(!pool.length){
     SNAKE_QUIZ.q = null;
-    snakeEl("snakeQuizQ").textContent = "No questions for this topic selection.";
-    snakeEl("snakeQuizChoices").innerHTML = "";
     snakeSetMsg("Pick another topic and start again.");
     snakeStop();
     return false;
@@ -8882,17 +8875,6 @@ function snakeNewQuestion(){
   const top3 = shuffle([pick.answer, ...distractors]);
   const answerIdx = top3.findIndex(c=>c===pick.answer);
   const letters = ["A","B","C"];
-  const choicesEl = snakeEl("snakeQuizChoices");
-  if(choicesEl){
-    choicesEl.innerHTML = "";
-    top3.forEach((choice, idx)=>{
-      const li = document.createElement("li");
-      li.innerHTML = `<strong>${letters[idx]}.</strong> ${choice}`;
-      choicesEl.appendChild(li);
-    });
-  }
-  snakeEl("snakeQuizQ").textContent = pick.q;
-
   const occupied = new Set(SNAKE_QUIZ.snake.map(p=>`${p.x},${p.y}`));
   const available = [];
   for(let y=0;y<SNAKE_QUIZ.board;y++){
