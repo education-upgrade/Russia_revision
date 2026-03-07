@@ -10992,6 +10992,7 @@ const lessonKeyQuestionMap = {
   "t3-ed-lenin-stalin-economy": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson compares Lenin's and Stalin's economic systems and evaluates whether Soviet development represented transformation or continuity in state control. It weighs recovery, industrial growth, coercion, and social cost to judge the extent of change across 1917–1941." },
   "t3-sc-communist-society": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?", keyQuestionOverview:"This lesson evaluates how Communist rule reshaped Soviet society from Revolution to war. It weighs social mobility, education, and welfare expansion against coercion, terror, and ideological conformity to judge how far transformation occurred by 1941." },
   "t4-pa-khrushchev-reform": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?", keyQuestionOverview:"This lesson examines whether Khrushchev's de-Stalinisation and institutional reforms changed the nature of Soviet political authority. It weighs liberalisation and procedural adjustment against one-party continuity, coercive limits, and the 1964 removal to judge the depth of political reform." },
+  "t4-pa-postwar-repression": { keyQuestionId:1, keyQuestionTitle:"How was Russia governed and how did political authority change and develop?", keyQuestionOverview:"This lesson assesses how far Stalin maintained political control after 1945. It weighs wartime prestige and selective post-war adaptation against surveillance, purges, cultural control, and the persistence of fear to judge continuity in dictatorship by 1953." },
   "t4-ed-fyps": { keyQuestionId:3, keyQuestionTitle:"How and with what results did the economy develop and change?", keyQuestionOverview:"This lesson situates the Five-Year Plans within the Soviet project of accelerated transformation and strategic security. It evaluates achievements in output against human costs, distortion, and long-term sustainability." },
   "t4-sc-thaw": { keyQuestionId:4, keyQuestionTitle:"What was the extent of social and cultural change?", keyQuestionOverview:"This lesson connects the Thaw to broader debates about reform, control, and continuity in the post-Stalin USSR. It assesses whether cultural liberalisation and policy change represented systemic transformation or bounded adjustment." }
 };
@@ -15472,6 +15473,181 @@ const lessonsData = [
                     { id:"t4ww2_j3", text:"Factory relocation and military output recovery underpinned Soviet survival and victory.", score:2, feedback:"High-value evidence of effective wartime adaptation." },
                     { id:"t4ww2_j4", text:"The Soviet Union had severe winter weather.", score:0, feedback:"Too general for this judgement." },
                     { id:"t4ww2_j5", text:"Wartime reform introduced competitive national elections.", score:-1, feedback:"Incorrect." }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            id:"t4-pa-postwar-repression",
+            keyQuestionId:1,
+            keyQuestionTitle:"How was Russia governed and how did political authority change and develop?",
+            keyQuestionOverview:"This lesson assesses how far Stalin maintained political control and repression after 1945. It weighs wartime prestige and selective post-war adaptation against surveillance, purges, cultural control, and continued fear to judge continuity in dictatorship by 1953.",
+            title:"How far did Stalin maintain political control and repression after 1945?",
+            topicId:"t4",
+            themeId:"political-authority",
+            yearLabel:"1945–1953",
+            theme:"Political Authority",
+            heroImage:"./topic4.png",
+            contentPack:{
+              hero:{
+                titleLine:"Victory in war raised Stalin's prestige, but post-war politics remained authoritarian: surveillance, selective purges, and ideological control persisted until 1953.",
+                subtitleLine:"How far did Stalin maintain political control and repression after 1945?",
+                imageUrl:"./topic4.png"
+              },
+              bigPicture:"Soviet victory in 1945 strengthened Stalin's authority, yet hopes of liberalisation were quickly disappointed. The Party kept monopoly power, the security apparatus monitored society, and repression continued through arrests, labour camps, and targeted political campaigns. Compared with the Great Terror, violence became more selective than indiscriminate, but fear and coercion remained central to how the system worked.",
+              sf:{
+                briefings:[
+                  {
+                    heading:"SF briefing 1: Authority after victory",
+                    text:"The defeat of Nazi Germany hugely increased Stalin's prestige. Many citizens credited him with national survival, and wartime propaganda elevated him as the leader of victory. However, this political capital did not produce constitutional reform. The Communist Party remained the core institution of power, opposition was impossible, and central decision-making stayed concentrated around Stalin and the upper party leadership."
+                  },
+                  {
+                    heading:"SF briefing 2: Revival of repression and targeted purges",
+                    text:"After 1945, the Soviet state revived coercive methods associated with Stalinism. The security services (NKVD/MGB) expanded surveillance, arrests for suspected disloyalty continued, and millions remained in the Gulag system as forced labour. Major post-war cases such as the Leningrad Affair (1949) and the Doctors' Plot (1952–53) showed that fabricated accusations and elite purges still functioned as instruments of control, even if repression was more selective than in the 1930s."
+                  },
+                  {
+                    heading:"SF briefing 3: Control of culture, religion, and society",
+                    text:"Political control extended into culture and social life. Under Zhdanovshchina, artists and intellectuals were expected to follow Socialist Realism and support official ideology; figures such as Anna Akhmatova and Dmitri Shostakovich were publicly condemned. Religious freedom remained restricted after wartime concessions, and deported minorities such as Chechens, Crimean Tatars, and Volga Germans continued to face severe punishment and displacement. By Stalin's death in 1953, the USSR remained a tightly controlled dictatorship."
+                  }
+                ],
+                checks:[
+                  {
+                    slideId:"t4post-sf-c1",
+                    heading:"SF check 1",
+                    prompt:"What best describes political change in the USSR after 1945?",
+                    options:[
+                      "The Party legalised meaningful opposition and regular free elections.",
+                      "Stalin kept one-party authority and reasserted tight central control.",
+                      "The security services were dissolved and political trials ended.",
+                      "Power shifted to regional governments independent of Moscow."
+                    ],
+                    correctIndex:1,
+                    feedbackCorrect:"Correct: wartime prestige strengthened, rather than diluted, Stalinist political control.",
+                    feedbackWrong:"Post-war governance remained one-party and centralised under Stalin."
+                  },
+                  {
+                    slideId:"t4post-sf-c2",
+                    heading:"SF check 2",
+                    prompt:"How was post-1945 repression different from the Great Terror?",
+                    options:[
+                      "It ended almost completely after 1945.",
+                      "It became more selective, but coercion and fear still remained central.",
+                      "It was more violent than 1937–38 in every respect.",
+                      "It focused only on economic policy errors, not politics."
+                    ],
+                    correctIndex:1,
+                    feedbackCorrect:"Correct: repression persisted but was generally more targeted than in the peak terror years.",
+                    feedbackWrong:"A strong answer recognises continuity in coercion with a shift toward selective targeting."
+                  }
+                ]
+              },
+              analysis:{
+                task:"Rank the factors below by importance in explaining how Stalin maintained control after 1945.",
+                cards:[
+                  { id:"t4post-an1", label:"Wartime prestige and legitimacy" },
+                  { id:"t4post-an2", label:"Security surveillance, arrests, and Gulag coercion" },
+                  { id:"t4post-an3", label:"Control of ideas (culture, religion, propaganda)" },
+                  { id:"t4post-an4", label:"Targeted purges and fabricated plots" }
+                ],
+                guidance:"Prioritise mechanisms that directly shaped behaviour and elite loyalty, then justify why symbolic authority still mattered."
+              },
+              write:{
+                task:"Write a 2–3 sentence judgement: how far did Stalin maintain political control and repression after 1945? Include one point of continuity and one point of change.",
+                hint:"Anchor continuity in one-party rule, surveillance, and political fear; then qualify by explaining how post-war repression was more selective than the 1930s mass terror.",
+                sentenceFrame:"Stalin maintained control after 1945 to a ____ extent because ____. This is shown by ____. However, repression changed in that ____.",
+              },
+              interpretations:{
+                A:{
+                  text:"After 1945, Stalin preserved the essentials of high Stalinism. Victory increased his prestige, but instead of reform the regime restored tight political discipline through surveillance, arrests, labour camps, and ideological conformity. The Soviet system remained a coercive one-party dictatorship in which fear and state power shaped both elite behaviour and everyday life.",
+                  argIdentify:{
+                    prompt:"What is Interpretation A's central claim?",
+                    options:[
+                      "Post-war Stalinism remained fundamentally authoritarian and repressive.",
+                      "Victory produced rapid democratisation and pluralist politics.",
+                      "Political repression ended because wartime unity made it unnecessary.",
+                      "Economic reform replaced political control after 1945."
+                    ],
+                    correctIndex:0,
+                    feedbackCorrect:"Correct: A stresses strong continuity in dictatorship and repression.",
+                    feedbackWrong:"A argues that war victory reinforced Stalinist control rather than liberalising it."
+                  },
+                  evidenceSupport:{
+                    selectionLimit:3,
+                    statements:[
+                      { id:"t4post_a_sup1", text:"The Communist Party kept monopoly political power and blocked meaningful opposition.", score:2, feedback:"Strong continuity evidence." },
+                      { id:"t4post_a_sup2", text:"Security organs monitored dissent and continued arrests after the war.", score:2, feedback:"Strong repression evidence." },
+                      { id:"t4post_a_sup3", text:"The Leningrad Affair and Doctors' Plot show continued use of fabricated political threats.", score:2, feedback:"Strong evidence of fear-based control." },
+                      { id:"t4post_a_sup4", text:"The USSR had vast natural resources.", score:0, feedback:"Not direct evidence for this interpretation." },
+                      { id:"t4post_a_sup5", text:"Multi-party elections became normal by 1950.", score:-1, feedback:"Incorrect." }
+                    ]
+                  },
+                  evidenceChallenge:{
+                    selectionLimit:2,
+                    statements:[
+                      { id:"t4post_a_ch1", text:"Post-war repression was generally more selective than the Great Terror of the 1930s.", score:2, feedback:"Strong challenge to claims of total continuity." },
+                      { id:"t4post_a_ch2", text:"Mass random purges were less central than targeted campaigns against specific groups and elites.", score:2, feedback:"Strong qualification evidence." },
+                      { id:"t4post_a_ch3", text:"Some wartime social concessions, such as to the Orthodox Church, briefly persisted.", score:1, feedback:"Useful nuance on policy flexibility." },
+                      { id:"t4post_a_ch4", text:"Soviet winters were severe in many regions.", score:0, feedback:"Irrelevant." },
+                      { id:"t4post_a_ch5", text:"Stalin resigned in favour of a coalition cabinet in 1947.", score:-1, feedback:"Incorrect." }
+                    ]
+                  }
+                },
+                B:{
+                  text:"Post-war Soviet rule under Stalin changed in degree more than in nature. Repression did continue, but it was less indiscriminate than in 1937–38 and increasingly focused on selected elites, minorities, and ideological targets. Stalin's dictatorship remained powerful, yet the pattern of control was somewhat more selective and managerial than during the peak terror years.",
+                  argIdentify:{
+                    prompt:"What is Interpretation B's main argument?",
+                    options:[
+                      "Control remained authoritarian, but repression became more selective than in the Great Terror.",
+                      "Stalin abandoned repression and accepted civil liberties.",
+                      "The Soviet political system became a constitutional democracy.",
+                      "Political authority collapsed after wartime mobilisation ended."
+                    ],
+                    correctIndex:0,
+                    feedbackCorrect:"Correct: B argues for continuity in dictatorship with change in intensity and method.",
+                    feedbackWrong:"B does not deny repression; it argues that post-war coercion was more targeted than earlier mass terror."
+                  },
+                  evidenceSupport:{
+                    selectionLimit:3,
+                    statements:[
+                      { id:"t4post_b_sup1", text:"The post-war period saw high-profile targeted cases like the Leningrad Affair and Doctors' Plot.", score:2, feedback:"Strong support for selective repression." },
+                      { id:"t4post_b_sup2", text:"Mass indiscriminate purges on the scale of 1937–38 were not fully repeated after 1945.", score:2, feedback:"Strong comparative evidence." },
+                      { id:"t4post_b_sup3", text:"Control increasingly operated through surveillance, censorship, and calibrated punishment.", score:2, feedback:"Strong method-change evidence." },
+                      { id:"t4post_b_sup4", text:"Stalin remained highly respected after victory.", score:1, feedback:"Relevant context but indirect." },
+                      { id:"t4post_b_sup5", text:"The Volga is Europe's longest river.", score:0, feedback:"Irrelevant." },
+                      { id:"t4post_b_sup6", text:"The Soviet Union legalised opposition parties in 1948.", score:-1, feedback:"Incorrect." }
+                    ]
+                  },
+                  evidenceChallenge:{
+                    selectionLimit:2,
+                    statements:[
+                      { id:"t4post_b_ch1", text:"Millions remained in the Gulag system after 1945.", score:2, feedback:"Strong challenge: coercion remained extensive." },
+                      { id:"t4post_b_ch2", text:"Cultural policy under Zhdanovshchina imposed strict ideological conformity.", score:2, feedback:"Strong challenge to over-claiming moderation." },
+                      { id:"t4post_b_ch3", text:"Ethnic deportations and restrictions continued to shape post-war society.", score:1, feedback:"Useful challenge evidence." },
+                      { id:"t4post_b_ch4", text:"Soviet railways expanded after the war.", score:0, feedback:"Not direct political-control evidence." },
+                      { id:"t4post_b_ch5", text:"Stalin abolished the secret police by 1950.", score:-1, feedback:"Incorrect." }
+                    ]
+                  }
+                }
+              },
+              judgement:{
+                options:[
+                  "Stalin largely maintained political control and repression after 1945, though repression was more selective than during the Great Terror.",
+                  "Post-war victory transformed the USSR into an open and pluralist political system.",
+                  "Stalin's authority collapsed after 1945 and the Party lost control of society.",
+                  "Political control after 1945 depended mainly on voluntary support and no coercion."
+                ],
+                bestIndex:0,
+                feedbackCorrect:"Strong judgement: it balances deep continuity with an important qualification about method and scale.",
+                feedbackWrong:"A high-level judgement should combine continuity in dictatorship with selective change in repression style.",
+                evidencePick:{
+                  selectionLimit:2,
+                  statements:[
+                    { id:"t4post_j1", text:"The Party-state, security surveillance, and propaganda continued to block political opposition by 1953.", score:2, feedback:"High-value continuity evidence." },
+                    { id:"t4post_j2", text:"Cases like the Leningrad Affair and Doctors' Plot reveal ongoing coercive political control.", score:2, feedback:"High-value repression evidence." },
+                    { id:"t4post_j3", text:"Compared with 1937–38, repression after 1945 was more targeted than mass-random.", score:2, feedback:"High-value qualification evidence." },
+                    { id:"t4post_j4", text:"The USSR covered a vast landmass across Eurasia.", score:0, feedback:"Irrelevant." },
+                    { id:"t4post_j5", text:"By 1953, Soviet citizens enjoyed unrestricted freedom of opposition politics.", score:-1, feedback:"Incorrect." }
                   ]
                 }
               }
