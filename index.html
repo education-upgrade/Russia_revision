@@ -16902,7 +16902,8 @@ function renderLessonSlideHeading(slide){
   const title = escapeHtml(shortenedTitle);
   const label = escapeHtml(getLessonSlideLabel(slide?.type));
   const subheading = String(slide?.subheading || "").trim();
-  const subheadingHtml = subheading ? `<div class="note" style="margin:0 0 8px">${escapeHtml(subheading)}</div>` : "";
+  const showSubheading = subheading && !/^focus\s*:/i.test(subheading);
+  const subheadingHtml = showSubheading ? `<div class="note" style="margin:0 0 8px">${escapeHtml(subheading)}</div>` : "";
   return `<div class="slideHeadingWrap"><div class="slideHeadingLabel">${label}</div><h4 class="slideHeading">${title}</h4></div>${subheadingHtml}`;
 }
 
