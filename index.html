@@ -1790,6 +1790,56 @@ section#games.gamePaneActive .gamesHeroCard{
   line-height:1.25;
 }
 
+.gameStageCard{
+  padding:14px;
+}
+
+.gameMissionBar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+
+.gameMissionTitle{
+  font-size:18px;
+  font-weight:1000;
+  color:var(--textStrong);
+  margin:0;
+}
+
+.gameMissionHint{
+  margin:2px 0 0;
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+
+.gameTuning{
+  margin-top:12px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,.74);
+  padding:0 10px;
+}
+
+.gameTuning summary{
+  cursor:pointer;
+  list-style:none;
+  padding:10px 0;
+  font-size:12px;
+  font-weight:900;
+  color:var(--muted);
+}
+
+.gameTuning summary::-webkit-details-marker{ display:none; }
+.gameTuningBody{
+  border-top:1px solid var(--line);
+  padding:10px 0 12px;
+}
+
 .beatClockCard{
   position:relative;
   overflow:hidden;
@@ -3843,22 +3893,18 @@ section#games.gamePaneActive .gamesHeroCard{
           <span>Games</span>
         </button>
       </div>
-      <div class="connectionsCard" id="connectionsGame">
-  <div class="connectionsTop">
-    <h3>Connections (Daily)</h3>
-    <div class="connectionsMeta">
-      <label style="display:flex;gap:8px;align-items:center;font-weight:900;color:var(--muted);font-size:12px;">
-        Topic
-        <select id="connTopicSelect"></select>
-      </label>
-
-      <div class="mistakes" title="Mistakes remaining">
-        Mistakes:
-        <span class="mDot" id="m1"></span>
-        <span class="mDot" id="m2"></span>
-        <span class="mDot" id="m3"></span>
-        <span class="mDot" id="m4"></span>
-      </div>
+      <div class="connectionsCard gameStageCard" id="connectionsGame">
+  <div class="gameMissionBar">
+    <div>
+      <h3 class="gameMissionTitle">Connections (Daily)</h3>
+      <p class="gameMissionHint">Find 4 linked groups before mistakes run out.</p>
+    </div>
+    <div class="mistakes" title="Mistakes remaining">
+      Mistakes:
+      <span class="mDot" id="m1"></span>
+      <span class="mDot" id="m2"></span>
+      <span class="mDot" id="m3"></span>
+      <span class="mDot" id="m4"></span>
     </div>
   </div>
 
@@ -3872,6 +3918,16 @@ section#games.gamePaneActive .gamesHeroCard{
   </div>
 
   <div class="connMsg" id="connMsg"></div>
+
+  <details class="gameTuning">
+    <summary>Adjust game options</summary>
+    <div class="gameTuningBody">
+      <label style="display:flex;gap:8px;align-items:center;font-weight:900;color:var(--muted);font-size:12px;">
+        Topic
+        <select id="connTopicSelect"></select>
+      </label>
+    </div>
+  </details>
 
 <div class="connWinOverlay hidden" id="connWinOverlay" aria-live="polite">
   <div class="connWinInner">
@@ -3893,24 +3949,13 @@ section#games.gamePaneActive .gamesHeroCard{
           <span>Games</span>
         </button>
       </div>
-      <div class="card">
-      <div class="row">
-        <div class="grow">
-          <label>Topic</label>
-          <select id="emojiTopicSelect"></select>
-        </div>
-        <div class="grow" style="min-width:200px">
-          <label>Mode</label>
-          <select id="emojiMode">
-            <option value="terms" selected>Key terms</option>
-            <option value="people">Key characters</option>
-            <option value="mixed">Mixed</option>
-          </select>
-        </div>
+      <div class="card gameStageCard">
+      <div class="gameMissionBar">
         <div>
-          <label>&nbsp;</label>
-          <button class="btn primary" id="btnStartEmoji">🎯 New round</button>
+          <div class="gameMissionTitle">Emoji Multiple Choice</div>
+          <p class="gameMissionHint">Read the clue fast and build a streak.</p>
         </div>
+        <button class="btn primary" id="btnStartEmoji">🎯 New round</button>
       </div>
 
       <div class="divider"></div>
@@ -3929,6 +3974,24 @@ section#games.gamePaneActive .gamesHeroCard{
 
       <div style="font-size:36px;text-align:center;padding:14px;border:1px solid var(--line);border-radius:16px;background:#fff" id="emojiClue">🎭 🧠 📚</div>
       <div class="choiceGrid" id="emojiChoices"></div>
+
+      <details class="gameTuning">
+        <summary>Adjust game options</summary>
+        <div class="gameTuningBody row" style="margin:0;align-items:flex-end">
+          <div class="grow">
+            <label>Topic</label>
+            <select id="emojiTopicSelect"></select>
+          </div>
+          <div class="grow" style="min-width:200px">
+            <label>Mode</label>
+            <select id="emojiMode">
+              <option value="terms" selected>Key terms</option>
+              <option value="people">Key characters</option>
+              <option value="mixed">Mixed</option>
+            </select>
+          </div>
+        </div>
+      </details>
     </div>
     </div>
 
@@ -3940,24 +4003,13 @@ section#games.gamePaneActive .gamesHeroCard{
           <span>Games</span>
         </button>
       </div>
-      <div class="card">
-      <div class="matchControls">
+      <div class="card gameStageCard">
+      <div class="gameMissionBar">
         <div>
-          <label>Topic</label>
-          <select id="matchTopicSelect"></select>
+          <div class="gameMissionTitle">Match-Up</div>
+          <p class="gameMissionHint">Lock in fast, precise name-to-role matches.</p>
         </div>
-        <div>
-          <label>Difficulty</label>
-          <select id="matchDifficulty">
-            <option value="8">8 pairs</option>
-            <option value="10" selected>10 pairs</option>
-            <option value="12">12 pairs</option>
-          </select>
-        </div>
-        <div>
-          <label>&nbsp;</label>
-          <button class="btn primary" id="btnStartMatch">🧩 New game</button>
-        </div>
+        <button class="btn primary" id="btnStartMatch">🧩 New game</button>
       </div>
 
       <div class="divider"></div>
@@ -4002,6 +4054,24 @@ section#games.gamePaneActive .gamesHeroCard{
         <button class="connBtn" id="btnUndoMatch" type="button">↩️ Undo last pair</button>
       </div>
       <div class="note">Tip: use key words (policy, dates, role) to eliminate distractors quickly.</div>
+
+      <details class="gameTuning">
+        <summary>Adjust game options</summary>
+        <div class="gameTuningBody matchControls" style="margin:0">
+          <div>
+            <label>Topic</label>
+            <select id="matchTopicSelect"></select>
+          </div>
+          <div>
+            <label>Difficulty</label>
+            <select id="matchDifficulty">
+              <option value="8">8 pairs</option>
+              <option value="10" selected>10 pairs</option>
+              <option value="12">12 pairs</option>
+            </select>
+          </div>
+        </div>
+      </details>
     </div>
     </div>
     <!-- Beat the Clock game screen -->
@@ -4053,21 +4123,13 @@ section#games.gamePaneActive .gamesHeroCard{
         </button>
       </div>
 
-      <div class="card">
-        <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap">
-          <div class="grow" style="min-width:220px">
-            <label>Topic</label>
-            <select id="timelineTopicSelect"></select>
+      <div class="card gameStageCard">
+        <div class="gameMissionBar">
+          <div>
+            <div class="gameMissionTitle">Timeline Tension</div>
+            <p class="gameMissionHint">Place every event in perfect order to unlock dates.</p>
           </div>
-          <div class="grow" style="min-width:220px">
-            <label>Difficulty</label>
-            <select id="timelineSize">
-              <option value="6">6 events</option>
-              <option value="8" selected>8 events</option>
-              <option value="10">10 events</option>
-            </select>
-          </div>
-          <div style="display:flex;gap:8px;align-items:flex-end">
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
             <button class="btn primary" id="btnStartTimeline" type="button">⏳ New timeline</button>
             <button class="btn" id="btnResetTimeline" type="button">Reset</button>
           </div>
@@ -4102,6 +4164,24 @@ section#games.gamePaneActive .gamesHeroCard{
             </div>
           </div>
         </div>
+
+        <details class="gameTuning">
+          <summary>Adjust game options</summary>
+          <div class="gameTuningBody row" style="margin:0;align-items:flex-end">
+            <div class="grow" style="min-width:220px">
+              <label>Topic</label>
+              <select id="timelineTopicSelect"></select>
+            </div>
+            <div class="grow" style="min-width:220px">
+              <label>Difficulty</label>
+              <select id="timelineSize">
+                <option value="6">6 events</option>
+                <option value="8" selected>8 events</option>
+                <option value="10">10 events</option>
+              </select>
+            </div>
+          </div>
+        </details>
 
       </div>
     </div>
@@ -9659,16 +9739,48 @@ window.addEventListener("DOMContentLoaded", ()=>{
   const quickStart = $("gamesQuickStartBtn");
   const resume = $("gamesResumeBtn");
 
-  if(openConn) openConn.addEventListener("click", ()=>{ markGameSessionCompleted("connections", getDailyTopicId()); openGamePane("gamesConnPane"); });
-  if(openEmoji) openEmoji.addEventListener("click", ()=>{ markGameSessionCompleted("emoji", $("emojiTopicSelect").value === "MIXED" ? getDailyTopicId() : $("emojiTopicSelect").value); openGamePane("gamesEmojiPane"); });
-  if(openMatch) openMatch.addEventListener("click", ()=>{ markGameSessionCompleted("match", $("matchTopicSelect").value === "MIXED" ? getDailyTopicId() : $("matchTopicSelect").value); openGamePane("gamesMatchPane"); });
-  if(openTimeline) openTimeline.addEventListener("click", ()=>{ markGameSessionCompleted("timeline", $("timelineTopicSelect")?.value || getDailyTopicId()); openGamePane("gamesTimelinePane"); });
-  if(openBeatClock) openBeatClock.addEventListener("click", ()=>{ markGameSessionCompleted("beat_clock", getDailyTopicId()); openGamePane("gamesBeatClockPane"); });
+  function launchGameNow(pane){
+    openGamePane(pane);
+    if(pane === "gamesConnPane"){
+      const sel = $("connTopicSelect");
+      if(sel && sel.options.length){
+        const daily = getDailyTopicId();
+        if(Array.from(sel.options).some(o=>o.value===daily)) sel.value = daily;
+        sel.dispatchEvent(new Event("change"));
+      }
+      return;
+    }
+    if(pane === "gamesEmojiPane"){
+      const btn = $("btnStartEmoji");
+      if(btn) btn.click();
+      return;
+    }
+    if(pane === "gamesMatchPane"){
+      const btn = $("btnStartMatch");
+      if(btn) btn.click();
+      return;
+    }
+    if(pane === "gamesTimelinePane"){
+      const btn = $("btnStartTimeline");
+      if(btn) btn.click();
+      return;
+    }
+    if(pane === "gamesBeatClockPane"){
+      const btn = $("btnStartBeatClock");
+      if(btn) btn.click();
+    }
+  }
+
+  if(openConn) openConn.addEventListener("click", ()=>{ markGameSessionCompleted("connections", getDailyTopicId()); launchGameNow("gamesConnPane"); });
+  if(openEmoji) openEmoji.addEventListener("click", ()=>{ markGameSessionCompleted("emoji", $("emojiTopicSelect").value === "MIXED" ? getDailyTopicId() : $("emojiTopicSelect").value); launchGameNow("gamesEmojiPane"); });
+  if(openMatch) openMatch.addEventListener("click", ()=>{ markGameSessionCompleted("match", $("matchTopicSelect").value === "MIXED" ? getDailyTopicId() : $("matchTopicSelect").value); launchGameNow("gamesMatchPane"); });
+  if(openTimeline) openTimeline.addEventListener("click", ()=>{ markGameSessionCompleted("timeline", $("timelineTopicSelect")?.value || getDailyTopicId()); launchGameNow("gamesTimelinePane"); });
+  if(openBeatClock) openBeatClock.addEventListener("click", ()=>{ markGameSessionCompleted("beat_clock", getDailyTopicId()); launchGameNow("gamesBeatClockPane"); });
 
   if(quickStart) quickStart.addEventListener("click", ()=>{
     const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane"];
     const pane = picker[Math.floor(Math.random()*picker.length)];
-    openGamePane(pane);
+    launchGameNow(pane);
   });
   if(resume) resume.addEventListener("click", ()=>{ if(LAST_GAME_PANE) openGamePane(LAST_GAME_PANE); });
 
