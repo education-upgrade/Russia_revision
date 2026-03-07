@@ -1958,6 +1958,16 @@ section#games.gamePaneActive .gamesHeroCard{
   gap:4px;
 }
 .snakeChoiceList li strong{ color:var(--textStrong); }
+.snakeQuestionOverlay{
+  z-index:1300;
+}
+.snakeQuestionModal{
+  width:min(560px, 92vw);
+}
+.snakeQuestionCountdown{
+  font-weight:1000;
+  color:var(--textStrong);
+}
 .snakePad{
   display:grid;
   grid-template-columns:repeat(3,minmax(56px,1fr));
@@ -4235,6 +4245,16 @@ section#games.gamePaneActive .gamesHeroCard{
         </div>
 
         <div class="connMsg" id="snakeQuizMsg">Use arrow keys or buttons. Walls and wrong answers end the run.</div>
+
+        <div id="snakeQuestionOverlay" class="modalBackdrop snakeQuestionOverlay hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Snake question preview">
+          <div class="onboardingModal snakeQuestionModal" aria-labelledby="snakeQuestionDialogTitle" aria-describedby="snakeQuestionDialogBody">
+            <h3 class="onboardingTitle" id="snakeQuestionDialogTitle">Snake question</h3>
+            <div class="note" id="snakeQuestionDialogBody"></div>
+            <ol class="snakeChoiceList" id="snakeQuestionDialogChoices"></ol>
+            <div class="divider"></div>
+            <div class="note">Snake starts in <span class="snakeQuestionCountdown" id="snakeQuestionCountdown">3</span>s</div>
+          </div>
+        </div>
 
         <details class="gameTuning">
           <summary>Adjust game options</summary>
@@ -8747,6 +8767,7 @@ const SNAKE_QUIZ = {
   nextDir: {x:1,y:0},
   tickMs: 170,
   timer: null,
+  countdownTimer: null,
   running: false,
   score: 0,
   best: Number(localStorage.getItem("snake_quiz_best_length") || 3),
@@ -8759,6 +8780,47 @@ function snakeEl(id){ return document.getElementById(id); }
 function snakeSetMsg(msg){
   const el = snakeEl("snakeQuizMsg");
   if(el) el.textContent = msg;
+}
+
+function snakeCloseQuestionDialog(){
+  snakeEl("snakeQuestionOverlay")?.classList.add("hidden");
+  if(SNAKE_QUIZ.countdownTimer){
+    clearInterval(SNAKE_QUIZ.countdownTimer);
+    SNAKE_QUIZ.countdownTimer = null;
+  }
+}
+
+function snakeShowQuestionDialog(onDone){
+  const overlay = snakeEl("snakeQuestionOverlay");
+  const q = SNAKE_QUIZ.q;
+  if(!overlay || !q){
+    onDone?.();
+    return;
+  }
+  const countdownEl = snakeEl("snakeQuestionCountdown");
+  const bodyEl = snakeEl("snakeQuestionDialogBody");
+  const choicesEl = snakeEl("snakeQuestionDialogChoices");
+  if(bodyEl) bodyEl.textContent = q.prompt;
+  if(choicesEl){
+    choicesEl.innerHTML = "";
+    q.cells.forEach(c=>{
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${c.letter}.</strong> ${c.choice}`;
+      choicesEl.appendChild(li);
+    });
+  }
+  let countdown = 3;
+  if(countdownEl) countdownEl.textContent = String(countdown);
+  overlay.classList.remove("hidden");
+  if(SNAKE_QUIZ.countdownTimer) clearInterval(SNAKE_QUIZ.countdownTimer);
+  SNAKE_QUIZ.countdownTimer = setInterval(()=>{
+    countdown -= 1;
+    if(countdownEl) countdownEl.textContent = String(Math.max(0, countdown));
+    if(countdown <= 0){
+      snakeCloseQuestionDialog();
+      onDone?.();
+    }
+  }, 1000);
 }
 
 function snakePool(topicId){
@@ -8810,7 +8872,7 @@ function snakeNewQuestion(){
   SNAKE_QUIZ.q = {
     prompt: pick.q,
     answerIdx,
-    cells: spots.map((pos, idx)=>({ ...pos, letter:letters[idx], idx }))
+    cells: spots.map((pos, idx)=>({ ...pos, letter:letters[idx], idx, choice:top3[idx] }))
   };
   return true;
 }
@@ -8868,6 +8930,7 @@ function snakeStop(){
     clearInterval(SNAKE_QUIZ.timer);
     SNAKE_QUIZ.timer = null;
   }
+  snakeCloseQuestionDialog();
   SNAKE_QUIZ.running = false;
 }
 
@@ -8934,10 +8997,13 @@ function snakeStart(){
   SNAKE_QUIZ.score = 0;
   snakeUpdateHud();
   if(!snakeNewQuestion()) return;
-  snakeSetMsg("Run started. Eat the correct A/B/C tile.");
   snakeDraw();
-  SNAKE_QUIZ.running = true;
-  SNAKE_QUIZ.timer = setInterval(snakeTick, SNAKE_QUIZ.tickMs);
+  snakeSetMsg("Memorise the question in the dialog. Snake starts in 3 seconds.");
+  snakeShowQuestionDialog(()=>{
+    SNAKE_QUIZ.running = true;
+    SNAKE_QUIZ.timer = setInterval(snakeTick, SNAKE_QUIZ.tickMs);
+    snakeSetMsg("Run started. Eat the correct A/B/C tile.");
+  });
 }
 
 (()=>{
