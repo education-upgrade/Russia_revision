@@ -9867,7 +9867,28 @@ function markLessonResult(lessonId, scorePct, breakdown){
 
 function getTopicLessons(topic){
   if(!topic || !Array.isArray(topic.themes)) return [];
-  return topic.themes.flatMap(theme=>Array.isArray(theme.lessons) ? theme.lessons : []);
+  const lessons = topic.themes.flatMap(theme=>Array.isArray(theme.lessons) ? theme.lessons : []);
+  if(topic.id !== "t4") return lessons;
+
+  const parseYearRange = (label="")=>{
+    const years = String(label).match(/\d{4}/g) || [];
+    if(!years.length) return { start:Number.POSITIVE_INFINITY, end:Number.POSITIVE_INFINITY };
+    const start = Number(years[0]);
+    const end = Number(years[years.length - 1]);
+    return {
+      start:Number.isFinite(start) ? start : Number.POSITIVE_INFINITY,
+      end:Number.isFinite(end) ? end : Number.POSITIVE_INFINITY
+    };
+  };
+
+  return lessons
+    .map((lesson, index)=>({ lesson, index, range:parseYearRange(lesson?.yearLabel) }))
+    .sort((a,b)=>{
+      if(a.range.start !== b.range.start) return a.range.start - b.range.start;
+      if(a.range.end !== b.range.end) return a.range.end - b.range.end;
+      return a.index - b.index;
+    })
+    .map(item=>item.lesson);
 }
 
 const RECOMMENDED_THEME_ORDER = [
