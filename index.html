@@ -1924,6 +1924,49 @@ section#games.gamePaneActive .gamesHeroCard{
   background: rgba(183,142,161,.16);
 }
 
+.snakeQuizCanvasWrap{
+  border:1px solid var(--line);
+  border-radius:16px;
+  background:#fff;
+  padding:10px;
+}
+#snakeQuizCanvas{
+  width:100%;
+  max-width:520px;
+  aspect-ratio:1/1;
+  display:block;
+  margin:0 auto;
+  border-radius:12px;
+  background:linear-gradient(180deg,#f8fbff,#eef4fb);
+  border:1px solid rgba(22,45,91,.16);
+}
+.snakeQuestionBox{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:rgba(255,255,255,.86);
+  padding:10px;
+  display:grid;
+  gap:6px;
+}
+.snakeChoiceList{
+  margin:0;
+  padding-left:20px;
+  color:var(--muted);
+  font-size:13px;
+  font-weight:800;
+  display:grid;
+  gap:4px;
+}
+.snakeChoiceList li strong{ color:var(--textStrong); }
+.snakePad{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(56px,1fr));
+  gap:8px;
+  max-width:220px;
+  margin:10px auto 0;
+}
+.snakePad .btn{ min-height:44px; }
+
 @media (max-width: 680px){
   .bcGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
@@ -3883,6 +3926,11 @@ section#games.gamePaneActive .gamesHeroCard{
         <div class="gamePillTop"><div class="gamePillTitle">Beat the Clock</div><span class="gameMetaTag">Timed pressure</span></div>
         <div class="gamePillDesc">Pick 4 correct key terms from 8 in 20 seconds. Miss the timer and restart the run.</div>
       </button>
+
+      <button class="gamePillBtn" type="button" id="openSnakeQuizBtn">
+        <div class="gamePillTop"><div class="gamePillTitle">Snake Quiz</div><span class="gameMetaTag">Arcade recall</span></div>
+        <div class="gamePillDesc">Steer the snake to A/B/C answers. Eat the correct one to grow.</div>
+      </button>
     </div>
 
     <!-- Connections game screen -->
@@ -4111,6 +4159,60 @@ section#games.gamePaneActive .gamesHeroCard{
         </div>
 
         <div class="connMsg" id="bcMsg">You have 20 seconds per round.</div>
+      </div>
+    </div>
+
+    <!-- Snake Quiz game screen -->
+    <div id="gamesSnakeQuizPane" class="gamePane hidden">
+      <div class="gamePaneTop">
+        <button class="gamesBackPill" type="button" id="backFromSnakeQuiz" aria-label="Back to Games">
+          <svg class="gamesHeroIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg>
+          <span>Games</span>
+        </button>
+      </div>
+      <div class="card gameStageCard">
+        <div class="gameMissionBar">
+          <div>
+            <div class="gameMissionTitle">Snake Quiz</div>
+            <p class="gameMissionHint">Eat the correct A/B/C block to grow. Wrong answer ends the run.</p>
+          </div>
+          <button class="btn primary" id="btnStartSnakeQuiz" type="button">🐍 Start run</button>
+        </div>
+
+        <div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div class="pill" id="snakeQuizLenPill">Length: 3</div>
+          <div class="pill" id="snakeQuizScorePill">Correct: 0</div>
+          <div class="pill" id="snakeQuizBestPill">🏆 Best length: 3</div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="snakeQuestionBox">
+          <div class="note" id="snakeQuizQ">Press Start run to begin.</div>
+          <ol class="snakeChoiceList" id="snakeQuizChoices"></ol>
+        </div>
+
+        <div class="snakeQuizCanvasWrap" style="margin-top:10px">
+          <canvas id="snakeQuizCanvas" width="520" height="520" aria-label="Snake quiz board"></canvas>
+          <div class="snakePad" aria-label="Snake controls">
+            <span></span><button class="btn" id="snakeDirUp" type="button">⬆️</button><span></span>
+            <button class="btn" id="snakeDirLeft" type="button">⬅️</button>
+            <button class="btn" id="snakeDirDown" type="button">⬇️</button>
+            <button class="btn" id="snakeDirRight" type="button">➡️</button>
+          </div>
+        </div>
+
+        <div class="connMsg" id="snakeQuizMsg">Use arrow keys or buttons. Walls and wrong answers end the run.</div>
+
+        <details class="gameTuning">
+          <summary>Adjust game options</summary>
+          <div class="gameTuningBody row" style="margin:0;align-items:flex-end">
+            <div class="grow" style="min-width:220px">
+              <label>Topic</label>
+              <select id="snakeTopicSelect"></select>
+            </div>
+          </div>
+        </details>
       </div>
     </div>
 
@@ -8603,7 +8705,231 @@ function bcSubmit(){
   });
 })();
 
-  
+/* =========================
+   Snake Quiz game logic
+   ========================= */
+const SNAKE_QUIZ = {
+  board: 13,
+  snake: [],
+  dir: {x:1,y:0},
+  nextDir: {x:1,y:0},
+  tickMs: 170,
+  timer: null,
+  running: false,
+  score: 0,
+  best: Number(localStorage.getItem("snake_quiz_best_length") || 3),
+  q: null,
+  topicId: "MIXED"
+};
+
+function snakeEl(id){ return document.getElementById(id); }
+
+function snakeSetMsg(msg){
+  const el = snakeEl("snakeQuizMsg");
+  if(el) el.textContent = msg;
+}
+
+function snakePool(topicId){
+  return getQuizPool(topicId).filter(q=>Array.isArray(q.choices) && q.choices.length >= 3);
+}
+
+function snakeNewQuestion(){
+  const pool = snakePool(SNAKE_QUIZ.topicId);
+  if(!pool.length){
+    SNAKE_QUIZ.q = null;
+    snakeEl("snakeQuizQ").textContent = "No questions for this topic selection.";
+    snakeEl("snakeQuizChoices").innerHTML = "";
+    snakeSetMsg("Pick another topic and start again.");
+    snakeStop();
+    return false;
+  }
+
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  const distractors = shuffle(pick.choices.filter(c=>c!==pick.answer)).slice(0,2);
+  const top3 = shuffle([pick.answer, ...distractors]);
+  const answerIdx = top3.findIndex(c=>c===pick.answer);
+  const letters = ["A","B","C"];
+  const choicesEl = snakeEl("snakeQuizChoices");
+  if(choicesEl){
+    choicesEl.innerHTML = "";
+    top3.forEach((choice, idx)=>{
+      const li = document.createElement("li");
+      li.innerHTML = `<strong>${letters[idx]}.</strong> ${choice}`;
+      choicesEl.appendChild(li);
+    });
+  }
+  snakeEl("snakeQuizQ").textContent = pick.q;
+
+  const occupied = new Set(SNAKE_QUIZ.snake.map(p=>`${p.x},${p.y}`));
+  const available = [];
+  for(let y=0;y<SNAKE_QUIZ.board;y++){
+    for(let x=0;x<SNAKE_QUIZ.board;x++){
+      const key = `${x},${y}`;
+      if(!occupied.has(key)) available.push({x,y});
+    }
+  }
+  if(available.length < 3){
+    snakeSetMsg("Board full — huge run. Starting fresh.");
+    snakeStart();
+    return false;
+  }
+
+  const spots = shuffle(available).slice(0,3);
+  SNAKE_QUIZ.q = {
+    prompt: pick.q,
+    answerIdx,
+    cells: spots.map((pos, idx)=>({ ...pos, letter:letters[idx], idx }))
+  };
+  return true;
+}
+
+function snakeDraw(){
+  const canvas = snakeEl("snakeQuizCanvas");
+  if(!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if(!ctx) return;
+  const size = canvas.width;
+  const cell = size / SNAKE_QUIZ.board;
+
+  ctx.clearRect(0,0,size,size);
+  ctx.fillStyle = "#f4f9ff";
+  ctx.fillRect(0,0,size,size);
+  ctx.strokeStyle = "rgba(22,45,91,.08)";
+  ctx.lineWidth = 1;
+  for(let i=0;i<=SNAKE_QUIZ.board;i++){
+    const p = Math.round(i*cell)+0.5;
+    ctx.beginPath(); ctx.moveTo(p,0); ctx.lineTo(p,size); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,p); ctx.lineTo(size,p); ctx.stroke();
+  }
+
+  if(SNAKE_QUIZ.q){
+    SNAKE_QUIZ.q.cells.forEach(c=>{
+      const x = c.x*cell, y = c.y*cell;
+      const correct = c.idx === SNAKE_QUIZ.q.answerIdx;
+      ctx.fillStyle = correct ? "rgba(126,185,170,.32)" : "rgba(183,142,161,.22)";
+      ctx.fillRect(x+2,y+2,cell-4,cell-4);
+      ctx.strokeStyle = correct ? "rgba(126,185,170,.95)" : "rgba(183,142,161,.95)";
+      ctx.strokeRect(x+2,y+2,cell-4,cell-4);
+      ctx.fillStyle = "#11233a";
+      ctx.font = `${Math.floor(cell*0.46)}px Inter, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(c.letter, x + cell/2, y + cell/2);
+    });
+  }
+
+  SNAKE_QUIZ.snake.forEach((p, idx)=>{
+    const x = p.x*cell, y = p.y*cell;
+    ctx.fillStyle = idx===0 ? "#4f7fc2" : "#6e90ca";
+    ctx.fillRect(x+2,y+2,cell-4,cell-4);
+  });
+}
+
+function snakeUpdateHud(){
+  snakeEl("snakeQuizLenPill").textContent = `Length: ${SNAKE_QUIZ.snake.length || 0}`;
+  snakeEl("snakeQuizScorePill").textContent = `Correct: ${SNAKE_QUIZ.score}`;
+  snakeEl("snakeQuizBestPill").textContent = `🏆 Best length: ${SNAKE_QUIZ.best}`;
+}
+
+function snakeStop(){
+  if(SNAKE_QUIZ.timer){
+    clearInterval(SNAKE_QUIZ.timer);
+    SNAKE_QUIZ.timer = null;
+  }
+  SNAKE_QUIZ.running = false;
+}
+
+function snakeGameOver(reason){
+  snakeStop();
+  snakeSetMsg(`${reason} Final length ${SNAKE_QUIZ.snake.length}. Press Start run to play again.`);
+}
+
+function snakeTick(){
+  if(!SNAKE_QUIZ.running) return;
+  SNAKE_QUIZ.dir = { ...SNAKE_QUIZ.nextDir };
+  const head = SNAKE_QUIZ.snake[0];
+  const next = { x: head.x + SNAKE_QUIZ.dir.x, y: head.y + SNAKE_QUIZ.dir.y };
+
+  if(next.x < 0 || next.y < 0 || next.x >= SNAKE_QUIZ.board || next.y >= SNAKE_QUIZ.board){
+    snakeGameOver("🧱 You hit a wall.");
+    return;
+  }
+  if(SNAKE_QUIZ.snake.some(s=>s.x===next.x && s.y===next.y)){
+    snakeGameOver("🌀 You ran into your tail.");
+    return;
+  }
+
+  let ate = null;
+  if(SNAKE_QUIZ.q) ate = SNAKE_QUIZ.q.cells.find(c=>c.x===next.x && c.y===next.y) || null;
+  SNAKE_QUIZ.snake.unshift(next);
+
+  if(ate){
+    if(ate.idx === SNAKE_QUIZ.q.answerIdx){
+      SNAKE_QUIZ.score += 1;
+      if(SNAKE_QUIZ.snake.length > SNAKE_QUIZ.best){
+        SNAKE_QUIZ.best = SNAKE_QUIZ.snake.length;
+        localStorage.setItem("snake_quiz_best_length", String(SNAKE_QUIZ.best));
+      }
+      snakeSetMsg("✅ Correct! New question spawned.");
+      snakeUpdateHud();
+      if(!snakeNewQuestion()) return;
+    }else{
+      snakeGameOver(`❌ Wrong — ${ate.letter} was incorrect.`);
+      return;
+    }
+  }else{
+    SNAKE_QUIZ.snake.pop();
+  }
+
+  snakeUpdateHud();
+  snakeDraw();
+}
+
+function snakeSetDirection(dx,dy){
+  if(!SNAKE_QUIZ.running) return;
+  const cur = SNAKE_QUIZ.dir;
+  if(cur.x === -dx && cur.y === -dy) return;
+  SNAKE_QUIZ.nextDir = {x:dx,y:dy};
+}
+
+function snakeStart(){
+  snakeStop();
+  const sel = snakeEl("snakeTopicSelect");
+  SNAKE_QUIZ.topicId = sel?.value || "MIXED";
+  SNAKE_QUIZ.snake = [{x:2,y:6},{x:1,y:6},{x:0,y:6}];
+  SNAKE_QUIZ.dir = {x:1,y:0};
+  SNAKE_QUIZ.nextDir = {x:1,y:0};
+  SNAKE_QUIZ.score = 0;
+  snakeUpdateHud();
+  if(!snakeNewQuestion()) return;
+  snakeSetMsg("Run started. Eat the correct A/B/C tile.");
+  snakeDraw();
+  SNAKE_QUIZ.running = true;
+  SNAKE_QUIZ.timer = setInterval(snakeTick, SNAKE_QUIZ.tickMs);
+}
+
+(()=>{
+  const startBtn = snakeEl("btnStartSnakeQuiz");
+  if(!startBtn) return;
+  startBtn.addEventListener("click", snakeStart);
+  snakeEl("snakeDirUp")?.addEventListener("click", ()=>snakeSetDirection(0,-1));
+  snakeEl("snakeDirDown")?.addEventListener("click", ()=>snakeSetDirection(0,1));
+  snakeEl("snakeDirLeft")?.addEventListener("click", ()=>snakeSetDirection(-1,0));
+  snakeEl("snakeDirRight")?.addEventListener("click", ()=>snakeSetDirection(1,0));
+  document.addEventListener("keydown", (ev)=>{
+    if(!SNAKE_QUIZ.running) return;
+    if(ev.key === "ArrowUp") snakeSetDirection(0,-1);
+    if(ev.key === "ArrowDown") snakeSetDirection(0,1);
+    if(ev.key === "ArrowLeft") snakeSetDirection(-1,0);
+    if(ev.key === "ArrowRight") snakeSetDirection(1,0);
+  });
+  snakeEl("snakeTopicSelect")?.addEventListener("change", ()=>{
+    if(SNAKE_QUIZ.running) snakeStart();
+  });
+  snakeUpdateHud();
+  snakeDraw();
+})();
+
 /* ==========================================================
    EMOJI BANK (fully populated starter as provided)
    ========================================================== */
@@ -9687,13 +10013,14 @@ if(streakProgressBtn){
 }
 
 /* Games hub navigation */
-const GAME_PANES = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane"];
+const GAME_PANES = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakeQuizPane"];
 const GAME_LABELS = {
   gamesConnPane: "Connections",
   gamesEmojiPane: "Emoji Multiple Choice",
   gamesMatchPane: "Match-Up",
   gamesTimelinePane: "Timeline Tension",
-  gamesBeatClockPane: "Beat the Clock"
+  gamesBeatClockPane: "Beat the Clock",
+  gamesSnakeQuizPane: "Snake Quiz"
 };
 let LAST_GAME_PANE = null;
 
@@ -9734,8 +10061,8 @@ function openGamePane(paneId){
   window.scrollTo(0,0);
 }
 window.addEventListener("DOMContentLoaded", ()=>{
-  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn");
-  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock");
+  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn"), openSnakeQuiz = $("openSnakeQuizBtn");
+  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock"), backSnakeQuiz = $("backFromSnakeQuiz");
   const quickStart = $("gamesQuickStartBtn");
   const resume = $("gamesResumeBtn");
 
@@ -9768,6 +10095,11 @@ window.addEventListener("DOMContentLoaded", ()=>{
     if(pane === "gamesBeatClockPane"){
       const btn = $("btnStartBeatClock");
       if(btn) btn.click();
+      return;
+    }
+    if(pane === "gamesSnakeQuizPane"){
+      const btn = $("btnStartSnakeQuiz");
+      if(btn) btn.click();
     }
   }
 
@@ -9776,9 +10108,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(openMatch) openMatch.addEventListener("click", ()=>{ markGameSessionCompleted("match", $("matchTopicSelect").value === "MIXED" ? getDailyTopicId() : $("matchTopicSelect").value); launchGameNow("gamesMatchPane"); });
   if(openTimeline) openTimeline.addEventListener("click", ()=>{ markGameSessionCompleted("timeline", $("timelineTopicSelect")?.value || getDailyTopicId()); launchGameNow("gamesTimelinePane"); });
   if(openBeatClock) openBeatClock.addEventListener("click", ()=>{ markGameSessionCompleted("beat_clock", getDailyTopicId()); launchGameNow("gamesBeatClockPane"); });
+  if(openSnakeQuiz) openSnakeQuiz.addEventListener("click", ()=>{
+    const topic = $("snakeTopicSelect")?.value || "MIXED";
+    markGameSessionCompleted("snake_quiz", topic === "MIXED" ? getDailyTopicId() : topic);
+    launchGameNow("gamesSnakeQuizPane");
+  });
 
   if(quickStart) quickStart.addEventListener("click", ()=>{
-    const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane"];
+    const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakeQuizPane"];
     const pane = picker[Math.floor(Math.random()*picker.length)];
     launchGameNow(pane);
   });
@@ -9789,6 +10126,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(backMatch) backMatch.addEventListener("click", gamesShowHub);
   if(backTimeline) backTimeline.addEventListener("click", gamesShowHub);
   if(backBeatClock) backBeatClock.addEventListener("click", gamesShowHub);
+  if(backSnakeQuiz) backSnakeQuiz.addEventListener("click", gamesShowHub);
 
   updateGamesHubMeta();
   initTimelineGame();
@@ -17968,6 +18306,7 @@ function renderTopicDashboard(){
       syncIfMissing(document.getElementById("mcqTopicSelect"), "MIXED");
       syncIfMissing(document.getElementById("matchTopicSelect"), "MIXED");
       syncIfMissing(document.getElementById("emojiTopicSelect"), "MIXED");
+      syncIfMissing(document.getElementById("snakeTopicSelect"), "MIXED");
       syncIfMissing(document.getElementById("examTopicSelect"), "ALL");
 
       try{ if(typeof tlPopulateSelect === "function") tlPopulateSelect(); }catch(e){}
@@ -17992,12 +18331,14 @@ function populateTopics(){
   const selQuiz = $("mcqTopicSelect");
   const selMatch = $("matchTopicSelect");
   const selEmoji = $("emojiTopicSelect");
+  const selSnake = $("snakeTopicSelect");
   const selExamFilter = $("examTopicSelect");
 
   sel.innerHTML = "";
   selQuiz.innerHTML = "";
   selMatch.innerHTML = "";
   selEmoji.innerHTML = "";
+  selSnake.innerHTML = "";
   selExamFilter.innerHTML = "";
 
   const optAll = document.createElement("option");
@@ -18014,6 +18355,7 @@ function populateTopics(){
   addMixed(selQuiz);
   addMixed(selMatch);
   addMixed(selEmoji);
+  addMixed(selSnake);
 
   const exAll = document.createElement("option");
   exAll.value="ALL"; exAll.textContent="🌍 All topics";
@@ -18039,7 +18381,11 @@ function populateTopics(){
 
     const o5 = document.createElement("option");
     o5.value = t.id; o5.textContent = t.title;
-    selExamFilter.appendChild(o5);
+    selSnake.appendChild(o5);
+
+    const o6 = document.createElement("option");
+    o6.value = t.id; o6.textContent = t.title;
+    selExamFilter.appendChild(o6);
   });
 }
 
@@ -20374,6 +20720,7 @@ function init(){
   $("mcqTopicSelect").value = "MIXED";
   $("emojiTopicSelect").value = "MIXED";
   $("matchTopicSelect").value = "MIXED";
+  if($("snakeTopicSelect")) $("snakeTopicSelect").value = "MIXED";
   $("examTopicSelect").value = "ALL";
 
   renderExamSelect();
