@@ -1372,6 +1372,7 @@
     }
     .matchItem.selected{border-color: rgba(110,144,202,.95); background: rgba(110,144,202,.14)}
     .matchItem.correct{border-color: rgba(126,185,170,.95); background: rgba(126,185,170,.12)}
+    .matchItem.wrong{border-color: rgba(183,142,161,.95); background: rgba(183,142,161,.14)}
 
 /* =========================
    Connections-style game (Games tab)
@@ -1630,6 +1631,19 @@
   margin-top:10px;
 }
 
+.gamesHubTools{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.gamesHubMeta{
+  margin:0;
+  font-size:12px;
+  color:var(--muted);
+  font-weight:800;
+}
+
 .gamesHeroCard{
   display:flex;
   align-items:center;
@@ -1720,6 +1734,24 @@ section#games.gamePaneActive .gamesHeroCard{
   position:relative;
   overflow:hidden;
   isolation:isolate;
+}
+
+.gamePillTop{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:10px;
+}
+
+.gameMetaTag{
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:5px 9px;
+  background:rgba(255,255,255,.72);
+  font-size:11px;
+  color:var(--muted);
+  font-weight:900;
+  white-space:nowrap;
 }
 .gamePillBtn::before{
   content:"";
@@ -3771,28 +3803,34 @@ section#games.gamePaneActive .gamesHeroCard{
 
     <!-- Games hub: tap a pill to open a full game screen -->
     <div id="gamesHub" class="gamesHub">
+      <div class="gamesHubTools">
+        <button class="btn" type="button" id="gamesQuickStartBtn">🎯 Quick start (Daily)</button>
+        <button class="btn hidden" type="button" id="gamesResumeBtn">↩️ Resume last game</button>
+      </div>
+      <p class="gamesHubMeta" id="gamesHubMeta">Daily topic practice keeps retrieval sharp. Pick any game mode below.</p>
+
       <button class="gamePillBtn" type="button" id="openConnBtn">
-        <div class="gamePillTitle">Connections (Daily)</div>
+        <div class="gamePillTop"><div class="gamePillTitle">Connections (Daily)</div><span class="gameMetaTag">Logic + links</span></div>
         <div class="gamePillDesc">Select 4 linked terms. Solve 4 groups of 4 (4 mistakes max).</div>
       </button>
 
       <button class="gamePillBtn" type="button" id="openEmojiBtn">
-        <div class="gamePillTitle">Emoji Multiple Choice</div>
+        <div class="gamePillTop"><div class="gamePillTitle">Emoji Multiple Choice</div><span class="gameMetaTag">Speed recall</span></div>
         <div class="gamePillDesc">Pick the best answer from 4. Build accuracy + streaks.</div>
       </button>
 
       <button class="gamePillBtn" type="button" id="openMatchBtn">
-        <div class="gamePillTitle">Match-Up</div>
+        <div class="gamePillTop"><div class="gamePillTitle">Match-Up</div><span class="gameMetaTag">People + roles</span></div>
         <div class="gamePillDesc">Match names to descriptions. Fast discrimination practice.</div>
       </button>
 
       <button class="gamePillBtn" type="button" id="openTimelineBtn">
-        <div class="gamePillTitle">Timeline Tension</div>
+        <div class="gamePillTop"><div class="gamePillTitle">Timeline Tension</div><span class="gameMetaTag">Chronology</span></div>
         <div class="gamePillDesc">Order key events. Dates reveal only after a perfect timeline.</div>
       </button>
 
       <button class="gamePillBtn" type="button" id="openBeatClockBtn">
-        <div class="gamePillTitle">Beat the Clock</div>
+        <div class="gamePillTop"><div class="gamePillTitle">Beat the Clock</div><span class="gameMetaTag">Timed pressure</span></div>
         <div class="gamePillDesc">Pick 4 correct key terms from 8 in 20 seconds. Miss the timer and restart the run.</div>
       </button>
     </div>
@@ -3925,13 +3963,14 @@ section#games.gamePaneActive .gamesHeroCard{
       <div class="divider"></div>
 
       <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap">
-        <div class="pill" id="matchMeta">Pairs: 0 • Correct: 0</div>
+        <div class="pill" id="matchMeta">Pairs: 0 • Correct: 0 • Accuracy: 0%</div>
         <div class="pill" id="matchHelp">Pick a name first, then choose the best matching description.</div>
       </div>
 
       <div class="matchStatusGrid">
         <div class="pill" id="matchStreakPill">🔥 Streak: 0</div>
         <div class="pill" id="matchBestStreakPill">🏆 Best: 0</div>
+        <div class="pill" id="matchMistakePill">❌ Misses: 0</div>
       </div>
 
       <div class="matchStatusGrid">
@@ -3959,6 +3998,9 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
 
       <div class="divider"></div>
+      <div class="connectionsActions" style="justify-content:flex-start">
+        <button class="connBtn" id="btnUndoMatch" type="button">↩️ Undo last pair</button>
+      </div>
       <div class="note">Tip: use key words (policy, dates, role) to eliminate distractors quickly.</div>
     </div>
     </div>
@@ -9565,39 +9607,78 @@ if(streakProgressBtn){
 }
 
 /* Games hub navigation */
+const GAME_PANES = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane"];
+const GAME_LABELS = {
+  gamesConnPane: "Connections",
+  gamesEmojiPane: "Emoji Multiple Choice",
+  gamesMatchPane: "Match-Up",
+  gamesTimelinePane: "Timeline Tension",
+  gamesBeatClockPane: "Beat the Clock"
+};
+let LAST_GAME_PANE = null;
+
+function updateGamesHubMeta(){
+  const meta = $("gamesHubMeta");
+  const resumeBtn = $("gamesResumeBtn");
+  if(meta){
+    const daily = TOPICS.find(t=>t.id===getDailyTopicId())?.title || "Today's topic";
+    meta.textContent = `Daily topic: ${daily}. Mix one speed game + one precision game for best retention.`;
+  }
+  if(resumeBtn){
+    const canResume = !!LAST_GAME_PANE;
+    resumeBtn.classList.toggle("hidden", !canResume);
+    if(canResume){
+      resumeBtn.textContent = `↩️ Resume ${GAME_LABELS[LAST_GAME_PANE] || "last game"}`;
+    }
+  }
+}
+
 function gamesShowHub(){
   const gamesSection = $("games");
   const hub = $("gamesHub");
-  const panes = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane"];
   if(!hub) return;
   if(gamesSection) gamesSection.classList.remove("gamePaneActive");
   hub.classList.remove("hidden");
-  panes.forEach(id => $(id) && $(id).classList.add("hidden"));
+  GAME_PANES.forEach(id => $(id) && $(id).classList.add("hidden"));
   if($("timelineTopicSelect")) tlPopulateSelect();
+  updateGamesHubMeta();
   window.scrollTo(0,0);
 }
 function openGamePane(paneId){
   const gamesSection = $("games");
   const hub = $("gamesHub");
-  const panes = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane"];
   if(gamesSection) gamesSection.classList.add("gamePaneActive");
   if(hub) hub.classList.add("hidden");
-  panes.forEach(id => $(id) && $(id).classList.toggle("hidden", id!==paneId));
+  LAST_GAME_PANE = paneId;
+  GAME_PANES.forEach(id => $(id) && $(id).classList.toggle("hidden", id!==paneId));
   window.scrollTo(0,0);
 }
 window.addEventListener("DOMContentLoaded", ()=>{
   const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn");
   const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock");
+  const quickStart = $("gamesQuickStartBtn");
+  const resume = $("gamesResumeBtn");
+
   if(openConn) openConn.addEventListener("click", ()=>{ markGameSessionCompleted("connections", getDailyTopicId()); openGamePane("gamesConnPane"); });
   if(openEmoji) openEmoji.addEventListener("click", ()=>{ markGameSessionCompleted("emoji", $("emojiTopicSelect").value === "MIXED" ? getDailyTopicId() : $("emojiTopicSelect").value); openGamePane("gamesEmojiPane"); });
   if(openMatch) openMatch.addEventListener("click", ()=>{ markGameSessionCompleted("match", $("matchTopicSelect").value === "MIXED" ? getDailyTopicId() : $("matchTopicSelect").value); openGamePane("gamesMatchPane"); });
   if(openTimeline) openTimeline.addEventListener("click", ()=>{ markGameSessionCompleted("timeline", $("timelineTopicSelect")?.value || getDailyTopicId()); openGamePane("gamesTimelinePane"); });
   if(openBeatClock) openBeatClock.addEventListener("click", ()=>{ markGameSessionCompleted("beat_clock", getDailyTopicId()); openGamePane("gamesBeatClockPane"); });
+
+  if(quickStart) quickStart.addEventListener("click", ()=>{
+    const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane"];
+    const pane = picker[Math.floor(Math.random()*picker.length)];
+    openGamePane(pane);
+  });
+  if(resume) resume.addEventListener("click", ()=>{ if(LAST_GAME_PANE) openGamePane(LAST_GAME_PANE); });
+
   if(backConn) backConn.addEventListener("click", gamesShowHub);
   if(backEmoji) backEmoji.addEventListener("click", gamesShowHub);
   if(backMatch) backMatch.addEventListener("click", gamesShowHub);
   if(backTimeline) backTimeline.addEventListener("click", gamesShowHub);
   if(backBeatClock) backBeatClock.addEventListener("click", gamesShowHub);
+
+  updateGamesHubMeta();
   initTimelineGame();
 });
 
@@ -19828,7 +19909,11 @@ let MATCH = {
   total: 0,
   locked: new Set(),
   streak: 0,
-  best: 0
+  best: 0,
+  attempts: 0,
+  misses: 0,
+  wrongPair: null,
+  history: []
 };
 
 function buildPeoplePool(topicId){
@@ -19872,17 +19957,26 @@ function startMatchGame(){
     total: pairs.length,
     locked: new Set(),
     streak: 0,
-    best: 0
+    best: 0,
+    attempts: 0,
+    misses: 0,
+    wrongPair: null,
+    history: []
   };
 
+  const undoBtn = $("btnUndoMatch");
+  if(undoBtn) undoBtn.disabled = true;
   renderMatch();
 }
 function renderMatch(){
   $("matchNames").innerHTML = "";
   $("matchDescs").innerHTML = "";
-  $("matchMeta").textContent = `Pairs: ${MATCH.total} • Correct: ${MATCH.correct}`;
+
+  const accuracy = MATCH.attempts > 0 ? Math.round((MATCH.correct / MATCH.attempts) * 100) : 0;
+  $("matchMeta").textContent = `Pairs: ${MATCH.total} • Correct: ${MATCH.correct} • Accuracy: ${accuracy}%`;
   $("matchStreakPill").textContent = `🔥 Streak: ${MATCH.streak}`;
   $("matchBestStreakPill").textContent = `🏆 Best: ${MATCH.best}`;
+  $("matchMistakePill").textContent = `❌ Misses: ${MATCH.misses}`;
 
   const pickedName = MATCH.names.find(x=>x.id===MATCH.selectedNameId);
   const pickedDesc = MATCH.descs.find(x=>x.id===MATCH.selectedDescId);
@@ -19900,10 +19994,12 @@ function renderMatch(){
 
     if(MATCH.locked.has(item.key)) b.classList.add("correct");
     if(MATCH.selectedNameId === item.id) b.classList.add("selected");
+    if(MATCH.wrongPair && MATCH.wrongPair.nameKey === item.key) b.classList.add("wrong");
 
     b.addEventListener("click", ()=>{
       if(MATCH.locked.has(item.key)) return;
       MATCH.selectedNameId = (MATCH.selectedNameId === item.id) ? null : item.id;
+      MATCH.wrongPair = null;
       attemptMatch();
       renderMatch();
     });
@@ -19918,10 +20014,12 @@ function renderMatch(){
 
     if(MATCH.locked.has(item.key)) b.classList.add("correct");
     if(MATCH.selectedDescId === item.id) b.classList.add("selected");
+    if(MATCH.wrongPair && MATCH.wrongPair.descKey === item.key) b.classList.add("wrong");
 
     b.addEventListener("click", ()=>{
       if(MATCH.locked.has(item.key)) return;
       MATCH.selectedDescId = (MATCH.selectedDescId === item.id) ? null : item.id;
+      MATCH.wrongPair = null;
       attemptMatch();
       renderMatch();
     });
@@ -19937,12 +20035,14 @@ function attemptMatch(){
   if(!nameItem || !descItem) return;
 
   const correct = (nameItem.key === descItem.key);
+  MATCH.attempts++;
 
   if(correct){
     MATCH.locked.add(nameItem.key);
     MATCH.correct++;
     MATCH.streak++;
     MATCH.best = Math.max(MATCH.best, MATCH.streak);
+    MATCH.history.push(nameItem.key);
 
     $("matchHelp").textContent = "✅ Correct! Keep going.";
 
@@ -19951,18 +20051,37 @@ function attemptMatch(){
     }
   }else{
     MATCH.streak = 0;
+    MATCH.misses++;
+    MATCH.wrongPair = { nameKey:nameItem.key, descKey:descItem.key };
     $("matchHelp").textContent = "❌ Not a match — look for the precise clue in the wording.";
   }
 
   MATCH.selectedNameId = null;
   MATCH.selectedDescId = null;
 
+  const undoBtn = $("btnUndoMatch");
+  if(undoBtn) undoBtn.disabled = MATCH.history.length === 0;
+
   if(MATCH.correct >= MATCH.total){
     $("matchHelp").textContent = "🏆 Completed! New game to reshuffle.";
     confetti.burst(160);
   }
 }
+function undoLastMatch(){
+  if(!MATCH.history.length) return;
+  const key = MATCH.history.pop();
+  if(!key || !MATCH.locked.has(key)) return;
+  MATCH.locked.delete(key);
+  MATCH.correct = Math.max(0, MATCH.correct - 1);
+  MATCH.streak = 0;
+  MATCH.wrongPair = null;
+  $("matchHelp").textContent = "↩️ Last correct pair removed. Keep building.";
+  const undoBtn = $("btnUndoMatch");
+  if(undoBtn) undoBtn.disabled = MATCH.history.length === 0;
+  renderMatch();
+}
 $("btnStartMatch").addEventListener("click", startMatchGame);
+$("btnUndoMatch")?.addEventListener("click", undoLastMatch);
 
 /* ==========================================================
    EXAM TAB UI (enforce 3 per topic)
