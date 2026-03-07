@@ -4286,7 +4286,7 @@ section#games.gamePaneActive .gamesHeroCard{
             <div class="note" id="snakeQuestionDialogBody"></div>
             <ol class="snakeChoiceList" id="snakeQuestionDialogChoices"></ol>
             <div class="divider"></div>
-            <div class="note">Snake starts in <span class="snakeQuestionCountdown" id="snakeQuestionCountdown">3</span>s</div>
+            <div class="note">Snake starts in <span class="snakeQuestionCountdown" id="snakeQuestionCountdown">4</span>s</div>
           </div>
         </div>
 
@@ -8800,6 +8800,7 @@ const SNAKE_QUIZ = {
   dir: {x:1,y:0},
   nextDir: {x:1,y:0},
   tickMs: 170,
+  questionPreviewMs: 4000,
   timer: null,
   countdownTimer: null,
   running: false,
@@ -8824,7 +8825,7 @@ function snakeCloseQuestionDialog(){
   }
 }
 
-function snakeShowQuestionDialog(onDone){
+function snakeShowQuestionDialog(onDone, previewMs = SNAKE_QUIZ.questionPreviewMs){
   const overlay = snakeEl("snakeQuestionOverlay");
   const q = SNAKE_QUIZ.q;
   if(!overlay || !q){
@@ -8843,7 +8844,8 @@ function snakeShowQuestionDialog(onDone){
       choicesEl.appendChild(li);
     });
   }
-  let countdown = 3;
+  const seconds = Math.max(1, Math.ceil((Number(previewMs) || 0) / 1000));
+  let countdown = seconds;
   if(countdownEl) countdownEl.textContent = String(countdown);
   overlay.classList.remove("hidden");
   if(SNAKE_QUIZ.countdownTimer) clearInterval(SNAKE_QUIZ.countdownTimer);
@@ -8855,6 +8857,17 @@ function snakeShowQuestionDialog(onDone){
       onDone?.();
     }
   }, 1000);
+}
+
+function snakeStartTicker(){
+  if(SNAKE_QUIZ.timer) clearInterval(SNAKE_QUIZ.timer);
+  SNAKE_QUIZ.timer = setInterval(snakeTick, SNAKE_QUIZ.tickMs);
+}
+
+function snakeStopTicker(){
+  if(!SNAKE_QUIZ.timer) return;
+  clearInterval(SNAKE_QUIZ.timer);
+  SNAKE_QUIZ.timer = null;
 }
 
 function snakePool(topicId){
@@ -8947,10 +8960,7 @@ function snakeUpdateHud(){
 }
 
 function snakeStop(){
-  if(SNAKE_QUIZ.timer){
-    clearInterval(SNAKE_QUIZ.timer);
-    SNAKE_QUIZ.timer = null;
-  }
+  snakeStopTicker();
   snakeCloseQuestionDialog();
   SNAKE_QUIZ.running = false;
 }
@@ -8986,9 +8996,17 @@ function snakeTick(){
         SNAKE_QUIZ.best = SNAKE_QUIZ.snake.length;
         localStorage.setItem("snake_quiz_best_length", String(SNAKE_QUIZ.best));
       }
-      snakeSetMsg("✅ Correct! New question spawned.");
+      snakeSetMsg("✅ Correct! Next question appears now.");
       snakeUpdateHud();
       if(!snakeNewQuestion()) return;
+      snakeDraw();
+      snakeStopTicker();
+      snakeShowQuestionDialog(()=>{
+        if(!SNAKE_QUIZ.running) return;
+        snakeSetMsg("Run resumed. Eat the correct A/B/C tile.");
+        snakeStartTicker();
+      });
+      return;
     }else{
       snakeGameOver(`❌ Wrong — ${ate.letter} was incorrect.`);
       return;
@@ -9016,13 +9034,14 @@ function snakeStart(){
   SNAKE_QUIZ.dir = {x:1,y:0};
   SNAKE_QUIZ.nextDir = {x:1,y:0};
   SNAKE_QUIZ.score = 0;
+  SNAKE_QUIZ.running = true;
   snakeUpdateHud();
   if(!snakeNewQuestion()) return;
   snakeDraw();
-  snakeSetMsg("Memorise the question in the dialog. Snake starts in 3 seconds.");
+  snakeSetMsg("Memorise the question in the dialog. Snake starts in 4 seconds.");
   snakeShowQuestionDialog(()=>{
-    SNAKE_QUIZ.running = true;
-    SNAKE_QUIZ.timer = setInterval(snakeTick, SNAKE_QUIZ.tickMs);
+    if(!SNAKE_QUIZ.running) return;
+    snakeStartTicker();
     snakeSetMsg("Run started. Eat the correct A/B/C tile.");
   });
 }
