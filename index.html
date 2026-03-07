@@ -1874,6 +1874,61 @@ section#games.gamePaneActive .gamesHeroCard{
   background: rgba(183,142,161,.16);
 }
 
+.snakeCard{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  background: linear-gradient(165deg, color-mix(in srgb, var(--accent3) 42%, #ffffff 58%), color-mix(in srgb, var(--accent2) 20%, #ffffff 80%));
+  border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding:14px;
+}
+.snakeCard::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image: var(--sectionCardBg);
+  background-size: cover;
+  background-position: center;
+  opacity:.14;
+  filter:var(--paleBlueBgFilter);
+  transform:scale(1.05);
+  z-index:0;
+  pointer-events:none;
+}
+.snakeCard::after{ content:""; position:absolute; inset:0; background:var(--paleBlueBgMask); pointer-events:none; z-index:1; }
+.snakeCard > *{ position:relative; z-index:2; }
+.snakeHud{ display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin:10px 0; }
+.snakeBoard{
+  width:min(100%, 540px);
+  aspect-ratio:1/1;
+  margin:10px auto;
+  display:grid;
+  grid-template-columns:repeat(16, 1fr);
+  grid-template-rows:repeat(16, 1fr);
+  gap:2px;
+  padding:8px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.72);
+}
+.snakeCell{ border-radius:5px; background:rgba(110,144,202,.08); }
+.snakeCell.snake{ background:rgba(72,130,99,.86); }
+.snakeCell.head{ background:#2f6f4b; }
+.snakeCell.foodA{ background:rgba(110,144,202,.58); }
+.snakeCell.foodB{ background:rgba(126,185,170,.72); }
+.snakeCell.foodC{ background:rgba(183,142,161,.66); }
+.snakeChoices{ display:grid; gap:8px; margin-top:8px; }
+.snakeChoice{ border:1px solid var(--line); border-radius:12px; padding:8px 10px; background:rgba(255,255,255,.82); font-weight:800; }
+.snakeBadge{ display:inline-grid; place-items:center; width:24px; height:24px; border-radius:999px; margin-right:8px; font-weight:900; }
+.snakeChoiceA .snakeBadge{ background:rgba(110,144,202,.55); }
+.snakeChoiceB .snakeBadge{ background:rgba(126,185,170,.65); }
+.snakeChoiceC .snakeBadge{ background:rgba(183,142,161,.58); }
+.snakeControls{ display:grid; grid-template-columns:repeat(3, minmax(0,54px)); gap:6px; justify-content:center; margin-top:10px; }
+.snakeDirBtn{ border:1px solid var(--line); border-radius:10px; min-height:46px; font-size:18px; font-weight:900; background:#fff; }
+.snakeDirBtn.empty{ visibility:hidden; pointer-events:none; }
+
 @media (max-width: 680px){
   .bcGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
@@ -3833,6 +3888,11 @@ section#games.gamePaneActive .gamesHeroCard{
         <div class="gamePillTop"><div class="gamePillTitle">Beat the Clock</div><span class="gameMetaTag">Timed pressure</span></div>
         <div class="gamePillDesc">Pick 4 correct key terms from 8 in 20 seconds. Miss the timer and restart the run.</div>
       </button>
+
+      <button class="gamePillBtn" type="button" id="openSnakeQuizBtn">
+        <div class="gamePillTop"><div class="gamePillTitle">Snake Quiz</div><span class="gameMetaTag">Arcade recall</span></div>
+        <div class="gamePillDesc">Nokia-style snake: eat the correct A/B/C answer to grow. Wrong answer ends the run.</div>
+      </button>
     </div>
 
     <!-- Connections game screen -->
@@ -4041,6 +4101,50 @@ section#games.gamePaneActive .gamesHeroCard{
         </div>
 
         <div class="connMsg" id="bcMsg">You have 20 seconds per round.</div>
+      </div>
+    </div>
+
+    <!-- Snake Quiz game screen -->
+    <div id="gamesSnakePane" class="gamePane hidden">
+      <div class="gamePaneTop">
+        <button class="gamesBackPill" type="button" id="backFromSnake" aria-label="Back to Games">
+          <svg class="gamesHeroIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg>
+          <span>Games</span>
+        </button>
+      </div>
+
+      <div class="snakeCard">
+        <div class="row" style="justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div class="grow" style="min-width:220px">
+            <label>Topic</label>
+            <select id="snakeTopicSelect"></select>
+          </div>
+          <div style="display:flex;gap:8px;align-items:flex-end">
+            <button class="btn primary" id="btnStartSnake" type="button">🐍 Start run</button>
+            <button class="btn" id="btnResetSnake" type="button">Reset</button>
+          </div>
+        </div>
+
+        <div class="snakeHud">
+          <div class="pill" id="snakeScorePill">Score: 0</div>
+          <div class="pill" id="snakeLengthPill">Length: 3</div>
+          <div class="pill" id="snakeBestPill">Best: 0</div>
+          <div class="pill" id="snakeStatusPill">Status: Ready</div>
+        </div>
+
+        <div class="note" id="snakePrompt">Press Start run. Use arrow keys or tap controls. Eat the correct option.</div>
+        <div class="snakeBoard" id="snakeBoard" aria-label="Snake game board"></div>
+
+        <div class="snakeChoices" id="snakeChoices"></div>
+
+        <div class="snakeControls" aria-label="Snake direction controls">
+          <button class="snakeDirBtn empty" type="button" tabindex="-1" aria-hidden="true"></button>
+          <button class="snakeDirBtn" type="button" data-dir="up">↑</button>
+          <button class="snakeDirBtn empty" type="button" tabindex="-1" aria-hidden="true"></button>
+          <button class="snakeDirBtn" type="button" data-dir="left">←</button>
+          <button class="snakeDirBtn" type="button" data-dir="down">↓</button>
+          <button class="snakeDirBtn" type="button" data-dir="right">→</button>
+        </div>
       </div>
     </div>
 
@@ -9572,6 +9676,221 @@ const confetti = (() => {
 })();
 
 /* ==========================================================
+   Snake Quiz (Nokia-style + MCQ food)
+   ========================================================== */
+const SNAKE = {
+  size: 16,
+  snake: [],
+  dir: {x:1,y:0},
+  nextDir: {x:1,y:0},
+  foods: [],
+  score: 0,
+  best: 0,
+  grow: 0,
+  timer: null,
+  running: false,
+  topicId: "MIXED",
+  correctLetter: "A",
+  question: null
+};
+
+function snakePopulateSelect(){
+  const sel = $("snakeTopicSelect");
+  if(!sel) return;
+  sel.innerHTML = `<option value="MIXED">Mixed (all topics)</option>`;
+  TOPICS.filter(t=>isTopicEnabled(t.id)).forEach(t=>{
+    const o = document.createElement("option");
+    o.value = t.id;
+    o.textContent = t.title;
+    sel.appendChild(o);
+  });
+  sel.value = getDailyTopicId();
+}
+
+function snakeRandomCell(blockedSet){
+  for(let i=0;i<300;i++){
+    const x = Math.floor(Math.random()*SNAKE.size);
+    const y = Math.floor(Math.random()*SNAKE.size);
+    const k = `${x},${y}`;
+    if(!blockedSet.has(k)) return {x,y};
+  }
+  return null;
+}
+
+function snakeBuildQuestion(){
+  const pool = getQuizPool(SNAKE.topicId);
+  const fallbackPool = getQuizPool("MIXED");
+  const source = (pool.length ? pool : fallbackPool)[Math.floor(Math.random()*Math.max(1, (pool.length ? pool : fallbackPool).length))];
+  if(!source) return null;
+
+  const fallbackAnswers = shuffle(unique(MCQ_BANK.map(q=>q.answer).filter(Boolean))).slice(0,8);
+  const distractors = shuffle(unique(source.choices.filter(c=>c!==source.answer))).slice(0,2);
+  const options = shuffle(unique([source.answer, ...distractors, ...fallbackAnswers])).slice(0,3);
+  while(options.length < 3){ options.push(`Option ${String.fromCharCode(65 + options.length)}`); }
+  const letters = ["A","B","C"];
+  return {
+    prompt: source.q,
+    options,
+    choices: options.map((text, idx)=>({ letter: letters[idx], text, correct: text===source.answer }))
+  };
+}
+
+function snakeRender(){
+  const board = $("snakeBoard");
+  if(!board) return;
+  if(board.children.length !== SNAKE.size * SNAKE.size){
+    board.innerHTML = "";
+    for(let i=0;i<SNAKE.size*SNAKE.size;i++){
+      const d = document.createElement("div");
+      d.className = "snakeCell";
+      board.appendChild(d);
+    }
+  }
+  const cells = board.children;
+  for(const c of cells) c.className = "snakeCell";
+
+  SNAKE.foods.forEach((f, idx)=>{
+    const i = f.y*SNAKE.size + f.x;
+    const cls = idx===0 ? "foodA" : idx===1 ? "foodB" : "foodC";
+    if(cells[i]) cells[i].classList.add(cls);
+  });
+  SNAKE.snake.forEach((s, idx)=>{
+    const i = s.y*SNAKE.size + s.x;
+    if(cells[i]){
+      cells[i].classList.add("snake");
+      if(idx===0) cells[i].classList.add("head");
+    }
+  });
+
+  const scorePill = $("snakeScorePill");
+  const lengthPill = $("snakeLengthPill");
+  const bestPill = $("snakeBestPill");
+  const statusPill = $("snakeStatusPill");
+  if(scorePill) scorePill.textContent = `Score: ${SNAKE.score}`;
+  if(lengthPill) lengthPill.textContent = `Length: ${SNAKE.snake.length}`;
+  if(bestPill) bestPill.textContent = `Best: ${SNAKE.best}`;
+  if(statusPill) statusPill.textContent = `Status: ${SNAKE.running ? "Running" : "Ready"}`;
+
+  const prompt = $("snakePrompt");
+  if(prompt && SNAKE.question) prompt.textContent = `${SNAKE.question.prompt} (Eat ${SNAKE.correctLetter})`;
+
+  const choicesEl = $("snakeChoices");
+  if(choicesEl && SNAKE.question){
+    choicesEl.innerHTML = SNAKE.question.choices.map(c=>`
+      <div class="snakeChoice snakeChoice${c.letter}"><span class="snakeBadge">${c.letter}</span>${escapeHtml(c.text)}</div>
+    `).join("");
+  }
+}
+
+function snakeSetupRound(){
+  const question = snakeBuildQuestion();
+  if(!question){
+    SNAKE.running = false;
+    const p = $("snakePrompt");
+    if(p) p.textContent = "No quiz data available for this topic.";
+    return;
+  }
+  SNAKE.question = question;
+  const correct = question.choices.find(c=>c.correct) || question.choices[0];
+  SNAKE.correctLetter = correct.letter;
+  const blocked = new Set(SNAKE.snake.map(s=>`${s.x},${s.y}`));
+  SNAKE.foods = question.choices.map(c=>{
+    const pos = snakeRandomCell(blocked);
+    if(!pos) return null;
+    blocked.add(`${pos.x},${pos.y}`);
+    return { ...pos, letter:c.letter, correct:c.correct };
+  }).filter(Boolean);
+}
+
+function snakeEnd(msg){
+  SNAKE.running = false;
+  clearInterval(SNAKE.timer);
+  SNAKE.timer = null;
+  SNAKE.best = Math.max(SNAKE.best, SNAKE.score);
+  const prompt = $("snakePrompt");
+  if(prompt) prompt.textContent = msg;
+  snakeRender();
+}
+
+function snakeTick(){
+  if(!SNAKE.running) return;
+  SNAKE.dir = { ...SNAKE.nextDir };
+  const head = SNAKE.snake[0];
+  const next = { x:head.x + SNAKE.dir.x, y:head.y + SNAKE.dir.y };
+
+  if(next.x < 0 || next.y < 0 || next.x >= SNAKE.size || next.y >= SNAKE.size){
+    snakeEnd("Game over: wall hit. Press Start run to try again.");
+    return;
+  }
+  if(SNAKE.snake.some(s=>s.x===next.x && s.y===next.y)){
+    snakeEnd("Game over: you hit your snake. Press Start run to try again.");
+    return;
+  }
+
+  SNAKE.snake.unshift(next);
+  const hitFood = SNAKE.foods.find(f=>f.x===next.x && f.y===next.y);
+  if(hitFood){
+    if(hitFood.correct){
+      SNAKE.score += 1;
+      SNAKE.grow += 1;
+      snakeSetupRound();
+      if(SNAKE.score && SNAKE.score % 4 === 0){
+        clearInterval(SNAKE.timer);
+        SNAKE.timer = setInterval(snakeTick, Math.max(85, 155 - SNAKE.score*3));
+      }
+    }else{
+      snakeEnd(`Wrong answer (${hitFood.letter}). You needed ${SNAKE.correctLetter}.`);
+      return;
+    }
+  }
+
+  if(SNAKE.grow > 0) SNAKE.grow -= 1;
+  else SNAKE.snake.pop();
+  snakeRender();
+}
+
+function snakeStart(){
+  clearInterval(SNAKE.timer);
+  SNAKE.topicId = $("snakeTopicSelect")?.value || "MIXED";
+  SNAKE.snake = [ {x:8,y:8}, {x:7,y:8}, {x:6,y:8} ];
+  SNAKE.dir = {x:1,y:0};
+  SNAKE.nextDir = {x:1,y:0};
+  SNAKE.score = 0;
+  SNAKE.grow = 0;
+  SNAKE.running = true;
+  snakeSetupRound();
+  snakeRender();
+  SNAKE.timer = setInterval(snakeTick, 155);
+}
+
+function snakeQueueDirection(dir){
+  const map = {
+    up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0}
+  };
+  const next = map[dir];
+  if(!next || !SNAKE.running) return;
+  if((SNAKE.dir.x + next.x === 0) && (SNAKE.dir.y + next.y === 0)) return;
+  SNAKE.nextDir = next;
+}
+
+function initSnakeGame(){
+  snakePopulateSelect();
+  snakeRender();
+  $("btnStartSnake")?.addEventListener("click", snakeStart);
+  $("btnResetSnake")?.addEventListener("click", ()=>snakeEnd("Run reset. Press Start run."));
+  document.querySelectorAll("#gamesSnakePane .snakeDirBtn[data-dir]").forEach(btn=>{
+    btn.addEventListener("click", ()=>snakeQueueDirection(btn.dataset.dir));
+  });
+  document.addEventListener("keydown", (e)=>{
+    if($("gamesSnakePane")?.classList.contains("hidden")) return;
+    if(e.key === "ArrowUp" || e.key.toLowerCase()==="w") snakeQueueDirection("up");
+    if(e.key === "ArrowDown" || e.key.toLowerCase()==="s") snakeQueueDirection("down");
+    if(e.key === "ArrowLeft" || e.key.toLowerCase()==="a") snakeQueueDirection("left");
+    if(e.key === "ArrowRight" || e.key.toLowerCase()==="d") snakeQueueDirection("right");
+  });
+}
+
+/* ==========================================================
    NAV RULE
    ========================================================== */
 function setTab(tabId){
@@ -9607,13 +9926,14 @@ if(streakProgressBtn){
 }
 
 /* Games hub navigation */
-const GAME_PANES = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane"];
+const GAME_PANES = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakePane"];
 const GAME_LABELS = {
   gamesConnPane: "Connections",
   gamesEmojiPane: "Emoji Multiple Choice",
   gamesMatchPane: "Match-Up",
   gamesTimelinePane: "Timeline Tension",
-  gamesBeatClockPane: "Beat the Clock"
+  gamesBeatClockPane: "Beat the Clock",
+  gamesSnakePane: "Snake Quiz"
 };
 let LAST_GAME_PANE = null;
 
@@ -9641,6 +9961,7 @@ function gamesShowHub(){
   hub.classList.remove("hidden");
   GAME_PANES.forEach(id => $(id) && $(id).classList.add("hidden"));
   if($("timelineTopicSelect")) tlPopulateSelect();
+  if($("snakeTopicSelect")) snakePopulateSelect();
   updateGamesHubMeta();
   window.scrollTo(0,0);
 }
@@ -9654,8 +9975,8 @@ function openGamePane(paneId){
   window.scrollTo(0,0);
 }
 window.addEventListener("DOMContentLoaded", ()=>{
-  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn");
-  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock");
+  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn"), openSnakeQuiz = $("openSnakeQuizBtn");
+  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock"), backSnake = $("backFromSnake");
   const quickStart = $("gamesQuickStartBtn");
   const resume = $("gamesResumeBtn");
 
@@ -9664,9 +9985,10 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(openMatch) openMatch.addEventListener("click", ()=>{ markGameSessionCompleted("match", $("matchTopicSelect").value === "MIXED" ? getDailyTopicId() : $("matchTopicSelect").value); openGamePane("gamesMatchPane"); });
   if(openTimeline) openTimeline.addEventListener("click", ()=>{ markGameSessionCompleted("timeline", $("timelineTopicSelect")?.value || getDailyTopicId()); openGamePane("gamesTimelinePane"); });
   if(openBeatClock) openBeatClock.addEventListener("click", ()=>{ markGameSessionCompleted("beat_clock", getDailyTopicId()); openGamePane("gamesBeatClockPane"); });
+  if(openSnakeQuiz) openSnakeQuiz.addEventListener("click", ()=>{ markGameSessionCompleted("snake_quiz", $("snakeTopicSelect")?.value || getDailyTopicId()); openGamePane("gamesSnakePane"); });
 
   if(quickStart) quickStart.addEventListener("click", ()=>{
-    const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane"];
+    const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakePane"];
     const pane = picker[Math.floor(Math.random()*picker.length)];
     openGamePane(pane);
   });
@@ -9677,9 +9999,11 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(backMatch) backMatch.addEventListener("click", gamesShowHub);
   if(backTimeline) backTimeline.addEventListener("click", gamesShowHub);
   if(backBeatClock) backBeatClock.addEventListener("click", gamesShowHub);
+  if(backSnake) backSnake.addEventListener("click", gamesShowHub);
 
   updateGamesHubMeta();
   initTimelineGame();
+  initSnakeGame();
 });
 
 
