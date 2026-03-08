@@ -3959,6 +3959,16 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
   </div>
 
+  <div id="snakeQuestionOverlay" class="modalBackdrop snakeQuestionOverlay hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Snake question preview">
+    <div class="onboardingModal snakeQuestionModal" aria-labelledby="snakeQuestionDialogTitle" aria-describedby="snakeQuestionDialogBody">
+      <h3 class="onboardingTitle" id="snakeQuestionDialogTitle">Snake question</h3>
+      <div class="note" id="snakeQuestionDialogBody"></div>
+      <ol class="snakeChoiceList" id="snakeQuestionDialogChoices"></ol>
+      <div class="divider"></div>
+      <div class="note">Snake continues in <span class="snakeQuestionCountdown" id="snakeQuestionCountdown">4</span>s</div>
+    </div>
+  </div>
+
   <div id="lessonInfographicOverlay" class="lessonInfographicOverlay hidden" role="dialog" aria-modal="true" aria-label="Lesson infographic viewer">
     <div class="lessonInfographicTop">
       <button class="btn" id="closeLessonInfographicBtn" type="button">Close</button>
@@ -4277,16 +4287,6 @@ section#games.gamePaneActive .gamesHeroCard{
             <div class="pill" id="snakeQuizLenPill">Length: 3</div>
             <div class="pill" id="snakeQuizScorePill">Correct: 0</div>
             <div class="pill" id="snakeQuizBestPill">🏆 Best length: 3</div>
-          </div>
-        </div>
-
-        <div id="snakeQuestionOverlay" class="modalBackdrop snakeQuestionOverlay hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Snake question preview">
-          <div class="onboardingModal snakeQuestionModal" aria-labelledby="snakeQuestionDialogTitle" aria-describedby="snakeQuestionDialogBody">
-            <h3 class="onboardingTitle" id="snakeQuestionDialogTitle">Snake question</h3>
-            <div class="note" id="snakeQuestionDialogBody"></div>
-            <ol class="snakeChoiceList" id="snakeQuestionDialogChoices"></ol>
-            <div class="divider"></div>
-            <div class="note">Snake starts in <span class="snakeQuestionCountdown" id="snakeQuestionCountdown">4</span>s</div>
           </div>
         </div>
 
@@ -8996,7 +8996,7 @@ function snakeTick(){
         SNAKE_QUIZ.best = SNAKE_QUIZ.snake.length;
         localStorage.setItem("snake_quiz_best_length", String(SNAKE_QUIZ.best));
       }
-      snakeSetMsg("✅ Correct! Next question appears now.");
+      snakeSetMsg("✅ Correct! Review the next question in the pop-up.");
       snakeUpdateHud();
       if(!snakeNewQuestion()) return;
       snakeDraw();
@@ -9038,7 +9038,7 @@ function snakeStart(){
   snakeUpdateHud();
   if(!snakeNewQuestion()) return;
   snakeDraw();
-  snakeSetMsg("Memorise the question in the dialog. Snake starts in 4 seconds.");
+  snakeSetMsg("Memorise the question in the pop-up. Snake starts in 4 seconds.");
   snakeShowQuestionDialog(()=>{
     if(!SNAKE_QUIZ.running) return;
     snakeStartTicker();
