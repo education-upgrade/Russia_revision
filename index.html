@@ -1944,29 +1944,38 @@ section#games.gamePaneActive .gamesHeroCard{
   border:1px solid var(--line);
   border-radius:14px;
   background:rgba(255,255,255,.86);
-  padding:10px;
+  padding:14px;
   display:grid;
-  gap:6px;
+  gap:10px;
 }
 .snakeChoiceList{
   margin:0;
-  padding-left:20px;
+  padding-left:24px;
   color:var(--muted);
-  font-size:13px;
+  font-size:16px;
   font-weight:800;
   display:grid;
-  gap:4px;
+  gap:6px;
 }
 .snakeChoiceList li strong{ color:var(--textStrong); }
 .snakeQuestionOverlay{
   z-index:10050;
 }
 .snakeQuestionModal{
-  width:min(560px, 92vw);
+  width:min(680px, 94vw);
 }
 .snakeQuestionCountdown{
   font-weight:1000;
   color:var(--textStrong);
+  font-size:22px;
+}
+.snakeQuestionModal .onboardingTitle{
+  font-size:30px;
+}
+.snakeQuestionModal #snakeQuestionDialogBody,
+.snakeQuestionModal .note{
+  font-size:19px;
+  line-height:1.45;
 }
 .snakeHeaderCompact{
   display:grid;
@@ -2015,8 +2024,8 @@ section#games.gamePaneActive .gamesHeroCard{
     max-width:min(100%, 300px);
   }
   .snakeQuestionBox{
-    padding:8px;
-    gap:4px;
+    padding:12px;
+    gap:8px;
   }
   .snakeHeaderCompact .gameMissionTitle{
     font-size:16px;
@@ -2025,14 +2034,14 @@ section#games.gamePaneActive .gamesHeroCard{
     font-size:12px;
   }
   .snakeQuestionBox .note{
-    font-size:13px;
+    font-size:16px;
     line-height:1.3;
   }
   .snakeChoiceList{
-    font-size:12px;
-    gap:2px;
+    font-size:15px;
+    gap:4px;
     line-height:1.25;
-    padding-left:18px;
+    padding-left:22px;
   }
   .snakePad{
     max-width:min(100%, 360px);
