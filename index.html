@@ -258,7 +258,7 @@
   box-shadow:var(--shadow);
   cursor:pointer;
   display:grid;
-  grid-template-columns:96px minmax(0,1fr) auto;
+  grid-template-columns:96px minmax(0,1fr);
   gap:12px;
   align-items:start;
   transition: opacity .22s ease, filter .22s ease;
@@ -330,15 +330,8 @@
   margin-top:8px;
   width:100%;
   display:grid;
-  grid-template-columns:minmax(0,1fr);
+  grid-template-columns:minmax(0,1fr) auto;
   align-items:center;
-}
-
-.topicSideControls{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-end;
-  justify-content:flex-start;
   gap:10px;
 }
 
@@ -420,7 +413,6 @@
 @media (max-width:420px){
   .topicTile{ grid-template-columns:72px minmax(0,1fr); }
   .topicThumb{ width:72px; height:72px; }
-  .topicSideControls{ grid-column:1 / -1; flex-direction:row; justify-content:space-between; align-items:flex-start; }
   .topicTile .tileMain{ font-size:18px; }
   .topicTogglePill{ padding:4px 6px; }
 }
@@ -499,7 +491,7 @@
 
 /* Preserve readability of long level labels when card width is constrained */
 @media (max-width:720px){
-  .topicPillRow{ grid-template-columns:minmax(0,1fr); }
+  .topicPillRow{ grid-template-columns:minmax(0,1fr) auto; }
   .topicStatusDot{ display:none; }
 }
 
@@ -18305,15 +18297,12 @@ function renderTopicDashboard(){
           </div>
           <div class="topicPillRow">
             <div class="levelBadge level-${lvl.key}">${badgeText}</div>
-          </div>
-        </div>
-        <div class="topicSideControls">
-          <div class="topicStatusDot ${topicMastery >= 80 ? "attarget" : topicMastery > 0 ? "inprogress" : "new"}" title="${topicMastery >= 80 ? "At target" : topicMastery > 0 ? "In progress" : "New"}"></div>
-          <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
-            <label class="switch">
-              <input type="checkbox" class="topicToggle" data-topic-toggle="${tid}" ${isTopicEnabled(tid) ? "checked" : ""} aria-label="Toggle topic ${tid}">
-              <span class="slider"></span>
-            </label>
+            <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
+              <label class="switch">
+                <input type="checkbox" class="topicToggle" data-topic-toggle="${tid}" ${isTopicEnabled(tid) ? "checked" : ""} aria-label="Toggle topic ${tid}">
+                <span class="slider"></span>
+              </label>
+            </div>
           </div>
         </div>
       </button>
