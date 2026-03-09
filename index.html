@@ -245,62 +245,104 @@
 
 .topicDash{
   display:grid;
-  /* Smaller, more navigable dashboard tiles */
-  grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
-  gap:10px;
+  grid-template-columns:1fr;
+  gap:12px;
   margin:10px 0 6px;
 }
 .topicTile{
   width:100%;
   border:1px solid var(--line);
-  background:transparent;
-  border-radius:16px;
-  padding:10px 10px 10px;
+  background:linear-gradient(170deg, color-mix(in srgb, var(--accent3) 56%, #ffffff 44%), color-mix(in srgb, var(--accent2) 24%, #ffffff 76%));
+  border-radius:18px;
+  padding:12px;
   box-shadow:var(--shadow);
   cursor:pointer;
-  display:flex;
-  flex-direction:column;
+  display:grid;
+  grid-template-columns:96px minmax(0,1fr) auto;
+  gap:12px;
   align-items:center;
-  gap:8px;
   transition: opacity .22s ease, filter .22s ease;
   position:relative;
-  isolation:isolate;
   overflow:hidden;
 }
-.topicTile::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background-image:var(--topicTileBg, none);
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-  filter:var(--paleBlueBgFilter);
-  opacity:.24;
-  pointer-events:none;
-  z-index:0;
-}
-.topicTile::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg, rgba(255,255,255,.44), rgba(255,255,255,.58));
-  pointer-events:none;
-  z-index:1;
-}
-.topicTile > *{ position:relative; z-index:2; }
 .topicTile:hover{ filter:brightness(0.99); }
 .topicTile:active{ transform:translateY(1px); }
 
-/* Topic on/off toggle (per tile) */
-.topicPillRow{
-  width:100%;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto auto;
+.topicThumb{
+  width:96px;
+  height:96px;
+  border-radius:14px;
+  border:1px solid color-mix(in srgb, var(--line) 75%, var(--accent2) 25%);
+  background-image:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.28)), var(--topicBg, none);
+  background-size:cover;
+  background-position:center;
+  box-shadow:0 8px 14px rgba(0,0,0,.12);
+  position:relative;
+  overflow:hidden;
+}
+.topicThumbNum{
+  position:absolute;
+  top:8px;
+  left:8px;
+  min-width:28px;
+  height:28px;
+  padding:0 8px;
+  border-radius:999px;
+  display:inline-flex;
   align-items:center;
-  gap:6px;
+  justify-content:center;
+  font-weight:900;
+  font-size:14px;
+  border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
+  background:rgba(255,255,255,.9);
 }
 
+.topicMainCol{ min-width:0; }
+.topicTitleRow{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.topicTile .tileMain{
+  font-size:22px;
+  line-height:1.1;
+  margin:0;
+}
+.topicTile .tileYears{
+  margin-top:4px;
+  font-size:13px;
+}
+
+.topicProgressMeta{
+  margin-top:10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  font-size:11px;
+  font-weight:900;
+  color:var(--muted);
+}
+.topicProgressTrack{ margin-top:6px; }
+
+.topicPillRow{
+  margin-top:8px;
+  width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  align-items:center;
+}
+
+.topicSideControls{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  justify-content:center;
+  gap:10px;
+}
+
+/* Topic on/off toggle (per tile) */
 .topicStatusDot{
   width:10px;
   height:10px;
@@ -368,109 +410,18 @@
   opacity:.56;
   filter:saturate(.72);
 }
-.topicTile.isDisabled .progressTank{
-  filter:saturate(.72) brightness(.98);
-}
-
-/* =========================
-   Topic tiles (liquid fill)
-   ========================= */
-.progressTank{
-  width:100%;
-  height:132px;
-  border-radius:16px;
-  border:1px solid color-mix(in srgb, var(--line) 82%, var(--accent2) 18%);
-  background:transparent;
-  box-shadow: 0 8px 14px rgba(0,0,0,.06);
-  position:relative;
-  overflow:hidden;
-  transition: filter .22s ease;
-}
-.progressTank::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background-image:var(--topicBg, linear-gradient(180deg, color-mix(in srgb, var(--accent3) 36%, #ffffff 64%), color-mix(in srgb, var(--accent2) 45%, #ffffff 55%)));
-  background-size:cover;
-  background-position:center;
-  background-repeat:no-repeat;
-  filter:var(--paleBlueBgFilter);
-  opacity:.55;
-  pointer-events:none;
-  z-index:0;
-}
-.progressTank::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.14));
-  pointer-events:none;
-  z-index:1;
-}
-.progressLiquid{
-  position:absolute;
-  left:0; right:0; bottom:0;
-  height: var(--fill, 0%);
-  /* Progress tint should be clear but still let the background image show through */
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,.14) 0%,
-    rgba(255,255,255,0) 20%
-  ),
-  linear-gradient(
-    135deg,
-    rgba(183,142,161,.38),
-    rgba(183,142,161,.56)
-  );
-  background: linear-gradient(
-    180deg,
-    rgba(255,255,255,.2) 0%,
-    rgba(255,255,255,0) 24%
-  ),
-  linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--liq, var(--bad)) 76%, transparent),
-    color-mix(in srgb, var(--liq, var(--bad)) 92%, transparent)
-  );
-  border-top:1px solid rgba(255,255,255,.32);
-  transition: height .7s cubic-bezier(.2,.9,.2,1), opacity .22s ease;
-  will-change: height;
-  z-index:2;
-}
-.topicTile.isDisabled .progressLiquid{ opacity:.48; }
-
-.tankContent{
-  position:absolute;
-  inset:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:14px 12px;
-  z-index:3;
-}
-.tileTitlePanel{
-  background:linear-gradient(180deg, rgba(255,255,255,.78), color-mix(in srgb, var(--accent3) 56%, #ffffff 44%));
-  border:1px solid color-mix(in srgb, var(--accent) 36%, #ffffff 64%);
-  border-radius:12px;
-  padding:8px 10px;
-  box-shadow:0 4px 10px rgba(0,0,0,.16);
-}
-.tankContent .tileNum{ font-size:18px; }
-.tankContent .tileMain{ font-size:13px; }
-.tankContent .tileYears{ font-size:11px; }
-
 .topicTile .levelBadge{
-  margin-top:0;
-  width:100%;
-  min-width:0;
-  max-width:100%;
+  width:auto;
+  min-height:30px;
+  padding:6px 10px;
+  font-size:11px;
 }
 
 @media (max-width:420px){
-  .progressTank{ height:124px; }
-  .topicPillRow{ grid-template-columns:minmax(0,1fr) auto; }
-  .topicStatusDot{ display:none; }
+  .topicTile{ grid-template-columns:72px minmax(0,1fr); }
+  .topicThumb{ width:72px; height:72px; }
+  .topicSideControls{ grid-column:1 / -1; flex-direction:row; justify-content:space-between; align-items:center; }
+  .topicTile .tileMain{ font-size:18px; }
   .topicTogglePill{ padding:4px 6px; }
 }
 
@@ -542,13 +493,13 @@
 
 /* Tighten on very small screens */
 @media (max-width:420px){
-  .topicDash{ grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:9px; }
+  .topicDash{ grid-template-columns:1fr; gap:9px; }
   .xpRing{ width:112px; height:112px; }
 }
 
 /* Preserve readability of long level labels when card width is constrained */
 @media (max-width:720px){
-  .topicPillRow{ grid-template-columns:minmax(0,1fr) auto; }
+  .topicPillRow{ grid-template-columns:minmax(0,1fr); }
   .topicStatusDot{ display:none; }
 }
 
@@ -18287,19 +18238,13 @@ function renderTopicDashboard(){
 
   const topicIds = Object.keys(FACT_BANK);
 
-  function tileTitleHTML(title){
+  function tileTitleParts(title){
     // Expect: "1. Something 1855-1894"
     const m = String(title).match(/^(\d+)\.\s*(.*)\s(\d{4}-\d{4})$/);
     if(m){
-      return `
-        <div class="tileTitlePanel">
-          <div class="tileNum">${escapeHtml(m[1])}</div>
-          <div class="tileMain">${escapeHtml(m[2])}</div>
-          <div class="tileYears">${escapeHtml(m[3])}</div>
-        </div>
-      `;
+      return { num: m[1], main: m[2], years: m[3] };
     }
-    return `<div class="tileTitlePanel"><div class="tileMain">${escapeHtml(title)}</div></div>`;
+    return { num: "", main: String(title), years: "" };
   }
 
 
@@ -18314,28 +18259,8 @@ function renderTopicDashboard(){
     const t = FACT_BANK[tid];
     const conf = topicConfidence(tid);
     const model = topicProgressModel(tid);
-    const xp = model.xp;
     const unifiedLevel = model.unifiedLevel;
     const blendedProgress = model.blendedProgress;
-
-    const total = Math.max(1, conf.total || 0);
-    const gRaw = (conf.counts.secure/total)*100;
-    const yRaw = (conf.counts.developing/total)*100;
-
-    // ensure the ring always closes cleanly
-    let g = Math.round(gRaw);
-    let y = Math.round(yRaw);
-    if(g + y > 100){
-      const over = (g + y) - 100;
-      if(y >= over) y -= over; else g -= over;
-    }
-    const r = 100 - g - y;
-
-    // Liquid fill: weight secure as 1, developing as 0.5 (0–100%)
-    const fill = Math.max(0, Math.min(100, Math.round(((conf.counts.secure + (conf.counts.developing*0.5)) / total) * 100)));
-
-    // Liquid colour shifts with progress (same traffic-light scheme)
-    const liq = (blendedProgress >= 70) ? "var(--good)" : (blendedProgress >= 35) ? "var(--warn)" : "var(--bad)";
 
     const legacyLvl = conf.levelObj || getXpLevel(conf.avg||0);
     const lvl = {
@@ -18361,17 +18286,30 @@ function renderTopicDashboard(){
     }
 
     const topicBg = topicBackgrounds[tid] || "section-bg.jpg";
+    const titleBits = tileTitleParts(t.title);
 
     return `
-      <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic" style="--topicTileBg:url('${topicBg}');">
-        <div class="progressTank" style="--fill:${blendedProgress}%; --liq:${liq}; --topicBg:url('${topicBg}');">
-          <div class="progressLiquid"></div>
-          <div class="tankContent">
-            ${tileTitleHTML(t.title)}
+      <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic" style="--topicBg:url('${topicBg}');">
+        <div class="topicThumb">
+          ${titleBits.num ? `<div class="topicThumbNum">${escapeHtml(titleBits.num)}</div>` : ""}
+        </div>
+        <div class="topicMainCol">
+          <div class="topicTitleRow">
+            <div class="tileMain">${escapeHtml(titleBits.main)}</div>
+          </div>
+          ${titleBits.years ? `<div class="tileYears">${escapeHtml(titleBits.years)}</div>` : ""}
+          <div class="topicProgressMeta">
+            <span>Progress</span>
+            <span>${Math.round(blendedProgress)}%</span>
+          </div>
+          <div class="progressTrack topicProgressTrack" role="presentation" aria-hidden="true">
+            <div class="progressFill" style="width:${blendedProgress}%"></div>
+          </div>
+          <div class="topicPillRow">
+            <div class="levelBadge level-${lvl.key}">${badgeText}</div>
           </div>
         </div>
-        <div class="topicPillRow">
-          <div class="levelBadge level-${lvl.key}">${badgeText}</div>
+        <div class="topicSideControls">
           <div class="topicStatusDot ${topicMastery >= 80 ? "attarget" : topicMastery > 0 ? "inprogress" : "new"}" title="${topicMastery >= 80 ? "At target" : topicMastery > 0 ? "In progress" : "New"}"></div>
           <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
             <label class="switch">
