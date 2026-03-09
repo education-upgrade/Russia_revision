@@ -512,6 +512,32 @@
 .level-xp-2{ background:rgba(126,185,170,.20); }
 .level-xp-3{ background:rgba(126,185,170,.28); border-color: rgba(126,185,170,.55); }
 
+
+/* Journey redesign */
+.topicJourney{display:flex;flex-direction:column;gap:14px;position:relative;padding:4px 2px}
+.topicJourneyItem{position:relative;border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:20px;padding:14px;background:linear-gradient(170deg, color-mix(in srgb, var(--accent3) 52%, #ffffff 48%), color-mix(in srgb, var(--accent2) 20%, #ffffff 80%));box-shadow:var(--shadow)}
+.topicJourneyItem::after{content:"";position:absolute;left:34px;bottom:-18px;width:2px;height:18px;background:color-mix(in srgb, var(--line) 70%, var(--accent2) 30%)}
+.topicJourneyItem:last-child::after{display:none}
+.topicJourneyItem.locked{opacity:.62;filter:saturate(.8)}
+.topicMilestone{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;cursor:pointer;background:transparent;border:0;width:100%;text-align:left;padding:0}
+.topicRing{--pct:0;position:relative;width:92px;height:92px;border-radius:999px;background:conic-gradient(color-mix(in srgb, var(--accent2) 72%, #255182 28%) calc(var(--pct)*1%), color-mix(in srgb, var(--line) 78%, #ffffff 22%) 0)}
+.topicRing::before{content:"";position:absolute;inset:7px;border-radius:999px;background:#fff;border:1px solid color-mix(in srgb, var(--line) 75%, var(--accent2) 25%)}
+.topicRingInner{position:absolute;inset:0;display:grid;place-items:center;font-size:11px;font-weight:900;color:var(--textStrong);z-index:2}
+.topicMilestoneTitle{font-size:16px;font-weight:900;line-height:1.2}
+.topicMilestoneYears{font-size:12px;color:var(--muted);font-weight:800;margin-top:2px}
+.topicMilestoneStatus{font-size:11px;font-weight:900;border:1px solid var(--line);border-radius:999px;padding:5px 9px;background:#fff}
+.journeyNodes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px}
+.journeyNode{border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);border-radius:999px;padding:8px 10px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:11px;font-weight:900;cursor:pointer;min-height:38px}
+.journeyNode .mini{font-size:10px;color:var(--muted);font-weight:800}
+.journeyNode.locked{opacity:.55;cursor:not-allowed}
+.journeyNode.complete{border-color:color-mix(in srgb, var(--good) 70%, var(--line) 30%)}
+.journeyNode.active{outline:2px solid color-mix(in srgb, var(--accent2) 72%, #2d598d 28%);outline-offset:1px}
+.journeyNode .dot{width:10px;height:10px;border-radius:50%;border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);background:color-mix(in srgb, #fff 86%, var(--accent3) 14%)}
+.journeyNode.complete .dot{background:var(--good)}
+.journeyNode.building .dot{background:var(--warn)}
+.journeyNote{margin-top:8px;font-size:11px;color:var(--muted);font-weight:800}
+@media (max-width:560px){.journeyNodes{grid-template-columns:repeat(2,minmax(0,1fr))}.topicMilestoneTitle{font-size:15px}.topicRing{width:84px;height:84px}}
+
 .progressHeadlineBar{margin-top:10px}
 .progressTrack{height:12px;border-radius:999px;background:color-mix(in srgb, var(--accent2) 34%, #ffffff 66%);border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);overflow:hidden}
 .progressFill{height:100%;background:linear-gradient(90deg,var(--warn),var(--good));width:0}
@@ -3521,17 +3547,25 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
 
       <div class="streakChecklist" aria-label="Daily Challenge checklist">
-        <button class="checkRow checkRowBtn" id="goDailyFlash" type="button" aria-label="Open flashcards for today's Daily Challenge topic">
-          <div class="checkLeft"><span class="checkDot" id="chkFlashDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg></span> Flashcards</div>
-          <div class="checkVal" id="chkFlashVal">0/12</div>
+        <button class="checkRow checkRowBtn" id="goDailyLessons" type="button" aria-label="Open lessons for today's active topic">
+          <div class="checkLeft"><span class="checkDot" id="chkLessonsDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg></span> Lessons</div>
+          <div class="checkVal" id="chkLessonsVal">Pending</div>
         </button>
-        <button class="checkRow checkRowBtn" id="goDailyQuiz" type="button" aria-label="Open topic quiz for today's Daily Challenge topic">
-          <div class="checkLeft"><span class="checkDot" id="chkQuizDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg></span> Topic Quiz</div>
-          <div class="checkVal" id="chkQuizVal">0% / 100%</div>
+        <button class="checkRow checkRowBtn" id="goDailyFlash" type="button" aria-label="Open study for today's active topic">
+          <div class="checkLeft"><span class="checkDot" id="chkFlashDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg></span> Study</div>
+          <div class="checkVal" id="chkFlashVal">Pending</div>
         </button>
-        <button class="checkRow checkRowBtn" id="goDailyPlan" type="button" aria-label="Open the 25-mark plan for today's Daily Challenge topic">
-          <div class="checkLeft"><span class="checkDot" id="chkPlanDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg></span> 25-mark plan</div>
-          <div class="checkVal" id="chkPlanVal">Not started</div>
+        <button class="checkRow checkRowBtn" id="goDailyQuiz" type="button" aria-label="Open quiz for today's active topic">
+          <div class="checkLeft"><span class="checkDot" id="chkQuizDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg></span> Quiz</div>
+          <div class="checkVal" id="chkQuizVal">Pending</div>
+        </button>
+        <button class="checkRow checkRowBtn" id="goDailyGames" type="button" aria-label="Open games for today's active topic">
+          <div class="checkLeft"><span class="checkDot" id="chkGamesDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg></span> Games</div>
+          <div class="checkVal" id="chkGamesVal">Pending</div>
+        </button>
+        <button class="checkRow checkRowBtn" id="goDailyPlan" type="button" aria-label="Open exam practice for today's active topic">
+          <div class="checkLeft"><span class="checkDot" id="chkPlanDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg></span> Exam Practice</div>
+          <div class="checkVal" id="chkPlanVal">Pending</div>
         </button>
       </div>
 
@@ -3551,12 +3585,20 @@ section#games.gamePaneActive .gamesHeroCard{
     <div class="card valuePropCard homeTertiaryCard">
       <div class="row" style="justify-content:space-between">
         <div>
-          <div style="font-weight:900;font-size:16px">Topic Tiles</div>
-          <div class="note">Toggle topics that apply to you only. Ask your teacher if you aren't sure!</div>
+          <div style="font-weight:900;font-size:16px">YOUR RUSSIA JOURNEY</div>
+          <div class="note">A chronological route through each topic. Locked topics are skipped automatically.</div>
         </div>
       </div>
       <div class="divider"></div>
-      <div id="topicDash" class="topicDash"></div>
+      <div id="topicDash" class="topicJourney" aria-live="polite"></div>
+    </div>
+
+    <div class="card homeTertiaryCard" id="nextStepCard">
+      <div class="recommendedCardTitle">Next Step</div>
+      <div class="recommendedLabel" id="nextStepTitle">Continue your journey</div>
+      <div class="recommendedReason" id="nextStepReason">We'll suggest the most logical next stage.</div>
+      <div class="recommendedMeta note" id="nextStepMeta">—</div>
+      <div style="margin-top:10px"><button class="btn primary" id="nextStepBtn" type="button">Continue</button></div>
     </div>
 
     <div class="card homeTertiaryCard">
@@ -9740,17 +9782,19 @@ function renderStreakHero(){
   const textEl = $("streakStatusText");
   const cd = $("streakCountdown");
 
-  const doneFlash = d.flash >= DAILY_FLASH_GOAL;
-  const doneQuiz  = d.quizBest >= DAILY_QUIZ_GOAL;
-  const donePlan  = !!d.planOpened;
+  const snap = journeyDailySnapshot();
 
-  const flashDot = $("chkFlashDot"); if(flashDot) flashDot.classList.toggle("done", doneFlash);
-  const quizDot  = $("chkQuizDot");  if(quizDot)  quizDot.classList.toggle("done", doneQuiz);
-  const planDot  = $("chkPlanDot");  if(planDot)  planDot.classList.toggle("done", donePlan);
+  const lessonsDot = $("chkLessonsDot"); if(lessonsDot) lessonsDot.classList.toggle("done", snap.doneLessons);
+  const flashDot = $("chkFlashDot"); if(flashDot) flashDot.classList.toggle("done", snap.doneStudy);
+  const quizDot  = $("chkQuizDot");  if(quizDot)  quizDot.classList.toggle("done", snap.doneQuiz);
+  const gamesDot = $("chkGamesDot"); if(gamesDot) gamesDot.classList.toggle("done", snap.doneGames);
+  const planDot  = $("chkPlanDot");  if(planDot)  planDot.classList.toggle("done", snap.doneExam);
 
-  const flashVal = $("chkFlashVal"); if(flashVal) flashVal.textContent = `${Math.min(d.flash, DAILY_FLASH_GOAL)}/${DAILY_FLASH_GOAL}`;
-  const quizVal  = $("chkQuizVal");  if(quizVal)  quizVal.textContent = `${Math.min(100, d.quizBest)}% / ${DAILY_QUIZ_GOAL}%`;
-  const planVal  = $("chkPlanVal");  if(planVal)  planVal.textContent = donePlan ? "Started" : "Not started";
+  const lessonsVal = $("chkLessonsVal"); if(lessonsVal) lessonsVal.textContent = snap.doneLessons ? "Secure" : "Pending";
+  const flashVal = $("chkFlashVal"); if(flashVal) flashVal.textContent = snap.doneStudy ? "Secure" : "Pending";
+  const quizVal  = $("chkQuizVal");  if(quizVal)  quizVal.textContent = snap.doneQuiz ? "Secure" : "Pending";
+  const gamesVal = $("chkGamesVal"); if(gamesVal) gamesVal.textContent = snap.doneGames ? "Secure" : "Pending";
+  const planVal  = $("chkPlanVal");  if(planVal)  planVal.textContent = snap.doneExam ? "Secure" : "Pending";
 
   if(box){
     box.classList.toggle("safe", doneToday);
@@ -9830,22 +9874,32 @@ function renderStreakHero(){
 
 }
 
+function journeyDailySnapshot(){
+  const d = ensureDaily();
+  const stats = touchTopicStats(d.topicId);
+  const lessonTopic = (lessonsData || []).find(t=>t.id===d.topicId);
+  const lessonSummary = lessonTopic ? getTopicProgressSummary(lessonTopic) : { percent:0 };
+  const doneLessons = Number(stats.lessonsDone||0) > 0 || Number(lessonSummary.percent||0) > 0;
+  const doneStudy = Number(stats.studyMinutes||0) >= 10 || Number(d.flash||0) >= 5;
+  const doneQuiz = Number(stats.quizBestPercent||0) >= 60 || Number(d.quizBest||0) >= 60;
+  const doneGames = Number(stats.gamesDone||0) > 0;
+  const doneExam = !!stats.planStarted || !!d.planOpened;
+  const completedCount = [doneLessons, doneStudy, doneQuiz, doneGames, doneExam].filter(Boolean).length;
+  return { doneLessons, doneStudy, doneQuiz, doneGames, doneExam, completedCount };
+}
+
 function checkDailyComplete(){
   const d = ensureDaily();
   if(d.completed) return;
-  if(d.flash >= DAILY_FLASH_GOAL && d.quizBest >= DAILY_QUIZ_GOAL && d.planOpened){
+  const snap = journeyDailySnapshot();
+  if(snap.completedCount >= 1){
     d.completed = true;
-    // Update Duolingo-style streak when a Daily Challenge is completed
     updateDailyStreakOnComplete();
     saveState();
     logEvent("daily_challenge_completed", { topicId: d.topicId });
     updateDailyUI();
     buildDailyCoachRecommendation();
     try{ computeKpis(); }catch(e){}
-    closeQuizCompleteModal();
-    showDailyChallengeCompleteModal(d.topicId);
-    try{ confetti.fall(3200); }catch(e){}
-    try{ confetti.burst(200); }catch(e){}
   }
 }
 
@@ -10496,6 +10550,8 @@ function markLessonResult(lessonId, scorePct, breakdown){
     updatedAt:Date.now()
   };
   saveLessonActivityStore(store);
+  const scope = getLessonScopeByLessonId(lessonId);
+  if(scope.topicId) trackTaskCompleted("LESSON", scope.topicId, { scoreDelta:12 });
 }
 
 function getTopicLessons(topic){
@@ -18236,174 +18292,116 @@ function initTopicArrowDialog(){
   });
 }
 
+function getTopicYearRange(topic){
+  const label = String(getHomeTopicTitle(topic) || topic?.title || "");
+  const m = label.match(/(\d{4}[–-]\d{4})/);
+  return m ? m[1].replace('-', '–') : "";
+}
+
+function topicStageProgress(topicId){
+  const lessonTopic = (lessonsData || []).find(t=>t.id===topicId);
+  const lessonSummary = lessonTopic ? getTopicProgressSummary(lessonTopic) : { percent:0, weighted:0 };
+  const lessonPct = Math.max(0, Math.min(100, Number(lessonSummary.percent || 0)));
+
+  const stats = touchTopicStats(topicId);
+  const studyPct = Math.max(0, Math.min(100, topicMasteryPercent(topicId)));
+  const quizPct = Math.max(0, Math.min(100, Number(stats.quizBestPercent || 0)));
+  const gamesPct = Math.max(0, Math.min(100, Math.round(Math.min(1, Number(stats.totalEarnedXp||0)/25) * 100)));
+  const examPct = stats.planStarted ? 100 : 0;
+
+  const values = [lessonPct, studyPct, quizPct, gamesPct, examPct];
+  const combined = Math.round(values.reduce((a,b)=>a+b,0) / values.length);
+  return {
+    combined,
+    stages:{ lessons:lessonPct, study:studyPct, quiz:quizPct, games:gamesPct, exam:examPct }
+  };
+}
+
+function stageStatus(pct, locked){
+  if(locked) return "Locked";
+  if(pct >= 100) return "Secure";
+  if(pct >= 40) return "Building";
+  if(pct > 0) return "Needs refresh";
+  return "New";
+}
+
 function renderTopicDashboard(){
   const el = document.getElementById('topicDash');
   if(!el) return;
 
-  const topicIds = Object.keys(FACT_BANK);
+  const enabled = TOPICS.filter(t=>isTopicEnabled(t.id));
+  const activeTopicId = (enabled[0] || TOPICS[0] || {}).id;
+  const path = TOPICS.map((topic, index)=>{
+    const locked = !isTopicEnabled(topic.id);
+    const prog = topicStageProgress(topic.id);
+    const yearRange = getTopicYearRange(topic);
+    const status = locked ? "Locked" : (prog.combined >= 100 ? "Secure" : (prog.combined >= 40 ? "Building" : "New"));
+    const retrievalIds = TOPICS.slice(0, index).map(t=>t.id).filter(id=>isTopicEnabled(id));
+    const retrievalText = retrievalIds.length ? `Previous learning included: ${retrievalIds.length} earlier topic${retrievalIds.length===1?"":"s"}.` : "";
+    const stages = [
+      ["lessons","Lessons","lessons"],
+      ["study","Study","study"],
+      ["quiz","Quiz","quiz"],
+      ["games","Games","games"],
+      ["exam","Exam Practice","exam"]
+    ];
+    const stageHtml = stages.map(([key,label,target])=>{
+      const pct = Math.round(prog.stages[key]||0);
+      const st = stageStatus(pct, locked);
+      const cls = `${locked?"locked":(pct>=100?"complete":(pct>0?"building":""))} ${!locked && topic.id===activeTopicId?"active":""}`;
+      return `<button class="journeyNode ${cls}" data-stage-open="${target}" data-topic="${topic.id}" ${locked?"disabled aria-disabled='true'":""} aria-label="${escapeHtml(label)} for ${escapeHtml(topic.title)}: ${st}"><span>${escapeHtml(label)} <span class="mini">${st}</span></span><span class="dot" aria-hidden="true"></span></button>`;
+    }).join('');
 
-  function tileTitleParts(title){
-    // Expect: "1. Something 1855-1894"
-    const m = String(title).match(/^(\d+)\.\s*(.*)\s(\d{4}-\d{4})$/);
-    if(m){
-      return { num: m[1], main: m[2], years: m[3] };
-    }
-    return { num: "", main: String(title), years: "" };
-  }
-
-
-  const topicBackgrounds = {
-    t1: "./topic1.png?v=1",
-    t2: "./topic2.png?v=1",
-    t3: "./section-bg.jpg?v=8",
-    t4: "./section-bg.jpg?v=8"
-  };
-
-  el.innerHTML = topicIds.map(tid=>{
-    const t = FACT_BANK[tid];
-    const conf = topicConfidence(tid);
-    const model = topicProgressModel(tid);
-    const unifiedLevel = model.unifiedLevel;
-    const blendedProgress = model.blendedProgress;
-
-    const legacyLvl = conf.levelObj || getXpLevel(conf.avg||0);
-    const lvl = {
-      key: `xp-${unifiedLevel.tierIndex}`,
-      label: unifiedLevel.label,
-      rank: unifiedLevel.tierIndex,
-      icon: legacyLvl.icon
-    };
-    const badgeText = unifiedLevel.label;
-    const topicQuiz = Number(touchTopicStats(tid).quizBestPercent||0);
-    const topicMastery = Math.max(blendedProgress, topicQuiz);
-
-    // Level-up detection per topic (stored in localStorage)
-    STATE.topicLevels ||= {};
-    const prevRank = (typeof STATE.topicLevels[tid] === "number") ? STATE.topicLevels[tid] : null;
-    if(prevRank === null){
-      STATE.topicLevels[tid] = lvl.rank;
-      saveState();
-    }else if(lvl.rank > prevRank){
-      STATE.topicLevels[tid] = lvl.rank;
-      saveState();
-      celebrateLevelUp(t.title, lvl);
-    }
-
-    const topicBg = topicBackgrounds[tid] || "section-bg.jpg";
-    const titleBits = tileTitleParts(t.title);
-
-    return `
-      <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic" style="--topicBg:url('${topicBg}');">
-        <div class="topicThumb"></div>
-        <div class="topicMainCol">
-          <div class="topicTitleRow">
-            <div class="tileMain">${escapeHtml(titleBits.num ? `${titleBits.num}. ${titleBits.main}` : titleBits.main)}</div>
-          </div>
-          ${titleBits.years ? `<div class="tileYears">${escapeHtml(titleBits.years)}</div>` : ""}
-          <div class="topicProgressMeta">
-            <span>Progress</span>
-            <span>${Math.round(blendedProgress)}%</span>
-          </div>
-          <div class="progressTrack topicProgressTrack" role="presentation" aria-hidden="true">
-            <div class="progressFill" style="width:${blendedProgress}%"></div>
-          </div>
-          <div class="topicPillRow">
-            <div class="levelBadge level-${lvl.key}">${badgeText}</div>
-            <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
-              <label class="switch">
-                <input type="checkbox" class="topicToggle" data-topic-toggle="${tid}" ${isTopicEnabled(tid) ? "checked" : ""} aria-label="Toggle topic ${tid}">
-                <span class="slider"></span>
-              </label>
-            </div>
-          </div>
-        </div>
+    return `<article class="topicJourneyItem ${locked?"locked":""}">
+      <button class="topicMilestone" data-topic-open="${topic.id}" ${locked?"disabled aria-disabled='true'":""}>
+        <div class="topicRing" style="--pct:${prog.combined}"><div class="topicRingInner">${prog.combined}%</div></div>
+        <div><div class="topicMilestoneTitle">${escapeHtml(topic.title)}</div>${yearRange?`<div class="topicMilestoneYears">${escapeHtml(yearRange)}</div>`:""}</div>
+        <div class="topicMilestoneStatus">${status}</div><label class="switch" aria-label="Lock or unlock topic ${escapeHtml(topic.title)}"><input type="checkbox" data-topic-toggle="${topic.id}" ${locked?"":"checked"}><span class="slider"></span></label>
       </button>
-    `;
+      <div class="journeyNodes">${stageHtml}</div>
+      ${retrievalText ? `<div class="journeyNote">${escapeHtml(retrievalText)}</div>` : ''}
+    </article>`;
   }).join('');
 
-  // click to jump topic into Study (Focus mode)
-  el.querySelectorAll('[data-topic]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const tid = btn.getAttribute('data-topic');
+  el.innerHTML = path;
 
-      // switch to Study tabpane
-      if(typeof setTab === "function") setTab("study");
+  el.querySelectorAll('[data-topic-open]').forEach(btn=>btn.addEventListener('click', ()=>{
+    const tid = btn.getAttribute('data-topic-open');
+    if(!tid || !isTopicEnabled(tid)) return;
+    setTab('lessons');
+    lessonsNav.view = 'topic-lessons';
+    lessonsNav.topicId = tid;
+    renderLessons();
+  }));
 
-      // set filters to this topic + focus mode
-      const ts = document.getElementById("topicSelect");
-      if(ts){ ts.value = tid; ts.dispatchEvent(new Event("change")); }
-
-      const ms = document.getElementById("modeSelect");
-      if(ms){ ms.value = "all"; ms.dispatchEvent(new Event("change")); }
-
-      // refresh card list
-      if(typeof loadNextCard === "function") loadNextCard();
-
-      // bring the card into view
-      const frame = document.getElementById("flashcardFrame");
-      if(frame) frame.scrollIntoView({behavior:"smooth", block:"start"});
-    });
-  });
-
-  // Topic toggles: on/off controls (exclude from flashcards/quizzes/daily challenge)
-  // IMPORTANT: The whole tile is a <button>. The toggle sits inside it.
-  // On some browsers, clicking the slider/label can bubble up and trigger the tile click.
-  // So we stop propagation for the wrapper AND for pointer events (touch/mouse) in capture phase.
-  el.querySelectorAll('.topicToggleWrap').forEach(wrap=>{
-    const stop = (ev)=>{ ev.stopPropagation(); };
-    // capture phase = safest (prevents the tile button click handler)
-    ["pointerdown","mousedown","touchstart","click"].forEach(evt=>{
-      wrap.addEventListener(evt, stop, true);
-    });
-  });
+  const openStage = (stage, tid)=>{
+    if(!tid || !isTopicEnabled(tid)) return;
+    if(stage === 'lessons'){
+      setTab('lessons'); lessonsNav.view='topic-lessons'; lessonsNav.topicId = tid; renderLessons(); return;
+    }
+    if(stage === 'study'){ openStudyForTopic(tid, 'all'); return; }
+    if(stage === 'quiz'){ goDailyQuiz(tid); return; }
+    if(stage === 'games'){ setTab('games'); const pick=$('matchTopicSelect'); if(pick && pick.querySelector(`option[value="${tid}"]`)) pick.value = tid; return; }
+    if(stage === 'exam'){ setTab('exam'); const ex=$('examTopicSelect'); if(ex){ ex.value=tid; ex.dispatchEvent(new Event('change')); } return; }
+  };
+  el.querySelectorAll('[data-stage-open]').forEach(btn=>btn.addEventListener('click', ()=>openStage(btn.getAttribute('data-stage-open'), btn.getAttribute('data-topic'))));
 
   el.querySelectorAll('[data-topic-toggle]').forEach(inp=>{
-    // Keep these as a backstop (if the click lands on the input itself)
-    inp.addEventListener('click', (ev)=>{ ev.stopPropagation(); }, true);
-
-    inp.addEventListener('change', (ev)=>{
+    ["pointerdown","mousedown","touchstart","click"].forEach(evt=>inp.addEventListener(evt, ev=>ev.stopPropagation(), true));
+    inp.addEventListener('change', ev=>{
       ev.stopPropagation();
       const tid = inp.getAttribute('data-topic-toggle');
       STATE.disabledTopics ||= {};
-      if(inp.checked){
-        delete STATE.disabledTopics[tid];
-      }else{
-        STATE.disabledTopics[tid] = true;
-      }
+      if(inp.checked) delete STATE.disabledTopics[tid];
+      else STATE.disabledTopics[tid] = true;
       saveState();
-
-      // If the currently-selected study/quiz topic is now disabled, bounce to ALL/MIXED
-      const ts = document.getElementById("topicSelect");
-      if(ts && ts.value !== "ALL" && !isTopicEnabled(ts.value)) ts.value = "ALL";
-      const ms = document.getElementById("mcqTopicSelect");
-      if(ms && ms.value !== "MIXED" && !isTopicEnabled(ms.value)) ms.value = "MIXED";
-
-      // Refresh UI + daily topic (if needed)
       try{ populateTopics(); }catch(e){}
-
-      const syncIfMissing = (el, fallback)=>{
-        if(!el) return;
-        const values = new Set(Array.from(el.options||[]).map(o=>o.value));
-        if(!values.has(el.value)) el.value = fallback;
-      };
-      syncIfMissing(document.getElementById("topicSelect"), "ALL");
-      syncIfMissing(document.getElementById("mcqTopicSelect"), "MIXED");
-      syncIfMissing(document.getElementById("matchTopicSelect"), "MIXED");
-      syncIfMissing(document.getElementById("emojiTopicSelect"), "MIXED");
-      syncIfMissing(document.getElementById("snakeTopicSelect"), "MIXED");
-      syncIfMissing(document.getElementById("examTopicSelect"), "ALL");
-
-      try{ if(typeof tlPopulateSelect === "function") tlPopulateSelect(); }catch(e){}
-      try{ if(typeof refreshConnectionsTopicSelect === "function") refreshConnectionsTopicSelect(); }catch(e){}
-      try{ renderTopicDashboard(); }catch(e){}
-      try{ renderTopicTiles(); }catch(e){} // legacy tiles (if present)
-      try{ renderExamSelect(); }catch(e){}
-      try{ startMatchGame(); }catch(e){}
-      try{ startEmojiRound(); }catch(e){}
       try{ updateDailyUI(); }catch(e){}
-      try{ computeKpis(); }catch(e){}
+      renderTopicDashboard();
     });
   });
+
+  renderNextStepCard();
 }
 
 
@@ -18787,7 +18785,11 @@ function touchTopicStats(topicId){
     lastStudiedAt:0,
     planLastSavedAt:0,
     failedCards:0,
-    previousRetention:0
+    previousRetention:0,
+    lessonsDone:0,
+    gamesDone:0,
+    examDone:0,
+    studyMinutes:0
   };
   return STATE.topicStats[topicId];
 }
@@ -18850,8 +18852,12 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   if(taskType === "PLAN_25"){
     s.planStarted = true;
     s.planLastSavedAt = ts;
+    s.examDone = Math.max(1, Number(s.examDone||0));
   }
-  const defaultXpByTask = { FLASHCARDS:10, QUIZ:10, PLAN_25:20, GAME:5 };
+  if(taskType === "LESSON") s.lessonsDone = Number(s.lessonsDone||0) + 1;
+  if(taskType === "GAME") s.gamesDone = Number(s.gamesDone||0) + 1;
+  if(taskType === "STUDY_MINUTES") s.studyMinutes = Number(s.studyMinutes||0) + Math.max(0, Number(extra.minutes||0));
+  const defaultXpByTask = { FLASHCARDS:10, QUIZ:10, PLAN_25:20, GAME:5, LESSON:12, STUDY_MINUTES:6 };
   const gainedXp = Number.isFinite(Number(extra.scoreDelta))
     ? Math.max(0, Number(extra.scoreDelta))
     : Number(defaultXpByTask[taskType] || 0);
@@ -18860,6 +18866,8 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   saveState();
   APP_SESSION.tasksCompleted = Number(APP_SESSION.tasksCompleted||0) + 1;
   logEvent("task_completed", { taskType, topicId, scoreDelta: extra.scoreDelta, gameType: extra.gameType });
+  try{ if(topicId === ensureDaily().topicId && ["LESSON","GAME","PLAN_25","QUIZ","FLASHCARDS","STUDY_MINUTES"].includes(taskType)){ checkDailyComplete(); } }catch(e){}
+  try{ updateDailyUI(); }catch(e){}
   renderHomeRecommendation();
   maybeShowMagicMoment(taskType);
 }
@@ -19399,6 +19407,45 @@ function closeWelcomeVideoDialog(showCoach=true){
   }
 }
 
+function openDailyLessons(){
+  const d = ensureDaily();
+  if(!isTopicEnabled(d.topicId)) return;
+  setTab("lessons");
+  lessonsNav.view = "topic-lessons";
+  lessonsNav.topicId = d.topicId;
+  renderLessons();
+}
+
+function openDailyGames(){
+  const d = ensureDaily();
+  if(!isTopicEnabled(d.topicId)) return;
+  setTab("games");
+}
+
+function renderNextStepCard(){
+  const card = $("nextStepCard");
+  if(!card) return;
+  const enabled = TOPICS.filter(t=>isTopicEnabled(t.id));
+  const active = enabled.find(t=>topicStageProgress(t.id).combined < 100) || enabled[0] || TOPICS[0];
+  if(!active) return;
+  const prog = topicStageProgress(active.id).stages;
+  const steps = [
+    { key:"lessons", title:"Continue Lessons", action:()=>{ setTab("lessons"); lessonsNav.view="topic-lessons"; lessonsNav.topicId=active.id; renderLessons(); } },
+    { key:"study", title:"Complete Study", action:()=>openStudyForTopic(active.id, "all") },
+    { key:"quiz", title:"Start Topic Quiz", action:()=>goDailyQuiz(active.id) },
+    { key:"games", title:"Play Games Review", action:()=>{ setTab("games"); } },
+    { key:"exam", title:"Complete Exam Practice", action:()=>{ setTab("exam"); const ex=$("examTopicSelect"); if(ex){ ex.value=active.id; ex.dispatchEvent(new Event("change")); } } }
+  ];
+  const next = steps.find(step=>Math.round(prog[step.key]||0) < 100) || steps[0];
+  $("nextStepTitle").textContent = next.title;
+  $("nextStepReason").textContent = `Active topic: ${active.title}`;
+  const idx = TOPICS.findIndex(t=>t.id===active.id);
+  const retrievalCount = TOPICS.slice(0, idx).filter(t=>isTopicEnabled(t.id)).length;
+  $("nextStepMeta").textContent = retrievalCount>0 ? `Previous learning included from ${retrievalCount} earlier topic${retrievalCount===1?"":"s"}.` : "Focus on building this topic securely.";
+  const btn = $("nextStepBtn");
+  if(btn){ btn.textContent = next.title; btn.onclick = next.action; }
+}
+
 function getChallengeCtaConfig(d){
   const step = nextDailyAction(d);
   if(step){
@@ -19488,9 +19535,11 @@ function goDailyExam(){
 { const _b = document.getElementById('btnGoMixed'); if(_b) _b.addEventListener('click', goDailyQuiz); }
 { const _b = document.getElementById('btnGoExam'); if(_b) _b.addEventListener('click', goDailyExam); }
 
-// Daily Challenge navigable checklist rows (these replace the removed top action buttons)
+// Daily Challenge navigable checklist rows (journey-based)
+$("goDailyLessons")?.addEventListener("click", openDailyLessons);
 $("goDailyFlash").addEventListener("click", goDailyFocus);
 $("goDailyQuiz").addEventListener("click", goDailyQuiz);
+$("goDailyGames")?.addEventListener("click", openDailyGames);
 $("goDailyPlan").addEventListener("click", goDailyExam);
 
 /* ==========================================================
