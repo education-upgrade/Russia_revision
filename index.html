@@ -260,7 +260,7 @@
   display:grid;
   grid-template-columns:96px minmax(0,1fr) auto;
   gap:12px;
-  align-items:center;
+  align-items:start;
   transition: opacity .22s ease, filter .22s ease;
   position:relative;
   overflow:hidden;
@@ -338,7 +338,7 @@
   display:flex;
   flex-direction:column;
   align-items:flex-end;
-  justify-content:center;
+  justify-content:flex-start;
   gap:10px;
 }
 
@@ -420,7 +420,7 @@
 @media (max-width:420px){
   .topicTile{ grid-template-columns:72px minmax(0,1fr); }
   .topicThumb{ width:72px; height:72px; }
-  .topicSideControls{ grid-column:1 / -1; flex-direction:row; justify-content:space-between; align-items:center; }
+  .topicSideControls{ grid-column:1 / -1; flex-direction:row; justify-content:space-between; align-items:flex-start; }
   .topicTile .tileMain{ font-size:18px; }
   .topicTogglePill{ padding:4px 6px; }
 }
@@ -18290,12 +18290,10 @@ function renderTopicDashboard(){
 
     return `
       <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic" style="--topicBg:url('${topicBg}');">
-        <div class="topicThumb">
-          ${titleBits.num ? `<div class="topicThumbNum">${escapeHtml(titleBits.num)}</div>` : ""}
-        </div>
+        <div class="topicThumb"></div>
         <div class="topicMainCol">
           <div class="topicTitleRow">
-            <div class="tileMain">${escapeHtml(titleBits.main)}</div>
+            <div class="tileMain">${escapeHtml(titleBits.num ? `${titleBits.num}. ${titleBits.main}` : titleBits.main)}</div>
           </div>
           ${titleBits.years ? `<div class="tileYears">${escapeHtml(titleBits.years)}</div>` : ""}
           <div class="topicProgressMeta">
