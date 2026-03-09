@@ -330,7 +330,7 @@
   margin-top:8px;
   width:100%;
   display:grid;
-  grid-template-columns:auto minmax(0,1fr);
+  grid-template-columns:minmax(0,1fr) auto;
   align-items:center;
   gap:10px;
 }
@@ -18296,13 +18296,13 @@ function renderTopicDashboard(){
             <div class="progressFill" style="width:${blendedProgress}%"></div>
           </div>
           <div class="topicPillRow">
+            <div class="levelBadge level-${lvl.key}">${badgeText}</div>
             <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
               <label class="switch">
                 <input type="checkbox" class="topicToggle" data-topic-toggle="${tid}" ${isTopicEnabled(tid) ? "checked" : ""} aria-label="Toggle topic ${tid}">
                 <span class="slider"></span>
               </label>
             </div>
-            <div class="levelBadge level-${lvl.key}">${badgeText}</div>
           </div>
         </div>
       </button>
