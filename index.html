@@ -244,102 +244,68 @@
 
 
 .topicDash{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:12px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
   margin:10px 0 6px;
 }
-.topicTile{
-  width:100%;
-  border:1px solid var(--line);
-  background:linear-gradient(170deg, color-mix(in srgb, var(--accent3) 56%, #ffffff 44%), color-mix(in srgb, var(--accent2) 24%, #ffffff 76%));
-  border-radius:18px;
-  padding:12px;
-  box-shadow:var(--shadow);
-  cursor:pointer;
+.journeyStep{
+  position:relative;
   display:grid;
-  grid-template-columns:96px minmax(0,1fr);
-  gap:12px;
+  grid-template-columns:34px minmax(0,1fr);
+  column-gap:10px;
   align-items:start;
-  transition: opacity .22s ease, filter .22s ease;
-  position:relative;
-  overflow:hidden;
 }
-.topicTile:hover{ filter:brightness(0.99); }
-.topicTile:active{ transform:translateY(1px); }
-
-.topicThumb{
-  width:96px;
-  height:96px;
-  border-radius:14px;
-  border:1px solid color-mix(in srgb, var(--line) 75%, var(--accent2) 25%);
-  background-image:linear-gradient(180deg, rgba(255,255,255,.16), rgba(255,255,255,.28)), var(--topicBg, none);
-  background-size:cover;
-  background-position:center;
-  box-shadow:0 8px 14px rgba(0,0,0,.12);
+.journeyRail{
   position:relative;
-  overflow:hidden;
-}
-.topicThumbNum{
-  position:absolute;
-  top:8px;
-  left:8px;
-  min-width:28px;
-  height:28px;
-  padding:0 8px;
-  border-radius:999px;
-  display:inline-flex;
-  align-items:center;
+  min-height:100%;
+  display:flex;
   justify-content:center;
-  font-weight:900;
-  font-size:14px;
-  border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
-  background:rgba(255,255,255,.9);
 }
+.journeyRail::before{
+  content:"";
+  position:absolute;
+  top:-8px;
+  bottom:-8px;
+  width:4px;
+  border-radius:999px;
+  background:linear-gradient(180deg, rgba(126,185,170,.45), rgba(158,183,212,.5));
+}
+.journeyStep:last-child .journeyRail::before{ bottom:14px; }
+.journeyStep:first-child .journeyRail::before{ top:14px; }
+.journeyNode{
+  width:24px;
+  height:24px;
+  border-radius:50%;
+  background:#fff;
+  border:2px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
+  position:relative;
+  z-index:1;
+}
+.journeyMilestone{
+  border:1px solid var(--line);
+  background:linear-gradient(170deg, color-mix(in srgb, var(--accent3) 58%, #ffffff 42%), color-mix(in srgb, var(--accent2) 24%, #ffffff 76%));
+  border-radius:20px;
+  padding:14px;
+  box-shadow:var(--shadow);
+}
+.journeyMilestoneHead{display:flex;gap:12px;align-items:center;justify-content:space-between}
+.journeyMilestoneMain{display:flex;align-items:center;gap:12px;min-width:0}
+.journeyMilestoneRing{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;background:conic-gradient(from -90deg, var(--good) var(--p,0%), rgba(255,255,255,.6) 0)}
+.journeyMilestoneRingInner{width:60px;height:60px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-weight:900;color:var(--textStrong);font-size:14px}
+.journeyMilestoneTitle{font-size:15px;font-weight:900;line-height:1.2}
+.journeyMilestoneYears{font-size:12px;color:var(--muted);margin-top:2px}
+.journeyMilestoneStatus{margin-top:6px;font-size:11px;font-weight:900;color:var(--muted)}
+.journeyLocked .journeyMilestone{opacity:.62;filter:saturate(.78)}
 
-.topicMainCol{ min-width:0; }
-.topicTitleRow{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:8px;
-}
-.topicTile .tileMain{
-  font-size:22px;
-  line-height:1.1;
-  margin:0;
-  min-height:2.2em;
-  display:-webkit-box;
-  -webkit-box-orient:vertical;
-  -webkit-line-clamp:2;
-  line-clamp:2;
-  overflow:hidden;
-}
-.topicTile .tileYears{
-  margin-top:4px;
-  font-size:13px;
-}
-
-.topicProgressMeta{
-  margin-top:10px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:8px;
-  font-size:11px;
-  font-weight:900;
-  color:var(--muted);
-}
-.topicProgressTrack{ margin-top:6px; }
-
-.topicPillRow{
-  margin-top:8px;
-  width:100%;
-  display:grid;
-  grid-template-columns:minmax(0,1fr) auto;
-  align-items:center;
-  gap:10px;
-}
+.journeyStages{margin-top:10px;display:flex;flex-direction:column;gap:10px;padding-left:2px}
+.journeyStageNode{display:grid;grid-template-columns:50px minmax(0,1fr);gap:10px;align-items:center}
+.journeyStageCircle{width:44px;height:44px;border-radius:50%;border:1px solid color-mix(in srgb, var(--line) 68%, var(--accent2) 32%);background:conic-gradient(from -90deg, var(--accent) var(--p,0%), rgba(255,255,255,.92) 0);display:grid;place-items:center;font-size:17px}
+.journeyStageInner{width:32px;height:32px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.journeyStageMeta{min-width:0}
+.journeyStageLabel{font-size:13px;font-weight:900}
+.journeyStageSub{font-size:11px;color:var(--muted)}
+.journeyTag{display:inline-flex;align-items:center;padding:3px 7px;border-radius:999px;border:1px solid var(--line);font-size:10px;font-weight:800;margin-top:4px;background:#fff}
 
 /* Topic on/off toggle (per tile) */
 .topicStatusDot{
@@ -417,9 +383,12 @@
 }
 
 @media (max-width:420px){
-  .topicTile{ grid-template-columns:72px minmax(0,1fr); }
-  .topicThumb{ width:72px; height:72px; }
-  .topicTile .tileMain{ font-size:18px; }
+  .journeyMilestoneHead{align-items:flex-start}
+  .journeyMilestoneRing{width:68px;height:68px}
+  .journeyMilestoneRingInner{width:54px;height:54px}
+  .journeyStageNode{grid-template-columns:44px minmax(0,1fr)}
+  .journeyStageCircle{width:40px;height:40px}
+  .journeyStageInner{width:30px;height:30px}
   .topicTogglePill{ padding:4px 6px; }
 }
 
@@ -3551,8 +3520,8 @@ section#games.gamePaneActive .gamesHeroCard{
     <div class="card valuePropCard homeTertiaryCard">
       <div class="row" style="justify-content:space-between">
         <div>
-          <div style="font-weight:900;font-size:16px">Topic Tiles</div>
-          <div class="note">Toggle topics that apply to you only. Ask your teacher if you aren't sure!</div>
+          <div style="font-weight:900;font-size:16px">Learning Journey</div>
+          <div class="note">Progress through Russia in chronological order. Complete the next stage node to move forward.</div>
         </div>
       </div>
       <div class="divider"></div>
@@ -9689,6 +9658,17 @@ function updateDailyUI(){
 }
 
 
+
+function markDailyMeaningfulStep(topicId){
+  const d = ensureDaily();
+  if(d.completed) return;
+  if(!topicId || !isTopicEnabled(topicId)) return;
+  d.completed = true;
+  updateDailyStreakOnComplete();
+  saveState();
+  updateDailyUI();
+}
+
 function formatHMS(ms){
   const s = Math.max(0, Math.floor(ms/1000));
   const hh = Math.floor(s/3600);
@@ -10496,6 +10476,8 @@ function markLessonResult(lessonId, scorePct, breakdown){
     updatedAt:Date.now()
   };
   saveLessonActivityStore(store);
+  const scope = getLessonScopeByLessonId(lessonId);
+  if(scope?.topicId) markDailyMeaningfulStep(scope.topicId);
 }
 
 function getTopicLessons(topic){
@@ -18236,167 +18218,170 @@ function initTopicArrowDialog(){
   });
 }
 
+function getJourneyStageProgress(topicId){
+  const topic = lessonsData.find(t=>t.id===topicId);
+  const lessonPercent = topic ? getTopicProgressSummary(topic).percent : 0;
+  const flash = topicFlashcardStats(topicId);
+  const studyPercent = flash.total > 0 ? Math.round((Math.max(0, Number(flash.done||0)) / flash.total) * 100) : 0;
+  const quiz = topicQuizStats(topicId);
+  const quizPercent = Math.max(0, Math.min(100, Number(quiz.quizBestPercent||0)));
+  const stats = touchTopicStats(topicId);
+  const gamesDone = Number(stats.gameCompletions||0);
+  const gamesPercent = Math.max(0, Math.min(100, Math.round((gamesDone / 6) * 100)));
+  const exam = topicPlanStats(topicId);
+  const examPercent = exam.planStarted ? 100 : 0;
+
+  return {
+    lessons: lessonPercent,
+    study: studyPercent,
+    quiz: quizPercent,
+    games: gamesPercent,
+    exam: examPercent
+  };
+}
+
+function getCurrentJourneyTopicId(){
+  const enabled = TOPICS.filter(t=>isTopicEnabled(t.id));
+  if(!enabled.length) return TOPICS[0]?.id || "t1";
+  const firstIncomplete = enabled.find(topic=>{
+    const p = getJourneyStageProgress(topic.id);
+    return [p.lessons, p.study, p.quiz, p.games, p.exam].some(v=>v < 100);
+  });
+  return (firstIncomplete || enabled[0]).id;
+}
+
+function getTopicJourneyStatusLabel(topicId){
+  const p = getJourneyStageProgress(topicId);
+  const avg = Math.round((p.lessons + p.study + p.quiz + p.games + p.exam) / 5);
+  if(avg >= 85) return "Secure";
+  if(avg >= 35) return "Building";
+  return "New";
+}
+
+function getJourneyNextStep(topicId){
+  const p = getJourneyStageProgress(topicId);
+  if(p.lessons < 100) return { key:"lessons", label:"Complete Lessons", sub:"Move through key enquiries", action:()=>{ setTab("lessons"); } };
+  if(p.study < 100) return { key:"study", label:"Complete Study", sub:"Review flashcards for this topic", action:()=>openStudyForTopic(topicId, "all") };
+  if(p.quiz < 100) return { key:"quiz", label:"Start Quiz", sub:"Check secure retrieval", action:()=>goDailyQuiz(topicId) };
+  if(p.games < 100) return { key:"games", label:"Play Games", sub:"Strengthen speed and recall", action:()=>{ setTab("games"); } };
+  if(p.exam < 100) return { key:"exam", label:"Exam Practice", sub:"Attempt an exam-style task", action:()=>{ setTab("exam"); const exFilter=$("examTopicSelect"); if(exFilter){ exFilter.value=topicId; exFilter.dispatchEvent(new Event("change")); } } };
+  return null;
+}
+
 function renderTopicDashboard(){
   const el = document.getElementById('topicDash');
   if(!el) return;
 
-  const topicIds = Object.keys(FACT_BANK);
+  const currentTopicId = getCurrentJourneyTopicId();
+  const stageMeta = [
+    { key:"lessons", icon:"📘", label:"Lessons" },
+    { key:"study", icon:"🧠", label:"Study" },
+    { key:"quiz", icon:"⚡", label:"Quiz" },
+    { key:"games", icon:"🎯", label:"Games" },
+    { key:"exam", icon:"📝", label:"Exam Practice" }
+  ];
 
-  function tileTitleParts(title){
-    // Expect: "1. Something 1855-1894"
-    const m = String(title).match(/^(\d+)\.\s*(.*)\s(\d{4}-\d{4})$/);
-    if(m){
-      return { num: m[1], main: m[2], years: m[3] };
-    }
-    return { num: "", main: String(title), years: "" };
-  }
+  el.innerHTML = TOPICS.map((topic, index)=>{
+    const topicId = topic.id;
+    const enabled = isTopicEnabled(topicId);
+    const progress = getJourneyStageProgress(topicId);
+    const statusLabel = getTopicJourneyStatusLabel(topicId);
+    const milestoneProgress = Math.round((progress.lessons + progress.study + progress.quiz + progress.games + progress.exam) / 5);
+    const isCurrent = topicId === currentTopicId && enabled;
+    const showStages = isCurrent;
+    const titleParts = splitTopicTitleAndYears(getHomeTopicTitle(topic));
 
+    const stageHtml = showStages
+      ? `<div class="journeyStages" aria-label="${escapeHtml(titleParts.title)} learning stages">${stageMeta.map(meta=>{
+          const val = Math.max(0, Math.min(100, Number(progress[meta.key]||0)));
+          const mixedReviewTag = (index > 0 && (meta.key === "study" || meta.key === "quiz"))
+            ? '<span class="journeyTag">Includes previous topic</span>'
+            : '';
+          return `<div class="journeyStageNode" data-stage-open="${meta.key}" data-topic="${topicId}">
+            <div class="journeyStageCircle" style="--p:${val}%"><div class="journeyStageInner" aria-hidden="true">${meta.icon}</div></div>
+            <div class="journeyStageMeta">
+              <div class="journeyStageLabel">${meta.label} · ${val}%</div>
+              <div class="journeyStageSub">${val >= 100 ? "Complete" : "In progress"}</div>
+              ${mixedReviewTag}
+            </div>
+          </div>`;
+        }).join('')}</div>`
+      : '';
 
-  const topicBackgrounds = {
-    t1: "./topic1.png?v=1",
-    t2: "./topic2.png?v=1",
-    t3: "./section-bg.jpg?v=8",
-    t4: "./section-bg.jpg?v=8"
-  };
-
-  el.innerHTML = topicIds.map(tid=>{
-    const t = FACT_BANK[tid];
-    const conf = topicConfidence(tid);
-    const model = topicProgressModel(tid);
-    const unifiedLevel = model.unifiedLevel;
-    const blendedProgress = model.blendedProgress;
-
-    const legacyLvl = conf.levelObj || getXpLevel(conf.avg||0);
-    const lvl = {
-      key: `xp-${unifiedLevel.tierIndex}`,
-      label: unifiedLevel.label,
-      rank: unifiedLevel.tierIndex,
-      icon: legacyLvl.icon
-    };
-    const badgeText = unifiedLevel.label;
-    const topicQuiz = Number(touchTopicStats(tid).quizBestPercent||0);
-    const topicMastery = Math.max(blendedProgress, topicQuiz);
-
-    // Level-up detection per topic (stored in localStorage)
-    STATE.topicLevels ||= {};
-    const prevRank = (typeof STATE.topicLevels[tid] === "number") ? STATE.topicLevels[tid] : null;
-    if(prevRank === null){
-      STATE.topicLevels[tid] = lvl.rank;
-      saveState();
-    }else if(lvl.rank > prevRank){
-      STATE.topicLevels[tid] = lvl.rank;
-      saveState();
-      celebrateLevelUp(t.title, lvl);
-    }
-
-    const topicBg = topicBackgrounds[tid] || "section-bg.jpg";
-    const titleBits = tileTitleParts(t.title);
-
-    return `
-      <button class="topicTile ${isTopicEnabled(tid) ? "" : "isDisabled"}" data-topic="${tid}" title="Open this topic" style="--topicBg:url('${topicBg}');">
-        <div class="topicThumb"></div>
-        <div class="topicMainCol">
-          <div class="topicTitleRow">
-            <div class="tileMain">${escapeHtml(titleBits.num ? `${titleBits.num}. ${titleBits.main}` : titleBits.main)}</div>
-          </div>
-          ${titleBits.years ? `<div class="tileYears">${escapeHtml(titleBits.years)}</div>` : ""}
-          <div class="topicProgressMeta">
-            <span>Progress</span>
-            <span>${Math.round(blendedProgress)}%</span>
-          </div>
-          <div class="progressTrack topicProgressTrack" role="presentation" aria-hidden="true">
-            <div class="progressFill" style="width:${blendedProgress}%"></div>
-          </div>
-          <div class="topicPillRow">
-            <div class="levelBadge level-${lvl.key}">${badgeText}</div>
-            <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
-              <label class="switch">
-                <input type="checkbox" class="topicToggle" data-topic-toggle="${tid}" ${isTopicEnabled(tid) ? "checked" : ""} aria-label="Toggle topic ${tid}">
-                <span class="slider"></span>
-              </label>
+    return `<article class="journeyStep ${enabled ? '' : 'journeyLocked'}" data-topic-shell="${topicId}">
+      <div class="journeyRail"><span class="journeyNode" aria-hidden="true"></span></div>
+      <div class="journeyMilestone">
+        <div class="journeyMilestoneHead">
+          <div class="journeyMilestoneMain" data-topic-open="1" data-topic-id="${topicId}" role="button" tabindex="0" aria-label="Open ${escapeHtml(titleParts.title)} in Study">
+            <div class="journeyMilestoneRing" style="--p:${milestoneProgress}%"><div class="journeyMilestoneRingInner">${milestoneProgress}%</div></div>
+            <div>
+              <div class="journeyMilestoneTitle">${escapeHtml(titleParts.title || topic.title)}</div>
+              <div class="journeyMilestoneYears">${escapeHtml(titleParts.years || '')}</div>
+              <div class="journeyMilestoneStatus">${enabled ? statusLabel : '🔒 Locked'}${isCurrent ? ' · Current topic' : ''}</div>
             </div>
           </div>
+          <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
+            <label class="switch">
+              <input type="checkbox" class="topicToggle" data-topic-toggle="${topicId}" ${enabled ? 'checked' : ''} aria-label="Toggle topic ${topicId}">
+              <span class="slider"></span>
+            </label>
+          </div>
         </div>
-      </button>
-    `;
+        ${showStages ? stageHtml : ''}
+      </div>
+    </article>`;
   }).join('');
 
-  // click to jump topic into Study (Focus mode)
-  el.querySelectorAll('[data-topic]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const tid = btn.getAttribute('data-topic');
-
-      // switch to Study tabpane
-      if(typeof setTab === "function") setTab("study");
-
-      // set filters to this topic + focus mode
-      const ts = document.getElementById("topicSelect");
+  el.querySelectorAll('[data-topic-open="1"]').forEach(btn=>{
+    const open = ()=>{
+      const tid = btn.getAttribute('data-topic-id');
+      if(!tid || !isTopicEnabled(tid)) return;
+      setTab("study");
+      const ts = $("topicSelect");
       if(ts){ ts.value = tid; ts.dispatchEvent(new Event("change")); }
-
-      const ms = document.getElementById("modeSelect");
+      const ms = $("modeSelect");
       if(ms){ ms.value = "all"; ms.dispatchEvent(new Event("change")); }
-
-      // refresh card list
       if(typeof loadNextCard === "function") loadNextCard();
-
-      // bring the card into view
-      const frame = document.getElementById("flashcardFrame");
+      const frame = $("flashcardFrame");
       if(frame) frame.scrollIntoView({behavior:"smooth", block:"start"});
+    };
+    btn.addEventListener('click', open);
+    btn.addEventListener('keydown', ev=>{ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); open(); } });
+  });
+
+  el.querySelectorAll('[data-stage-open]').forEach(node=>{
+    node.addEventListener('click', ()=>{
+      const tid = node.getAttribute('data-topic');
+      const key = node.getAttribute('data-stage-open');
+      if(!tid || !isTopicEnabled(tid)) return;
+      if(key === 'lessons') return setTab('lessons');
+      if(key === 'study') return openStudyForTopic(tid, 'all');
+      if(key === 'quiz') return goDailyQuiz(tid);
+      if(key === 'games') return setTab('games');
+      if(key === 'exam'){
+        setTab('exam');
+        const exFilter = $("examTopicSelect");
+        if(exFilter){ exFilter.value=tid; exFilter.dispatchEvent(new Event("change")); }
+      }
     });
   });
 
-  // Topic toggles: on/off controls (exclude from flashcards/quizzes/daily challenge)
-  // IMPORTANT: The whole tile is a <button>. The toggle sits inside it.
-  // On some browsers, clicking the slider/label can bubble up and trigger the tile click.
-  // So we stop propagation for the wrapper AND for pointer events (touch/mouse) in capture phase.
   el.querySelectorAll('.topicToggleWrap').forEach(wrap=>{
     const stop = (ev)=>{ ev.stopPropagation(); };
-    // capture phase = safest (prevents the tile button click handler)
-    ["pointerdown","mousedown","touchstart","click"].forEach(evt=>{
-      wrap.addEventListener(evt, stop, true);
-    });
+    ["pointerdown","mousedown","touchstart","click"].forEach(evt=> wrap.addEventListener(evt, stop, true));
   });
 
   el.querySelectorAll('[data-topic-toggle]').forEach(inp=>{
-    // Keep these as a backstop (if the click lands on the input itself)
     inp.addEventListener('click', (ev)=>{ ev.stopPropagation(); }, true);
-
     inp.addEventListener('change', (ev)=>{
       ev.stopPropagation();
       const tid = inp.getAttribute('data-topic-toggle');
       STATE.disabledTopics ||= {};
-      if(inp.checked){
-        delete STATE.disabledTopics[tid];
-      }else{
-        STATE.disabledTopics[tid] = true;
-      }
+      if(inp.checked) delete STATE.disabledTopics[tid];
+      else STATE.disabledTopics[tid] = true;
       saveState();
-
-      // If the currently-selected study/quiz topic is now disabled, bounce to ALL/MIXED
-      const ts = document.getElementById("topicSelect");
-      if(ts && ts.value !== "ALL" && !isTopicEnabled(ts.value)) ts.value = "ALL";
-      const ms = document.getElementById("mcqTopicSelect");
-      if(ms && ms.value !== "MIXED" && !isTopicEnabled(ms.value)) ms.value = "MIXED";
-
-      // Refresh UI + daily topic (if needed)
       try{ populateTopics(); }catch(e){}
-
-      const syncIfMissing = (el, fallback)=>{
-        if(!el) return;
-        const values = new Set(Array.from(el.options||[]).map(o=>o.value));
-        if(!values.has(el.value)) el.value = fallback;
-      };
-      syncIfMissing(document.getElementById("topicSelect"), "ALL");
-      syncIfMissing(document.getElementById("mcqTopicSelect"), "MIXED");
-      syncIfMissing(document.getElementById("matchTopicSelect"), "MIXED");
-      syncIfMissing(document.getElementById("emojiTopicSelect"), "MIXED");
-      syncIfMissing(document.getElementById("snakeTopicSelect"), "MIXED");
-      syncIfMissing(document.getElementById("examTopicSelect"), "ALL");
-
-      try{ if(typeof tlPopulateSelect === "function") tlPopulateSelect(); }catch(e){}
-      try{ if(typeof refreshConnectionsTopicSelect === "function") refreshConnectionsTopicSelect(); }catch(e){}
       try{ renderTopicDashboard(); }catch(e){}
-      try{ renderTopicTiles(); }catch(e){} // legacy tiles (if present)
       try{ renderExamSelect(); }catch(e){}
       try{ startMatchGame(); }catch(e){}
       try{ startEmojiRound(); }catch(e){}
@@ -18787,7 +18772,8 @@ function touchTopicStats(topicId){
     lastStudiedAt:0,
     planLastSavedAt:0,
     failedCards:0,
-    previousRetention:0
+    previousRetention:0,
+    gameCompletions:0
   };
   return STATE.topicStats[topicId];
 }
@@ -18851,6 +18837,9 @@ function trackTaskCompleted(taskType, topicId, extra={}){
     s.planStarted = true;
     s.planLastSavedAt = ts;
   }
+  if(taskType === "GAME"){
+    s.gameCompletions = Number(s.gameCompletions||0) + 1;
+  }
   const defaultXpByTask = { FLASHCARDS:10, QUIZ:10, PLAN_25:20, GAME:5 };
   const gainedXp = Number.isFinite(Number(extra.scoreDelta))
     ? Math.max(0, Number(extra.scoreDelta))
@@ -18861,6 +18850,7 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   APP_SESSION.tasksCompleted = Number(APP_SESSION.tasksCompleted||0) + 1;
   logEvent("task_completed", { taskType, topicId, scoreDelta: extra.scoreDelta, gameType: extra.gameType });
   renderHomeRecommendation();
+  if(["FLASHCARDS","QUIZ","PLAN_25","GAME"].includes(taskType)) markDailyMeaningfulStep(topicId);
   maybeShowMagicMoment(taskType);
 }
 function topicFlashcardStats(topicId){
@@ -19400,34 +19390,26 @@ function closeWelcomeVideoDialog(showCoach=true){
 }
 
 function getChallengeCtaConfig(d){
-  const step = nextDailyAction(d);
-  if(step){
+  const journeyTopicId = getCurrentJourneyTopicId();
+  const nextStep = getJourneyNextStep(journeyTopicId);
+  const topicTitle = compactTopicTitle(getHomeTopicTitle(TOPICS.find(t=>t.id===journeyTopicId))) || "Learning journey";
+
+  if(nextStep){
     return {
-      title: "Start challenge",
-      topic: challengeStepName(step),
-      accentColor: challengeStepColor(step),
+      title: "Continue learning",
+      topic: `${topicTitle} · ${nextStep.label}`,
+      accentColor: null,
       disabled: false,
-      onClick: step === "flash"
-        ? goDailyFocus
-        : (step === "quiz" ? goDailyQuiz : goDailyExam)
+      onClick: nextStep.action
     };
   }
 
-  const coachReco = getDailyCoachRecommendation(false);
-  const coachTopic = coachReco?.topicId;
-  const useMixed = !coachTopic || coachTopic === "MIXED" || !isTopicEnabled(coachTopic);
-  const coachTopicTitle = useMixed ? "Interleaved mixed quiz" : (compactTopicTitle(TOPICS.find(t=>t.id===coachTopic)?.title || coachTopic) || coachTopic);
-
   return {
     title: "Continue learning",
-    topic: coachTopicTitle,
+    topic: `${topicTitle} · Review quiz`,
     accentColor: null,
     disabled: false,
-    onClick: ()=>{
-      const fallbackTopicId = ensureDaily().topicId;
-      const targetTopicId = useMixed ? fallbackTopicId : coachTopic;
-      openStudyForTopic(targetTopicId, "all");
-    }
+    onClick: ()=>goDailyQuiz(journeyTopicId)
   };
 }
 
