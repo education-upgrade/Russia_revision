@@ -2550,9 +2550,7 @@ section#games.gamePaneActive .gamesHeroCard{
       z-index:2;
     }
     .checkRow{
-      display:grid;
-      grid-template-columns:minmax(0,1fr);
-      gap:8px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
       padding:10px 12px;
       border-radius:14px;
       border:1px solid rgba(0,0,0,.10);
@@ -2600,21 +2598,6 @@ section#games.gamePaneActive .gamesHeroCard{
       color:var(--muted);
       font-weight:800;
       font-variant-numeric: tabular-nums;
-      font-size:12px;
-    }
-    .checkProgress{
-      display:grid;
-      gap:4px;
-      padding-left:32px;
-    }
-    .checkProgress .progressTrack{ height:10px; }
-    .checkProgressMeta{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-      font-size:12px;
-      color:var(--muted);
     }
     .protectBtn{
       margin-top:12px;
@@ -3507,13 +3490,17 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
 
       <div class="streakChecklist" aria-label="Daily Challenge checklist">
-        <button class="checkRow checkRowBtn" id="goDailyActivity1" type="button" aria-label="Open first daily challenge activity">
-          <div class="checkLeft"><span class="checkDot" id="chkActivity1Dot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg></span> <span id="chkActivity1Label">Activity</span></div>
-          <div class="checkProgress"><div class="progressTrack"><div id="chkActivity1Fill" class="progressFill"></div></div><div class="checkProgressMeta"><span id="chkActivity1Hint">0%</span><span class="checkVal" id="chkActivity1Val">0/0</span></div></div>
+        <button class="checkRow checkRowBtn" id="goDailyFlash" type="button" aria-label="Open flashcards for today's Daily Challenge topic">
+          <div class="checkLeft"><span class="checkDot" id="chkFlashDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg></span> Flashcards</div>
+          <div class="checkVal" id="chkFlashVal">0/12</div>
         </button>
-        <button class="checkRow checkRowBtn" id="goDailyActivity2" type="button" aria-label="Open second daily challenge activity">
-          <div class="checkLeft"><span class="checkDot" id="chkActivity2Dot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg></span> <span id="chkActivity2Label">Activity</span></div>
-          <div class="checkProgress"><div class="progressTrack"><div id="chkActivity2Fill" class="progressFill"></div></div><div class="checkProgressMeta"><span id="chkActivity2Hint">0%</span><span class="checkVal" id="chkActivity2Val">0/0</span></div></div>
+        <button class="checkRow checkRowBtn" id="goDailyQuiz" type="button" aria-label="Open topic quiz for today's Daily Challenge topic">
+          <div class="checkLeft"><span class="checkDot" id="chkQuizDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg></span> Topic Quiz</div>
+          <div class="checkVal" id="chkQuizVal">0% / 100%</div>
+        </button>
+        <button class="checkRow checkRowBtn" id="goDailyPlan" type="button" aria-label="Open the 25-mark plan for today's Daily Challenge topic">
+          <div class="checkLeft"><span class="checkDot" id="chkPlanDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg></span> 25-mark plan</div>
+          <div class="checkVal" id="chkPlanVal">Not started</div>
         </button>
       </div>
 
@@ -9511,64 +9498,10 @@ function escapeHtml(v){
 /* ==========================================================
    DAILY CHALLENGE (purposeful + rotating)
    ========================================================== */
-const DAILY_FLASH_GOAL = 10;
+const DAILY_FLASH_GOAL = 12;
 const DAILY_QUIZ_GOAL = 100;
-const DAILY_GAME_GOAL = 1;
-const DAILY_LESSON_GOAL = 1;
-const DAILY_ACTIVITY_ROTATION = [
-  ["lesson","quiz"],
-  ["study","game"],
-  ["lesson","study"],
-  ["quiz","game"],
-  ["lesson","game"],
-  ["study","quiz"]
-];
 
 let NEXT_QUIZ_FROM_DAILY_CHALLENGE = false;
-
-function getDailyActivityPair(){
-  return DAILY_ACTIVITY_ROTATION[dailyIndex() % DAILY_ACTIVITY_ROTATION.length].slice();
-}
-function dailyActivityMeta(key){
-  if(key === "study") return { key, label:"Study cards", hint:`${DAILY_FLASH_GOAL} cards`, goal:DAILY_FLASH_GOAL, unit:"cards" };
-  if(key === "quiz") return { key, label:"Topic Quiz", hint:"Uncompleted questions", goal:DAILY_QUIZ_GOAL, unit:"%" };
-  if(key === "game") return { key, label:"Game", hint:"One play", goal:DAILY_GAME_GOAL, unit:"plays" };
-  return { key:"lesson", label:"Lesson", hint:"Complete one lesson", goal:DAILY_LESSON_GOAL, unit:"lessons" };
-}
-function dailyActivityProgressValue(d, key){
-  const prog = d.progress || {};
-  return Number(prog[key] || 0);
-}
-function dailyActivityGoalValue(key){ return Number(dailyActivityMeta(key).goal || 1); }
-function isDailyActivityComplete(d, key){
-  const val = dailyActivityProgressValue(d, key);
-  return val >= dailyActivityGoalValue(key);
-}
-function dailyActivityPercent(d, key){
-  const goal = Math.max(1, dailyActivityGoalValue(key));
-  const val = dailyActivityProgressValue(d, key);
-  return Math.max(0, Math.min(100, Math.round((val / goal) * 100)));
-}
-function getDailyLessonTarget(topicId){
-  const topic = lessonsData.find(t=>t.id===topicId);
-  const lessons = getTopicLessons(topic);
-  const pending = lessons.find(lesson=>getLessonJourneyState(lesson.id)!=="completed");
-  return pending || null;
-}
-function normalizeDailyStructure(d, topicId){
-  d.topicId = topicId;
-  d.activities = Array.isArray(d.activities) && d.activities.length === 2 ? d.activities : getDailyActivityPair();
-  d.progress ||= { study:0, quiz:0, game:0, lesson:0 };
-  ["study","quiz","game","lesson"].forEach(k=>{ d.progress[k] = Number(d.progress[k] || 0); });
-  d.revealedCards = Array.isArray(d.revealedCards) ? d.revealedCards : [];
-  d.dailyStudyCardIds = Array.isArray(d.dailyStudyCardIds) ? d.dailyStudyCardIds : [];
-  d.dailyQuizQuestionKeys = Array.isArray(d.dailyQuizQuestionKeys) ? d.dailyQuizQuestionKeys : [];
-  d.dailyLessonId = d.dailyLessonId || (getDailyLessonTarget(topicId)?.id || null);
-  d.flash = d.progress.study;
-  d.quizBest = d.progress.quiz;
-  d.planOpened = false;
-  return d;
-}
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 function todayKey(){
@@ -9576,6 +9509,7 @@ function todayKey(){
   return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
 }
 function keyToDate(k){
+  // k = YYYY-MM-DD
   const [y,m,dd] = String(k).split('-').map(n=>parseInt(n,10));
   return new Date(y, (m||1)-1, dd||1);
 }
@@ -9587,33 +9521,60 @@ function addDaysKey(k, delta){
   d.setDate(d.getDate() + delta);
   return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
 }
-function yesterdayKey(){ return addDaysKey(todayKey(), -1); }
-function dayOfYear(d){ const start = new Date(d.getFullYear(), 0, 0); return Math.floor((d - start) / 86400000); }
+function yesterdayKey(){
+  return addDaysKey(todayKey(), -1);
+}
+function dayOfYear(d){
+  const start = new Date(d.getFullYear(), 0, 0);
+  const diff = d - start;
+  return Math.floor(diff / 86400000);
+}
 function dailyIndex(){ return dayOfYear(new Date()); }
-function getDailyTopicId(){ const ids = enabledTopicIds(); return ids[dailyIndex() % ids.length]; }
-function getDailyExamId(topicId){ const list = EXAM_BANK.filter(x=>x.topicId===topicId); if(!list.length) return null; return list[dailyIndex() % list.length].id; }
+function getDailyTopicId(){
+  // Deterministic rotation: topic depends on the day of year.
+  // Exclude any topics toggled off by the student/teacher.
+  const ids = enabledTopicIds();
+  return ids[dailyIndex() % ids.length];
+}
+function getDailyExamId(topicId){
+  const list = EXAM_BANK.filter(x=>x.topicId===topicId);
+  if(!list.length) return null;
+  return list[dailyIndex() % list.length].id;
+}
 
 function ensureDaily(){
   STATE.daily ||= {};
   const k = todayKey();
-  const topicId = getCurrentJourneyTopicId();
-  if(!STATE.daily[k]) STATE.daily[k] = normalizeDailyStructure({ completed:false }, topicId);
-  else normalizeDailyStructure(STATE.daily[k], topicId);
+  const wantTopic = getDailyTopicId();
+  if(!STATE.daily[k]){
+    STATE.daily[k] = { topicId: wantTopic, flash:0, quizBest:0, planOpened:false, completed:false };
+    saveState();
+  }
   return STATE.daily[k];
 }
 
 function normalizeDailyStreak(){
+  // Duolingo-style: streak remains “alive” if last completion was yesterday.
   STATE.dailyStreak ||= { count:0, best:0, lastDate:null };
   const last = STATE.dailyStreak.lastDate;
   if(!last){
+    // Migration / safety: infer last completion from daily log if available
     try{
       const keys = Object.keys(STATE.daily||{}).sort();
       let inferred = null;
-      for(let i=keys.length-1;i>=0;i--){ if(STATE.daily[keys[i]]?.completed){ inferred = keys[i]; break; } }
+      for(let i=keys.length-1;i>=0;i--){
+        const k = keys[i];
+        if(STATE.daily[k]?.completed){ inferred = k; break; }
+      }
       if(inferred){
         STATE.dailyStreak.lastDate = inferred;
-        let count = 0, cur = inferred;
-        while(STATE.daily[cur]?.completed){ count++; cur = addDaysKey(cur, -1); }
+        // Compute streak backwards (in case user has a run already)
+        let count = 0;
+        let cur = inferred;
+        while(STATE.daily[cur]?.completed){
+          count++;
+          cur = addDaysKey(cur, -1);
+        }
         STATE.dailyStreak.count = count;
         STATE.dailyStreak.best = Math.max(STATE.dailyStreak.best||0, count);
         saveState();
@@ -9626,7 +9587,9 @@ function normalizeDailyStreak(){
     return;
   }
   const t = todayKey();
-  if(last === t || last === yesterdayKey()) return;
+  const y = yesterdayKey();
+  if(last === t || last === y) return; // still valid
+  // Missed at least one full day → streak breaks
   STATE.dailyStreak.count = 0;
   STATE.dailyStreak.best = Math.max(STATE.dailyStreak.best||0, 0);
   STATE.dailyStreak.lastDate = null;
@@ -9637,143 +9600,75 @@ function updateDailyStreakOnComplete(){
   STATE.dailyStreak ||= { count:0, best:0, lastDate:null };
   const t = todayKey();
   const last = STATE.dailyStreak.lastDate;
-  if(last === t) return;
-  STATE.dailyStreak.count = (last === yesterdayKey()) ? (STATE.dailyStreak.count||0)+1 : 1;
+  if(last === t) return; // already counted today
+  if(last === yesterdayKey()) STATE.dailyStreak.count = (STATE.dailyStreak.count||0) + 1;
+  else STATE.dailyStreak.count = 1;
   STATE.dailyStreak.best = Math.max(STATE.dailyStreak.best||0, STATE.dailyStreak.count);
   STATE.dailyStreak.lastDate = t;
   saveState();
 }
 
-function renderDailyChecklistRows(d){
-  (d.activities || []).slice(0,2).forEach((key, i)=>{
-    const idx = i + 1;
-    const meta = dailyActivityMeta(key);
-    const pct = dailyActivityPercent(d, key);
-    const value = dailyActivityProgressValue(d, key);
-    const goal = dailyActivityGoalValue(key);
-    const done = isDailyActivityComplete(d, key);
-    const row = $(`goDailyActivity${idx}`);
-    const label = $(`chkActivity${idx}Label`);
-    const hint = $(`chkActivity${idx}Hint`);
-    const val = $(`chkActivity${idx}Val`);
-    const fill = $(`chkActivity${idx}Fill`);
-    const dot = $(`chkActivity${idx}Dot`);
-    if(label) label.textContent = meta.label;
-    if(hint) hint.textContent = meta.hint;
-    if(val) val.textContent = key === "quiz" ? `${Math.min(100, value)}% / 100%` : `${Math.min(goal, value)}/${goal}`;
-    if(fill) fill.style.width = `${pct}%`;
-    if(dot) dot.classList.toggle("done", done);
-    if(row){
-      row.dataset.activity = key;
-      row.style.borderColor = done ? 'rgba(126,185,170,.55)' : 'rgba(0,0,0,.10)';
-    }
-  });
-}
-
 function updateDailyUI(){
   const d = ensureDaily();
   const topicTitle = (TOPICS.find(t=>t.id===d.topicId)||{}).title || d.topicId;
-  const label = $('dailyTopicLabel');
+
+  const label = document.getElementById('dailyTopicLabel');
   if(label) label.textContent = topicTitle;
-  const streakCard = $('streakHeroCard');
+
+  const streakCard = document.getElementById('streakHeroCard');
   if(streakCard){
-    const bgMap = { t1:"./topic1.png?v=1", t2:"./topic2.png?v=1", t3:"./section-bg.jpg?v=8", t4:"./section-bg.jpg?v=8" };
-    const bg = bgMap[d.topicId];
+    const dailyTopicBackgrounds = {
+      t1: "./topic1.png?v=1",
+      t2: "./topic2.png?v=1",
+      t3: "./section-bg.jpg?v=8",
+      t4: "./section-bg.jpg?v=8"
+    };
+    const bg = dailyTopicBackgrounds[d.topicId];
     streakCard.style.setProperty('--dailyTopicBg', bg ? `url('${bg}')` : 'none');
   }
-  renderDailyChecklistRows(d);
-  $('streakCompleteBanner')?.classList.toggle('hidden', !d.completed);
+
+  const timePill = document.getElementById('dailyTimePill');
+  if(timePill) timePill.textContent = `📅 ${todayKey()} • 10–15 mins`;
+
+  const flashProg = document.getElementById('dmFlashProg');
+  if(flashProg) flashProg.textContent = `${Math.min(d.flash, DAILY_FLASH_GOAL)}/${DAILY_FLASH_GOAL}`;
+
+  const quizProg = document.getElementById('dmQuizProg');
+  if(quizProg) quizProg.textContent = `${Math.min(100, d.quizBest)}% / ${DAILY_QUIZ_GOAL}%`;
+
+  const planProg = document.getElementById('dmPlanProg');
+  if(planProg) planProg.textContent = d.planOpened ? 'Yes' : 'No';
+
+  const flashRow = document.getElementById('dmFlashRow');
+  const quizRow  = document.getElementById('dmQuizRow');
+  const planRow  = document.getElementById('dmPlanRow');
+  const doneFlash = d.flash >= DAILY_FLASH_GOAL;
+  const doneQuiz = d.quizBest >= DAILY_QUIZ_GOAL;
+  const donePlan = !!d.planOpened;
+  if(flashRow) flashRow.style.borderColor = doneFlash ? 'rgba(126,185,170,.55)' : 'rgba(0,0,0,.10)';
+  if(quizRow)  quizRow.style.borderColor  = doneQuiz  ? 'rgba(126,185,170,.55)' : 'rgba(0,0,0,.10)';
+  if(planRow)  planRow.style.borderColor  = donePlan  ? 'rgba(126,185,170,.55)' : 'rgba(0,0,0,.10)';
+
+  const trophy = document.getElementById('streakCompleteBanner');
+  if(trophy){
+    if(d.completed) trophy.classList.remove('hidden');
+    else trophy.classList.add('hidden');
+  }
   try{ renderStreakHero(); }catch(e){}
 }
 
+
+
 function markDailyMeaningfulStep(topicId){
-  recordDailyLessonCompleted(topicId);
-}
-
-function nextDailyAction(d){
-  const step = (d.activities || []).find(key=>!isDailyActivityComplete(d, key));
-  return step || null;
-}
-
-function challengeStepName(step){ return dailyActivityMeta(step).label; }
-
-function checkDailyComplete(){
   const d = ensureDaily();
   if(d.completed) return;
-  const allDone = (d.activities || []).every(key=>isDailyActivityComplete(d, key));
-  if(!allDone) return;
+  if(!topicId || !isTopicEnabled(topicId)) return;
   d.completed = true;
   updateDailyStreakOnComplete();
   saveState();
-  logEvent("daily_challenge_completed", { topicId: d.topicId, activities:d.activities });
   updateDailyUI();
-  buildDailyCoachRecommendation();
-  try{ computeKpis(); }catch(e){}
-  closeQuizCompleteModal();
-  showDailyChallengeCompleteModal(d.topicId);
-  try{ confetti.fall(3200); }catch(e){}
 }
 
-function recordDailyFlashcard(topicId, cardId){
-  const d = ensureDaily();
-  if(topicId !== d.topicId) return;
-  if(cardId){
-    d.revealedCards = Array.isArray(d.revealedCards) ? d.revealedCards : [];
-    if(d.revealedCards.includes(cardId)) return;
-    d.revealedCards.push(cardId);
-  }
-  const wasComplete = isDailyActivityComplete(d, 'study');
-  d.progress.study = Math.min(DAILY_FLASH_GOAL, Number(d.progress.study||0) + 1);
-  d.flash = d.progress.study;
-  saveState();
-  buildDailyCoachRecommendation();
-  updateDailyUI();
-  checkDailyComplete();
-  if(!d.completed && !wasComplete && isDailyActivityComplete(d, 'study')) showDailyNextTaskModal(topicId);
-}
-
-function recordDailyQuiz(topicId, percent){
-  const d = ensureDaily();
-  if(topicId !== d.topicId) return;
-  const wasComplete = isDailyActivityComplete(d, 'quiz');
-  const p = Math.max(0, Math.min(100, Math.round(percent)));
-  d.progress.quiz = Math.max(Number(d.progress.quiz||0), p);
-  d.quizBest = d.progress.quiz;
-  const bucket = analyticsDayBucket(todayKey());
-  bucket.quizAttempts = Number(bucket.quizAttempts || 0) + 1;
-  bucket.quizTotal = Number(bucket.quizTotal || 0) + p;
-  bucket.quizAvg = Math.round(bucket.quizTotal / Math.max(1, bucket.quizAttempts));
-  saveState();
-  buildDailyCoachRecommendation();
-  updateDailyUI();
-  checkDailyComplete();
-  if(!d.completed && !wasComplete && isDailyActivityComplete(d, 'quiz')) showDailyNextTaskModal(topicId);
-}
-
-function recordDailyGamePlayed(topicId){
-  const d = ensureDaily();
-  if(topicId !== d.topicId) return;
-  const wasComplete = isDailyActivityComplete(d, 'game');
-  d.progress.game = DAILY_GAME_GOAL;
-  saveState();
-  updateDailyUI();
-  checkDailyComplete();
-  if(!d.completed && !wasComplete) showDailyNextTaskModal(topicId);
-}
-
-function recordDailyLessonCompleted(topicId, lessonId=null){
-  const d = ensureDaily();
-  if(topicId !== d.topicId) return;
-  if(d.dailyLessonId && lessonId && lessonId !== d.dailyLessonId) return;
-  const wasComplete = isDailyActivityComplete(d, 'lesson');
-  d.progress.lesson = DAILY_LESSON_GOAL;
-  saveState();
-  updateDailyUI();
-  checkDailyComplete();
-  if(!d.completed && !wasComplete) showDailyNextTaskModal(topicId);
-}
-
-function recordDailyPlanOpened(topicId){ recordDailyLessonCompleted(topicId); }
 function formatHMS(ms){
   const s = Math.max(0, Math.floor(ms/1000));
   const hh = Math.floor(s/3600);
@@ -9825,7 +9720,17 @@ function renderStreakHero(){
   const textEl = $("streakStatusText");
   const cd = $("streakCountdown");
 
-  renderDailyChecklistRows(d);
+  const doneFlash = d.flash >= DAILY_FLASH_GOAL;
+  const doneQuiz  = d.quizBest >= DAILY_QUIZ_GOAL;
+  const donePlan  = !!d.planOpened;
+
+  const flashDot = $("chkFlashDot"); if(flashDot) flashDot.classList.toggle("done", doneFlash);
+  const quizDot  = $("chkQuizDot");  if(quizDot)  quizDot.classList.toggle("done", doneQuiz);
+  const planDot  = $("chkPlanDot");  if(planDot)  planDot.classList.toggle("done", donePlan);
+
+  const flashVal = $("chkFlashVal"); if(flashVal) flashVal.textContent = `${Math.min(d.flash, DAILY_FLASH_GOAL)}/${DAILY_FLASH_GOAL}`;
+  const quizVal  = $("chkQuizVal");  if(quizVal)  quizVal.textContent = `${Math.min(100, d.quizBest)}% / ${DAILY_QUIZ_GOAL}%`;
+  const planVal  = $("chkPlanVal");  if(planVal)  planVal.textContent = donePlan ? "Started" : "Not started";
 
   if(box){
     box.classList.toggle("safe", doneToday);
@@ -9903,6 +9808,83 @@ function renderStreakHero(){
   }, 1000);
   updateBannerTitlePill();
 
+}
+
+function checkDailyComplete(){
+  const d = ensureDaily();
+  if(d.completed) return;
+  if(d.flash >= DAILY_FLASH_GOAL && d.quizBest >= DAILY_QUIZ_GOAL && d.planOpened){
+    d.completed = true;
+    // Update Duolingo-style streak when a Daily Challenge is completed
+    updateDailyStreakOnComplete();
+    saveState();
+    logEvent("daily_challenge_completed", { topicId: d.topicId });
+    updateDailyUI();
+    buildDailyCoachRecommendation();
+    try{ computeKpis(); }catch(e){}
+    closeQuizCompleteModal();
+    showDailyChallengeCompleteModal(d.topicId);
+    try{ confetti.fall(3200); }catch(e){}
+    try{ confetti.burst(200); }catch(e){}
+  }
+}
+
+function recordDailyFlashcard(topicId, cardId){
+  const d = ensureDaily();
+  if(topicId !== d.topicId) return;
+
+  // Only count once per card per day (prevents spamming Reveal / marking)
+  if(cardId){
+    d.revealedCards = Array.isArray(d.revealedCards) ? d.revealedCards : [];
+    if(d.revealedCards.includes(cardId)) return;
+    d.revealedCards.push(cardId);
+  }
+
+  const wasStepComplete = (d.flash||0) >= DAILY_FLASH_GOAL;
+  d.flash = (d.flash||0) + 1;
+  const nowStepComplete = (d.flash||0) >= DAILY_FLASH_GOAL;
+  saveState();
+  buildDailyCoachRecommendation();
+  updateDailyUI();
+  checkDailyComplete();
+  if(!d.completed && !wasStepComplete && nowStepComplete){
+    showDailyNextTaskModal(topicId);
+  }
+}
+
+function recordDailyQuiz(topicId, percent){
+  const d = ensureDaily();
+  if(topicId !== d.topicId) return;
+  const wasStepComplete = (d.quizBest||0) >= DAILY_QUIZ_GOAL;
+  const p = Math.max(0, Math.min(100, Math.round(percent)));
+  d.quizBest = Math.max(d.quizBest||0, p);
+  const nowStepComplete = (d.quizBest||0) >= DAILY_QUIZ_GOAL;
+  const bucket = analyticsDayBucket(todayKey());
+  bucket.quizAttempts = Number(bucket.quizAttempts || 0) + 1;
+  bucket.quizTotal = Number(bucket.quizTotal || 0) + p;
+  bucket.quizAvg = Math.round(bucket.quizTotal / Math.max(1, bucket.quizAttempts));
+  saveState();
+  buildDailyCoachRecommendation();
+  updateDailyUI();
+  checkDailyComplete();
+  if(!d.completed && !wasStepComplete && nowStepComplete){
+    showDailyNextTaskModal(topicId);
+  }
+}
+
+function recordDailyPlanOpened(topicId){
+  const d = ensureDaily();
+  if(topicId !== d.topicId) return;
+  const wasOpened = !!d.planOpened;
+  d.planOpened = true;
+  saveState();
+  buildDailyCoachRecommendation();
+  updateDailyUI();
+  checkDailyComplete();
+  if(!wasOpened) trackTaskCompleted("PLAN_25", topicId);
+  if(!d.completed && !wasOpened){
+    showDailyNextTaskModal(topicId);
+  }
 }
 
 /* ==========================================================
@@ -10495,7 +10477,7 @@ function markLessonResult(lessonId, scorePct, breakdown){
   };
   saveLessonActivityStore(store);
   const scope = getLessonScopeByLessonId(lessonId);
-  if(scope?.topicId) recordDailyLessonCompleted(scope.topicId, lessonId);
+  if(scope?.topicId) markDailyMeaningfulStep(scope.topicId);
 }
 
 function getTopicLessons(topic){
@@ -18827,7 +18809,6 @@ function markGameSessionCompleted(gameType, topicId){
   if(APP_SESSION.gameSessions[gameType]) return;
   APP_SESSION.gameSessions[gameType] = 1;
   const safeTopic = topicId && isTopicEnabled(topicId) ? topicId : (getDailyTopicId() || "t1");
-  recordDailyGamePlayed(safeTopic);
   trackTaskCompleted("GAME", safeTopic, { scoreDelta:1, gameType });
 }
 
@@ -18869,6 +18850,7 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   APP_SESSION.tasksCompleted = Number(APP_SESSION.tasksCompleted||0) + 1;
   logEvent("task_completed", { taskType, topicId, scoreDelta: extra.scoreDelta, gameType: extra.gameType });
   renderHomeRecommendation();
+  if(["FLASHCARDS","QUIZ","PLAN_25","GAME"].includes(taskType)) markDailyMeaningfulStep(topicId);
   maybeShowMagicMoment(taskType);
 }
 function topicFlashcardStats(topicId){
@@ -19140,11 +19122,28 @@ function openStudyForTopic(topicId, mode="all"){
   rememberStudyContext();
 }
 
+function nextDailyAction(d){
+  if((d.flash||0) < DAILY_FLASH_GOAL) return "flash";
+  if((d.quizBest||0) < DAILY_QUIZ_GOAL) return "quiz";
+  if(!d.planOpened) return "plan";
+  return null;
+}
+
+function challengeStepName(step){
+  if(step === "flash") return "Flashcards";
+  if(step === "quiz") return "Topic Quiz";
+  if(step === "plan") return "25-mark plan";
+  return "";
+}
+
 function challengeStepColor(step){
-  const key = step === (ensureDaily().activities||[])[0] ? 1 : 2;
-  const rowLabel = document.querySelector(`#goDailyActivity${key} .checkLeft`);
+  const rowId = step === "flash"
+    ? "goDailyFlash"
+    : (step === "quiz" ? "goDailyQuiz" : "goDailyPlan");
+  const rowLabel = document.querySelector(`#${rowId} .checkLeft`);
   if(!rowLabel) return null;
-  return getComputedStyle(rowLabel).color || null;
+  const textColor = getComputedStyle(rowLabel).color;
+  return textColor || null;
 }
 
 function loadLastCoachRecommendation(){
@@ -19361,29 +19360,12 @@ function openWelcomeVideoDialog(){
       playAttempt.catch(()=>{});
     }
   }catch(e){}
-
-  // Fail-safe: if the video cannot play/finish, don't block Home forever.
-  const fallbackMs = 5500;
-  if(window.__welcomeVideoFallbackTimer){
-    clearTimeout(window.__welcomeVideoFallbackTimer);
-  }
-  window.__welcomeVideoFallbackTimer = setTimeout(()=>{
-    const stillVisible = splashScreen && !splashScreen.classList.contains("hidden");
-    if(stillVisible) closeWelcomeVideoDialog(true);
-  }, fallbackMs);
-
   return true;
 }
 
 function closeWelcomeVideoDialog(showCoach=true){
   const splashScreen = $("welcomeSplashScreen");
   const player = $("welcomeVideoPlayer");
-
-  if(window.__welcomeVideoFallbackTimer){
-    clearTimeout(window.__welcomeVideoFallbackTimer);
-    window.__welcomeVideoFallbackTimer = null;
-  }
-
   const finishClose = ()=>{
     if(player){
       try{ player.currentTime = 0; }catch(e){}
@@ -19457,24 +19439,6 @@ function goDailyFocus(){
   openStudyForTopic(d.topicId, "all");
   startDailyFlashSession(d.topicId);
 }
-function goDailyLesson(){
-  const d = ensureDaily();
-  d.lastStep = "lesson";
-  saveState();
-  trackTaskStarted("LESSON", d.topicId);
-  const lesson = getDailyLessonTarget(d.topicId);
-  setTab("lessons");
-  if(lesson){
-    const scope = getLessonScopeByLessonId(lesson.id);
-    if(scope){
-      lessonsNav.topicId = scope.topicId;
-      lessonsNav.themeId = scope.themeId;
-      lessonsNav.lessonId = scope.lessonId;
-      lessonsNav.view = "player";
-      renderLessons();
-    }
-  }
-}
 function goDailyQuiz(topicIdOverride=null){
   const d = ensureDaily();
   const requestedTopicId = (typeof topicIdOverride === "string") ? topicIdOverride : null;
@@ -19490,28 +19454,26 @@ function goDailyQuiz(topicIdOverride=null){
   $("mcqCount").value = "10";
   startQuiz();
 }
-function goDailyGame(){
+function goDailyExam(){
   const d = ensureDaily();
-  d.lastStep = "game";
+  d.lastStep = "plan";
   saveState();
-  trackTaskStarted("GAME", d.topicId);
-  setTab("games");
-}
-
-function goDailyActivity(key){
-  if(key === "study") return goDailyFocus();
-  if(key === "quiz") return goDailyQuiz();
-  if(key === "game") return goDailyGame();
-  return goDailyLesson();
+  trackTaskStarted("PLAN_25", d.topicId);
+  setTab("exam");
+  const exFilter = $("examTopicSelect");
+  if(exFilter){ exFilter.value = d.topicId; exFilter.dispatchEvent(new Event("change")); }
+  const exId = getDailyExamId(d.topicId);
+  if(exId){ $("examSelect").value = exId; renderExamQuestion(); }
 }
 
 { const _b = document.getElementById('btnGoFocus'); if(_b) _b.addEventListener('click', goDailyFocus); }
 { const _b = document.getElementById('btnGoMixed'); if(_b) _b.addEventListener('click', goDailyQuiz); }
-{ const _b = document.getElementById('btnGoExam'); if(_b) _b.addEventListener('click', goDailyLesson); }
+{ const _b = document.getElementById('btnGoExam'); if(_b) _b.addEventListener('click', goDailyExam); }
 
 // Daily Challenge navigable checklist rows (these replace the removed top action buttons)
-$("goDailyActivity1").addEventListener("click", ()=>goDailyActivity((ensureDaily().activities||[])[0] || "study"));
-$("goDailyActivity2").addEventListener("click", ()=>goDailyActivity((ensureDaily().activities||[])[1] || "quiz"));
+$("goDailyFlash").addEventListener("click", goDailyFocus);
+$("goDailyQuiz").addEventListener("click", goDailyQuiz);
+$("goDailyPlan").addEventListener("click", goDailyExam);
 
 /* ==========================================================
    FLASHCARDS
@@ -19520,12 +19482,7 @@ let CURRENT = { list:[], idx:0, card:null };
 
 function pickDailyFlashcards(topicId, count=DAILY_FLASH_GOAL){
   const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
-  const unfinished = pool.filter(c=>{
-    const r = getReview(c.id);
-    return !r || Number(r.score||0) < 2;
-  });
-  const source = unfinished.length ? unfinished : pool;
-  return shuffle(source).slice(0, Math.min(count, source.length));
+  return shuffle(pool).slice(0, Math.min(count, pool.length));
 }
 
 function startDailyFlashSession(topicId){
@@ -19535,13 +19492,7 @@ function startDailyFlashSession(topicId){
     cardIds: new Set(),
     complete: false
   };
-  const d = ensureDaily();
-  if(d.topicId === topicId && (!Array.isArray(d.dailyStudyCardIds) || !d.dailyStudyCardIds.length)){
-    d.dailyStudyCardIds = pickDailyFlashcards(topicId, DAILY_FLASH_GOAL).map(c=>c.id);
-    saveState();
-  }
-  const ids = new Set((d.dailyStudyCardIds||[]));
-  CURRENT.list = ALL_CARDS.filter(c=>ids.has(c.id));
+  CURRENT.list = pickDailyFlashcards(topicId, DAILY_FLASH_GOAL);
   CURRENT.dailySession.cardIds = new Set(CURRENT.list.map(c=>c.id));
   CURRENT.idx = 0;
   CURRENT.card = CURRENT.list[0] || null;
@@ -19954,31 +19905,6 @@ function getQuizPool(topicId){
   return MCQ_BANK.filter(x=>x.topicId===topicId).filter(enabled);
 }
 
-function getQuizQuestionKey(q){
-  return `${q.topicId}::${String(q.q||"").trim()}::${String(q.answer||"").trim()}`;
-}
-function hasCompletedQuizQuestion(q){
-  const topicId = q?.topicId;
-  if(!topicId) return false;
-  const bucket = STATE.quizCompleted?.[topicId];
-  if(!bucket) return false;
-  return !!bucket[getQuizQuestionKey(q)];
-}
-function markQuizQuestionCompleted(q){
-  const topicId = q?.topicId;
-  if(!topicId) return;
-  STATE.quizCompleted ||= {};
-  STATE.quizCompleted[topicId] ||= {};
-  STATE.quizCompleted[topicId][getQuizQuestionKey(q)] = Date.now();
-  saveState();
-}
-function pickDailyQuizQuestions(topicId, count=10){
-  const pool = getQuizPool(topicId);
-  const unfinished = pool.filter(q=>!hasCompletedQuizQuestion(q));
-  const source = unfinished.length ? unfinished : pool;
-  return shuffle(source).slice(0, Math.min(count, source.length));
-}
-
 /* QUIZ state + streaks */
 let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED", fromDailyChallenge:false };
 
@@ -20076,7 +20002,9 @@ function showDailyNextTaskModal(topicId){
   if(goBtn){
     goBtn.onclick = ()=>{
       closeDailyNextTaskModal();
-      goDailyActivity(step);
+      if(step === "flash") goDailyFocus();
+      else if(step === "quiz") goDailyQuiz();
+      else goDailyExam();
     };
   }
 
@@ -20188,15 +20116,7 @@ function startQuiz(useErrorBank=false){
   const mode = $("quizModeSelect")?.value || "standard";
   if(topicId !== "MIXED") trackTaskStarted("QUIZ", topicId);
 
-  const useDailyPool = !!(NEXT_QUIZ_FROM_DAILY_CHALLENGE && !useErrorBank && topicId !== "MIXED");
-  let pool = useErrorBank ? QUIZ.errorBank.map(x=>x.sourceQ) : getQuizPool(topicId);
-  if(useDailyPool){
-    const d = ensureDaily();
-    const dailyQuestions = pickDailyQuizQuestions(topicId, 10);
-    d.dailyQuizQuestionKeys = dailyQuestions.map(getQuizQuestionKey);
-    saveState();
-    pool = dailyQuestions;
-  }
+  const pool = useErrorBank ? QUIZ.errorBank.map(x=>x.sourceQ) : getQuizPool(topicId);
   let list = shuffle(pool).slice(0, Math.min(count, pool.length));
   if(mode === "exam") list = list.map(buildExamisedQuestion);
 
@@ -20335,7 +20255,6 @@ function renderQuizQ(){
       const correct = (choice === q.answer);
       if(correct){
         QUIZ.score++;
-        markQuizQuestionCompleted(q);
         STATE.quiz.correct = (STATE.quiz.correct||0) + 1;
         bucket.correct += 1;
 
@@ -20890,9 +20809,6 @@ function init(){
   $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
   $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
   $("welcomeVideoPlayer")?.addEventListener("ended", ()=>closeWelcomeVideoDialog(true));
-  $("welcomeVideoPlayer")?.addEventListener("error", ()=>closeWelcomeVideoDialog(true));
-  $("welcomeVideoPlayer")?.addEventListener("stalled", ()=>closeWelcomeVideoDialog(true));
-  $("welcomeVideoPlayer")?.addEventListener("abort", ()=>closeWelcomeVideoDialog(true));
   $("welcomeSplashScreen")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
   $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
   $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
