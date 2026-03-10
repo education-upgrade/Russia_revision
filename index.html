@@ -3491,14 +3491,16 @@ section#games.gamePaneActive .gamesHeroCard{
 
       <div class="streakChecklist" aria-label="Daily Challenge checklist">
         <button class="checkRow checkRowBtn" id="goDailyFlash" type="button" aria-label="Open flashcards for today's Daily Challenge topic">
-          <div class="checkLeft"><span class="checkDot" id="chkFlashDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg></span><span id="chkFlashLabel">Activity 1</span></div>
-          <div class="checkVal" id="chkFlashVal">0 / 1</div>
-          <div class="progressTrack"><div class="progressFill" id="chkFlashBar"></div></div>
+          <div class="checkLeft"><span class="checkDot" id="chkFlashDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg></span> Flashcards</div>
+          <div class="checkVal" id="chkFlashVal">0/12</div>
         </button>
         <button class="checkRow checkRowBtn" id="goDailyQuiz" type="button" aria-label="Open topic quiz for today's Daily Challenge topic">
-          <div class="checkLeft"><span class="checkDot" id="chkQuizDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg></span><span id="chkQuizLabel">Activity 2</span></div>
-          <div class="checkVal" id="chkQuizVal">0 / 1</div>
-          <div class="progressTrack"><div class="progressFill" id="chkQuizBar"></div></div>
+          <div class="checkLeft"><span class="checkDot" id="chkQuizDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg></span> Topic Quiz</div>
+          <div class="checkVal" id="chkQuizVal">0% / 100%</div>
+        </button>
+        <button class="checkRow checkRowBtn" id="goDailyPlan" type="button" aria-label="Open the 25-mark plan for today's Daily Challenge topic">
+          <div class="checkLeft"><span class="checkDot" id="chkPlanDot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h4"></path></svg></span> 25-mark plan</div>
+          <div class="checkVal" id="chkPlanVal">Not started</div>
         </button>
       </div>
 
@@ -3806,7 +3808,7 @@ section#games.gamePaneActive .gamesHeroCard{
         </button>
         <button class="btn small quizCompleteActionBtn" id="btnQuizCompleteHome" type="button">
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
-          <span class="quizCompleteActionLabel">Back to Home</span>
+          <span class="quizCompleteActionLabel">Return to Home</span>
         </button>
         <button class="btn small quizCompleteActionBtn" id="btnQuizCompleteClose" type="button">
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12"></path><path d="m18 6-12 12"></path></svg>
@@ -3824,11 +3826,11 @@ section#games.gamePaneActive .gamesHeroCard{
       <div class="quizCompleteActions">
         <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteFocus" type="button">
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M8 9h8"></path><path d="M8 13h5"></path><path d="M8 17h8"></path></svg>
-          <span class="quizCompleteActionLabel">Continue Learning Journey</span>
+          <span class="quizCompleteActionLabel">Review focus cards</span>
         </button>
         <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteHome" type="button">
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
-          <span class="quizCompleteActionLabel">Back to Home</span>
+          <span class="quizCompleteActionLabel">Return to Home</span>
         </button>
         <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteClose" type="button">
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12"></path><path d="m18 6-12 12"></path></svg>
@@ -9498,13 +9500,6 @@ function escapeHtml(v){
    ========================================================== */
 const DAILY_FLASH_GOAL = 12;
 const DAILY_QUIZ_GOAL = 100;
-const DAILY_STUDY_GOAL = 10;
-const DAILY_ACTIVITY_ROTATION = [
-  ["lesson","study"],
-  ["quiz","game"],
-  ["lesson","quiz"],
-  ["study","game"]
-];
 
 let NEXT_QUIZ_FROM_DAILY_CHALLENGE = false;
 
@@ -9552,111 +9547,10 @@ function ensureDaily(){
   const k = todayKey();
   const wantTopic = getDailyTopicId();
   if(!STATE.daily[k]){
-    STATE.daily[k] = { topicId: wantTopic, flash:0, quizBest:0, planOpened:false, completed:false, activities:[], activityProgress:{}, activeActivityIndex:0 };
+    STATE.daily[k] = { topicId: wantTopic, flash:0, quizBest:0, planOpened:false, completed:false };
     saveState();
   }
-  if(!Array.isArray(STATE.daily[k].activities)) STATE.daily[k].activities = [];
-  if(!STATE.daily[k].activityProgress || typeof STATE.daily[k].activityProgress !== "object") STATE.daily[k].activityProgress = {};
-  if(!Number.isFinite(Number(STATE.daily[k].activeActivityIndex))) STATE.daily[k].activeActivityIndex = 0;
-  ensureDailyActivities(STATE.daily[k]);
   return STATE.daily[k];
-}
-
-function getChallengeActivityLabel(type){
-  if(type === "lesson") return "Lesson";
-  if(type === "study") return "Study Cards";
-  if(type === "quiz") return "Quiz";
-  if(type === "game") return "Game";
-  return "Activity";
-}
-
-function getChallengeActivityTarget(type){
-  if(type === "lesson") return 1;
-  if(type === "study") return DAILY_STUDY_GOAL;
-  if(type === "quiz") return 1;
-  if(type === "game") return 1;
-  return 1;
-}
-
-function getIncompleteLessonCount(topicId){
-  const topic = lessonsData.find(t=>t.id===topicId);
-  if(!topic) return 0;
-  try{
-    return getTopicLessons(topic).reduce((n, lesson)=>n + (getLessonJourneyState(lesson.id) === "completed" ? 0 : 1), 0);
-  }catch(e){ return 0; }
-}
-
-function getIncompleteStudyCardCount(topicId){
-  const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
-  if(!pool.length) return 0;
-  let remaining = 0;
-  pool.forEach(card=>{
-    const score = Number(getReview(card.id)?.score ?? 0);
-    if(score < 2) remaining += 1;
-  });
-  return remaining;
-}
-
-function getIncompleteQuizCount(topicId){
-  const pool = getQuizPool(topicId);
-  if(!pool.length) return 0;
-  const best = Number(topicQuizStats(topicId).quizBestPercent || 0);
-  return best >= 100 ? 0 : pool.length;
-}
-
-function getIncompleteGameCount(topicId){
-  const done = Number(touchTopicStats(topicId).gameCompletions || 0);
-  return Math.max(0, 6 - done);
-}
-
-function hasEligibleActivity(type, topicId){
-  if(!topicId) return false;
-  if(type === "lesson") return getIncompleteLessonCount(topicId) > 0;
-  if(type === "study") return getIncompleteStudyCardCount(topicId) > 0;
-  if(type === "quiz") return getIncompleteQuizCount(topicId) > 0;
-  if(type === "game") return getIncompleteGameCount(topicId) > 0;
-  return false;
-}
-
-function buildDailyActivities(topicId){
-  if(!topicId) return [];
-  const idx = dailyIndex() % DAILY_ACTIVITY_ROTATION.length;
-  const preferredPair = DAILY_ACTIVITY_ROTATION[idx] || DAILY_ACTIVITY_ROTATION[0];
-  const fallbackOrder = ["lesson","study","quiz","game"];
-  const pool = [];
-  preferredPair.concat(fallbackOrder).forEach(type=>{
-    if(pool.includes(type)) return;
-    if(!hasEligibleActivity(type, topicId)) return;
-    pool.push(type);
-  });
-  return pool.slice(0, 2).map(type=>({ type, target:getChallengeActivityTarget(type) }));
-}
-
-function ensureDailyActivities(d){
-  if(!d || typeof d !== "object") return;
-  const activeJourneyTopic = getCurrentJourneyTopicId();
-  const topicFromJourney = activeJourneyTopic && isTopicEnabled(activeJourneyTopic) ? activeJourneyTopic : null;
-  if(topicFromJourney) d.topicId = topicFromJourney;
-  const nextActivities = buildDailyActivities(d.topicId);
-  if(nextActivities.length){
-    d.activities = nextActivities;
-    d.activityProgress ||= {};
-    nextActivities.forEach(activity=>{
-      const key = activity.type;
-      const current = Number(d.activityProgress[key] || 0);
-      d.activityProgress[key] = Math.max(0, Math.min(activity.target, current));
-    });
-    return;
-  }
-  if(!Array.isArray(d.activities) || !d.activities.length){
-    d.activities = [
-      { type:"study", target:DAILY_FLASH_GOAL },
-      { type:"quiz", target:DAILY_QUIZ_GOAL }
-    ];
-    d.activityProgress ||= {};
-    d.activityProgress.study = Number(d.flash||0);
-    d.activityProgress.quiz = Number(d.quizBest||0) >= DAILY_QUIZ_GOAL ? 1 : 0;
-  }
 }
 
 function normalizeDailyStreak(){
@@ -9714,16 +9608,6 @@ function updateDailyStreakOnComplete(){
   saveState();
 }
 
-function getDailyActivityProgressEntry(d, activity){
-  if(!d || !activity) return { value:0, target:1, ratio:0, done:false };
-  const target = Math.max(1, Number(activity.target || getChallengeActivityTarget(activity.type) || 1));
-  d.activityProgress ||= {};
-  const raw = Number(d.activityProgress[activity.type] || 0);
-  const value = Math.max(0, Math.min(target, raw));
-  const ratio = Math.max(0, Math.min(1, value / target));
-  return { value, target, ratio, done:value >= target };
-}
-
 function updateDailyUI(){
   const d = ensureDaily();
   const topicTitle = (TOPICS.find(t=>t.id===d.topicId)||{}).title || d.topicId;
@@ -9746,41 +9630,24 @@ function updateDailyUI(){
   const timePill = document.getElementById('dailyTimePill');
   if(timePill) timePill.textContent = `📅 ${todayKey()} • 10–15 mins`;
 
-  const a1 = d.activities?.[0] || null;
-  const a2 = d.activities?.[1] || null;
-  const p1 = getDailyActivityProgressEntry(d, a1);
-  const p2 = getDailyActivityProgressEntry(d, a2);
+  const flashProg = document.getElementById('dmFlashProg');
+  if(flashProg) flashProg.textContent = `${Math.min(d.flash, DAILY_FLASH_GOAL)}/${DAILY_FLASH_GOAL}`;
 
-  const flashLabel = document.getElementById('chkFlashLabel');
-  if(flashLabel) flashLabel.textContent = a1 ? getChallengeActivityLabel(a1.type) : "Activity 1";
-  const quizLabel = document.getElementById('chkQuizLabel');
-  if(quizLabel) quizLabel.textContent = a2 ? getChallengeActivityLabel(a2.type) : "Activity 2";
+  const quizProg = document.getElementById('dmQuizProg');
+  if(quizProg) quizProg.textContent = `${Math.min(100, d.quizBest)}% / ${DAILY_QUIZ_GOAL}%`;
 
-  const flashVal = document.getElementById('chkFlashVal');
-  if(flashVal) flashVal.textContent = a1 ? `${p1.value} / ${p1.target}` : "—";
-  const quizVal = document.getElementById('chkQuizVal');
-  if(quizVal) quizVal.textContent = a2 ? `${p2.value} / ${p2.target}` : "—";
+  const planProg = document.getElementById('dmPlanProg');
+  if(planProg) planProg.textContent = d.planOpened ? 'Yes' : 'No';
 
-  const flashBar = document.getElementById('chkFlashBar');
-  if(flashBar) flashBar.style.width = `${Math.round(p1.ratio * 100)}%`;
-  const quizBar = document.getElementById('chkQuizBar');
-  if(quizBar) quizBar.style.width = `${Math.round(p2.ratio * 100)}%`;
-
-  const flashDot = document.getElementById('chkFlashDot');
-  if(flashDot) flashDot.classList.toggle('done', !!a1 && p1.done);
-  const quizDot = document.getElementById('chkQuizDot');
-  if(quizDot) quizDot.classList.toggle('done', !!a2 && p2.done);
-
-  const row1 = document.getElementById('goDailyFlash');
-  if(row1){
-    row1.classList.toggle('hidden', !a1);
-    row1.disabled = !a1;
-  }
-  const row2 = document.getElementById('goDailyQuiz');
-  if(row2){
-    row2.classList.toggle('hidden', !a2);
-    row2.disabled = !a2;
-  }
+  const flashRow = document.getElementById('dmFlashRow');
+  const quizRow  = document.getElementById('dmQuizRow');
+  const planRow  = document.getElementById('dmPlanRow');
+  const doneFlash = d.flash >= DAILY_FLASH_GOAL;
+  const doneQuiz = d.quizBest >= DAILY_QUIZ_GOAL;
+  const donePlan = !!d.planOpened;
+  if(flashRow) flashRow.style.borderColor = doneFlash ? 'rgba(126,185,170,.55)' : 'rgba(0,0,0,.10)';
+  if(quizRow)  quizRow.style.borderColor  = doneQuiz  ? 'rgba(126,185,170,.55)' : 'rgba(0,0,0,.10)';
+  if(planRow)  planRow.style.borderColor  = donePlan  ? 'rgba(126,185,170,.55)' : 'rgba(0,0,0,.10)';
 
   const trophy = document.getElementById('streakCompleteBanner');
   if(trophy){
@@ -9794,8 +9661,11 @@ function updateDailyUI(){
 
 function markDailyMeaningfulStep(topicId){
   const d = ensureDaily();
+  if(d.completed) return;
   if(!topicId || !isTopicEnabled(topicId)) return;
-  if(topicId !== d.topicId) return;
+  d.completed = true;
+  updateDailyStreakOnComplete();
+  saveState();
   updateDailyUI();
 }
 
@@ -9850,13 +9720,17 @@ function renderStreakHero(){
   const textEl = $("streakStatusText");
   const cd = $("streakCountdown");
 
-  const a1 = d.activities?.[0] || null;
-  const a2 = d.activities?.[1] || null;
-  const p1 = getDailyActivityProgressEntry(d, a1);
-  const p2 = getDailyActivityProgressEntry(d, a2);
+  const doneFlash = d.flash >= DAILY_FLASH_GOAL;
+  const doneQuiz  = d.quizBest >= DAILY_QUIZ_GOAL;
+  const donePlan  = !!d.planOpened;
 
-  const flashDot = $("chkFlashDot"); if(flashDot) flashDot.classList.toggle("done", !!a1 && p1.done);
-  const quizDot  = $("chkQuizDot");  if(quizDot)  quizDot.classList.toggle("done", !!a2 && p2.done);
+  const flashDot = $("chkFlashDot"); if(flashDot) flashDot.classList.toggle("done", doneFlash);
+  const quizDot  = $("chkQuizDot");  if(quizDot)  quizDot.classList.toggle("done", doneQuiz);
+  const planDot  = $("chkPlanDot");  if(planDot)  planDot.classList.toggle("done", donePlan);
+
+  const flashVal = $("chkFlashVal"); if(flashVal) flashVal.textContent = `${Math.min(d.flash, DAILY_FLASH_GOAL)}/${DAILY_FLASH_GOAL}`;
+  const quizVal  = $("chkQuizVal");  if(quizVal)  quizVal.textContent = `${Math.min(100, d.quizBest)}% / ${DAILY_QUIZ_GOAL}%`;
+  const planVal  = $("chkPlanVal");  if(planVal)  planVal.textContent = donePlan ? "Started" : "Not started";
 
   if(box){
     box.classList.toggle("safe", doneToday);
@@ -9939,8 +9813,7 @@ function renderStreakHero(){
 function checkDailyComplete(){
   const d = ensureDaily();
   if(d.completed) return;
-  const allDone = (d.activities||[]).every(activity=>getDailyActivityProgressEntry(d, activity).done);
-  if((d.activities||[]).length && allDone){
+  if(d.flash >= DAILY_FLASH_GOAL && d.quizBest >= DAILY_QUIZ_GOAL && d.planOpened){
     d.completed = true;
     // Update Duolingo-style streak when a Daily Challenge is completed
     updateDailyStreakOnComplete();
@@ -9967,21 +9840,14 @@ function recordDailyFlashcard(topicId, cardId){
     d.revealedCards.push(cardId);
   }
 
+  const wasStepComplete = (d.flash||0) >= DAILY_FLASH_GOAL;
   d.flash = (d.flash||0) + 1;
-  d.activityProgress ||= {};
-  if((d.activities||[]).some(a=>a.type === "study")){
-    const target = getChallengeActivityTarget("study");
-    d.activityProgress.study = Math.min(target, Number(d.activityProgress.study||0) + 1);
-  }
+  const nowStepComplete = (d.flash||0) >= DAILY_FLASH_GOAL;
   saveState();
   buildDailyCoachRecommendation();
   updateDailyUI();
   checkDailyComplete();
-  const firstActivity = d.activities?.[0];
-  const secondActivity = d.activities?.[1];
-  const firstDone = firstActivity ? getDailyActivityProgressEntry(d, firstActivity).done : false;
-  const secondDone = secondActivity ? getDailyActivityProgressEntry(d, secondActivity).done : true;
-  if(!d.completed && firstDone && !secondDone){
+  if(!d.completed && !wasStepComplete && nowStepComplete){
     showDailyNextTaskModal(topicId);
   }
 }
@@ -9989,12 +9855,10 @@ function recordDailyFlashcard(topicId, cardId){
 function recordDailyQuiz(topicId, percent){
   const d = ensureDaily();
   if(topicId !== d.topicId) return;
+  const wasStepComplete = (d.quizBest||0) >= DAILY_QUIZ_GOAL;
   const p = Math.max(0, Math.min(100, Math.round(percent)));
   d.quizBest = Math.max(d.quizBest||0, p);
-  d.activityProgress ||= {};
-  if((d.activities||[]).some(a=>a.type === "quiz") && p >= DAILY_QUIZ_GOAL){
-    d.activityProgress.quiz = getChallengeActivityTarget("quiz");
-  }
+  const nowStepComplete = (d.quizBest||0) >= DAILY_QUIZ_GOAL;
   const bucket = analyticsDayBucket(todayKey());
   bucket.quizAttempts = Number(bucket.quizAttempts || 0) + 1;
   bucket.quizTotal = Number(bucket.quizTotal || 0) + p;
@@ -10003,11 +9867,7 @@ function recordDailyQuiz(topicId, percent){
   buildDailyCoachRecommendation();
   updateDailyUI();
   checkDailyComplete();
-  const firstActivity = d.activities?.[0];
-  const secondActivity = d.activities?.[1];
-  const firstDone = firstActivity ? getDailyActivityProgressEntry(d, firstActivity).done : false;
-  const secondDone = secondActivity ? getDailyActivityProgressEntry(d, secondActivity).done : true;
-  if(!d.completed && firstDone && !secondDone){
+  if(!d.completed && !wasStepComplete && nowStepComplete){
     showDailyNextTaskModal(topicId);
   }
 }
@@ -10022,6 +9882,9 @@ function recordDailyPlanOpened(topicId){
   updateDailyUI();
   checkDailyComplete();
   if(!wasOpened) trackTaskCompleted("PLAN_25", topicId);
+  if(!d.completed && !wasOpened){
+    showDailyNextTaskModal(topicId);
+  }
 }
 
 /* ==========================================================
@@ -10614,24 +10477,7 @@ function markLessonResult(lessonId, scorePct, breakdown){
   };
   saveLessonActivityStore(store);
   const scope = getLessonScopeByLessonId(lessonId);
-  if(scope?.topicId){
-    const d = ensureDaily();
-    if(d.topicId === scope.topicId && (d.activities||[]).some(a=>a.type === "lesson")){
-      d.activityProgress ||= {};
-      d.activityProgress.lesson = getChallengeActivityTarget("lesson");
-      saveState();
-      updateDailyUI();
-      checkDailyComplete();
-      const firstActivity = d.activities?.[0];
-      const secondActivity = d.activities?.[1];
-      const firstDone = firstActivity ? getDailyActivityProgressEntry(d, firstActivity).done : false;
-      const secondDone = secondActivity ? getDailyActivityProgressEntry(d, secondActivity).done : true;
-      if(!d.completed && firstDone && !secondDone){
-        showDailyNextTaskModal(scope.topicId);
-      }
-    }
-    markDailyMeaningfulStep(scope.topicId);
-  }
+  if(scope?.topicId) markDailyMeaningfulStep(scope.topicId);
 }
 
 function getTopicLessons(topic){
@@ -18993,18 +18839,6 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   }
   if(taskType === "GAME"){
     s.gameCompletions = Number(s.gameCompletions||0) + 1;
-    const d = ensureDaily();
-    if(d.topicId === topicId && (d.activities||[]).some(a=>a.type === "game")){
-      d.activityProgress ||= {};
-      d.activityProgress.game = getChallengeActivityTarget("game");
-      const firstActivity = d.activities?.[0];
-      const secondActivity = d.activities?.[1];
-      const firstDone = firstActivity ? getDailyActivityProgressEntry(d, firstActivity).done : false;
-      const secondDone = secondActivity ? getDailyActivityProgressEntry(d, secondActivity).done : true;
-      if(!d.completed && firstDone && !secondDone){
-        showDailyNextTaskModal(topicId);
-      }
-    }
   }
   const defaultXpByTask = { FLASHCARDS:10, QUIZ:10, PLAN_25:20, GAME:5 };
   const gainedXp = Number.isFinite(Number(extra.scoreDelta))
@@ -19017,7 +18851,6 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   logEvent("task_completed", { taskType, topicId, scoreDelta: extra.scoreDelta, gameType: extra.gameType });
   renderHomeRecommendation();
   if(["FLASHCARDS","QUIZ","PLAN_25","GAME"].includes(taskType)) markDailyMeaningfulStep(topicId);
-  if(topicId === ensureDaily().topicId) checkDailyComplete();
   maybeShowMagicMoment(taskType);
 }
 function topicFlashcardStats(topicId){
@@ -19059,7 +18892,6 @@ function dueForReview(topicId, now=Date.now()){
 function candidateRoute(taskType, topicId){
   if(taskType === "FLASHCARDS") return `study?topic=${encodeURIComponent(topicId)}&mode=all`;
   if(taskType === "QUIZ") return `quiz?topic=${encodeURIComponent(topicId)}&count=10`;
-  if(taskType === "GAME") return `games?topic=${encodeURIComponent(topicId)}`;
   return `exam?topic=${encodeURIComponent(topicId)}`;
 }
 function buildCandidate(taskType, topicId){
@@ -19087,8 +18919,8 @@ function generateCandidates(now=Date.now()){
   const enabled = enabledTopicIds();
   const step = nextDailyAction(d);
   if(step){
-    const map = { lesson:"FLASHCARDS", study:"FLASHCARDS", quiz:"QUIZ", game:"GAME" };
-    return [buildCandidate(map[step] || "FLASHCARDS", d.topicId)];
+    const map = { flash:"FLASHCARDS", quiz:"QUIZ", plan:"PLAN_25" };
+    return [buildCandidate(map[step], d.topicId)];
   }
 
   const out = [];
@@ -19290,28 +19122,24 @@ function openStudyForTopic(topicId, mode="all"){
   rememberStudyContext();
 }
 
-function nextDailyAction(d, skipEnsure=false){
-  const daily = skipEnsure ? d : (d || ensureDaily());
-  const activities = Array.isArray(daily?.activities) ? daily.activities : [];
-  if(!activities.length) return null;
-  for(let i=0;i<activities.length;i++){
-    const activity = activities[i];
-    if(!getDailyActivityProgressEntry(daily, activity).done){
-      daily.activeActivityIndex = i;
-      return activity.type;
-    }
-  }
+function nextDailyAction(d){
+  if((d.flash||0) < DAILY_FLASH_GOAL) return "flash";
+  if((d.quizBest||0) < DAILY_QUIZ_GOAL) return "quiz";
+  if(!d.planOpened) return "plan";
   return null;
 }
 
 function challengeStepName(step){
-  return getChallengeActivityLabel(step);
+  if(step === "flash") return "Flashcards";
+  if(step === "quiz") return "Topic Quiz";
+  if(step === "plan") return "25-mark plan";
+  return "";
 }
 
 function challengeStepColor(step){
-  const rowId = step === (ensureDaily().activities?.[0]?.type)
+  const rowId = step === "flash"
     ? "goDailyFlash"
-    : "goDailyQuiz";
+    : (step === "quiz" ? "goDailyQuiz" : "goDailyPlan");
   const rowLabel = document.querySelector(`#${rowId} .checkLeft`);
   if(!rowLabel) return null;
   const textColor = getComputedStyle(rowLabel).color;
@@ -19587,25 +19415,7 @@ function getChallengeCtaConfig(d){
 
 function goDailyFocus(){
   const d = ensureDaily();
-  const step = nextDailyAction(d) || d.activities?.[0]?.type;
-  if(step === "lesson"){
-    d.lastStep = "lesson";
-    saveState();
-    setTab("lessons");
-    lessonsNav.topicId = d.topicId;
-    lessonsNav.view = "topic-lessons";
-    renderLessons();
-    return;
-  }
-  if(step === "game"){
-    d.lastStep = "game";
-    saveState();
-    trackTaskStarted("GAME", d.topicId);
-    setTab("games");
-    return;
-  }
-
-  d.lastStep = "study";
+  d.lastStep = "flash";
   saveState();
   trackTaskStarted("FLASHCARDS", d.topicId);
 
@@ -19631,17 +19441,10 @@ function goDailyFocus(){
 }
 function goDailyQuiz(topicIdOverride=null){
   const d = ensureDaily();
-  const step = nextDailyAction(d) || d.activities?.[1]?.type || "quiz";
   const requestedTopicId = (typeof topicIdOverride === "string") ? topicIdOverride : null;
   const targetTopicId = (requestedTopicId && requestedTopicId !== "MIXED" && isTopicEnabled(requestedTopicId))
     ? requestedTopicId
     : d.topicId;
-
-  if(step === "lesson" || step === "study" || step === "game"){
-    goDailyFocus();
-    return;
-  }
-
   d.lastStep = "quiz";
   saveState();
   trackTaskStarted("QUIZ", targetTopicId);
@@ -19652,7 +19455,15 @@ function goDailyQuiz(topicIdOverride=null){
   startQuiz();
 }
 function goDailyExam(){
-  goDailyFocus();
+  const d = ensureDaily();
+  d.lastStep = "plan";
+  saveState();
+  trackTaskStarted("PLAN_25", d.topicId);
+  setTab("exam");
+  const exFilter = $("examTopicSelect");
+  if(exFilter){ exFilter.value = d.topicId; exFilter.dispatchEvent(new Event("change")); }
+  const exId = getDailyExamId(d.topicId);
+  if(exId){ $("examSelect").value = exId; renderExamQuestion(); }
 }
 
 { const _b = document.getElementById('btnGoFocus'); if(_b) _b.addEventListener('click', goDailyFocus); }
@@ -19660,15 +19471,16 @@ function goDailyExam(){
 { const _b = document.getElementById('btnGoExam'); if(_b) _b.addEventListener('click', goDailyExam); }
 
 // Daily Challenge navigable checklist rows (these replace the removed top action buttons)
-$("goDailyFlash")?.addEventListener("click", goDailyFocus);
-$("goDailyQuiz")?.addEventListener("click", goDailyQuiz);
+$("goDailyFlash").addEventListener("click", goDailyFocus);
+$("goDailyQuiz").addEventListener("click", goDailyQuiz);
+$("goDailyPlan").addEventListener("click", goDailyExam);
 
 /* ==========================================================
    FLASHCARDS
    ========================================================== */
 let CURRENT = { list:[], idx:0, card:null };
 
-function pickDailyFlashcards(topicId, count=DAILY_STUDY_GOAL){
+function pickDailyFlashcards(topicId, count=DAILY_FLASH_GOAL){
   const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
   return shuffle(pool).slice(0, Math.min(count, pool.length));
 }
@@ -19680,7 +19492,7 @@ function startDailyFlashSession(topicId){
     cardIds: new Set(),
     complete: false
   };
-  CURRENT.list = pickDailyFlashcards(topicId, DAILY_STUDY_GOAL);
+  CURRENT.list = pickDailyFlashcards(topicId, DAILY_FLASH_GOAL);
   CURRENT.dailySession.cardIds = new Set(CURRENT.list.map(c=>c.id));
   CURRENT.idx = 0;
   CURRENT.card = CURRENT.list[0] || null;
@@ -19703,7 +19515,7 @@ function checkDailyFlashSessionComplete(cardId){
   let done = 0;
   session.cardIds.forEach(id=>{ if(revealed.has(id)) done++; });
 
-  const reachedGoal = (d.flash||0) >= DAILY_STUDY_GOAL;
+  const reachedGoal = (d.flash||0) >= DAILY_FLASH_GOAL;
   if(reachedGoal && done >= session.cardIds.size && session.cardIds.size > 0){
     session.complete = true;
     d.flashCelebrated = true;
@@ -20181,17 +19993,18 @@ function showDailyNextTaskModal(topicId){
   const explainNode = $("dailyNextTaskExplain");
   const goLabelNode = $("dailyNextTaskBtnLabel");
 
-  if(titleNode) titleNode.textContent = "✅ Activity complete";
+  if(titleNode) titleNode.textContent = "✅ Section complete";
   if(statusNode) statusNode.textContent = `${stepLabel} is next in today’s challenge.`;
-  if(explainNode) explainNode.textContent = `Activity 1 complete. Continue with ${stepLabel.toLowerCase()} for ${topicTitle}.`;
+  if(explainNode) explainNode.textContent = `Continue with ${stepLabel.toLowerCase()} for ${topicTitle}.`;
   if(goLabelNode) goLabelNode.textContent = `Go to ${stepLabel}`;
 
   const goBtn = $("btnDailyNextTaskGo");
   if(goBtn){
     goBtn.onclick = ()=>{
       closeDailyNextTaskModal();
-      if(step === "quiz") goDailyQuiz();
-      else goDailyFocus();
+      if(step === "flash") goDailyFocus();
+      else if(step === "quiz") goDailyQuiz();
+      else goDailyExam();
     };
   }
 
@@ -20202,16 +20015,20 @@ function showDailyChallengeCompleteModal(topicId){
   const overlay = $("dailyChallengeCompleteOverlay");
   if(!overlay) return;
 
+  const focusCount = computeFocusCount();
   const focusBtn = $("btnDailyCompleteFocus");
   const explain = $("dailyCompleteExplain");
   const topicTitle = TOPICS.find(t=>t.id===topicId)?.title || "this topic";
 
   if(focusBtn){
-    focusBtn.disabled = false;
-    focusBtn.classList.remove("hidden");
+    const hasFocus = focusCount > 0;
+    focusBtn.disabled = !hasFocus;
+    focusBtn.classList.toggle("hidden", !hasFocus);
   }
   if(explain){
-    explain.textContent = `Great work on ${topicTitle}. Choose your next step.`;
+    explain.textContent = focusCount > 0
+      ? `You have ${focusCount} focus ${focusCount === 1 ? "card" : "cards"} ready to review.`
+      : `No focus cards yet for ${topicTitle}. You can return home and choose your next task.`;
   }
 
   overlay.classList.remove("hidden");
@@ -20368,10 +20185,12 @@ $("btnDailyCompleteClose")?.addEventListener("click", closeDailyChallengeComplet
 
 $("btnDailyCompleteFocus")?.addEventListener("click", ()=>{
   closeDailyChallengeCompleteModal();
-  const journeyTopicId = getCurrentJourneyTopicId();
-  const nextStep = getJourneyNextStep(journeyTopicId);
-  if(nextStep?.action) nextStep.action();
-  else setTab("home");
+  setTab("study");
+  $("topicSelect").value = "ALL";
+  $("modeSelect").value = "focus";
+  $("orderSelect").value = "random";
+  loadNextCard();
+  rememberStudyContext();
 });
 
 $("btnDailyNextTaskHome")?.addEventListener("click", ()=>{
