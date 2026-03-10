@@ -19361,12 +19361,29 @@ function openWelcomeVideoDialog(){
       playAttempt.catch(()=>{});
     }
   }catch(e){}
+
+  // Fail-safe: if the video cannot play/finish, don't block Home forever.
+  const fallbackMs = 5500;
+  if(window.__welcomeVideoFallbackTimer){
+    clearTimeout(window.__welcomeVideoFallbackTimer);
+  }
+  window.__welcomeVideoFallbackTimer = setTimeout(()=>{
+    const stillVisible = splashScreen && !splashScreen.classList.contains("hidden");
+    if(stillVisible) closeWelcomeVideoDialog(true);
+  }, fallbackMs);
+
   return true;
 }
 
 function closeWelcomeVideoDialog(showCoach=true){
   const splashScreen = $("welcomeSplashScreen");
   const player = $("welcomeVideoPlayer");
+
+  if(window.__welcomeVideoFallbackTimer){
+    clearTimeout(window.__welcomeVideoFallbackTimer);
+    window.__welcomeVideoFallbackTimer = null;
+  }
+
   const finishClose = ()=>{
     if(player){
       try{ player.currentTime = 0; }catch(e){}
@@ -20873,6 +20890,9 @@ function init(){
   $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
   $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
   $("welcomeVideoPlayer")?.addEventListener("ended", ()=>closeWelcomeVideoDialog(true));
+  $("welcomeVideoPlayer")?.addEventListener("error", ()=>closeWelcomeVideoDialog(true));
+  $("welcomeVideoPlayer")?.addEventListener("stalled", ()=>closeWelcomeVideoDialog(true));
+  $("welcomeVideoPlayer")?.addEventListener("abort", ()=>closeWelcomeVideoDialog(true));
   $("welcomeSplashScreen")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
   $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
   $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
