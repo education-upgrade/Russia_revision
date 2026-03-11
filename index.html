@@ -3435,7 +3435,7 @@ section#games.gamePaneActive .gamesHeroCard{
 
   <!-- HOME -->
   <section id="home" class="tabpane">
-    <div id="welcomeSplashScreen" class="welcomeSplashScreen" aria-label="Welcome splash video">
+    <div id="welcomeSplashScreen" class="welcomeSplashScreen hidden" aria-label="Welcome splash video">
       <video
         id="welcomeVideoPlayer"
         class="welcomeVideoPlayer"
@@ -18546,7 +18546,11 @@ function populateTopics(){
   exAll.value="ALL"; exAll.textContent="🌍 All topics";
   selExamFilter.appendChild(exAll);
 
-  TOPICS.filter(t=>isTopicEnabled(t.id)).forEach(t=>{
+  const topicOptions = enabledTopicIds()
+    .map(id=>TOPICS.find(t=>t.id===id))
+    .filter(Boolean);
+
+  topicOptions.forEach(t=>{
     const o = document.createElement("option");
     o.value = t.id;
     o.textContent = t.title;
