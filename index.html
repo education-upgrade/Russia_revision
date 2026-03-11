@@ -9622,6 +9622,7 @@ function ensureDaily(){
   const k = todayKey();
   const wantTopic = getDailyTopicId();
   const enabled = enabledTopicIds();
+  const VALID_DAILY_TYPES = new Set(["lesson","study","quiz","game"]);
 
   const migrateLegacy = (row)=>{
     if(!row || typeof row !== "object") return null;
@@ -9642,19 +9643,34 @@ function ensureDaily(){
     };
   };
 
-  let daily = migrateLegacy(STATE.daily[k]);
-  if(!daily){
-    daily = { topicId: wantTopic, activities:[], comboKey:null, completed:false };
-  }
+  const hasValidTopic = (topicId)=> !!(topicId && TOPICS.some(t=>t.id===topicId));
+  const hasValidActivities = (activities)=> Array.isArray(activities)
+    && activities.length > 0
+    && activities.every(a=>a && a.type && VALID_DAILY_TYPES.has(a.type));
+  const sanitizeActivities = (activities)=> Array.isArray(activities)
+    ? activities.filter(a=>a && a.type && VALID_DAILY_TYPES.has(a.type))
+    : [];
+  const rebuildDaily = (topicId, prevCombo)=>{
+    const nextTopic = hasValidTopic(topicId) ? topicId : wantTopic;
+    let activities = sanitizeActivities(buildDailyActivities(nextTopic, prevCombo));
+    if(!activities.length) activities = sanitizeActivities(buildDailyActivities(nextTopic, null));
+    return {
+      topicId: nextTopic,
+      activities,
+      comboKey: activities.map(a=>a.type).sort().join("+") || null,
+      completed: false
+    };
+  };
 
+  let daily = migrateLegacy(STATE.daily[k]);
+  if(!daily) daily = { topicId: wantTopic, activities:[], comboKey:null, completed:false };
+
+  const rowIsValid = hasValidTopic(daily.topicId) && hasValidActivities(daily.activities);
   if(!enabled.includes(daily.topicId)) daily.topicId = wantTopic;
-  if(!Array.isArray(daily.activities) || !daily.activities.length || daily.topicId !== wantTopic){
+  if(!rowIsValid || daily.topicId !== wantTopic){
     const prev = STATE.daily[addDaysKey(k,-1)];
     const prevCombo = Array.isArray(prev?.activities) ? prev.activities.map(a=>a.type).sort().join("+") : null;
-    daily.topicId = wantTopic;
-    daily.activities = buildDailyActivities(daily.topicId, prevCombo);
-    daily.comboKey = daily.activities.map(a=>a.type).sort().join("+");
-    daily.completed = false;
+    daily = rebuildDaily(wantTopic, prevCombo);
   }
 
   syncDailyActivityProgress(daily);
