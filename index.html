@@ -9536,6 +9536,10 @@ function getDailyTopicId(){
   const ids = enabledTopicIds();
   return ids[dailyIndex() % ids.length];
 }
+function getActiveDailyTopicId(){
+  // Single topic source for Home/Daily surfaces: use today's Daily Challenge record.
+  return ensureDaily().topicId;
+}
 function getDailyExamId(topicId){
   const list = EXAM_BANK.filter(x=>x.topicId===topicId);
   if(!list.length) return null;
@@ -9654,19 +9658,17 @@ function updateDailyUI(){
     if(d.completed) trophy.classList.remove('hidden');
     else trophy.classList.add('hidden');
   }
+  // Primary render path for Daily checklist + streak hero to avoid split updates.
   try{ renderStreakHero(); }catch(e){}
 }
 
 
 
 function markDailyMeaningfulStep(topicId){
+  // Legacy hook kept for callers; completion now only happens in checkDailyComplete().
   const d = ensureDaily();
-  if(d.completed) return;
-  if(!topicId || !isTopicEnabled(topicId)) return;
-  d.completed = true;
-  updateDailyStreakOnComplete();
-  saveState();
-  updateDailyUI();
+  if(!topicId || !isTopicEnabled(topicId) || topicId !== d.topicId) return;
+  checkDailyComplete();
 }
 
 function formatHMS(ms){
@@ -9813,6 +9815,7 @@ function renderStreakHero(){
 function checkDailyComplete(){
   const d = ensureDaily();
   if(d.completed) return;
+  // Single completion path for Daily Challenge state.
   if(d.flash >= DAILY_FLASH_GOAL && d.quizBest >= DAILY_QUIZ_GOAL && d.planOpened){
     d.completed = true;
     // Update Duolingo-style streak when a Daily Challenge is completed
@@ -18638,7 +18641,7 @@ function computeKpis(){
 
   // Daily streak (Duolingo-style)
   normalizeDailyStreak();
-  try{ renderStreakHero(); }catch(e){}
+  try{ updateDailyUI(); }catch(e){}
   try{ renderStreakSignal(); }catch(e){}
   // Update topic confidence dashboard
   try{ renderTopicDashboard(); }catch(e){}
@@ -18850,7 +18853,8 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   APP_SESSION.tasksCompleted = Number(APP_SESSION.tasksCompleted||0) + 1;
   logEvent("task_completed", { taskType, topicId, scoreDelta: extra.scoreDelta, gameType: extra.gameType });
   renderHomeRecommendation();
-  if(["FLASHCARDS","QUIZ","PLAN_25","GAME"].includes(taskType)) markDailyMeaningfulStep(topicId);
+  // Only Daily Challenge task types can feed Daily completion checks.
+  if(["FLASHCARDS","QUIZ","PLAN_25"].includes(taskType)) markDailyMeaningfulStep(topicId);
   maybeShowMagicMoment(taskType);
 }
 function topicFlashcardStats(topicId){
@@ -19390,27 +19394,14 @@ function closeWelcomeVideoDialog(showCoach=true){
 }
 
 function getChallengeCtaConfig(d){
-  const journeyTopicId = getCurrentJourneyTopicId();
-  const nextStep = getJourneyNextStep(journeyTopicId);
-  const topicTitle = compactTopicTitle(getHomeTopicTitle(TOPICS.find(t=>t.id===journeyTopicId))) || "Learning journey";
+  const dailyTopicId = getActiveDailyTopicId();
+  const topicTitle = compactTopicTitle(getHomeTopicTitle(TOPICS.find(t=>t.id===dailyTopicId))) || "Today's topic";
+  const step = nextDailyAction(d || ensureDaily());
 
-  if(nextStep){
-    return {
-      title: "Continue learning",
-      topic: `${topicTitle} · ${nextStep.label}`,
-      accentColor: null,
-      disabled: false,
-      onClick: nextStep.action
-    };
-  }
-
-  return {
-    title: "Continue learning",
-    topic: `${topicTitle} · Review quiz`,
-    accentColor: null,
-    disabled: false,
-    onClick: ()=>goDailyQuiz(journeyTopicId)
-  };
+  if(step === "flash") return { title:"Continue learning", topic:`${topicTitle} · Flashcards`, accentColor:null, disabled:false, onClick:()=>goDailyFocus() };
+  if(step === "quiz") return { title:"Continue learning", topic:`${topicTitle} · Topic quiz`, accentColor:null, disabled:false, onClick:()=>goDailyQuiz(dailyTopicId) };
+  if(step === "plan") return { title:"Continue learning", topic:`${topicTitle} · 25-mark plan`, accentColor:null, disabled:false, onClick:()=>goDailyExam() };
+  return { title:"Continue learning", topic:`${topicTitle} · Review quiz`, accentColor:null, disabled:false, onClick:()=>goDailyQuiz(dailyTopicId) };
 }
 
 function goDailyFocus(){
