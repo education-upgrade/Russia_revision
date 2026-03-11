@@ -3627,7 +3627,7 @@ section#games.gamePaneActive .gamesHeroCard{
             <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg>
             <span class="quizPanelTitleText">Study</span>
           </div>
-          <div class="pill" id="cardMeta">🃏 Card 0/0</div>
+          <div class="pill" id="cardMeta">0/0</div>
         </div>
 
         <div class="divider"></div>
@@ -19804,7 +19804,7 @@ function loadNextCard(){
     setStudyRatingEnabled(false);
     const rb = document.getElementById("btnRevealBand") || document.getElementById("btnReveal");
     if(rb) rb.innerHTML = BUTTON_ICON_LABELS.reveal;
-    $("cardMeta").textContent = "🃏 Card 0/0";
+    $("cardMeta").textContent = "0/0";
     updateStudyLaunchCta();
     return;
   }
@@ -19826,11 +19826,7 @@ function renderCard(){
   // Disable reveal briefly to encourage retrieval effort
   startRevealCooldown(3000);
 
-  const mode = $("modeSelect").value;
-  const badge = CURRENT.dailySession?.active
-    ? "🎯 DAILY 12"
-    : (mode === "focus" ? "🎯 FOCUS" : "📚 STUDY");
-  $("cardMeta").textContent = `🃏 ${CURRENT.idx+1}/${CURRENT.list.length} • ${badge}`;
+  $("cardMeta").textContent = `${CURRENT.idx+1}/${CURRENT.list.length}`;
   updateStudyLaunchCta();
 }
 function nextCard(){
