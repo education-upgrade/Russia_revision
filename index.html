@@ -2520,7 +2520,9 @@ section#games.gamePaneActive .gamesHeroCard{
 
     .streakChecklist{
       margin-top:12px;
-      display:grid; gap:8px;
+      display:grid;
+      gap:10px;
+      justify-items:center;
     }
 
     #streakHeroCard{
@@ -2557,11 +2559,16 @@ section#games.gamePaneActive .gamesHeroCard{
       z-index:2;
     }
     .checkRow{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(0,0,0,.10);
-      background:#fff;
+      width:min(116px, 100%);
+      aspect-ratio:1 / 1;
+      display:grid;
+      place-items:center;
+      padding:0;
+      border-radius:24px;
+      border:1px solid color-mix(in srgb, var(--line) 78%, #fff 22%);
+      background:color-mix(in srgb, #ffffff 88%, var(--accent3) 12%);
+      box-shadow:0 6px 14px rgba(63,96,145,.12);
+      transition:transform .14s ease, box-shadow .14s ease, border-color .14s ease, background .14s ease;
     }
     /* Make the checklist rows behave like clean, tappable buttons */
     .checkRowBtn{
@@ -2572,23 +2579,17 @@ section#games.gamePaneActive .gamesHeroCard{
       -webkit-appearance:none;
       font: inherit;
     }
-    .checkRowBtn:hover{ border-color: rgba(0,0,0,.16); }
+    .checkRowBtn:hover{ border-color: color-mix(in srgb, var(--accent2) 42%, var(--line) 58%); box-shadow:0 8px 18px rgba(63,96,145,.16); }
     .checkRowBtn:active{ transform: translateY(1px); }
     .checkRowBtn:focus{ outline:2px solid rgba(110,144,202,.55); outline-offset:2px; }
-    .checkLeft{
-      display:flex; align-items:center; gap:10px;
-      font-weight:800;
-    }
     .checkDot{
-      width:22px; height:22px; border-radius:8px;
+      width:100%; height:100%; border-radius:inherit;
       display:grid; place-items:center;
-      border:1px solid rgba(0,0,0,.12);
-      background:#fff;
-      color: color-mix(in srgb, var(--muted) 88%, var(--accent) 12%);
+      color: color-mix(in srgb, var(--accent) 74%, var(--text) 26%);
     }
     .checkDot .checkIcon{
-      width:14px;
-      height:14px;
+      width:34px;
+      height:34px;
       stroke:currentColor;
       stroke-width:2;
       fill:none;
@@ -2597,14 +2598,12 @@ section#games.gamePaneActive .gamesHeroCard{
       flex-shrink:0;
     }
     .checkDot.done{
-      background: color-mix(in srgb, var(--accent3) 72%, #fff 28%);
-      border-color: color-mix(in srgb, var(--accent) 48%, var(--line) 52%);
-      color: color-mix(in srgb, var(--accent) 86%, var(--text) 14%);
+      color: color-mix(in srgb, var(--accent) 80%, var(--text) 20%);
     }
-    .checkVal{
-      color:var(--muted);
-      font-weight:800;
-      font-variant-numeric: tabular-nums;
+    .checkRow.is-complete{
+      background:color-mix(in srgb, #bdecc9 74%, #ffffff 26%);
+      border-color:color-mix(in srgb, #8fd5a2 56%, var(--line) 44%);
+      box-shadow:0 6px 14px rgba(103,165,124,.18);
     }
     .protectBtn{
       margin-top:12px;
@@ -2759,11 +2758,9 @@ section#games.gamePaneActive .gamesHeroCard{
       .dailyTopicInline{ font-size:12px; }
       .streakCountNum{ font-size:44px; }
 
-      .streakChecklist{ gap:8px; }
-      .checkRow{ padding:8px 10px; border-radius:12px; }
-      .checkLeft{ gap:8px; font-size:16px; }
-      .checkDot{ width:20px; height:20px; }
-      .checkDot .checkIcon{ width:12px; height:12px; }
+      .streakChecklist{ gap:9px; }
+      .checkRow{ width:min(104px, 100%); border-radius:20px; }
+      .checkDot .checkIcon{ width:30px; height:30px; }
       .protectBtn{ margin-top:10px; padding:10px 12px; }
     }
 
@@ -3489,20 +3486,14 @@ section#games.gamePaneActive .gamesHeroCard{
 
       <div class="streakChecklist" aria-label="Daily Challenge checklist">
         <button class="checkRow checkRowBtn" id="goDailyAct1" type="button" aria-label="Open first Daily Challenge activity">
-          <div class="checkLeft"><span class="checkDot" id="chkAct1Dot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg></span> <span id="chkAct1Label">Activity 1</span></div>
-          <div class="checkVal" id="chkAct1Val">0/1</div>
+          <span class="checkDot" id="chkAct1Dot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg></span>
         </button>
-        <div class="progressTrack" id="chkAct1BarWrap" style="height:10px"><div class="progressFill" id="chkAct1Bar" style="width:0%"></div></div>
         <button class="checkRow checkRowBtn" id="goDailyAct2" type="button" aria-label="Open second Daily Challenge activity">
-          <div class="checkLeft"><span class="checkDot" id="chkAct2Dot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg></span> <span id="chkAct2Label">Activity 2</span></div>
-          <div class="checkVal" id="chkAct2Val">0/1</div>
+          <span class="checkDot" id="chkAct2Dot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg></span>
         </button>
-        <div class="progressTrack" id="chkAct2BarWrap" style="height:10px"><div class="progressFill" id="chkAct2Bar" style="width:0%"></div></div>
         <button class="checkRow checkRowBtn" id="goDailyAct3" type="button" aria-label="Open third Daily Challenge activity">
-          <div class="checkLeft"><span class="checkDot" id="chkAct3Dot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"></path><path d="M3 12h18"></path></svg></span> <span id="chkAct3Label">Activity 3</span></div>
-          <div class="checkVal" id="chkAct3Val">0/1</div>
+          <span class="checkDot" id="chkAct3Dot"><svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18"></path><path d="M3 12h18"></path></svg></span>
         </button>
-        <div class="progressTrack" id="chkAct3BarWrap" style="height:10px"><div class="progressFill" id="chkAct3Bar" style="width:0%"></div></div>
       </div>
 
       <button class="protectBtn" id="protectStreakBtn" type="button"><span class="protectBtnText"><span class="protectBtnTitle">Continue learning</span><span class="protectBtnTopic">Your next task</span></span></button>
@@ -9841,20 +9832,26 @@ function renderStreakHero(){
   const cd = $("streakCountdown");
 
   const [a1,a2,a3] = Array.isArray(d.activities) ? d.activities : [];
+  const dailyTaskIconSvg = (type)=>{
+    if(type === "quiz") return '<svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg>';
+    if(type === "lesson") return '<svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg>';
+    return '<svg class="checkIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg>';
+  };
   const rows = [
-    { a:a1, dot:"chkAct1Dot", label:"chkAct1Label", val:"chkAct1Val", bar:"chkAct1Bar", wrap:"chkAct1BarWrap", btn:"goDailyAct1" },
-    { a:a2, dot:"chkAct2Dot", label:"chkAct2Label", val:"chkAct2Val", bar:"chkAct2Bar", wrap:"chkAct2BarWrap", btn:"goDailyAct2" },
-    { a:a3, dot:"chkAct3Dot", label:"chkAct3Label", val:"chkAct3Val", bar:"chkAct3Bar", wrap:"chkAct3BarWrap", btn:"goDailyAct3" }
+    { a:a1, dot:"chkAct1Dot", btn:"goDailyAct1" },
+    { a:a2, dot:"chkAct2Dot", btn:"goDailyAct2" },
+    { a:a3, dot:"chkAct3Dot", btn:"goDailyAct3" }
   ];
-  rows.forEach(({a,dot,label,val,bar,wrap,btn}, idx)=>{
+  rows.forEach(({a,dot,btn}, idx)=>{
     const done = !!a?.completed;
-    const dotEl = $(dot); if(dotEl) dotEl.classList.toggle("done", done);
-    const labelEl = $(label); if(labelEl) labelEl.textContent = a?.label || `Activity ${idx+1}`;
-    const valEl = $(val); if(valEl) valEl.textContent = a ? `${Math.min(Number(a.progress||0), Number(a.target||1))}/${Number(a.target||1)}` : "—";
-    const pct = a ? Math.max(0, Math.min(100, Math.round((Number(a.progress||0) / Math.max(1, Number(a.target||1))) * 100))) : 0;
-    const barEl = $(bar); if(barEl) barEl.style.width = `${pct}%`;
-    const wrapEl = $(wrap); if(wrapEl) wrapEl.classList.toggle("hidden", !a);
+    const dotEl = $(dot);
+    if(dotEl){
+      dotEl.classList.toggle("done", done);
+      dotEl.innerHTML = dailyTaskIconSvg(a?.type);
+    }
     const btnEl = $(btn); if(btnEl) btnEl.classList.toggle("hidden", !a);
+    if(btnEl) btnEl.classList.toggle("is-complete", done);
+    if(btnEl) btnEl.setAttribute("aria-label", a?.label ? `Open ${a.label}` : `Open daily activity ${idx+1}`);
   });
 
   if(box){
@@ -19279,7 +19276,7 @@ function challengeStepColor(step){
   const idx = Array.isArray(d.activities) ? d.activities.findIndex(a=>a?.type===step) : -1;
   const rowId = idx === 0 ? "goDailyAct1" : (idx === 1 ? "goDailyAct2" : (idx === 2 ? "goDailyAct3" : null));
   if(!rowId) return null;
-  const rowLabel = document.querySelector(`#${rowId} .checkLeft`);
+  const rowLabel = document.querySelector(`#${rowId} .checkDot`);
   if(!rowLabel) return null;
   const textColor = getComputedStyle(rowLabel).color;
   return textColor || null;
