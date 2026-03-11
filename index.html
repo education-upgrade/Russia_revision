@@ -20896,52 +20896,59 @@ function playHomeLogoSparkReveal(){
    INIT
    ========================================================== */
 function init(){
+  console.log("Startup diagnostic mode active");
   populateTopics();
   startSession("app_open");
   attachHomeDebugLongPress();
   initOnboarding();
   try{ bumpHeaderSessions(); }catch(e){}
-  updateDailyUI();
-  // sensible defaults
-  $("topicSelect").value = "ALL";
-  $("modeSelect").value = "all";
-  $("orderSelect").value = "ordered";
-  $("mcqTopicSelect").value = "MIXED";
-  $("emojiTopicSelect").value = "MIXED";
-  $("matchTopicSelect").value = "MIXED";
-  if($("snakeTopicSelect")) $("snakeTopicSelect").value = "MIXED";
-  $("examTopicSelect").value = "ALL";
-
-  renderExamSelect();
-  updateStudyLaunchCta();
-  computeKpis();
-
-  // pre-load games
-  startMatchGame();
-  startEmojiRound();
-
-  // start on Home
-  setTab("home");
-  playHomeLogoSparkReveal();
-  renderHomeRecommendation();
-  const openedWelcomeVideo = openWelcomeVideoDialog();
-  if(!openedWelcomeVideo){
-    openDailyCoachDialog(false);
+  try{
+    updateDailyUI();
+  }catch(e){
+    console.error("Initial updateDailyUI failed", e);
   }
+  try{
+    // sensible defaults
+    $("topicSelect").value = "ALL";
+    $("modeSelect").value = "all";
+    $("orderSelect").value = "ordered";
+    $("mcqTopicSelect").value = "MIXED";
+    $("emojiTopicSelect").value = "MIXED";
+    $("matchTopicSelect").value = "MIXED";
+    if($("snakeTopicSelect")) $("snakeTopicSelect").value = "MIXED";
+    $("examTopicSelect").value = "ALL";
 
-  $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
-  $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
-  $("welcomeVideoPlayer")?.addEventListener("ended", ()=>closeWelcomeVideoDialog(true));
-  $("welcomeSplashScreen")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
-  $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
-  $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
-  $("dailyNextTaskOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyNextTaskOverlay") closeDailyNextTaskModal(); });
+    renderExamSelect();
+    updateStudyLaunchCta();
+    computeKpis();
 
-  document.addEventListener("visibilitychange", ()=>{
-    if(document.visibilityState === "hidden") endSession();
-    if(document.visibilityState === "visible") startSession("tab_switch");
-  });
-  window.addEventListener("beforeunload", endSession);
+    // pre-load games
+    startMatchGame();
+    startEmojiRound();
+
+    // start on Home
+    setTab("home");
+    playHomeLogoSparkReveal();
+    renderHomeRecommendation();
+    openDailyCoachDialog(false);
+
+    $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
+    $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
+    $("welcomeVideoPlayer")?.addEventListener("ended", ()=>closeWelcomeVideoDialog(true));
+    $("welcomeSplashScreen")?.addEventListener("click", ()=>closeWelcomeVideoDialog(true));
+    $("dailyCoachOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyCoachOverlay") closeDailyCoachDialog(); });
+    $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
+    $("dailyNextTaskOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyNextTaskOverlay") closeDailyNextTaskModal(); });
+
+    document.addEventListener("visibilitychange", ()=>{
+      if(document.visibilityState === "hidden") endSession();
+      if(document.visibilityState === "visible") startSession("tab_switch");
+    });
+    window.addEventListener("beforeunload", endSession);
+  }catch(e){
+    console.error("Startup initialization failed", e);
+    try{ setTab("home"); }catch(_){}
+  }
 }
 
 init();
