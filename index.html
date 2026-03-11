@@ -20081,8 +20081,6 @@ function closeDailyChallengeCompleteModal(){
 }
 
 function closeDailyNextTaskModal(){
-  clearTimeout(window.__dailyNextTaskAutoOpenTimer);
-  window.__dailyNextTaskAutoOpenTimer = null;
   $("dailyNextTaskOverlay")?.classList.add("hidden");
 }
 
@@ -20139,8 +20137,6 @@ function showDailyNextTaskModal(topicId){
   }
 
   overlay.classList.remove("hidden");
-  clearTimeout(window.__dailyNextTaskAutoOpenTimer);
-  window.__dailyNextTaskAutoOpenTimer = setTimeout(goNext, 900);
 }
 
 function showDailyChallengeCompleteModal(topicId){
