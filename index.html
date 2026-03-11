@@ -2118,7 +2118,7 @@ section#games.gamePaneActive .gamesHeroCard{
       position:relative;
     }
     .streakHeader .streakCountPill{
-      margin-top:76px;
+      margin-top:0;
     }
     .streakHeaderCopy{
       flex:1 1 auto;
@@ -2127,16 +2127,19 @@ section#games.gamePaneActive .gamesHeroCard{
       flex-direction:column;
       gap:10px;
     }
-    .dailyChallengeCopy{
-      margin-top:24px;
-    }
     .homeTopBrandRow{
       display:flex;
-      align-items:flex-start;
-      justify-content:flex-start;
+      align-items:center;
+      justify-content:space-between;
       gap:12px;
       margin-bottom:8px;
       position:relative;
+    }
+    .homeTopBrandLeft{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
     }
     .homeTitleChip{
       justify-self:start;
@@ -2144,7 +2147,7 @@ section#games.gamePaneActive .gamesHeroCard{
       gap:7px;
     }
     .streakHeader .homeTitleChip{
-      margin-top:14px;
+      margin-top:0;
     }
     .homeTitleChip .quizPanelTitleText{
       text-transform:none;
@@ -2752,7 +2755,7 @@ section#games.gamePaneActive .gamesHeroCard{
       .homeTopBrandRow{ align-items:center; }
       .educationUpgradeLogoImage{ height:clamp(72px, 19vw, 94px); }
       .streakCountPill{ padding:8px 10px; }
-      .streakHeader .streakCountPill{ margin-top:74px; }
+      .streakHeader .streakCountPill{ margin-top:0; }
       .dailyTopicInline{ font-size:12px; }
       .streakCountNum{ font-size:44px; }
 
@@ -3459,21 +3462,21 @@ section#games.gamePaneActive .gamesHeroCard{
               <path class="homeLogoSparkTrail" d="M22 72 C 88 78, 134 42, 176 16"></path>
               <circle class="homeLogoSparkCore" cx="22" cy="72" r="3"></circle>
             </svg>
-            <div class="quizPanelTitle homeTitleChip" aria-hidden="true">
-              <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
-              <span class="quizPanelTitleText">Home</span>
+            <div class="homeTopBrandLeft">
+              <div class="quizPanelTitle homeTitleChip" aria-hidden="true">
+                <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
+                <span class="quizPanelTitleText">Home</span>
+              </div>
+              <div class="educationUpgradeLogo upgraded-logo" id="educationUpgradeLogo" aria-label="Education Upgrade" aria-hidden="true">
+                <img class="educationUpgradeLogoImage" src="1.png" alt="Education Upgrade logo">
+              </div>
             </div>
-          </div>
-          <div class="dailyChallengeCopy">
-            <div class="educationUpgradeLogo upgraded-logo" id="educationUpgradeLogo" aria-label="Education Upgrade" aria-hidden="true">
-              <img class="educationUpgradeLogoImage" src="1.png" alt="Education Upgrade logo">
-            </div>
+            <button class="pill streakCountPill" id="streakProgressBtn" type="button" aria-label="Open progress tab from current streak" title="View progress">
+              <span class="streakCountLabel">Streak</span>
+              <span class="streakCountNum" id="streakBigNum">0</span>
+            </button>
           </div>
         </div>
-        <button class="pill streakCountPill" id="streakProgressBtn" type="button" aria-label="Open progress tab from current streak" title="View progress">
-          <span class="streakCountLabel">Streak</span>
-          <span class="streakCountNum" id="streakBigNum">0</span>
-        </button>
       </div>
 
       <div id="streakCompleteBanner" class="streakCompleteBanner hidden">
