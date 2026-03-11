@@ -18993,9 +18993,11 @@ function topicFlashcardStats(topicId){
   const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
   let weak = 0;
   pool.forEach(c=>{ if((getReview(c.id)?.score ?? 2) <= 1) weak++; });
-  const daily = ensureDaily();
-  const studyActivity = Array.isArray(daily.activities) ? daily.activities.find(a=>a?.type==="study") : null;
-  const doneToday = (daily.topicId === topicId && studyActivity) ? Number(studyActivity.progress||0) : 0;
+  const daily = STATE.daily?.[todayKey()];
+  const studyActivity = (daily?.topicId === topicId && Array.isArray(daily.activities))
+    ? daily.activities.find(a=>a?.type==="study")
+    : null;
+  const doneToday = studyActivity ? Number(studyActivity.progress||0) : 0;
   return {
     total: pool.length,
     done: doneToday,
