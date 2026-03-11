@@ -20081,15 +20081,31 @@ function closeDailyChallengeCompleteModal(){
 }
 
 function closeDailyNextTaskModal(){
+  clearTimeout(window.__dailyNextTaskAutoOpenTimer);
+  window.__dailyNextTaskAutoOpenTimer = null;
   $("dailyNextTaskOverlay")?.classList.add("hidden");
+}
+
+function resolveDailyActivityRoute(step){
+  if(step === "study") return goDailyFocus;
+  if(step === "quiz") return goDailyQuiz;
+  if(step === "lesson") return goDailyLesson;
+  if(step === "game") return goDailyGame;
+  return null;
 }
 
 function showDailyNextTaskModal(topicId){
   const d = ensureDaily();
-  const step = nextDailyAction(d);
-  if(!step){
+  const incomplete = (Array.isArray(d.activities) ? d.activities : []).filter(a=>a && !isDailyActivityDone(a));
+  if(incomplete.length !== 1){
     closeDailyNextTaskModal();
     showDailyChallengeCompleteModal(topicId || d.topicId);
+    return;
+  }
+  const step = incomplete[0]?.type;
+  const routeToStep = resolveDailyActivityRoute(step);
+  if(d.completed || !step || !routeToStep){
+    closeDailyNextTaskModal();
     return;
   }
 
@@ -20107,21 +20123,24 @@ function showDailyNextTaskModal(topicId){
 
   if(titleNode) titleNode.textContent = "✅ Section complete";
   if(statusNode) statusNode.textContent = `${stepLabel} is next in today’s challenge.`;
-  if(explainNode) explainNode.textContent = `Continue with ${stepLabel.toLowerCase()} for ${topicTitle}.`;
+  if(explainNode) explainNode.textContent = `Continue with ${stepLabel.toLowerCase()} for ${topicTitle}. Opening now…`;
   if(goLabelNode) goLabelNode.textContent = `Go to ${stepLabel}`;
 
   const goBtn = $("btnDailyNextTaskGo");
+  let navigated = false;
+  const goNext = ()=>{
+    if(navigated) return;
+    navigated = true;
+    closeDailyNextTaskModal();
+    routeToStep();
+  };
   if(goBtn){
-    goBtn.onclick = ()=>{
-      closeDailyNextTaskModal();
-      if(step === "study") goDailyFocus();
-      else if(step === "quiz") goDailyQuiz();
-      else if(step === "lesson") goDailyLesson();
-      else if(step === "game") goDailyGame();
-    };
+    goBtn.onclick = goNext;
   }
 
   overlay.classList.remove("hidden");
+  clearTimeout(window.__dailyNextTaskAutoOpenTimer);
+  window.__dailyNextTaskAutoOpenTimer = setTimeout(goNext, 900);
 }
 
 function showDailyChallengeCompleteModal(topicId){
