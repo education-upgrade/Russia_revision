@@ -3824,11 +3824,11 @@ section#games.gamePaneActive .gamesHeroCard{
       <div class="quizCompleteActions">
         <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteFocus" type="button">
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M8 9h8"></path><path d="M8 13h5"></path><path d="M8 17h8"></path></svg>
-          <span class="quizCompleteActionLabel">Review focus cards</span>
+          <span class="quizCompleteActionLabel">Continue Learning Journey</span>
         </button>
         <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteHome" type="button">
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
-          <span class="quizCompleteActionLabel">Return to Home</span>
+          <span class="quizCompleteActionLabel">Back to Home</span>
         </button>
         <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteClose" type="button">
           <svg class="quizCompleteActionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12"></path><path d="m18 6-12 12"></path></svg>
@@ -9632,9 +9632,6 @@ function ensureDaily(){
     }
     if(Number(row.quizBest||0) > 0){
       activities.push({ type:"quiz", target:1, progress:Number(row.quizBest||0) >= 100 ? 1 : 0, completed:Number(row.quizBest||0) >= 100, label:"Quiz" });
-    }
-    if(row.planOpened){
-      activities.push({ type:"lesson", target:1, progress:1, completed:true, label:"Lesson" });
     }
     return {
       topicId: row.topicId,
@@ -20131,20 +20128,20 @@ function showDailyChallengeCompleteModal(topicId){
   const overlay = $("dailyChallengeCompleteOverlay");
   if(!overlay) return;
 
-  const focusCount = computeFocusCount();
   const focusBtn = $("btnDailyCompleteFocus");
   const explain = $("dailyCompleteExplain");
   const topicTitle = TOPICS.find(t=>t.id===topicId)?.title || "this topic";
+  const nextStep = getJourneyNextStep(topicId || getCurrentJourneyTopicId());
 
   if(focusBtn){
-    const hasFocus = focusCount > 0;
-    focusBtn.disabled = !hasFocus;
-    focusBtn.classList.toggle("hidden", !hasFocus);
+    focusBtn.disabled = !nextStep;
+    focusBtn.classList.remove("hidden");
+    focusBtn.dataset.topicId = topicId || "";
   }
   if(explain){
-    explain.textContent = focusCount > 0
-      ? `You have ${focusCount} focus ${focusCount === 1 ? "card" : "cards"} ready to review.`
-      : `No focus cards yet for ${topicTitle}. You can return home and choose your next task.`;
+    explain.textContent = nextStep
+      ? `Next up in your Learning Journey for ${topicTitle}: ${nextStep.label}.`
+      : `You’ve completed the current Learning Journey steps for ${topicTitle}.`;
   }
 
   overlay.classList.remove("hidden");
@@ -20301,12 +20298,9 @@ $("btnDailyCompleteClose")?.addEventListener("click", closeDailyChallengeComplet
 
 $("btnDailyCompleteFocus")?.addEventListener("click", ()=>{
   closeDailyChallengeCompleteModal();
-  setTab("study");
-  $("topicSelect").value = "ALL";
-  $("modeSelect").value = "focus";
-  $("orderSelect").value = "random";
-  loadNextCard();
-  rememberStudyContext();
+  const topicId = $("btnDailyCompleteFocus")?.dataset?.topicId || getCurrentJourneyTopicId();
+  const nextStep = getJourneyNextStep(topicId);
+  if(nextStep?.action) nextStep.action();
 });
 
 $("btnDailyNextTaskHome")?.addEventListener("click", ()=>{
