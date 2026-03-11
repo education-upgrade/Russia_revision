@@ -483,7 +483,7 @@
 
 .progressHeadlineBar{margin-top:10px}
 .progressTrack{height:12px;border-radius:999px;background:color-mix(in srgb, var(--accent2) 34%, #ffffff 66%);border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);overflow:hidden}
-.progressFill{height:100%;background:linear-gradient(90deg,var(--warn),var(--good));width:0}
+.progressFill{height:100%;background:linear-gradient(90deg,var(--warn),var(--good));width:0;transition:width .35s ease}
 
 .metricGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
 .metricCard{border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);border-radius:12px;padding:10px;background:linear-gradient(168deg, color-mix(in srgb, var(--accent3) 60%, #ffffff 40%), color-mix(in srgb, var(--accent2) 26%, #ffffff 74%))}
@@ -2568,6 +2568,13 @@ section#games.gamePaneActive .gamesHeroCard{
     .checkRowBtn:hover{ border-color: rgba(0,0,0,.16); }
     .checkRowBtn:active{ transform: translateY(1px); }
     .checkRowBtn:focus{ outline:2px solid rgba(110,144,202,.55); outline-offset:2px; }
+    .checkRow.done{
+      border-color: color-mix(in srgb, var(--good) 45%, var(--line) 55%);
+      background: linear-gradient(180deg, color-mix(in srgb, var(--accent3) 58%, #fff 42%), #fff);
+    }
+    .checkRow.justCompleted{
+      animation:dailyTaskPulse .55s ease;
+    }
     .checkLeft{
       display:flex; align-items:center; gap:10px;
       font-weight:800;
@@ -2598,6 +2605,14 @@ section#games.gamePaneActive .gamesHeroCard{
       color:var(--muted);
       font-weight:800;
       font-variant-numeric: tabular-nums;
+    }
+    .checkRow.done .checkVal{
+      color: color-mix(in srgb, var(--good) 75%, var(--text) 25%);
+      font-weight:900;
+    }
+    @keyframes dailyTaskPulse{
+      0%{ box-shadow:0 0 0 0 color-mix(in srgb, var(--good) 35%, transparent 65%); }
+      100%{ box-shadow:0 0 0 10px transparent; }
     }
     .protectBtn{
       margin-top:12px;
@@ -3818,8 +3833,8 @@ section#games.gamePaneActive .gamesHeroCard{
 
   <div id="dailyChallengeCompleteOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily Challenge complete options">
     <div class="onboardingModal quizResultModal">
-      <h3 class="onboardingTitle">🏆 Daily Challenge complete!</h3>
-      <div class="quizResultStatus good">Streak protected. Keep the momentum going.</div>
+      <h3 class="onboardingTitle">🏆 Daily Challenge Complete</h3>
+      <div class="quizResultStatus good" id="dailyCompleteStatus">Journey progress updated.</div>
       <div class="note quizResultExplain" id="dailyCompleteExplain">Choose your next step.</div>
       <div class="quizCompleteActions">
         <button class="btn small quizCompleteActionBtn" id="btnDailyCompleteFocus" type="button">
@@ -9819,13 +9834,23 @@ function renderStreakHero(){
   ];
   rows.forEach(({a,dot,label,val,bar,wrap,btn}, idx)=>{
     const done = !!a?.completed;
+    const btnEl = $(btn);
+    const wasDone = btnEl?.dataset?.done === "1";
+    if(btnEl){
+      btnEl.dataset.done = done ? "1" : "0";
+      btnEl.classList.toggle("done", done);
+      if(done && !wasDone){
+        btnEl.classList.add("justCompleted");
+        setTimeout(()=>btnEl.classList.remove("justCompleted"), 600);
+      }
+    }
     const dotEl = $(dot); if(dotEl) dotEl.classList.toggle("done", done);
     const labelEl = $(label); if(labelEl) labelEl.textContent = a?.label || `Activity ${idx+1}`;
-    const valEl = $(val); if(valEl) valEl.textContent = a ? `${Math.min(Number(a.progress||0), Number(a.target||1))}/${Number(a.target||1)}` : "—";
+    const valEl = $(val); if(valEl) valEl.textContent = a ? `${Math.min(Number(a.progress||0), Number(a.target||1))} / ${Number(a.target||1)}` : "—";
     const pct = a ? Math.max(0, Math.min(100, Math.round((Number(a.progress||0) / Math.max(1, Number(a.target||1))) * 100))) : 0;
     const barEl = $(bar); if(barEl) barEl.style.width = `${pct}%`;
     const wrapEl = $(wrap); if(wrapEl) wrapEl.classList.toggle("hidden", !a);
-    const btnEl = $(btn); if(btnEl) btnEl.classList.toggle("hidden", !a);
+    if(btnEl) btnEl.classList.toggle("hidden", !a);
   });
 
   if(box){
@@ -20148,9 +20173,11 @@ function showDailyChallengeCompleteModal(topicId){
   if(!overlay) return;
 
   const focusBtn = $("btnDailyCompleteFocus");
+  const status = $("dailyCompleteStatus");
   const explain = $("dailyCompleteExplain");
   const topicTitle = TOPICS.find(t=>t.id===topicId)?.title || "this topic";
   const nextStep = getJourneyNextStep(topicId || getCurrentJourneyTopicId());
+  const streakCount = Number(STATE.dailyStreak?.count || 0);
 
   if(focusBtn){
     focusBtn.disabled = !nextStep;
@@ -20162,6 +20189,7 @@ function showDailyChallengeCompleteModal(topicId){
       ? `Next up in your Learning Journey for ${topicTitle}: ${nextStep.label}.`
       : `You’ve completed the current Learning Journey steps for ${topicTitle}.`;
   }
+  if(status) status.textContent = `Journey progress updated • Streak maintained (${streakCount} day${streakCount === 1 ? "" : "s"}).`;
 
   overlay.classList.remove("hidden");
 }
