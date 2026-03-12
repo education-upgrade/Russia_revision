@@ -311,6 +311,18 @@
 .journeyStopLabel-above .journeyStopCard{left:50%;bottom:18px;transform:translateX(-50%)}
 .journeyStopLabel-below .journeyStopCard{left:50%;top:18px;transform:translateX(-50%)}
 
+@media (max-width: 640px){
+  .journeyStopCard{
+    max-width:140px;
+    min-width:116px;
+    padding:7px 9px;
+  }
+  .journeyStopLabel-right .journeyStopCard{
+    left:auto;
+    right:18px;
+  }
+}
+
 .journeyStop.is-current .journeyStopNode{background:var(--good);box-shadow:0 0 0 5px rgba(126,185,170,.22), 0 6px 14px rgba(20,34,58,.28)}
 .journeyStop.is-current .journeyStopCard{border-color:color-mix(in srgb, var(--good) 64%, #1f4f43 36%)}
 .journeyStop.is-complete .journeyStopNode{background:color-mix(in srgb, var(--good) 80%, #ffffff 20%)}
