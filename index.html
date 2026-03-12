@@ -9571,7 +9571,9 @@ function isDailyTypeValidForTopic(type, topicId){
 }
 function buildDailyActivities(topicId, prevCombo){
   const preferred = DAILY_TYPES.filter(type=>isDailyTypeValidForTopic(type, topicId));
-  const pool = (preferred.length >= DAILY_TASK_COUNT ? preferred : DAILY_TYPES).slice();
+  const lessonAvailable = topicHasLessonRemaining(topicId);
+  const fallbackPool = DAILY_TYPES.filter(type=>type !== "lesson" || lessonAvailable);
+  const pool = (preferred.length >= DAILY_TASK_COUNT ? preferred : fallbackPool).slice();
 
   const seedBase = `${todayKey()}|${topicId}|${prevCombo||""}`;
   let seed = 2166136261;
