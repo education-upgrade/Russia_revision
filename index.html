@@ -2090,7 +2090,7 @@ section#games.gamePaneActive .gamesHeroCard{
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:6px;
+      gap:4px;
       flex-shrink:0;
       cursor:pointer;
       margin-top:0;
@@ -2098,16 +2098,19 @@ section#games.gamePaneActive .gamesHeroCard{
     .streakCountLabel{
       color:var(--muted);
       font-weight:900;
-      font-size:10px;
+      font-size:14px;
+      line-height:1.05;
       letter-spacing:.5px;
       text-transform:uppercase;
+      width:100%;
     }
     .streakCountNum{
       font-weight:1000;
-      font-size:26px;
+      font-size:17px;
       line-height:1;
       font-variant-numeric: tabular-nums;
       color:var(--text);
+      width:100%;
     }
     .streakCountPill.is-protected{
       position:relative;
@@ -2362,7 +2365,7 @@ section#games.gamePaneActive .gamesHeroCard{
 
     @media (max-width: 420px){
       .streakCountPill{ width:72px; height:72px; }
-      .streakCountNum{ font-size:26px; }
+      .streakCountNum{ font-size:17px; }
       .educationUpgradeLogo{ max-width:56%; }
       .educationUpgradeLogoImage{ height:clamp(72px, 20vw, 94px); }
     }
@@ -2790,7 +2793,7 @@ section#games.gamePaneActive .gamesHeroCard{
       .streakCountPill{ padding:8px 10px; }
       .streakHeader .streakCountPill{ margin-top:0; }
       .dailyTopicInline{ font-size:12px; }
-      .streakCountNum{ font-size:34px; }
+      .streakCountNum{ font-size:17px; }
 
       .streakChecklist{ gap:9px; }
       .checkRow{ max-width:104px; border-radius:20px; }
