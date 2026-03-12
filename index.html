@@ -2104,11 +2104,29 @@ section#games.gamePaneActive .gamesHeroCard{
     }
     .streakCountNum{
       font-weight:1000;
-      font-size:30px;
+      font-size:26px;
       line-height:1;
       font-variant-numeric: tabular-nums;
       color:var(--text);
     }
+    .streakCountPill.is-protected{
+      position:relative;
+      isolation:isolate;
+    }
+    .streakCountPill.is-protected::after{
+      content:"";
+      position:absolute;
+      inset:6px;
+      border-radius:12px;
+      padding:2px;
+      background:linear-gradient(90deg,var(--warn),var(--good));
+      -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      pointer-events:none;
+      z-index:0;
+    }
+    .streakCountPill.is-protected > *{ position:relative; z-index:1; }
     .streakHeader{
       display:flex;
       justify-content:space-between;
@@ -2772,7 +2790,7 @@ section#games.gamePaneActive .gamesHeroCard{
       .streakCountPill{ padding:8px 10px; }
       .streakHeader .streakCountPill{ margin-top:0; }
       .dailyTopicInline{ font-size:12px; }
-      .streakCountNum{ font-size:44px; }
+      .streakCountNum{ font-size:34px; }
 
       .streakChecklist{ gap:9px; }
       .checkRow{ max-width:104px; border-radius:20px; }
@@ -9837,6 +9855,8 @@ function renderStreakHero(){
 
   const big = $("streakBigNum"); if(big) big.textContent = String(count);
   const bestEl = $("streakBestNum"); if(bestEl) bestEl.textContent = String(best);
+  const streakPillBtn = $("streakProgressBtn");
+  if(streakPillBtn) streakPillBtn.classList.toggle("is-protected", !!d.completed);
   // tier label removed from hero to reduce visual noise
 
   // Header streak pill
