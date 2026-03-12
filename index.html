@@ -2156,6 +2156,12 @@ section#games.gamePaneActive .gamesHeroCard{
       margin-bottom:0;
       position:relative;
     }
+    .homeTopBrandRow--home{
+      display:grid;
+      grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+      align-items:center;
+      gap:10px;
+    }
     .homePanelHeaderRow{
       margin:0 0 10px;
     }
@@ -2164,6 +2170,7 @@ section#games.gamePaneActive .gamesHeroCard{
       align-items:center;
       gap:12px;
       min-width:0;
+      justify-self:start;
     }
     .homeTitleChip{
       justify-self:start;
@@ -2206,7 +2213,11 @@ section#games.gamePaneActive .gamesHeroCard{
     }
     .upgraded-logo{
       max-width:220px;
-      margin-top:12px;
+      margin-top:0;
+      justify-self:center;
+    }
+    .homeTopBrandRow--home .streakCountPill{
+      justify-self:end;
     }
     .homeLogoSparkSvg{
       position:absolute;
@@ -2792,6 +2803,10 @@ section#games.gamePaneActive .gamesHeroCard{
 
       .streakTopicRow{ gap:8px; }
       .homeTopBrandRow{ align-items:center; }
+      .homeTopBrandRow--home{
+        grid-template-columns:auto minmax(0,1fr) auto;
+        column-gap:8px;
+      }
       .educationUpgradeLogoImage{ height:clamp(72px, 19vw, 94px); }
       .streakCountPill{ padding:8px 10px; }
       .streakHeader .streakCountPill{ margin-top:0; }
@@ -3492,7 +3507,7 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
 
     <div class="homePanelHeaderRow">
-      <div class="homeTopBrandRow" id="homeTopBrandRow">
+      <div class="homeTopBrandRow homeTopBrandRow--home" id="homeTopBrandRow">
         <svg class="homeLogoSparkSvg" id="homeLogoSparkSvg" viewBox="0 0 220 96" aria-hidden="true" focusable="false">
           <path class="homeLogoSparkTrail" d="M22 72 C 88 78, 134 42, 176 16"></path>
           <circle class="homeLogoSparkCore" cx="22" cy="72" r="3"></circle>
