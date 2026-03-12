@@ -2560,6 +2560,7 @@ section#games.gamePaneActive .gamesHeroCard{
       z-index:2;
     }
     .checkRow{
+      position:relative;
       width:100%;
       max-width:116px;
       aspect-ratio:1 / 1;
@@ -2604,9 +2605,21 @@ section#games.gamePaneActive .gamesHeroCard{
       color: color-mix(in srgb, var(--accent) 80%, var(--text) 20%);
     }
     .checkRow.is-complete{
-      background:color-mix(in srgb, #bdecc9 74%, #ffffff 26%);
-      border-color:color-mix(in srgb, #8fd5a2 56%, var(--line) 44%);
-      box-shadow:0 6px 14px rgba(103,165,124,.18);
+      background:color-mix(in srgb, #ffffff 88%, var(--accent3) 12%);
+      border-color:color-mix(in srgb, var(--line) 78%, #fff 22%);
+      box-shadow:0 8px 18px rgba(63,96,145,.18);
+    }
+    .checkRow.is-complete::after{
+      content:"";
+      position:absolute;
+      inset:6px;
+      border-radius:18px;
+      padding:2px;
+      background:linear-gradient(90deg,var(--warn),var(--good));
+      -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+      -webkit-mask-composite:xor;
+      mask-composite:exclude;
+      pointer-events:none;
     }
     .protectBtn{
       margin-top:12px;
