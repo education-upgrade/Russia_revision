@@ -243,6 +243,18 @@
     .iconBtn:active{ transform:translateY(1px); }
 
 
+.journeyMapMount{
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  border-radius: 20px;
+  overflow: hidden;
+  margin: 12px 0 16px;
+  background: rgba(233,241,247,.9);
+  border: 1px solid rgba(120,140,170,.18);
+  box-shadow: 0 8px 24px rgba(31,41,55,.08);
+}
+
 .topicDash{
   display:flex;
   flex-direction:column;
@@ -3573,6 +3585,7 @@ section#games.gamePaneActive .gamesHeroCard{
           <div class="note">Progress through Russia in chronological order. Complete the next stage node to move forward.</div>
         </div>
       </div>
+      <div id="journeyMapMount" class="journeyMapMount" hidden></div>
       <div class="divider"></div>
       <div id="topicDash" class="topicDash"></div>
     </div>
