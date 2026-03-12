@@ -2210,11 +2210,13 @@ section#games.gamePaneActive .gamesHeroCard{
       display:block;
       height:clamp(96px, 20vw, 140px);
       width:auto;
+      clip-path:inset(0 0 20% 0);
     }
     .upgraded-logo{
       max-width:220px;
       margin-top:0;
       justify-self:center;
+      overflow:hidden;
     }
     .homeTopBrandRow--home .streakCountPill{
       justify-self:end;
@@ -3517,9 +3519,9 @@ section#games.gamePaneActive .gamesHeroCard{
             <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg>
             <span class="quizPanelTitleText">Home</span>
           </div>
-          <div class="educationUpgradeLogo upgraded-logo" id="educationUpgradeLogo" aria-label="Education Upgrade" aria-hidden="true">
-            <img class="educationUpgradeLogoImage" src="1.png" alt="Education Upgrade logo">
-          </div>
+        </div>
+        <div class="educationUpgradeLogo upgraded-logo" id="educationUpgradeLogo" aria-label="Education Upgrade" aria-hidden="true">
+          <img class="educationUpgradeLogoImage" src="1.png" alt="Education Upgrade logo">
         </div>
         <button class="pill streakCountPill" id="streakProgressBtn" type="button" aria-label="Open progress tab from current streak" title="View progress">
           <span class="streakCountLabel">Streak</span>
