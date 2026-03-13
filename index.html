@@ -18660,6 +18660,61 @@ function getJourneyNextStep(topicId){
   return null;
 }
 
+function getFirstEnabledTopicId(){
+  return enabledTopicIds()[0] || null;
+}
+
+function normalizeTopicSelectValue(selectEl, { mixedToken=null, allToken=null } = {}){
+  if(!selectEl) return;
+  const value = String(selectEl.value || "");
+  const isSpecial = (mixedToken && value === mixedToken) || (allToken && value === allToken);
+  if(isSpecial) return;
+  if(value && isTopicEnabled(value)) return;
+
+  const fallbackTopicId = getFirstEnabledTopicId();
+  if(fallbackTopicId){
+    selectEl.value = fallbackTopicId;
+    return;
+  }
+  if(mixedToken){
+    selectEl.value = mixedToken;
+    return;
+  }
+  if(allToken){
+    selectEl.value = allToken;
+    return;
+  }
+  selectEl.value = "";
+}
+
+function syncTopicTogglesAcrossApp(){
+  const studyTopic = $("topicSelect");
+  normalizeTopicSelectValue(studyTopic, { allToken:"ALL" });
+  if(studyTopic) studyTopic.dispatchEvent(new Event("change"));
+
+  const quizTopic = $("mcqTopicSelect");
+  normalizeTopicSelectValue(quizTopic, { mixedToken:"MIXED" });
+
+  const matchTopic = $("matchTopicSelect");
+  normalizeTopicSelectValue(matchTopic, { mixedToken:"MIXED" });
+
+  const emojiTopic = $("emojiTopicSelect");
+  normalizeTopicSelectValue(emojiTopic, { mixedToken:"MIXED" });
+
+  const snakeTopic = $("snakeTopicSelect");
+  normalizeTopicSelectValue(snakeTopic, { mixedToken:"MIXED" });
+
+  const examTopic = $("examTopicSelect");
+  normalizeTopicSelectValue(examTopic, { allToken:"ALL" });
+
+  if(lessonsNav?.topicId && !isTopicEnabled(lessonsNav.topicId)){
+    lessonsNav.view = "topics";
+    lessonsNav.topicId = null;
+    lessonsNav.themeId = null;
+    lessonsNav.lessonId = null;
+  }
+}
+
 function renderTopicDashboard(){
   const el = document.getElementById('topicDash');
   if(!el) return;
@@ -18781,6 +18836,7 @@ function renderTopicDashboard(){
       else delete STATE.disabledTopics[tid];
       saveState();
       try{ populateTopics(); }catch(e){}
+      try{ syncTopicTogglesAcrossApp(); }catch(e){}
       try{ renderTopicDashboard(); }catch(e){}
       try{ renderExamSelect(); }catch(e){}
       try{ startMatchGame(); }catch(e){}
