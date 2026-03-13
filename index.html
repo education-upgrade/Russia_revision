@@ -341,7 +341,7 @@
 .journeyStep{
   position:relative;
   display:grid;
-  grid-template-columns:34px minmax(0,1fr);
+  grid-template-columns:44px minmax(0,1fr);
   column-gap:10px;
   align-items:start;
 }
@@ -356,18 +356,18 @@
   position:absolute;
   top:-8px;
   bottom:-8px;
-  width:4px;
+  width:5px;
   border-radius:999px;
   background:linear-gradient(180deg, rgba(126,185,170,.45), rgba(158,183,212,.5));
 }
 .journeyStep:last-child .journeyRail::before{ bottom:14px; }
 .journeyStep:first-child .journeyRail::before{ top:14px; }
 .journeyNode{
-  width:24px;
-  height:24px;
+  width:34px;
+  height:34px;
   border-radius:50%;
   background:#fff;
-  border:2px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
+  border:3px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
   position:relative;
   z-index:1;
 }
@@ -378,8 +378,10 @@
   padding:14px;
   box-shadow:var(--shadow);
 }
-.journeyMilestoneHead{display:flex;gap:12px;align-items:center;justify-content:space-between}
-.journeyMilestoneMain{display:flex;align-items:center;gap:12px;min-width:0}
+.journeyMilestoneHead{display:flex;gap:12px;align-items:flex-start}
+.journeyMilestoneMain{display:flex;align-items:flex-start;gap:12px;min-width:0;flex:1}
+.journeyMilestoneInfo{display:flex;flex-direction:column;gap:8px;min-width:0;flex:1}
+.journeyMilestoneMeta{min-width:0}
 .journeyMilestoneRing{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;background:conic-gradient(from -90deg, var(--good) var(--p,0%), rgba(255,255,255,.6) 0)}
 .journeyMilestoneRingInner{width:58px;height:58px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-weight:900;color:var(--textStrong);font-size:14px}
 .journeyMilestoneTitle{font-size:15px;font-weight:900;line-height:1.2}
@@ -410,53 +412,45 @@
 .topicToggleWrap{
   display:flex;
   align-items:center;
-  justify-content:center;
+  justify-content:flex-end;
   min-width:0;
 }
 
 .topicTogglePill{
-  min-height:34px;
-  padding:6px 8px;
+  min-height:36px;
+  padding:0;
   border-radius:999px;
-  border:1px solid color-mix(in srgb, var(--accent) 62%, #ffffff 38%);
+  border:none;
+  background:transparent;
+  box-shadow:none;
+}
+.topicPowerBtn{
+  width:38px;
+  height:38px;
+  border-radius:999px;
+  border:1px solid color-mix(in srgb, var(--accent) 44%, #ffffff 56%);
   background:linear-gradient(180deg, #f8fbff, #eaf2fc);
   box-shadow:0 4px 10px color-mix(in srgb, var(--accent) 22%, transparent);
+  display:grid;
+  place-items:center;
+  color:var(--good);
+  cursor:pointer;
+  transition:all .18s ease;
 }
-.switch{
-  position:relative;
-  display:inline-block;
-  width:44px;
-  height:24px;
+.topicPowerBtn svg{
+  width:20px;
+  height:20px;
+  stroke:currentColor;
+  stroke-width:2.4;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  fill:none;
 }
-.switch input{ opacity:0; width:0; height:0; }
-.slider{
-  position:absolute; cursor:pointer;
-  inset:0;
-  background:color-mix(in srgb, var(--accent2) 30%, #ffffff 70%);
-  border:1px solid color-mix(in srgb, var(--accent) 45%, #ffffff 55%);
-  border-radius:999px;
-  transition: all .18s ease;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.45), 0 5px 10px rgba(0,0,0,.12);
+.topicPowerBtn.isOff{
+  color:var(--muted);
+  background:linear-gradient(180deg, #f2f6fb, #e5edf7);
 }
-.slider:before{
-  content:"";
-  position:absolute;
-  height:18px; width:18px;
-  left:3px; top:2px;
-  background:white;
-  border:1px solid rgba(21, 51, 80, .28);
-  border-radius:50%;
-  transition: all .18s ease;
-  box-shadow: 0 4px 9px rgba(0,0,0,.24);
-}
-.switch input:checked + .slider{
-  background:color-mix(in srgb, var(--good) 82%, #ffffff 18%);
-  border-color:color-mix(in srgb, var(--good) 88%, #154b3e 12%);
-}
-.switch input:checked + .slider:before{
-  transform: translateX(20px);
-}
-.switch input:focus-visible + .slider{
+.topicPowerBtn:focus-visible{
   outline:2px solid color-mix(in srgb, var(--accent) 70%, #214673 30%);
   outline-offset:2px;
 }
@@ -472,13 +466,12 @@
 }
 
 @media (max-width:420px){
-  .journeyMilestoneHead{align-items:flex-start}
   .journeyMilestoneRing{width:68px;height:68px}
   .journeyMilestoneRingInner{width:52px;height:52px}
   .journeyStageNode{grid-template-columns:44px minmax(0,1fr)}
   .journeyStageCircle{width:40px;height:40px}
   .journeyStageInner{width:30px;height:30px}
-  .topicTogglePill{ padding:4px 6px; }
+  .topicPowerBtn{ width:36px; height:36px; }
 }
 
 
@@ -556,7 +549,7 @@
 /* Preserve readability of long level labels when card width is constrained */
 @media (max-width:720px){
   .topicPillRow{ grid-template-columns:minmax(0,1fr); }
-  .topicToggleWrap{
+  .topicTile .topicToggleWrap{
     position:absolute;
     left:12px;
     bottom:12px;
@@ -18678,17 +18671,18 @@ function renderTopicDashboard(){
         <div class="journeyMilestoneHead">
           <div class="journeyMilestoneMain" data-topic-open="1" data-topic-id="${topicId}" role="button" tabindex="0" aria-label="Open ${escapeHtml(titleParts.title)} in Study">
             <div class="journeyMilestoneRing" style="--p:${milestoneProgress}%"><div class="journeyMilestoneRingInner">${milestoneProgress}%</div></div>
-            <div>
-              <div class="journeyMilestoneTitle">${escapeHtml(titleParts.title || topic.title)}</div>
-              <div class="journeyMilestoneYears">${escapeHtml(titleParts.years || '')}</div>
-              <div class="journeyMilestoneStatus">${enabled ? statusLabel : '🔒 Locked'}${isCurrent ? ' · Current topic' : ''}</div>
+            <div class="journeyMilestoneInfo">
+              <div class="journeyMilestoneMeta">
+                <div class="journeyMilestoneTitle">${escapeHtml(titleParts.title || topic.title)}</div>
+                <div class="journeyMilestoneYears">${escapeHtml(titleParts.years || '')}</div>
+                <div class="journeyMilestoneStatus">${enabled ? statusLabel : '🔒 Locked'}${isCurrent ? ' · Current topic' : ''}</div>
+              </div>
+              <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
+                <button type="button" class="topicPowerBtn ${enabled ? '' : 'isOff'}" data-topic-toggle="${topicId}" aria-pressed="${enabled ? 'true' : 'false'}" aria-label="${enabled ? 'Disable' : 'Enable'} topic ${topicId}">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v8"></path><path d="M6.6 5.2A8.5 8.5 0 1 0 17.4 5.2"></path></svg>
+                </button>
+              </div>
             </div>
-          </div>
-          <div class="topicToggleWrap topicTogglePill" title="Toggle this topic on/off">
-            <label class="switch">
-              <input type="checkbox" class="topicToggle" data-topic-toggle="${topicId}" ${enabled ? 'checked' : ''} aria-label="Toggle topic ${topicId}">
-              <span class="slider"></span>
-            </label>
           </div>
         </div>
         ${showStages ? stageHtml : ''}
@@ -18730,14 +18724,15 @@ function renderTopicDashboard(){
     ["pointerdown","mousedown","touchstart","click"].forEach(evt=> wrap.addEventListener(evt, stop, true));
   });
 
-  el.querySelectorAll('[data-topic-toggle]').forEach(inp=>{
-    inp.addEventListener('click', (ev)=>{ ev.stopPropagation(); }, true);
-    inp.addEventListener('change', (ev)=>{
+  el.querySelectorAll('[data-topic-toggle]').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
       ev.stopPropagation();
-      const tid = inp.getAttribute('data-topic-toggle');
+      const tid = btn.getAttribute('data-topic-toggle');
+      if(!tid) return;
+      const enabledNow = isTopicEnabled(tid);
       STATE.disabledTopics ||= {};
-      if(inp.checked) delete STATE.disabledTopics[tid];
-      else STATE.disabledTopics[tid] = true;
+      if(enabledNow) STATE.disabledTopics[tid] = true;
+      else delete STATE.disabledTopics[tid];
       saveState();
       try{ populateTopics(); }catch(e){}
       try{ renderTopicDashboard(); }catch(e){}
@@ -18746,7 +18741,7 @@ function renderTopicDashboard(){
       try{ startEmojiRound(); }catch(e){}
       try{ updateDailyUI(); }catch(e){}
       try{ computeKpis(); }catch(e){}
-    });
+    }, true);
   });
 }
 
