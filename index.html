@@ -9716,6 +9716,13 @@ function markJourneyCardComplete(cardId){
 function getJourneyCardsForTopic(topicId){
   return ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId) && !isJourneyCardComplete(c.id));
 }
+function getJourneyStudyStats(topicId){
+  const topicCards = ALL_CARDS.filter(c=>c.topicId===topicId);
+  const total = topicCards.length;
+  const done = topicCards.reduce((count, card)=>count + (isJourneyCardComplete(card.id) ? 1 : 0), 0);
+  const remaining = Math.max(0, total - done);
+  return { total, done, remaining };
+}
 function isDailyActivityDone(activity){
   return Number(activity?.progress||0) >= Number(activity?.target||1);
 }
@@ -18549,8 +18556,8 @@ function initTopicArrowDialog(){
 function getJourneyStageProgress(topicId){
   const topic = lessonsData.find(t=>t.id===topicId);
   const lessonPercent = topic ? getTopicProgressSummary(topic).percent : 0;
-  const flash = topicFlashcardStats(topicId);
-  const studyPercent = flash.total > 0 ? Math.round((Math.max(0, Number(flash.done||0)) / flash.total) * 100) : 100;
+  const journeyStudy = getJourneyStudyStats(topicId);
+  const studyPercent = journeyStudy.total > 0 ? Math.round((journeyStudy.done / journeyStudy.total) * 100) : 100;
   const quiz = topicQuizStats(topicId);
   const quizPercent = Math.max(0, Math.min(100, Number(quiz.quizBestPercent||0)));
   const stats = touchTopicStats(topicId);
@@ -19211,14 +19218,14 @@ function trackTaskCompleted(taskType, topicId, extra={}){
   maybeShowMagicMoment(taskType);
 }
 function topicFlashcardStats(topicId){
-  const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
-  const journeyPool = getJourneyCardsForTopic(topicId);
+  const pool = ALL_CARDS.filter(c=>c.topicId===topicId);
+  const journeyStudy = getJourneyStudyStats(topicId);
   let weak = 0;
   pool.forEach(c=>{ if((getReview(c.id)?.score ?? 2) <= 1) weak++; });
   return {
     total: pool.length,
-    done: Math.max(0, pool.length - journeyPool.length),
-    remaining: journeyPool.length,
+    done: journeyStudy.done,
+    remaining: journeyStudy.remaining,
     failedCards: weak
   };
 }
