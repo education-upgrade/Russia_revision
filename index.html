@@ -384,7 +384,8 @@
 .journeyMilestoneMeta{min-width:0}
 .journeyMilestoneRing{width:76px;height:76px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;background:conic-gradient(from -90deg, var(--good) var(--p,0%), rgba(255,255,255,.6) 0)}
 .journeyMilestoneRingInner{width:58px;height:58px;border-radius:50%;background:#fff;border:1px solid var(--line);display:grid;place-items:center;font-weight:900;color:var(--textStrong);font-size:14px}
-.journeyMilestoneTitle{font-size:15px;font-weight:900;line-height:1.2}
+.journeyMilestoneTitle{font-size:15px;font-weight:900;line-height:1.2;transition:font-size .18s ease,color .18s ease,opacity .18s ease}
+.journeyLocked .journeyMilestoneTitle{font-size:13px;color:var(--muted);opacity:.88}
 .journeyMilestoneYears{font-size:12px;color:var(--muted);margin-top:2px}
 .journeyMilestoneStatus{margin-top:6px;font-size:11px;font-weight:900;color:var(--muted)}
 .journeyLocked .journeyMilestone{opacity:.62;filter:saturate(.78)}
@@ -428,12 +429,12 @@
   width:38px;
   height:38px;
   border-radius:999px;
-  border:1px solid color-mix(in srgb, var(--accent) 44%, #ffffff 56%);
-  background:linear-gradient(180deg, #f8fbff, #eaf2fc);
-  box-shadow:0 4px 10px color-mix(in srgb, var(--accent) 22%, transparent);
+  border:1px solid color-mix(in srgb, var(--good) 58%, #ffffff 42%);
+  background:linear-gradient(180deg, color-mix(in srgb, #ffffff 72%, var(--good) 28%), color-mix(in srgb, #d8f4e9 68%, #ffffff 32%));
+  box-shadow:0 4px 10px color-mix(in srgb, var(--good) 30%, transparent);
   display:grid;
   place-items:center;
-  color:var(--good);
+  color:#1f8f5f;
   cursor:pointer;
   transition:all .18s ease;
 }
@@ -447,8 +448,10 @@
   fill:none;
 }
 .topicPowerBtn.isOff{
-  color:var(--muted);
-  background:linear-gradient(180deg, #f2f6fb, #e5edf7);
+  color:#b54f4f;
+  border-color:color-mix(in srgb, #de7a7a 58%, #ffffff 42%);
+  background:linear-gradient(180deg, color-mix(in srgb, #fff0f0 74%, #ffffff 26%), color-mix(in srgb, #ffdcdc 74%, #ffffff 26%));
+  box-shadow:0 4px 10px rgba(194, 92, 92, .2);
 }
 .topicPowerBtn:focus-visible{
   outline:2px solid color-mix(in srgb, var(--accent) 70%, #214673 30%);
@@ -8240,8 +8243,20 @@ function tlStart(){
   if(win) win.classList.add("hidden");
   if(checkBtn) checkBtn.disabled = true;
 
-  TL_STATE.topicId = sel ? sel.value : (enabledTopicIds()[0] || "t1");
+  TL_STATE.topicId = sel ? sel.value : (enabledTopicIds()[0] || null);
   TL_STATE.size = sizeSel ? Number(sizeSel.value || 8) : 8;
+
+  if(!TL_STATE.topicId){
+    TL_STATE.events = [];
+    TL_STATE.pool = [];
+    TL_STATE.placed = [];
+    TL_STATE.selectedPoolIdx = null;
+    TL_STATE.completed = false;
+    const msgEl = $("timelineMsg");
+    if(msgEl) msgEl.textContent = "Enable at least one topic to play Timeline Builder.";
+    tlRender();
+    return;
+  }
 
   TL_STATE.events = tlPickEvents(TL_STATE.topicId, TL_STATE.size);
   TL_STATE.pool = TL_STATE.events
@@ -9623,8 +9638,7 @@ function isTopicEnabled(topicId){
   return !STATE.disabledTopics[topicId];
 }
 function enabledTopicIds(){
-  const ids = TOPICS.map(t=>t.id).filter(id=>isTopicEnabled(id));
-  return ids.length ? ids : TOPICS.map(t=>t.id);
+  return TOPICS.map(t=>t.id).filter(id=>isTopicEnabled(id));
 }
 const $ = (id)=>document.getElementById(id);
 
@@ -9679,7 +9693,7 @@ function dailyIndex(){ return dayOfYear(new Date()); }
 function getDailyTopicId(){
   const current = getCurrentJourneyTopicId();
   if(current && isTopicEnabled(current)) return current;
-  return enabledTopicIds()[0] || TOPICS[0]?.id || "t1";
+  return enabledTopicIds()[0] || null;
 }
 function getActiveDailyTopicId(){
   return ensureDaily().topicId;
@@ -17068,6 +17082,11 @@ function renderLessons(){
   if(lessonsNav.view === "player") return renderLessonPlayer(root);
   if(lessonsNav.view === "topic-lessons"){
     const topic = lessonsData.find(item=>item.id === lessonsNav.topicId);
+    if(!topic || !isTopicEnabled(topic.id)){
+      lessonsNav.view = "topics";
+      lessonsNav.topicId = null;
+      return renderTopicsList(root);
+    }
     return renderTopicLessonsView(root, topic);
   }
   return renderTopicsList(root);
@@ -17227,6 +17246,7 @@ function getMostRecentInProgressLesson(){
   const byLesson = store?.byLesson && typeof store.byLesson === "object" ? store.byLesson : {};
   let latest = null;
   lessonsData.forEach(topic=>{
+    if(!isTopicEnabled(topic.id)) return;
     (topic.themes || []).forEach(theme=>{
       (theme.lessons || []).forEach(lesson=>{
         const entry = normalizeLessonProgressEntry(byLesson[lesson.id]);
@@ -17345,18 +17365,20 @@ function renderTopicLessonsView(root, topic){
 }
 
 function renderTopicsList(root){
+  const enabledLessonTopics = lessonsData.filter(topic=>isTopicEnabled(topic.id));
   const continueLesson = getMostRecentInProgressLesson();
+  const safeContinueLesson = continueLesson && isTopicEnabled(continueLesson.topic?.id) ? continueLesson : null;
   root.innerHTML = `
     <div class="card lessonsMenuCard">
       <div class="lessonsHeader">
         <h2 class="lessonsTitle"><svg class="lessonsTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg><span class="lessonsTitleText">Lessons</span></h2>
       </div>
       <div class="lessonTopControls">
-        <span class="pill">${lessonsData.length} topics</span>
+        <span class="pill">${enabledLessonTopics.length} topics</span>
       </div>
-      ${continueLesson ? `<article class="lessonsContinueCard" aria-label="Continue learning"><div class="continueLabel">Continue</div><div class="continueMain"><div><div class="continueLesson">${escapeHtml(getLessonEnquiryQuestion(continueLesson.lesson))}</div><div class="continueTopic">${escapeHtml(getHomeTopicTitle(continueLesson.topic))}</div></div><button type="button" class="btn small" data-action="resume-lesson" data-topic="${continueLesson.topic.id}" data-theme="${continueLesson.theme.id}" data-lesson="${continueLesson.lesson.id}" aria-label="Resume ${escapeHtml(getLessonEnquiryQuestion(continueLesson.lesson) || "lesson")}">Resume</button></div></article>` : ""}
+      ${safeContinueLesson ? `<article class="lessonsContinueCard" aria-label="Continue learning"><div class="continueLabel">Continue</div><div class="continueMain"><div><div class="continueLesson">${escapeHtml(getLessonEnquiryQuestion(safeContinueLesson.lesson))}</div><div class="continueTopic">${escapeHtml(getHomeTopicTitle(safeContinueLesson.topic))}</div></div><button type="button" class="btn small" data-action="resume-lesson" data-topic="${safeContinueLesson.topic.id}" data-theme="${safeContinueLesson.theme.id}" data-lesson="${safeContinueLesson.lesson.id}" aria-label="Resume ${escapeHtml(getLessonEnquiryQuestion(safeContinueLesson.lesson) || "lesson")}">Resume</button></div></article>` : ""}
       <div class="topicsAccordion">
-        ${lessonsData.map(topic=>{
+        ${enabledLessonTopics.length ? enabledLessonTopics.map(topic=>{
           const summary = getTopicProgressSummary(topic);
           const status = getTopicStatusChip(summary);
           const titleParts = splitTopicTitleAndYears(getHomeTopicTitle(topic));
@@ -17382,7 +17404,7 @@ function renderTopicsList(root){
               </div>
             </article>
           `;
-        }).join("")}
+        }).join("") : '<div class="lessonEmpty">All topics are turned off. Enable a topic from Home to view lessons.</div>'}
       </div>
     </div>`;
 
@@ -17396,7 +17418,9 @@ function renderTopicsList(root){
     }
     const topicTrigger = event.target.closest('[data-action="open-topic-lessons"]');
     if(topicTrigger){
-      lessonsNav.topicId = topicTrigger.dataset.topic || null;
+      const topicId = topicTrigger.dataset.topic || null;
+      if(!topicId || !isTopicEnabled(topicId)) return;
+      lessonsNav.topicId = topicId;
       lessonsNav.view = "topic-lessons";
       lessonsNav.themeId = null;
       lessonsNav.lessonId = null;
@@ -18566,7 +18590,7 @@ function getJourneyStageProgress(topicId){
 
 function getCurrentJourneyTopicId(){
   const enabled = TOPICS.filter(t=>isTopicEnabled(t.id));
-  if(!enabled.length) return TOPICS[0]?.id || "t1";
+  if(!enabled.length) return null;
   const firstIncomplete = enabled.find(topic=>{
     const p = getJourneyStageProgress(topic.id);
     return [p.lessons, p.study, p.quiz, p.games].some(v=>v < 100);
@@ -18739,6 +18763,8 @@ function renderTopicDashboard(){
       try{ renderExamSelect(); }catch(e){}
       try{ startMatchGame(); }catch(e){}
       try{ startEmojiRound(); }catch(e){}
+      try{ tlPopulateSelect(); tlStart(); }catch(e){}
+      try{ renderLessons(); }catch(e){}
       try{ updateDailyUI(); }catch(e){}
       try{ computeKpis(); }catch(e){}
     }, true);
@@ -19166,7 +19192,8 @@ function markGameSessionCompleted(gameType, topicId){
   if(!APP_SESSION?.gameSessions) APP_SESSION.gameSessions = {};
   if(APP_SESSION.gameSessions[gameType]) return;
   APP_SESSION.gameSessions[gameType] = 1;
-  const safeTopic = topicId && isTopicEnabled(topicId) ? topicId : (getDailyTopicId() || "t1");
+  const safeTopic = topicId && isTopicEnabled(topicId) ? topicId : getDailyTopicId();
+  if(!safeTopic) return;
   trackTaskCompleted("GAME", safeTopic, { scoreDelta:1, gameType });
   recordDailyGame(safeTopic);
 }
