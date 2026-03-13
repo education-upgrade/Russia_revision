@@ -3819,6 +3819,7 @@ section#games.gamePaneActive .gamesHeroCard{
                 <select id="modeSelect">
                   <option value="all" selected>All</option>
                   <option value="focus">Focus</option>
+                  <option value="journey">Journey</option>
                 </select>
               </div>
               <div class="grow" style="min-width:160px">
@@ -9593,6 +9594,7 @@ function baseState(){
     analytics:{ daily:{} },
     // topics toggled off are excluded from flashcards/quizzes/daily challenge
     disabledTopics:{},
+    journey:{ completedCards:{} },
   };
 }
 function loadState(){
@@ -9611,6 +9613,8 @@ function loadState(){
     s.userStats ||= { lastActionType:null, lastActiveAt:0, sessionsToday:0 };
     s.analytics ||= { daily:{} };
     s.disabledTopics ||= {};
+    s.journey ||= { completedCards:{} };
+    s.journey.completedCards ||= {};
     return s;
   }catch{
     return baseState();
@@ -9694,6 +9698,24 @@ function dailyActivityLabel(type){
   if(type === "game") return "Game";
   return "Activity";
 }
+function isJourneyStudyMode(mode){
+  return mode === "journey" || mode === "study";
+}
+function isJourneyCardComplete(cardId){
+  if(!cardId) return false;
+  STATE.journey ||= { completedCards:{} };
+  STATE.journey.completedCards ||= {};
+  return !!STATE.journey.completedCards[cardId];
+}
+function markJourneyCardComplete(cardId){
+  if(!cardId) return;
+  STATE.journey ||= { completedCards:{} };
+  STATE.journey.completedCards ||= {};
+  STATE.journey.completedCards[cardId] = 1;
+}
+function getJourneyCardsForTopic(topicId){
+  return ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId) && !isJourneyCardComplete(c.id));
+}
 function isDailyActivityDone(activity){
   return Number(activity?.progress||0) >= Number(activity?.target||1);
 }
@@ -9703,9 +9725,7 @@ function topicHasLessonRemaining(topicId){
   return getTopicLessons(topic).some(lesson=>getLessonJourneyState(lesson.id) !== "completed");
 }
 function topicHasStudyRemaining(topicId){
-  const total = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId)).length;
-  const s = touchTopicStats(topicId);
-  return Number(s.flashcardsDone||0) < Math.max(10, total || 10);
+  return getJourneyCardsForTopic(topicId).length > 0;
 }
 function topicHasQuizRemaining(topicId){
   const s = touchTopicStats(topicId);
@@ -9721,6 +9741,11 @@ function isDailyTypeValidForTopic(type, topicId){
   if(type === "quiz") return topicHasQuizRemaining(topicId);
   if(type === "game") return topicHasGameRemaining(topicId);
   return false;
+}
+function getDailyStudyTarget(topicId){
+  const remaining = getJourneyCardsForTopic(topicId).length;
+  if(remaining <= 0) return 0;
+  return Math.min(DAILY_ACTIVITY_TARGETS.study||10, remaining);
 }
 function buildDailyActivities(topicId, prevCombo){
   const preferred = DAILY_TYPES.filter(type=>isDailyTypeValidForTopic(type, topicId));
@@ -9748,7 +9773,7 @@ function buildDailyActivities(topicId, prevCombo){
   }
 
   const selected = pool.slice(0, Math.min(DAILY_TASK_COUNT, pool.length));
-  return selected.map(type=>({ type, target:DAILY_ACTIVITY_TARGETS[type]||1, progress:0, completed:false, label:dailyActivityLabel(type) }));
+  return selected.map(type=>({ type, target:(type === "study" ? getDailyStudyTarget(topicId) : (DAILY_ACTIVITY_TARGETS[type]||1)), progress:0, completed:false, label:dailyActivityLabel(type) }));
 }
 function syncDailyActivityProgress(daily){
   if(!daily || !Array.isArray(daily.activities)) return;
@@ -9790,7 +9815,7 @@ function ensureDaily(){
     if(Array.isArray(row.activities)) return row;
     const activities = [];
     if(row.flash != null){
-      activities.push({ type:"study", target:10, progress:Math.min(10, Number(row.flash||0)), completed:Number(row.flash||0) >= 10, label:"Study Cards" });
+      activities.push({ type:"study", target:Math.max(1, getDailyStudyTarget(row.topicId || wantTopic)), progress:Math.min(Math.max(1, getDailyStudyTarget(row.topicId || wantTopic)), Number(row.flash||0)), completed:Number(row.flash||0) >= Math.max(1, getDailyStudyTarget(row.topicId || wantTopic)), label:"Study Cards" });
     }
     if(Number(row.quizBest||0) > 0){
       activities.push({ type:"quiz", target:1, progress:Number(row.quizBest||0) >= 100 ? 1 : 0, completed:Number(row.quizBest||0) >= 100, label:"Quiz" });
@@ -18503,7 +18528,7 @@ function initTopicArrowDialog(){
     const panel = event.target.closest("[data-topic-open='1']");
     if(!panel || !listEl.contains(panel)) return;
     const topicId = panel.dataset.topicId;
-    if(topicId) openStudyForTopic(topicId, "all");
+    if(topicId) openStudyForTopic(topicId, "journey");
   });
 
   listEl.addEventListener("keydown", (event)=>{
@@ -18512,7 +18537,7 @@ function initTopicArrowDialog(){
     if(!panel || !listEl.contains(panel)) return;
     event.preventDefault();
     const topicId = panel.dataset.topicId;
-    if(topicId) openStudyForTopic(topicId, "all");
+    if(topicId) openStudyForTopic(topicId, "journey");
   });
 
   closeBtn.addEventListener("click", closeTopicArrowDialog);
@@ -18525,7 +18550,7 @@ function getJourneyStageProgress(topicId){
   const topic = lessonsData.find(t=>t.id===topicId);
   const lessonPercent = topic ? getTopicProgressSummary(topic).percent : 0;
   const flash = topicFlashcardStats(topicId);
-  const studyPercent = flash.total > 0 ? Math.round((Math.max(0, Number(flash.done||0)) / flash.total) * 100) : 0;
+  const studyPercent = flash.total > 0 ? Math.round((Math.max(0, Number(flash.done||0)) / flash.total) * 100) : 100;
   const quiz = topicQuizStats(topicId);
   const quizPercent = Math.max(0, Math.min(100, Number(quiz.quizBestPercent||0)));
   const stats = touchTopicStats(topicId);
@@ -18576,7 +18601,7 @@ function renderJourneyMapStops(currentTopicId){
     const open = ()=>{
       const tid = btn.getAttribute('data-topic-id');
       if(!tid || !isTopicEnabled(tid)) return;
-      openStudyForTopic(tid, "all");
+      openStudyForTopic(tid, "journey");
     };
     btn.addEventListener('click', open);
     btn.addEventListener('keydown', ev=>{ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); open(); } });
@@ -18594,7 +18619,7 @@ function getTopicJourneyStatusLabel(topicId){
 function getJourneyNextStep(topicId){
   const p = getJourneyStageProgress(topicId);
   if(p.lessons < 100) return { key:"lessons", label:"Complete Lessons", sub:"Move through key enquiries", action:()=>{ setTab("lessons"); } };
-  if(p.study < 100) return { key:"study", label:"Complete Study", sub:"Review flashcards for this topic", action:()=>openStudyForTopic(topicId, "all") };
+  if(p.study < 100) return { key:"study", label:"Complete Study", sub:"Review flashcards for this topic", action:()=>openStudyForTopic(topicId, "journey") };
   if(p.quiz < 100) return { key:"quiz", label:"Start Quiz", sub:"Check secure retrieval", action:()=>goDailyQuiz(topicId) };
   if(p.games < 100) return { key:"games", label:"Play Games", sub:"Strengthen speed and recall", action:()=>{ setTab("games"); } };
   return null;
@@ -18687,7 +18712,7 @@ function renderTopicDashboard(){
       const key = node.getAttribute('data-stage-open');
       if(!tid || !isTopicEnabled(tid)) return;
       if(key === 'lessons') return setTab('lessons');
-      if(key === 'study') return openStudyForTopic(tid, 'all');
+      if(key === 'study') return openStudyForTopic(tid, 'journey');
       if(key === 'quiz') return goDailyQuiz(tid);
       if(key === 'games') return setTab('games');
     });
@@ -19164,6 +19189,7 @@ function trackTaskCompleted(taskType, topicId, extra={}){
     s.flashcardsDone = Math.max(Number(s.flashcardsDone||0), Number(extra.flashcardsDone||s.flashcardsDone||0));
     s.flashcardsTotal = Math.max(Number(s.flashcardsTotal||0), Number(extra.flashcardsTotal||0));
     s.failedCards = Number(extra.failedCards ?? s.failedCards ?? 0);
+    s.flashcardsRemaining = Math.max(0, Number(extra.flashcardsRemaining ?? s.flashcardsRemaining ?? 0));
   }
   if(taskType === "PLAN_25"){
     s.planStarted = true;
@@ -19186,17 +19212,13 @@ function trackTaskCompleted(taskType, topicId, extra={}){
 }
 function topicFlashcardStats(topicId){
   const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
+  const journeyPool = getJourneyCardsForTopic(topicId);
   let weak = 0;
   pool.forEach(c=>{ if((getReview(c.id)?.score ?? 2) <= 1) weak++; });
-  const daily = STATE.daily?.[todayKey()];
-  const studyActivity = (daily?.topicId === topicId && Array.isArray(daily.activities))
-    ? daily.activities.find(a=>a?.type==="study")
-    : null;
-  const doneToday = studyActivity ? Number(studyActivity.progress||0) : 0;
   return {
     total: pool.length,
-    done: doneToday,
-    remaining: Math.max(0, pool.length - doneToday),
+    done: Math.max(0, pool.length - journeyPool.length),
+    remaining: journeyPool.length,
     failedCards: weak
   };
 }
@@ -19442,7 +19464,7 @@ function getLastStudyContext(){
     const raw = localStorage.getItem(LAST_STUDY_CONTEXT_KEY);
     if(!raw) return null;
     const parsed = JSON.parse(raw);
-    if(!parsed || !["focus","all"].includes(parsed.mode)) return null;
+    if(!parsed || !["focus","all","journey"].includes(parsed.mode)) return null;
     return parsed;
   }catch(e){ return null; }
 }
@@ -19451,7 +19473,7 @@ function openStudyForTopic(topicId, mode="all"){
   const safeTopic = isTopicEnabled(topicId) ? topicId : getDailyTopicId();
   setTab("study");
   $("topicSelect").value = safeTopic;
-  $("modeSelect").value = ["focus","all"].includes(mode) ? mode : "all";
+  $("modeSelect").value = ["focus","all","journey"].includes(mode) ? mode : "all";
   $("orderSelect").value = "random";
   loadNextCard();
   rememberStudyContext();
@@ -19810,7 +19832,7 @@ $("goDailyAct3")?.addEventListener("click", ()=>goDailyActivity(2));
 let CURRENT = { list:[], idx:0, card:null };
 
 function pickDailyFlashcards(topicId, count=(DAILY_ACTIVITY_TARGETS.study||10)){
-  const pool = ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId));
+  const pool = getJourneyCardsForTopic(topicId);
   return shuffle(pool).slice(0, Math.min(count, pool.length));
 }
 
@@ -19925,7 +19947,7 @@ function updateStudyLaunchCta(){
 
   const hasCurrent = !!CURRENT.card;
   const topicLabel = studyTopicLabel(topicSel.value);
-  const modeLabel = modeSel.value === "focus" ? "Focus" : "All cards";
+  const modeLabel = modeSel.value === "focus" ? "Focus" : (isJourneyStudyMode(modeSel.value) ? "Journey" : "All cards");
   const searchActive = searchEl.value.trim().length > 0;
 
   titleEl.textContent = `Recommended: ${topicLabel}`;
@@ -19938,8 +19960,8 @@ function updateStudyLaunchCta(){
 }
 function getFilteredCards(){
   const topic = $("topicSelect").value;
-  const mode = $("modeSelect").value;     // focus | all
-  if(!["focus","all"].includes(mode)) $("modeSelect").value = "all";
+  const mode = $("modeSelect").value;     // focus | all | journey
+  if(!["focus","all","journey"].includes(mode)) $("modeSelect").value = "all";
   const order = $("orderSelect").value;   // ordered | random
   const q = $("searchInput").value.trim().toLowerCase();
 
@@ -19956,6 +19978,10 @@ function getFilteredCards(){
       const r = getReview(c.id);
       return !!r && Number(r.score) <= 1;
     });
+  }
+
+  if(isJourneyStudyMode(mode)){
+    list = list.filter(c=>!isJourneyCardComplete(c.id));
   }
 
   if(q){
@@ -20100,6 +20126,17 @@ document.querySelectorAll('#study [data-score]').forEach(btn=>{
       successfulRecalls: (prev?.successfulRecalls || 0) + (score >= 2 ? 1 : 0),
       times: (prev?.times||0)+1
     });
+
+    if(score >= 2 && isJourneyStudyMode($("modeSelect")?.value)){
+      markJourneyCardComplete(id);
+      const updated = topicFlashcardStats(CURRENT.card.topicId);
+      trackTaskCompleted("FLASHCARDS", CURRENT.card.topicId, {
+        flashcardsDone: updated.done,
+        flashcardsTotal: updated.total,
+        flashcardsRemaining: updated.remaining,
+        failedCards: updated.failedCards
+      });
+    }
 
     STATE.stats.studied = (STATE.stats.studied||0)+1;
     saveState();
