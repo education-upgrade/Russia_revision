@@ -18592,14 +18592,14 @@ function renderJourneyMapStops(currentTopicId){
     const isCurrent = enabled && stop.id === currentTopicId;
     const isComplete = enabled && pct >= 100;
     const statusClass = `${isCurrent ? 'is-current' : ''} ${isComplete ? 'is-complete' : ''} ${enabled ? '' : 'is-locked'}`.trim();
-    const statusText = !enabled ? 'Locked' : isCurrent ? 'Current topic' : isComplete ? 'Completed' : `${pct}% complete`;
+    const statusText = isCurrent ? 'Current topic' : '';
 
     return `<article class="journeyStop journeyStopLabel-${stop.labelClass} ${statusClass}" style="left:${stop.x}%;top:${stop.y}%" data-topic-stop="${stop.id}">
       <button type="button" class="journeyStopNode" data-topic-open="1" data-topic-id="${stop.id}" aria-label="Open ${escapeHtml(stop.title)} ${escapeHtml(stop.years)}"></button>
       <button type="button" class="journeyStopCard" data-topic-open="1" data-topic-id="${stop.id}" aria-label="Open ${escapeHtml(stop.title)} ${escapeHtml(stop.years)}">
         <div class="journeyStopCardTitle">${escapeHtml(stop.title)}</div>
         <div class="journeyStopCardYears">${escapeHtml(stop.years)}</div>
-        <div class="journeyStopCardProgress">${statusText}</div>
+        ${statusText ? `<div class="journeyStopCardProgress">${statusText}</div>` : ''}
       </button>
     </article>`;
   }).join('');
