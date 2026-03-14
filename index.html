@@ -2304,15 +2304,16 @@ section#games.gamePaneActive .gamesHeroCard{
     }
     .educationUpgradeLogoImage{
       display:block;
-      height:clamp(96px, 20vw, 140px);
+      height:clamp(68px, 14vw, 104px);
       width:auto;
-      clip-path:inset(0 0 20% 0);
+      max-width:100%;
+      object-fit:contain;
     }
     .upgraded-logo{
-      max-width:220px;
+      max-width:clamp(128px, 32vw, 200px);
       margin-top:0;
       justify-self:center;
-      overflow:hidden;
+      overflow:visible;
     }
     .homeTopBrandRow--home .streakCountPill{
       justify-self:end;
@@ -2478,8 +2479,8 @@ section#games.gamePaneActive .gamesHeroCard{
     @media (max-width: 420px){
       .streakCountPill{ width:72px; height:72px; }
       .streakCountNum{ font-size:17px; }
-      .educationUpgradeLogo{ max-width:56%; }
-      .educationUpgradeLogoImage{ height:clamp(72px, 20vw, 94px); }
+      .educationUpgradeLogo{ max-width:100%; }
+      .educationUpgradeLogoImage{ height:clamp(54px, 15vw, 72px); }
     }
 
     .streakPillBtn{
@@ -2905,8 +2906,8 @@ section#games.gamePaneActive .gamesHeroCard{
         grid-template-columns:auto minmax(0,1fr) auto;
         column-gap:8px;
       }
-      .homeTopBrandRow--home .upgraded-logo{ margin-left:-2mm; }
-      .educationUpgradeLogoImage{ height:clamp(72px, 19vw, 94px); }
+      .homeTopBrandRow--home .upgraded-logo{ margin-left:0; }
+      .educationUpgradeLogoImage{ height:clamp(54px, 15vw, 72px); }
       .streakCountPill{ padding:8px 10px; }
       .streakHeader .streakCountPill{ margin-top:0; }
       .dailyTopicInline{ font-size:12px; }
