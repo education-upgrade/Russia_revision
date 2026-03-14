@@ -21330,7 +21330,11 @@ function init(){
     setTab("home");
     playHomeLogoSparkReveal();
     renderHomeRecommendation();
-    openDailyCoachDialog(false);
+
+    const splashOpened = openWelcomeVideoDialog();
+    if(!splashOpened){
+      openDailyCoachDialog(false);
+    }
 
     $("streakHeroCard")?.addEventListener("dblclick", ()=>openDailyCoachDialog(false));
     $("coachDismissBtn")?.addEventListener("click", closeDailyCoachDialog);
