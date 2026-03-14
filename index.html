@@ -2693,6 +2693,17 @@ section#games.gamePaneActive .gamesHeroCard{
       position:relative;
       z-index:2;
     }
+    .dailyChallengeTitleWrap{
+      display:flex;
+      justify-content:center;
+      margin-bottom:12px;
+    }
+    .dailyChallengeTitleImage{
+      width:100%;
+      max-width:300px;
+      height:auto;
+      object-fit:contain;
+    }
     .checkRow{
       position:relative;
       width:100%;
@@ -2916,6 +2927,8 @@ section#games.gamePaneActive .gamesHeroCard{
       .streakChecklist{ gap:9px; }
       .checkRow{ max-width:104px; border-radius:20px; }
       .checkDot .checkIcon{ width:30px; height:30px; }
+      .dailyChallengeTitleWrap{ margin-bottom:10px; }
+      .dailyChallengeTitleImage{ max-width:260px; }
       .protectBtn{ margin-top:10px; padding:10px 12px; }
     }
 
@@ -3629,6 +3642,10 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
 
     <div class="card homeSecondaryCard" id="streakHeroCard">
+
+      <div class="dailyChallengeTitleWrap" aria-hidden="true">
+        <img class="dailyChallengeTitleImage" src="Lesson infographics/Title image.png" alt="">
+      </div>
 
       <div id="streakCompleteBanner" class="streakCompleteBanner hidden">
         <div class="streakCompleteEmoji">🏆</div>
