@@ -20165,6 +20165,25 @@ function nextCard(){
   renderCard();
 }
 
+function advanceJourneyCardQueue(){
+  if(!CURRENT.list.length) return loadNextCard();
+
+  CURRENT.list.splice(CURRENT.idx, 1);
+
+  if(!CURRENT.list.length){
+    CURRENT.card = null;
+    CURRENT.idx = 0;
+    loadNextCard();
+    return;
+  }
+
+  if(CURRENT.idx >= CURRENT.list.length){
+    CURRENT.idx = 0;
+  }
+  CURRENT.card = CURRENT.list[CURRENT.idx];
+  renderCard();
+}
+
 $("topicSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); updateStudyLaunchCta(); });
 $("modeSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); updateStudyLaunchCta(); });
 $("orderSelect").addEventListener("change", ()=>{ rememberStudyContext(); loadNextCard(); updateStudyLaunchCta(); });
@@ -20216,6 +20235,7 @@ document.querySelectorAll('#study [data-score]').forEach(btn=>{
 
     const score = Number(btn.dataset.score);
     const id = CURRENT.card.id;
+    const removeFromJourneyQueue = score >= 2 && isJourneyStudyMode($("modeSelect")?.value);
     const todayTs = startOfTodayTs();
     const prev = getReview(id);
 
@@ -20248,6 +20268,12 @@ document.querySelectorAll('#study [data-score]').forEach(btn=>{
     STATE.stats.studied = (STATE.stats.studied||0)+1;
     saveState();
     computeKpis();
+
+    if(removeFromJourneyQueue){
+      advanceJourneyCardQueue();
+      return;
+    }
+
     nextCard();
   });
 });
