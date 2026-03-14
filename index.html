@@ -20234,7 +20234,7 @@ document.querySelectorAll('#study [data-score]').forEach(btn=>{
       times: (prev?.times||0)+1
     });
 
-    if(score >= 2 && isJourneyStudyMode($("modeSelect")?.value)){
+    if(score >= 2){
       markJourneyCardComplete(id);
       const updated = topicFlashcardStats(CURRENT.card.topicId);
       trackTaskCompleted("FLASHCARDS", CURRENT.card.topicId, {
