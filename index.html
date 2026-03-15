@@ -255,174 +255,20 @@
   box-shadow: 0 12px 28px rgba(31,41,55,.12);
 }
 
-.animated-russia-map{
+.journeyMapImageWrap{
   position:absolute;
   inset:0;
   pointer-events:none;
   z-index:1;
 }
 
-.animated-russia-mapImg{
+.journeyMapImage{
   width:100%;
   height:100%;
   object-fit:contain;
   object-position:center;
   display:block;
   filter:saturate(.9) contrast(.96);
-}
-
-.animated-russia-mapOverlay{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-}
-
-.animated-russia-mapPath{
-  fill:none;
-  stroke:rgba(24,35,52,0);
-  stroke-width:2;
-}
-
-.animated-russia-train,
-.animated-russia-smoke,
-.animated-russia-person,
-.animated-russia-snow,
-.animated-russia-trainFallback{
-  pointer-events:none;
-}
-
-.animated-russia-train{
-  position:absolute;
-  left:0;
-  top:0;
-  width:20px;
-  height:10px;
-  offset-rotate:auto;
-  transform:translate(-50%, -50%);
-}
-
-.animated-russia-trainShape{
-  position:relative;
-  width:100%;
-  height:100%;
-}
-
-.animated-russia-trainShape::before,
-.animated-russia-trainShape::after{
-  content:"";
-  position:absolute;
-  background:#2f353c;
-}
-
-.animated-russia-trainShape::before{
-  inset:3px 0 0;
-  border-radius:3px;
-}
-
-.animated-russia-trainShape::after{
-  width:8px;
-  height:5px;
-  left:1px;
-  top:0;
-  border-radius:2px 2px 0 0;
-}
-
-.animated-russia-smoke{
-  position:absolute;
-  width:5px;
-  height:5px;
-  border-radius:50%;
-  background:rgba(235,238,242,.68);
-  filter:blur(.15px);
-  transform:translate(-50%,-50%);
-  opacity:0;
-}
-
-.animated-russia-snowLayer{
-  position:absolute;
-  inset:0;
-  overflow:hidden;
-}
-
-.animated-russia-snow{
-  position:absolute;
-  top:-12%;
-  width:2px;
-  height:2px;
-  border-radius:50%;
-  background:rgba(249,252,255,.85);
-  animation:mapSnowFall var(--snowDur, 18s) linear infinite;
-  animation-delay:var(--snowDelay, 0s);
-  opacity:var(--snowOpacity, .6);
-}
-
-.animated-russia-peopleLayer{
-  position:absolute;
-  inset:0;
-}
-
-.animated-russia-person{
-  position:absolute;
-  width:6px;
-  height:9px;
-  transform:translate(-50%,-50%);
-  opacity:.55;
-  animation:mapPersonBob var(--bobDur, 4.6s) ease-in-out infinite;
-  animation-delay:var(--bobDelay, 0s);
-}
-
-.animated-russia-person::before,
-.animated-russia-person::after{
-  content:"";
-  position:absolute;
-  left:50%;
-  transform:translateX(-50%);
-  background:#4f5c69;
-}
-
-.animated-russia-person::before{
-  top:0;
-  width:4px;
-  height:4px;
-  border-radius:50%;
-}
-
-.animated-russia-person::after{
-  top:3px;
-  width:5px;
-  height:6px;
-  border-radius:3px 3px 2px 2px;
-}
-
-@keyframes mapSnowFall{
-  from{transform:translate3d(0,0,0)}
-  to{transform:translate3d(var(--snowDrift, 8px),115%,0)}
-}
-
-@keyframes mapPersonBob{
-  0%,100%{transform:translate(-50%,-50%) translateY(0)}
-  50%{transform:translate(-50%,-50%) translateY(-2px) translateX(1px)}
-}
-
-@keyframes mapSmokeRise{
-  0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}
-  25%{opacity:.55}
-  100%{opacity:0;transform:translate(-50%,-220%) translateX(6px) scale(1.6)}
-}
-
-.animated-russia-train{ display:none; }
-
-.animated-russia-trainFallback{display:block}
-
-@media (prefers-reduced-motion: reduce){
-  .animated-russia-train,
-  .animated-russia-smoke,
-  .animated-russia-snow,
-  .animated-russia-person,
-  .animated-russia-trainFallback{animation:none !important}
-  .animated-russia-trainFallback{display:none}
 }
 
 .journeyStopsLayer{
@@ -3852,57 +3698,8 @@ section#games.gamePaneActive .gamesHeroCard{
         </div>
       </div>
       <div id="journeyMapMount" class="journeyMapMount">
-        <div class="animated-russia-map" aria-hidden="true">
-          <img class="animated-russia-mapImg" src="Lesson infographics/russia-journey-map.jpg.PNG" onerror="this.onerror=null;this.src='Lesson infographics/russia-journey-map.PNG'" alt="" loading="lazy" decoding="async">
-          <div class="animated-russia-snowLayer" id="animatedRussiaSnowLayer"></div>
-          <div class="animated-russia-peopleLayer" aria-hidden="true">
-            <span class="animated-russia-person" style="left:20%;top:78%;--bobDur:4.6s;--bobDelay:-.2s"></span>
-            <span class="animated-russia-person" style="left:31%;top:67%;--bobDur:5.2s;--bobDelay:-1.1s"></span>
-            <span class="animated-russia-person" style="left:42%;top:57%;--bobDur:4.8s;--bobDelay:-.7s"></span>
-            <span class="animated-russia-person" style="left:50%;top:48%;--bobDur:5.5s;--bobDelay:-2.1s"></span>
-            <span class="animated-russia-person" style="left:60%;top:40%;--bobDur:4.9s;--bobDelay:-1.8s"></span>
-            <span class="animated-russia-person" style="left:72%;top:31%;--bobDur:5.4s;--bobDelay:-2.7s"></span>
-            <span class="animated-russia-person" style="left:83%;top:23%;--bobDur:4.7s;--bobDelay:-.9s"></span>
-          </div>
-          <div class="animated-russia-train" style="--trainDuration:24s;--trainDelay:-2s;offset-path:path('M 8% 80% C 17% 74%, 27% 69%, 36% 62% C 46% 55%, 56% 49%, 66% 42% C 76% 34%, 85% 28%, 93% 20%');">
-            <span class="animated-russia-trainShape"></span>
-            <span class="animated-russia-smoke" style="left:4px;top:1px;animation:mapSmokeRise 3.2s ease-out infinite;animation-delay:-.8s"></span>
-            <span class="animated-russia-smoke" style="left:6px;top:2px;animation:mapSmokeRise 3.8s ease-out infinite;animation-delay:-2.4s"></span>
-          </div>
-          <div class="animated-russia-train" style="--trainDuration:19s;--trainDelay:-8s;offset-path:path('M 11% 72% C 21% 67%, 31% 61%, 41% 54% C 52% 47%, 62% 40%, 72% 33% C 81% 27%, 89% 20%, 95% 13%');">
-            <span class="animated-russia-trainShape"></span>
-            <span class="animated-russia-smoke" style="left:5px;top:1px;animation:mapSmokeRise 3s ease-out infinite;animation-delay:-1.5s"></span>
-          </div>
-          <div class="animated-russia-train" style="--trainDuration:27s;--trainDelay:-12s;offset-path:path('M 9% 63% C 20% 58%, 30% 51%, 40% 44% C 50% 37%, 60% 31%, 70% 24% C 80% 18%, 88% 12%, 94% 8%');">
-            <span class="animated-russia-trainShape"></span>
-          </div>
-          <svg class="animated-russia-mapOverlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-            <path id="journeyPathLower" class="animated-russia-mapPath" d="M 8 80 C 17 74, 27 69, 36 62 C 46 55, 56 49, 66 42 C 76 34, 85 28, 93 20"></path>
-            <path id="journeyPathMiddle" class="animated-russia-mapPath" d="M 11 72 C 21 67, 31 61, 41 54 C 52 47, 62 40, 72 33 C 81 27, 89 20, 95 13"></path>
-            <path id="journeyPathUpper" class="animated-russia-mapPath" d="M 9 63 C 20 58, 30 51, 40 44 C 50 37, 60 31, 70 24 C 80 18, 88 12, 94 8"></path>
-
-            <g class="animated-russia-trainFallback">
-              <rect x="-9" y="-1" width="18" height="7" rx="2.2" ry="2.2" fill="#2f353c"></rect>
-              <rect x="-8" y="-5" width="7" height="4" rx="1.4" ry="1.4" fill="#2f353c"></rect>
-              <animateMotion dur="24s" repeatCount="indefinite" rotate="auto">
-                <mpath href="#journeyPathLower"></mpath>
-              </animateMotion>
-            </g>
-            <g class="animated-russia-trainFallback">
-              <rect x="-9" y="-1" width="18" height="7" rx="2.2" ry="2.2" fill="#2f353c"></rect>
-              <rect x="-8" y="-5" width="7" height="4" rx="1.4" ry="1.4" fill="#2f353c"></rect>
-              <animateMotion dur="19s" repeatCount="indefinite" rotate="auto">
-                <mpath href="#journeyPathMiddle"></mpath>
-              </animateMotion>
-            </g>
-            <g class="animated-russia-trainFallback">
-              <rect x="-9" y="-1" width="18" height="7" rx="2.2" ry="2.2" fill="#2f353c"></rect>
-              <rect x="-8" y="-5" width="7" height="4" rx="1.4" ry="1.4" fill="#2f353c"></rect>
-              <animateMotion dur="27s" repeatCount="indefinite" rotate="auto">
-                <mpath href="#journeyPathUpper"></mpath>
-              </animateMotion>
-            </g>
-          </svg>
+        <div class="journeyMapImageWrap" aria-hidden="true">
+          <img class="journeyMapImage" src="Lesson infographics/russia-journey-map.jpg.PNG" onerror="this.onerror=null;this.src='Lesson infographics/russia-journey-map.PNG'" alt="" loading="lazy" decoding="async">
         </div>
         <div id="journeyStopsLayer" class="journeyStopsLayer" aria-label="Learning journey route map"></div>
       </div>
@@ -18853,25 +18650,6 @@ function initTopicArrowDialog(){
   });
 }
 
-function initAnimatedRussiaMap(){
-  const snowLayer = document.getElementById('animatedRussiaSnowLayer');
-  if(!snowLayer || snowLayer.dataset.ready === '1') return;
-  snowLayer.dataset.ready = '1';
-
-  const flakes = 26;
-  const frag = document.createDocumentFragment();
-  for(let i=0;i<flakes;i++){
-    const flake = document.createElement('span');
-    flake.className = 'animated-russia-snow';
-    flake.style.left = `${Math.random() * 100}%`;
-    flake.style.setProperty('--snowDur', `${16 + Math.random() * 15}s`);
-    flake.style.setProperty('--snowDelay', `${-Math.random() * 20}s`);
-    flake.style.setProperty('--snowDrift', `${(Math.random() * 18 - 9).toFixed(2)}px`);
-    flake.style.setProperty('--snowOpacity', `${(0.32 + Math.random() * 0.4).toFixed(2)}`);
-    frag.appendChild(flake);
-  }
-  snowLayer.appendChild(frag);
-}
 
 function getJourneyStageProgress(topicId){
   const topic = lessonsData.find(t=>t.id===topicId);
@@ -19402,7 +19180,6 @@ computeKpis();
 updateDailyUI();
 initTopicArrowDialog();
 initLessonDefinitionDialog();
-initAnimatedRussiaMap();
 
 /* Home quick buttons (legacy IDs kept for safety) */
 
