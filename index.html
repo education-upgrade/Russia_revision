@@ -18838,7 +18838,7 @@ function renderTopicDashboard(){
 
   el.querySelectorAll('.topicToggleWrap').forEach(wrap=>{
     const stop = (ev)=>{ ev.stopPropagation(); };
-    ["pointerdown","mousedown","touchstart","click"].forEach(evt=> wrap.addEventListener(evt, stop, true));
+    ["click","keydown"].forEach(evt=> wrap.addEventListener(evt, stop));
   });
 
   el.querySelectorAll('[data-topic-toggle]').forEach(btn=>{
