@@ -4033,13 +4033,6 @@ section#games.gamePaneActive .gamesHeroCard{
         <h3 class="coachTitle" id="dailyCoachTitle">Welcome back</h3>
       </div>
       <div class="coachMessage" id="dailyCoachMessage">Loading recommendation…</div>
-      <div class="coachStatsLead" id="coachStatsLead">These are your stats for this topic.</div>
-      <div class="coachMetaGrid">
-        <div class="coachMetaPill" id="coachRetentionMeta">Retention: —</div>
-        <div class="coachMetaPill" id="coachAccuracyMeta">Accuracy: —</div>
-        <div class="coachMetaPill" id="coachXpMeta">XP: —</div>
-        <div class="coachMetaPill" id="coachLastStudyMeta">Last reviewed: —</div>
-      </div>
       <div class="coachActions">
         <button class="btn" id="coachDismissBtn" type="button">Close</button>
         <button class="btn" id="coachStudyBtn" type="button">
@@ -4051,7 +4044,7 @@ section#games.gamePaneActive .gamesHeroCard{
         <button class="btn" id="coachChallengeBtn" type="button">
           <span class="btnIconLabel">
             <svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="12" height="15" rx="2"></rect><path d="M8 9h4"></path><path d="M8 13h4"></path><path d="M18 8h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8"></path></svg>
-            <span class="coachActionTitle" id="coachQuizBtnTitle">Start challenge</span>
+            <span class="coachActionTitle" id="coachQuizBtnTitle">Continue journey</span>
           </span>
         </button>
       </div>
@@ -19811,15 +19804,9 @@ function openDailyCoachDialog(forceRefresh=false){
   const recoTopicId = (reco?.topicId && reco.topicId !== "MIXED" && isTopicEnabled(reco.topicId)) ? reco.topicId : daily.topicId;
   const activeTopicId = doneToday ? recoTopicId : daily.topicId;
   const topicTitle = (TOPICS.find(t=>t.id===activeTopicId)?.title || activeTopicId);
-  const topicMetrics = topicCoachMetrics(activeTopicId);
 
   const titleNode = $("dailyCoachTitle");
   const msgNode = $("dailyCoachMessage");
-  const leadNode = $("coachStatsLead");
-  const retentionNode = $("coachRetentionMeta");
-  const accuracyNode = $("coachAccuracyMeta");
-  const xpNode = $("coachXpMeta");
-  const lastNode = $("coachLastStudyMeta");
   const quizBtn = $("coachChallengeBtn");
   const studyBtn = $("coachStudyBtn");
   const studyTitleNode = $("coachStudyBtnTitle");
@@ -19827,22 +19814,11 @@ function openDailyCoachDialog(forceRefresh=false){
 
   if(titleNode) titleNode.textContent = doneToday ? "Challenge complete" : "Welcome back";
   if(msgNode){
-    msgNode.textContent = doneToday
-      ? "You’ve already completed today’s challenge. Good work!"
-      : `Daily challenge topic: ${(TOPICS.find(t=>t.id===daily.topicId)?.title || daily.topicId)}`;
+    msgNode.textContent = `You’re doing great, continue your learning journey for the topic: ${topicTitle}`;
   }
-  if(leadNode){
-    leadNode.textContent = doneToday
-      ? `Why not boost this topic now?\n${topicTitle}`
-      : "These are your stats for this topic.";
-  }
-  if(retentionNode) retentionNode.textContent = `Retention: ${topicMetrics.retentionPercent}%`;
-  if(accuracyNode) accuracyNode.textContent = `Accuracy: ${topicMetrics.quizBestPercent}%`;
-  if(xpNode) xpNode.textContent = `XP: ${topicMetrics.xp}`;
-  if(lastNode) lastNode.textContent = `Last reviewed: ${formatCoachWhen(topicMetrics.lastStudiedAt)}`;
 
   if(studyTitleNode) studyTitleNode.textContent = doneToday ? "Study" : "Start";
-  if(quizTitleNode) quizTitleNode.textContent = doneToday ? "Quiz" : "Start challenge";
+  if(quizTitleNode) quizTitleNode.textContent = "Continue journey";
 
   if(studyBtn){
     studyBtn.classList.toggle("hidden", !doneToday);
