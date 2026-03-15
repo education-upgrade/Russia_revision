@@ -288,7 +288,8 @@
 .animated-russia-train,
 .animated-russia-smoke,
 .animated-russia-person,
-.animated-russia-snow{
+.animated-russia-snow,
+.animated-russia-trainFallback{
   pointer-events:none;
 }
 
@@ -411,18 +412,9 @@
   100%{opacity:0;transform:translate(-50%,-220%) translateX(6px) scale(1.6)}
 }
 
-@supports (offset-path: path('M 0 0 L 1 1')){
-  .animated-russia-train{
-    animation:mapTrainMove var(--trainDuration, 22s) linear infinite;
-    animation-delay:var(--trainDelay, 0s);
-  }
-  .animated-russia-trainFallback{display:none}
-  @keyframes mapTrainMove{ to{ offset-distance:100%; } }
-}
+.animated-russia-train{ display:none; }
 
-@supports not (offset-path: path('M 0 0 L 1 1')){
-  .animated-russia-train{ display:none; }
-}
+.animated-russia-trainFallback{display:block}
 
 @media (prefers-reduced-motion: reduce){
   .animated-russia-train,
@@ -430,6 +422,7 @@
   .animated-russia-snow,
   .animated-russia-person,
   .animated-russia-trainFallback{animation:none !important}
+  .animated-russia-trainFallback{display:none}
 }
 
 .journeyStopsLayer{
