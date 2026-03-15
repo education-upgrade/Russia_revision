@@ -10841,18 +10841,22 @@ function getLessonScopeByLessonId(lessonId){
 }
 
 
-function markLessonResult(lessonId, scorePct, breakdown){
+function markLessonResult(lessonId, scorePct, breakdown, options={}){
   if(!lessonId) return;
   const store = getLessonActivityStore();
   if(!store.byLesson || typeof store.byLesson !== "object") store.byLesson = {};
   const current = normalizeLessonProgressEntry(store.byLesson[lessonId]) || {};
+  const completedFromTasks = options?.completed === true;
+  const completionState = current.completed === true || completedFromTasks;
   const priorBest = Number.isFinite(current.bestScorePct) ? current.bestScorePct : null;
   const nextBest = Number.isFinite(scorePct) ? (priorBest===null ? scorePct : Math.max(priorBest, scorePct)) : priorBest;
   const todayIso = new Date().toISOString();
   store.byLesson[lessonId] = {
     ...current,
-    completion:true,
-    completed:true,
+    completion:completionState,
+    completed:completionState,
+    tasksCompleted:Number.isFinite(options?.tasksCompleted) ? Number(options.tasksCompleted) : current.tasksCompleted,
+    tasksTotal:Number.isFinite(options?.tasksTotal) ? Number(options.tasksTotal) : current.tasksTotal,
     lastAttemptDate:todayIso,
     lastScorePct:Number.isFinite(scorePct) ? scorePct : null,
     bestScorePct:nextBest,
@@ -10888,6 +10892,28 @@ function getTopicLessons(topic){
       return a.index - b.index;
     })
     .map(item=>item.lesson);
+}
+
+function isLessonTaskSlide(slide){
+  const type = String(slide?.type || "");
+  return ["quick-check", "arg-identify", "evidence-select", "judgement", "strongest-evidence", "rank-factors", "build-answer"].includes(type);
+}
+
+function isLessonTaskCompleted(lessonId, slide){
+  const type = String(slide?.type || "");
+  const slideId = slide?.slideId;
+  if(!lessonId || !slideId) return false;
+  if(type === "quick-check") return getStoredQuickCheckAnswer(lessonId, slideId) !== null;
+  if(type === "arg-identify") return getStoredArgIdentifyState(lessonId, slideId).checked;
+  if(type === "evidence-select") return getStoredEvidenceSelectState(lessonId, slideId).checked;
+  if(type === "judgement"){
+    const state = getStoredJudgementState(lessonId, slideId);
+    return state.optionChecked && state.evidenceChecked;
+  }
+  if(type === "strongest-evidence") return getStoredStrongestEvidenceState(lessonId, slideId).checked;
+  if(type === "rank-factors") return getStoredRankFactorsState(lessonId, slideId).checked;
+  if(type === "build-answer") return getStoredBuildAnswerChecked(lessonId, slideId);
+  return true;
 }
 
 const RECOMMENDED_THEME_ORDER = [
@@ -17825,7 +17851,11 @@ function renderLessonSlideBody(slide, lesson, slideId, allSlides, mode, slideInd
       rankFactors: rankFactorsTotals.max > 0 ? { earned:rankFactorsTotals.earned, max:rankFactorsTotals.max, pct:componentPercents.rankFactors } : null
     };
 
-    markLessonResult(lesson.id, finalPercent, lessonBreakdown);
+    const taskSlides = allSlides.filter(isLessonTaskSlide);
+    const tasksTotal = taskSlides.length;
+    const tasksCompleted = taskSlides.reduce((sum, taskSlide)=>sum + (isLessonTaskCompleted(lesson.id, taskSlide) ? 1 : 0), 0);
+    const completedAllTasks = tasksTotal === 0 || tasksCompleted >= tasksTotal;
+    markLessonResult(lesson.id, finalPercent, lessonBreakdown, { completed:completedAllTasks, tasksCompleted, tasksTotal });
 
     const scope = getLessonScopeByLessonId(lesson.id);
     const drillBreakdown = {
