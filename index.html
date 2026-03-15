@@ -9629,7 +9629,7 @@ function baseState(){
     analytics:{ daily:{} },
     // topics toggled off are excluded from flashcards/quizzes/daily challenge
     disabledTopics:{},
-    journey:{ completedCards:{} },
+    journey:{ completedCards:{}, completedQuizQuestions:{} },
   };
 }
 function loadState(){
@@ -9648,8 +9648,9 @@ function loadState(){
     s.userStats ||= { lastActionType:null, lastActiveAt:0, sessionsToday:0 };
     s.analytics ||= { daily:{} };
     s.disabledTopics ||= {};
-    s.journey ||= { completedCards:{} };
+    s.journey ||= { completedCards:{}, completedQuizQuestions:{} };
     s.journey.completedCards ||= {};
+    s.journey.completedQuizQuestions ||= {};
     return s;
   }catch{
     return baseState();
@@ -9737,15 +9738,30 @@ function isJourneyStudyMode(mode){
 }
 function isJourneyCardComplete(cardId){
   if(!cardId) return false;
-  STATE.journey ||= { completedCards:{} };
+  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
   STATE.journey.completedCards ||= {};
   return !!STATE.journey.completedCards[cardId];
 }
 function markJourneyCardComplete(cardId){
   if(!cardId) return;
-  STATE.journey ||= { completedCards:{} };
+  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
   STATE.journey.completedCards ||= {};
+  STATE.journey.completedQuizQuestions ||= {};
   STATE.journey.completedCards[cardId] = 1;
+}
+function isJourneyQuizQuestionComplete(question){
+  const questionId = question?.id;
+  if(!questionId) return false;
+  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
+  STATE.journey.completedQuizQuestions ||= {};
+  return !!STATE.journey.completedQuizQuestions[questionId];
+}
+function markJourneyQuizQuestionComplete(question){
+  const questionId = question?.id;
+  if(!questionId) return;
+  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
+  STATE.journey.completedQuizQuestions ||= {};
+  STATE.journey.completedQuizQuestions[questionId] = 1;
 }
 function getJourneyCardsForTopic(topicId){
   return ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId) && !isJourneyCardComplete(c.id));
@@ -9769,8 +9785,7 @@ function topicHasStudyRemaining(topicId){
   return getJourneyCardsForTopic(topicId).length > 0;
 }
 function topicHasQuizRemaining(topicId){
-  const s = touchTopicStats(topicId);
-  return Number(s.quizAttempts||0) < 1;
+  return getJourneyQuizPool(topicId).length > 0;
 }
 function topicHasGameRemaining(topicId){
   const s = touchTopicStats(topicId);
@@ -20416,6 +20431,9 @@ function getQuizPool(topicId){
   if(!isTopicEnabled(topicId)) return [];
   return MCQ_BANK.filter(x=>x.topicId===topicId).filter(enabled);
 }
+function getJourneyQuizPool(topicId){
+  return getQuizPool(topicId).filter(q=>!isJourneyQuizQuestionComplete(q));
+}
 
 /* QUIZ state + streaks */
 let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED", fromDailyChallenge:false };
@@ -20644,7 +20662,7 @@ function startQuiz(useErrorBank=false){
   const mode = $("quizModeSelect")?.value || "standard";
   if(topicId !== "MIXED") trackTaskStarted("QUIZ", topicId);
 
-  const pool = useErrorBank ? QUIZ.errorBank.map(x=>x.sourceQ) : getQuizPool(topicId);
+  const pool = useErrorBank ? QUIZ.errorBank.map(x=>x.sourceQ) : getJourneyQuizPool(topicId);
   let list = shuffle(pool).slice(0, Math.min(count, pool.length));
   if(mode === "exam") list = list.map(buildExamisedQuestion);
 
@@ -20780,6 +20798,7 @@ function renderQuizQ(){
       const correct = (choice === q.answer);
       if(correct){
         QUIZ.score++;
+        markJourneyQuizQuestionComplete(q);
         STATE.quiz.correct = (STATE.quiz.correct||0) + 1;
         bucket.correct += 1;
 
