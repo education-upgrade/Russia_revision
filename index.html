@@ -20448,14 +20448,17 @@ EVENTS.forEach(e=>{
 
   return bank;
 }
-const MCQ_BANK = [...MCQ_BANK_MANUAL];
+function getMcqBank(){
+  return MCQ_BANK_MANUAL;
+}
 
 function getQuizPool(topicId){
   const enabled = (x)=>isTopicEnabled(x.topicId);
-  if(topicId === "MIXED") return MCQ_BANK.filter(enabled);
+  const bank = getMcqBank();
+  if(topicId === "MIXED") return bank.filter(enabled);
   // If a topic is toggled off, it should yield an empty quiz pool
   if(!isTopicEnabled(topicId)) return [];
-  return MCQ_BANK.filter(x=>x.topicId===topicId).filter(enabled);
+  return bank.filter(x=>x.topicId===topicId).filter(enabled);
 }
 function getJourneyQuizPool(topicId){
   return getQuizPool(topicId).filter(q=>!isJourneyQuizQuestionComplete(q));
@@ -20474,7 +20477,7 @@ function inferChoiceType(answer){
 
 function buildExamisedQuestion(q){
   const type = inferChoiceType(q.answer);
-  const pool = MCQ_BANK
+  const pool = getMcqBank()
     .map(x=>x.answer)
     .filter(a=>a !== q.answer && inferChoiceType(a) === type);
   const harderDistractors = shuffle(unique(pool)).slice(0, 3);
