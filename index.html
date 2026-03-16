@@ -3020,6 +3020,37 @@ section#games.gamePaneActive .gamesHeroCard{
       transform:scale(1.02);
       -webkit-appearance:none;
     }
+    .journeyIntroOverlay{
+      position:fixed;
+      inset:0;
+      z-index:10090;
+      background:#000;
+      display:grid;
+      place-items:center;
+      transition:opacity .45s ease;
+    }
+    .journeyIntroOverlay.is-fading{ opacity:0; }
+    .journeyIntroVideo{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      background:#000;
+    }
+    .journeyIntroSkip{
+      position:absolute;
+      top:16px;
+      right:16px;
+      z-index:2;
+      border:1px solid rgba(255,255,255,.45);
+      background:rgba(0,0,0,.35);
+      color:#fff;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:800;
+      padding:8px 12px;
+      cursor:pointer;
+    }
     .coachTitleRow{display:flex;align-items:center;justify-content:flex-start;gap:10px}
     .coachTitle{
       margin:0;
@@ -3629,6 +3660,17 @@ section#games.gamePaneActive .gamesHeroCard{
         autoplay
         muted
         controlslist="nodownload noplaybackrate noremoteplayback"
+        preload="auto"
+      ></video>
+    </div>
+    <div id="journeyIntroOverlay" class="journeyIntroOverlay hidden" aria-label="Journey intro video" aria-hidden="true">
+      <button id="journeyIntroSkip" class="journeyIntroSkip" type="button">Skip</button>
+      <video
+        id="journeyIntroVideo"
+        class="journeyIntroVideo"
+        src="Lesson infographics/Journey1.mov"
+        playsinline
+        muted
         preload="auto"
       ></video>
     </div>
@@ -19879,6 +19921,68 @@ function openWelcomeVideoDialog(){
   return true;
 }
 
+const JOURNEY_INTRO_STORAGE_KEY = "journey1IntroShown";
+
+function markJourneyIntroSeen(){
+  try{ localStorage.setItem(JOURNEY_INTRO_STORAGE_KEY, "1"); }catch(e){}
+}
+
+function hasSeenJourneyIntro(){
+  try{ return localStorage.getItem(JOURNEY_INTRO_STORAGE_KEY) === "1"; }catch(e){ return false; }
+}
+
+function playJourneyIntroThen(nextAction){
+  const runNext = ()=>{ if(typeof nextAction === "function") nextAction(); };
+  if(hasSeenJourneyIntro()){
+    runNext();
+    return;
+  }
+
+  const overlay = $("journeyIntroOverlay");
+  const player = $("journeyIntroVideo");
+  const skipBtn = $("journeyIntroSkip");
+  if(!overlay || !player){
+    markJourneyIntroSeen();
+    runNext();
+    return;
+  }
+
+  let finished = false;
+  const finish = ()=>{
+    if(finished) return;
+    finished = true;
+    markJourneyIntroSeen();
+    overlay.classList.add("is-fading");
+    setTimeout(()=>{
+      overlay.classList.add("hidden");
+      overlay.classList.remove("is-fading");
+      overlay.setAttribute("aria-hidden", "true");
+      try{ player.pause(); }catch(e){}
+      try{ player.currentTime = 0; }catch(e){}
+      runNext();
+    }, 460);
+  };
+
+  overlay.classList.remove("hidden");
+  overlay.classList.remove("is-fading");
+  overlay.setAttribute("aria-hidden", "false");
+
+  const onEnded = ()=>finish();
+  const onError = ()=>finish();
+  const onSkip = ()=>finish();
+  player.addEventListener("ended", onEnded, { once:true });
+  player.addEventListener("error", onError, { once:true });
+  if(skipBtn) skipBtn.addEventListener("click", onSkip, { once:true });
+
+  try{
+    player.currentTime = 0;
+    const pr = player.play();
+    if(pr && typeof pr.catch === "function") pr.catch(()=>finish());
+  }catch(e){
+    finish();
+  }
+}
+
 function closeWelcomeVideoDialog(showCoach=true){
   const splashScreen = $("welcomeSplashScreen");
   const player = $("welcomeVideoPlayer");
@@ -19910,11 +20014,11 @@ function getChallengeCtaConfig(d){
   const topicTitle = compactTopicTitle(getHomeTopicTitle(TOPICS.find(t=>t.id===dailyTopicId))) || "Today's topic";
   const step = nextDailyAction(d || ensureDaily());
 
-  if(step === "study") return { title:"Continue learning", topic:`${topicTitle} · Study cards`, accentColor:null, disabled:false, onClick:()=>goDailyFocus() };
-  if(step === "quiz") return { title:"Continue learning", topic:`${topicTitle} · Topic quiz`, accentColor:null, disabled:false, onClick:()=>goDailyQuiz(dailyTopicId) };
-  if(step === "lesson") return { title:"Continue learning", topic:`${topicTitle} · Lesson`, accentColor:null, disabled:false, onClick:()=>goDailyLesson() };
-  if(step === "game") return { title:"Continue learning", topic:`${topicTitle} · Game`, accentColor:null, disabled:false, onClick:()=>goDailyGame() };
-  return { title:"Continue learning", topic:`${topicTitle} · Review`, accentColor:null, disabled:false, onClick:()=>goDailyFocus() };
+  if(step === "study") return { title:"Continue learning", topic:`${topicTitle} · Study cards`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyFocus) };
+  if(step === "quiz") return { title:"Continue learning", topic:`${topicTitle} · Topic quiz`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(()=>goDailyQuiz(dailyTopicId)) };
+  if(step === "lesson") return { title:"Continue learning", topic:`${topicTitle} · Lesson`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyLesson) };
+  if(step === "game") return { title:"Continue learning", topic:`${topicTitle} · Game`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyGame) };
+  return { title:"Continue learning", topic:`${topicTitle} · Review`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyFocus) };
 }
 
 function goDailyFocus(){
