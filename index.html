@@ -9791,6 +9791,9 @@ function getJourneyStudyStats(topicId){
   return { total, done, remaining };
 }
 function isDailyActivityDone(activity){
+  if(activity?.type === "quiz"){
+    return Number(activity?.bestPercent||0) >= 100;
+  }
   return Number(activity?.progress||0) >= Number(activity?.target||1);
 }
 function topicHasLessonRemaining(topicId){
@@ -9862,7 +9865,8 @@ function syncDailyActivityProgress(daily){
       activity.progress = Math.min(activity.target||10, Number(activity.progress||0));
     }else if(activity.type === "quiz"){
       const stats = topicQuizStats(topicId);
-      activity.progress = Math.min(activity.target||1, Number(stats.quizAttempts||0) > 0 ? 1 : 0);
+      activity.bestPercent = Math.max(Number(activity.bestPercent||0), Number(stats.quizBestPercent||0));
+      activity.progress = Number(activity.bestPercent||0) >= 100 ? Number(activity.target||1) : 0;
     }else if(activity.type === "game"){
       const stats = touchTopicStats(topicId);
       activity.progress = Math.min(activity.target||1, Number(stats.gameCompletions||0) > 0 ? 1 : 0);
@@ -10248,7 +10252,8 @@ function recordDailyQuiz(topicId, percent){
   if(topicId !== d.topicId || !activity) return;
   const wasComplete = !!activity.completed;
   const p = Math.max(0, Math.min(100, Math.round(percent)));
-  activity.progress = Math.min(Number(activity.target||1), Number(activity.progress||0) + 1);
+  activity.bestPercent = Math.max(Number(activity.bestPercent||0), p);
+  activity.progress = Number(activity.bestPercent||0) >= 100 ? Number(activity.target||1) : 0;
   activity.completed = isDailyActivityDone(activity);
   const bucket = analyticsDayBucket(todayKey());
   bucket.quizAttempts = Number(bucket.quizAttempts || 0) + 1;
@@ -20642,7 +20647,7 @@ function showQuizCompleteModal(){
     if(perfect){
       status.textContent = "You scored 100%. Great time to move on to the next activity.";
     }else if(fromDailyChallenge){
-      status.textContent = `Daily Challenge quiz complete. You scored ${percent}% — use Fix to review ${misses} ${misses === 1 ? "answer" : "answers"}.`;
+      status.textContent = `You scored ${percent}%. Daily Challenge quiz progress unlocks at 100% — use Fix to review ${misses} ${misses === 1 ? "answer" : "answers"}.`;
     }else{
       status.textContent = `You scored ${percent}%. Review ${misses} incorrect ${misses === 1 ? "answer" : "answers"} with Fix.`;
     }
@@ -20652,7 +20657,7 @@ function showQuizCompleteModal(){
     if(perfect){
       explainNode.textContent = "Suggestion: continue to flashcards for the next activity.";
     }else if(fromDailyChallenge){
-      explainNode.textContent = "Daily quiz activity complete. Choose Fix to strengthen weak answers.";
+      explainNode.textContent = "Keep going until you hit 100% to complete the Daily quiz activity.";
     }else{
       explainNode.textContent = "Choose Fix to go over your incorrect answers and improve your score.";
     }
