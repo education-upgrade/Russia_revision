@@ -1105,6 +1105,13 @@
     }
     .choiceBtn.correct{border-color: rgba(126,185,170,.9); background: rgba(126,185,170,.12)}
     .choiceBtn.wrong{border-color: rgba(183,142,161,.9); background: rgba(183,142,161,.10)}
+    .choiceBtn.feedbackFlash{
+      animation:choiceFeedbackFlash .42s ease-in-out 2;
+    }
+    @keyframes choiceFeedbackFlash{
+      0%,100%{ transform:scale(1); }
+      50%{ transform:scale(1.02); }
+    }
 
     .masteryWrap{margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:14px;background:rgba(246,250,255,.92)}
     .masteryTrack{height:10px;border-radius:999px;background:rgba(0,0,0,.08);overflow:hidden}
@@ -20467,7 +20474,8 @@ function getJourneyQuizPool(topicId){
 }
 
 /* QUIZ state + streaks */
-let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED", fromDailyChallenge:false };
+const QUIZ_FEEDBACK_DELAY_MS = 800;
+let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED", fromDailyChallenge:false, feedbackTimer:null };
 
 function inferChoiceType(answer){
   const a = String(answer||"").trim();
@@ -20706,6 +20714,8 @@ function startQuiz(useErrorBank=false){
   QUIZ.topicId = topicId;
   QUIZ.mode = mode;
   QUIZ.fromDailyChallenge = !!(NEXT_QUIZ_FROM_DAILY_CHALLENGE || (useErrorBank && QUIZ.fromDailyChallenge));
+  clearTimeout(QUIZ.feedbackTimer);
+  QUIZ.feedbackTimer = null;
   NEXT_QUIZ_FROM_DAILY_CHALLENGE = false;
   if(!useErrorBank) QUIZ.errorBank = [];
 
@@ -20827,6 +20837,8 @@ function renderQuizQ(){
       bucket.attempted += 1;
 
       const correct = (choice === q.answer);
+      const buttons = [...$("quizChoices").querySelectorAll(".choiceBtn")];
+      buttons.forEach(btn=>btn.disabled = true);
       if(correct){
         QUIZ.score++;
         markJourneyQuizQuestionComplete(q);
@@ -20838,14 +20850,16 @@ function renderQuizQ(){
         bucket.bestStreak = Math.max(bucket.bestStreak||0, QUIZ.best);
         STATE.quiz.bestStreakAllTime = Math.max(STATE.quiz.bestStreakAllTime||0, QUIZ.best);
 
-        b.classList.add("correct");
+        b.classList.add("correct", "feedbackFlash");
 
         if(QUIZ.streak > 0 && QUIZ.streak % 5 === 0){
           confetti.burst(90);
         }
       }else{
         QUIZ.streak = 0;
-        b.classList.add("wrong");
+        b.classList.add("wrong", "feedbackFlash");
+        const correctButton = buttons.find(btn=>btn.textContent === q.answer);
+        if(correctButton) correctButton.classList.add("correct");
         QUIZ.errorBank.push({ q:q.q, picked:choice, answer:q.answer, explain:q.explain, sourceQ:q });
       }
 
@@ -20853,16 +20867,14 @@ function renderQuizQ(){
 
       saveState();
 
-      showQuizResultModal({
-        correct,
-        picked: choice,
-        answer: q.answer,
-        explain: q.explain
-      });
-
       $("quizExplainer").textContent = `Error bank: ${QUIZ.errorBank.length} · Progress ${computeProgressScore()}% · Weekly ${weeklyPercent()}%`;
       updateQuizMasteryUi();
       computeKpis();
+
+      clearTimeout(QUIZ.feedbackTimer);
+      QUIZ.feedbackTimer = setTimeout(()=>{
+        if(QUIZ.locked) $("btnNextQ").click();
+      }, QUIZ_FEEDBACK_DELAY_MS);
     });
 
     $("quizChoices").appendChild(b);
