@@ -1,7 +1,7 @@
 /* service-worker.js
    Minimal PWA cache with explicit precache list (includes header-bg.jpg)
 */
-const CACHE_NAME = "russia-1855-1964-v11";
+const CACHE_NAME = "eduupgrade-russia-v1";
 
 const PRECACHE_URLS = [
   "./",
