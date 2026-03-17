@@ -1,16 +1,22 @@
 /* service-worker.js
    Minimal PWA cache with explicit precache list (includes header-bg.jpg)
 */
-const CACHE_NAME = "eduupgrade-russia-v2";
+const CACHE_NAME = "eduupgrade-russia-v3";
 
 const PRECACHE_URLS = [
   "./",
   "./index.html",
+  "./manifest.webmanifest?v=3",
   "./manifest.webmanifest",
+  "./apple-touch-icon.png?v=3",
   "./apple-touch-icon.png",
+  "./icon-192.png?v=3",
   "./icon-192.png",
+  "./icon-192-maskable.png?v=3",
   "./icon-192-maskable.png",
+  "./icon-512.png?v=3",
   "./icon-512.png",
+  "./icon-512-maskable.png?v=3",
   "./icon-512-maskable.png",
   "./header-bg.jpg",
   "./section-bg.jpg",
