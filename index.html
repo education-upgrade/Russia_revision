@@ -11160,7 +11160,18 @@ function launchLessonFromTopic(topic, lessonId, preferResume=true){
   const topicThemes = Array.isArray(topic.themes) ? topic.themes : [];
   const matchedTheme = topicThemes.find(theme=>Array.isArray(theme.lessons) && theme.lessons.some(lesson=>lesson.id===lessonId));
   if(!matchedTheme) return false;
+  lessonsNav.topicId = topic.id;
   return openLesson(lessonId, matchedTheme.id);
+}
+
+function openRecommendedLessonForTopic(topicId){
+  const topic = lessonsData.find(t=>t.id===topicId);
+  if(!topic || !isTopicEnabled(topic.id)) return false;
+  const recommended = getRecommendedNext(topic.id);
+  if(recommended?.lessonId) return launchLessonFromTopic(topic, recommended.lessonId);
+  const fallbackLesson = getTopicLessons(topic)[0] || null;
+  if(!fallbackLesson) return false;
+  return launchLessonFromTopic(topic, fallbackLesson.id);
 }
 
 function openLesson(lessonId, themeIdOverride=null){
@@ -18738,7 +18749,7 @@ function getTopicJourneyStatusLabel(topicId){
 
 function getJourneyNextStep(topicId){
   const p = getJourneyStageProgress(topicId);
-  if(p.lessons < 100) return { key:"lessons", label:"Complete Lessons", sub:"Move through key enquiries", action:()=>{ setTab("lessons"); } };
+  if(p.lessons < 100) return { key:"lessons", label:"Complete Lessons", sub:"Move through key enquiries", action:()=>{ if(openRecommendedLessonForTopic(topicId)){ setTab("lessons"); return; } setTab("lessons"); } };
   if(p.study < 100) return { key:"study", label:"Complete Study", sub:"Review flashcards for this topic", action:()=>openStudyForTopic(topicId, "journey") };
   if(p.quiz < 100) return { key:"quiz", label:"Start Quiz", sub:"Check secure retrieval", action:()=>goDailyQuiz(topicId) };
   if(p.games < 100) return { key:"games", label:"Play Games", sub:"Strengthen speed and recall", action:()=>{ setTab("games"); } };
@@ -19979,6 +19990,10 @@ function goDailyLesson(){
   const d = ensureDaily();
   d.lastStep = "lesson";
   saveState();
+  if(openRecommendedLessonForTopic(d.topicId)){
+    setTab("lessons");
+    return;
+  }
   setTab("lessons");
 }
 function goDailyGame(){
