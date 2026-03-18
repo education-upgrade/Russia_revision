@@ -494,6 +494,35 @@
   font-size:11px;
 }
 
+@media (max-width:560px){
+  .topicDash{
+    gap:18px;
+  }
+  .journeyStep{
+    grid-template-columns:1fr;
+    row-gap:10px;
+  }
+  .journeyRail{
+    justify-content:flex-start;
+    padding-left:10px;
+  }
+  .journeyRail::before{
+    left:34px;
+    top:34px;
+    bottom:-28px;
+    width:5px;
+  }
+  .journeyStep:first-child .journeyRail::before{
+    top:34px;
+  }
+  .journeyStep:last-child .journeyRail::before{
+    bottom:-6px;
+  }
+  .journeyMilestone{
+    width:100%;
+  }
+}
+
 @media (max-width:420px){
   .journeyMilestoneRing{width:68px;height:68px}
   .journeyMilestoneRingInner{width:52px;height:52px}
