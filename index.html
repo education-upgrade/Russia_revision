@@ -20208,7 +20208,11 @@ function openDailyCoachDialog(forceRefresh=false){
   const daily = ensureDaily();
   const doneToday = !!daily.completed;
   const recoTopicId = (reco?.topicId && reco.topicId !== "MIXED" && isTopicEnabled(reco.topicId)) ? reco.topicId : daily.topicId;
-  const resume = getJourneyResumeConfig(doneToday ? recoTopicId : daily.topicId);
+  const currentJourneyTopicId = getCurrentJourneyTopicId();
+  const resumeTopicId = (currentJourneyTopicId && isTopicEnabled(currentJourneyTopicId))
+    ? currentJourneyTopicId
+    : (doneToday ? recoTopicId : daily.topicId);
+  const resume = getJourneyResumeConfig(resumeTopicId);
 
   const titleNode = $("dailyCoachTitle");
   const msgNode = $("dailyCoachMessage");
