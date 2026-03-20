@@ -10063,22 +10063,30 @@ function markJourneyCardComplete(cardId){
   STATE.journey.completedQuizQuestions ||= {};
   STATE.journey.completedCards[cardId] = 1;
 }
+function getJourneyQuizQuestionKey(question){
+  if(question?.id) return String(question.id);
+  const topicId = String(question?.topicId || "mixed");
+  const prompt = String(question?.q || "").trim();
+  const answer = String(question?.answer || "").trim();
+  if(!prompt || !answer) return "";
+  return `journey-quiz-${topicId}-${hashSeed(`${topicId}::${prompt}::${answer}`)}`;
+}
 function isJourneyQuizQuestionComplete(question){
-  const questionId = question?.id;
+  const questionId = getJourneyQuizQuestionKey(question);
   if(!questionId) return false;
   STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
   STATE.journey.completedQuizQuestions ||= {};
   return !!STATE.journey.completedQuizQuestions[questionId];
 }
 function markJourneyQuizQuestionComplete(question){
-  const questionId = question?.id;
+  const questionId = getJourneyQuizQuestionKey(question);
   if(!questionId) return;
   STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
   STATE.journey.completedQuizQuestions ||= {};
   STATE.journey.completedQuizQuestions[questionId] = 1;
 }
 function resetJourneyQuizQuestionComplete(question){
-  const questionId = question?.id;
+  const questionId = getJourneyQuizQuestionKey(question);
   if(!questionId) return;
   STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
   STATE.journey.completedQuizQuestions ||= {};
