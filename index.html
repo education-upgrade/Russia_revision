@@ -2106,6 +2106,137 @@ section#games.gamePaneActive .gamesHeroCard{
   .bcGrid{ grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 
+
+.spaceInvadersCard{
+  display:grid;
+  gap:12px;
+}
+.spaceHud{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:8px;
+}
+.spaceArena{
+  position:relative;
+  min-height:540px;
+  border:1px solid color-mix(in srgb, var(--line) 72%, var(--accent2) 28%);
+  border-radius:22px;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255,255,255,.72) 0 2px, transparent 3px),
+    radial-gradient(circle at 72% 24%, rgba(255,255,255,.55) 0 1.5px, transparent 3px),
+    radial-gradient(circle at 48% 62%, rgba(255,255,255,.65) 0 2px, transparent 3px),
+    linear-gradient(180deg, #10203c 0%, #17365f 56%, #204e78 100%);
+}
+.spaceDefinition{
+  position:absolute;
+  left:14px;
+  right:14px;
+  top:14px;
+  z-index:4;
+  padding:12px 14px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(10,18,32,.64);
+  color:#f7fbff;
+  box-shadow:0 10px 20px rgba(0,0,0,.18);
+}
+.spaceDefinitionLabel{
+  font-size:11px;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  font-weight:900;
+  opacity:.78;
+}
+.spaceDefinitionText{
+  margin-top:6px;
+  font-size:18px;
+  line-height:1.42;
+  font-weight:800;
+}
+.spaceBoard{
+  position:absolute;
+  inset:104px 12px 96px;
+}
+.spaceInvader{
+  position:absolute;
+  width:22%;
+  min-height:70px;
+  padding:10px 8px;
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.22);
+  background:linear-gradient(180deg, rgba(241,247,255,.96), rgba(198,220,243,.93));
+  color:var(--textStrong);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  font-size:12px;
+  line-height:1.2;
+  font-weight:1000;
+  box-shadow:0 12px 24px rgba(4,12,26,.22);
+}
+.spaceInvader.correctTarget{
+  box-shadow:0 0 0 2px rgba(126,185,170,.72), 0 12px 24px rgba(4,12,26,.22);
+}
+.spaceInvader.danger{
+  background:linear-gradient(180deg, rgba(255,232,238,.96), rgba(232,183,196,.92));
+}
+.spaceCannon{
+  position:absolute;
+  bottom:18px;
+  left:50%;
+  transform:translateX(-50%);
+  width:min(130px, 32vw);
+  height:62px;
+  border-radius:22px 22px 16px 16px;
+  background:linear-gradient(180deg, rgba(255,255,255,.96), rgba(189,215,241,.94));
+  border:1px solid rgba(255,255,255,.4);
+  box-shadow:0 12px 20px rgba(5,15,30,.28);
+}
+.spaceCannon::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:-18px;
+  transform:translateX(-50%);
+  width:18px;
+  height:34px;
+  border-radius:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,.98), rgba(176,206,236,.94));
+  border:1px solid rgba(255,255,255,.42);
+}
+.spaceShot{
+  position:absolute;
+  width:10px;
+  height:28px;
+  border-radius:999px;
+  background:linear-gradient(180deg, #fff6c9, #ffd54d);
+  box-shadow:0 0 12px rgba(255,221,112,.9);
+}
+.spaceLaneBtns{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+}
+.spaceLaneBtn{
+  min-height:58px;
+  border-radius:16px;
+  border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
+  background:#fff;
+  font-weight:900;
+  font-size:15px;
+}
+.spaceLaneBtn small{ display:block; font-size:11px; color:var(--muted); margin-top:3px; }
+.spaceKeyHint{ font-size:12px; color:var(--muted); font-weight:800; }
+@media (max-width:700px){
+  .spaceArena{ min-height:500px; }
+  .spaceDefinitionText{ font-size:16px; }
+  .spaceBoard{ inset:112px 8px 92px; }
+  .spaceInvader{ width:23.5%; font-size:11px; min-height:64px; padding:8px 6px; }
+  .spaceLaneBtns{ grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+
 .gamePaneTop{
   position:sticky;
   top:0;
@@ -4085,6 +4216,11 @@ section#games.gamePaneActive .gamesHeroCard{
         <div class="gamePillTop"><div class="gamePillTitle">Snake Quiz</div><span class="gameMetaTag">Arcade recall</span></div>
         <div class="gamePillDesc">Steer the snake to A/B/C answers. Eat the correct one to grow.</div>
       </button>
+
+      <button class="gamePillBtn" type="button" id="openSpaceKeywordsBtn">
+        <div class="gamePillTop"><div class="gamePillTitle">Space Keywords</div><span class="gameMetaTag">Definition blaster</span></div>
+        <div class="gamePillDesc">Shoot the correct keyword before the invaders break through your shield.</div>
+      </button>
     </div>
 
     <!-- Connections game screen -->
@@ -4357,6 +4493,63 @@ section#games.gamePaneActive .gamesHeroCard{
             <div class="grow" style="min-width:220px">
               <label>Topic</label>
               <select id="snakeTopicSelect"></select>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <!-- Space Keywords game screen -->
+    <div id="gamesSpaceKeywordsPane" class="gamePane hidden">
+      <div class="gamePaneTop">
+        <button class="gamesBackPill" type="button" id="backFromSpaceKeywords" aria-label="Back to Games">
+          <svg class="gamesHeroIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg>
+          <span>Games</span>
+        </button>
+      </div>
+      <div class="card gameStageCard spaceInvadersCard">
+        <div class="gameMissionBar">
+          <div>
+            <div class="gameMissionTitle">Space Keywords</div>
+            <p class="gameMissionHint">A space-invaders style challenge: read the definition and blast the correct keyword.</p>
+          </div>
+          <button class="btn primary" id="btnStartSpaceKeywords" type="button">🚀 Start mission</button>
+        </div>
+
+        <div class="spaceHud">
+          <div class="pill" id="spaceTopicPill">Topic: Mixed</div>
+          <div class="pill" id="spaceScorePill">Score: 0</div>
+          <div class="pill" id="spaceLivesPill">Shields: 3</div>
+          <div class="pill" id="spaceBestPill">🏆 Best: 0</div>
+        </div>
+
+        <div class="spaceArena" aria-label="Space Keywords arena">
+          <div class="spaceDefinition">
+            <div class="spaceDefinitionLabel">Definition target</div>
+            <div class="spaceDefinitionText" id="spaceDefinitionText">Launch the mission to receive a definition.</div>
+          </div>
+          <div class="spaceBoard" id="spaceBoard"></div>
+          <div class="spaceCannon" aria-hidden="true"></div>
+        </div>
+
+        <div class="spaceLaneBtns" id="spaceLaneBtns">
+          <button class="spaceLaneBtn" type="button" data-lane="0">Lane 1<small>Press 1</small></button>
+          <button class="spaceLaneBtn" type="button" data-lane="1">Lane 2<small>Press 2</small></button>
+          <button class="spaceLaneBtn" type="button" data-lane="2">Lane 3<small>Press 3</small></button>
+          <button class="spaceLaneBtn" type="button" data-lane="3">Lane 4<small>Press 4</small></button>
+        </div>
+
+        <div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap">
+          <div class="spaceKeyHint">Tap a lane or press keys 1–4 to fire. Clear 8 invaders for a perfect run.</div>
+          <div class="connMsg" id="spaceMsg">Wrong shots or missed targets cost a shield.</div>
+        </div>
+
+        <details class="gameTuning">
+          <summary>Adjust game options</summary>
+          <div class="gameTuningBody row" style="margin:0;align-items:flex-end">
+            <div class="grow" style="min-width:220px">
+              <label>Topic</label>
+              <select id="spaceTopicSelect"></select>
             </div>
           </div>
         </details>
@@ -10797,8 +10990,8 @@ function openGamePane(paneId){
   window.scrollTo(0,0);
 }
 window.addEventListener("DOMContentLoaded", ()=>{
-  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn"), openSnakeQuiz = $("openSnakeQuizBtn");
-  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock"), backSnakeQuiz = $("backFromSnakeQuiz");
+  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn"), openSnakeQuiz = $("openSnakeQuizBtn"), openSpaceKeywords = $("openSpaceKeywordsBtn");
+  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock"), backSnakeQuiz = $("backFromSnakeQuiz"), backSpaceKeywords = $("backFromSpaceKeywords");
   const quickStart = $("gamesQuickStartBtn");
   const resume = $("gamesResumeBtn");
 
@@ -10836,6 +11029,11 @@ window.addEventListener("DOMContentLoaded", ()=>{
     if(pane === "gamesSnakeQuizPane"){
       const btn = $("btnStartSnakeQuiz");
       if(btn) btn.click();
+      return;
+    }
+    if(pane === "gamesSpaceKeywordsPane"){
+      const btn = $("btnStartSpaceKeywords");
+      if(btn) btn.click();
     }
   }
 
@@ -10849,9 +11047,14 @@ window.addEventListener("DOMContentLoaded", ()=>{
     markGameSessionCompleted("snake_quiz", topic === "MIXED" ? getDailyTopicId() : topic);
     launchGameNow("gamesSnakeQuizPane");
   });
+  if(openSpaceKeywords) openSpaceKeywords.addEventListener("click", ()=>{
+    const topic = $("spaceTopicSelect")?.value || "MIXED";
+    markGameSessionCompleted("space_keywords", topic === "MIXED" ? getDailyTopicId() : topic);
+    launchGameNow("gamesSpaceKeywordsPane");
+  });
 
   if(quickStart) quickStart.addEventListener("click", ()=>{
-    const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakeQuizPane"];
+    const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakeQuizPane","gamesSpaceKeywordsPane"];
     const pane = picker[Math.floor(Math.random()*picker.length)];
     launchGameNow(pane);
   });
@@ -10863,6 +11066,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(backTimeline) backTimeline.addEventListener("click", gamesShowHub);
   if(backBeatClock) backBeatClock.addEventListener("click", gamesShowHub);
   if(backSnakeQuiz) backSnakeQuiz.addEventListener("click", gamesShowHub);
+  if(backSpaceKeywords) backSpaceKeywords.addEventListener("click", gamesShowHub);
 
   updateGamesHubMeta();
   initTimelineGame();
@@ -19319,6 +19523,7 @@ function populateTopics(){
   const selMatch = $("matchTopicSelect");
   const selEmoji = $("emojiTopicSelect");
   const selSnake = $("snakeTopicSelect");
+  const selSpace = $("spaceTopicSelect");
   const selExamFilter = $("examTopicSelect");
 
   sel.innerHTML = "";
@@ -19326,6 +19531,7 @@ function populateTopics(){
   selMatch.innerHTML = "";
   selEmoji.innerHTML = "";
   selSnake.innerHTML = "";
+  selSpace.innerHTML = "";
   selExamFilter.innerHTML = "";
 
   const optAll = document.createElement("option");
@@ -19343,6 +19549,7 @@ function populateTopics(){
   addMixed(selMatch);
   addMixed(selEmoji);
   addMixed(selSnake);
+  addMixed(selSpace);
 
   const exAll = document.createElement("option");
   exAll.value="ALL"; exAll.textContent="🌍 All topics";
@@ -19376,7 +19583,11 @@ function populateTopics(){
 
     const o6 = document.createElement("option");
     o6.value = t.id; o6.textContent = t.title;
-    selExamFilter.appendChild(o6);
+    selSpace.appendChild(o6);
+
+    const o7 = document.createElement("option");
+    o7.value = t.id; o7.textContent = t.title;
+    selExamFilter.appendChild(o7);
   });
 }
 
@@ -21394,6 +21605,184 @@ $("btnStartEmoji").addEventListener("click", ()=>{
 $("emojiTopicSelect").addEventListener("change", startEmojiRound);
 $("emojiMode").addEventListener("change", startEmojiRound);
 
+
+/* ==========================================================
+   SPACE KEYWORDS GAME
+   ========================================================== */
+let SPACE = {
+  topicId: "MIXED",
+  pool: [],
+  board: [],
+  target: null,
+  score: 0,
+  best: 0,
+  lives: 3,
+  resolved: false,
+  running: false,
+  tickMs: 260,
+  shots: [],
+  timer: null
+};
+
+function getSpaceKeywordPool(topicId){
+  const allowed = enabledTopicIds();
+  const topicIds = topicId === "MIXED" ? allowed : allowed.filter(id=>id===topicId);
+  const out = [];
+  topicIds.forEach(tid=>{
+    (FACT_BANK[tid]?.terms || []).forEach(item=>{
+      const term = String(item.term || "").trim();
+      const meaning = String(item.meaning || "").trim();
+      if(term && meaning) out.push({ topicId:tid, term, meaning });
+    });
+  });
+  return dedupeByName(out.map(item=>({ name:item.term, ...item }))).map(({name, ...rest})=>rest);
+}
+function startSpaceKeywordsGame(){
+  const topicId = $("spaceTopicSelect")?.value || "MIXED";
+  const pool = shuffle(getSpaceKeywordPool(topicId));
+  if(pool.length < 8){
+    $("spaceMsg").textContent = "Need at least 8 keyword definitions for this topic.";
+    return;
+  }
+  if(SPACE.timer) clearInterval(SPACE.timer);
+  SPACE = {
+    topicId,
+    pool,
+    board: [],
+    target: null,
+    score: 0,
+    best: Math.max(SPACE.best || 0, Number(localStorage.getItem("spaceKeywordsBest") || 0)),
+    lives: 3,
+    resolved: false,
+    running: true,
+    tickMs: 260,
+    shots: [],
+    timer: null
+  };
+  fillSpaceBoard();
+  updateSpaceHud();
+  $("spaceMsg").textContent = "Blast the term that matches the definition.";
+  SPACE.timer = setInterval(spaceTick, SPACE.tickMs);
+}
+function fillSpaceBoard(){
+  const target = SPACE.pool.shift();
+  if(!target){ endSpaceKeywordsGame(true); return; }
+  const distractors = shuffle(getSpaceKeywordPool(SPACE.topicId).filter(item=>item.term !== target.term && item.meaning !== target.meaning)).slice(0,3);
+  const choices = shuffle([target, ...distractors]).slice(0,4);
+  SPACE.target = target;
+  SPACE.resolved = false;
+  SPACE.board = choices.map((item, lane)=>(
+    { lane, item, x: lane * 25.5 + 1, y: 0, speed: 1.3 + Math.random() * .45 }
+  ));
+  $("spaceDefinitionText").textContent = target.meaning;
+  renderSpaceBoard();
+}
+function renderSpaceBoard(){
+  const board = $("spaceBoard");
+  if(!board) return;
+  board.innerHTML = "";
+  SPACE.board.forEach(inv=>{
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "spaceInvader" + (inv.item.term === SPACE.target?.term ? " correctTarget" : "");
+    if(inv.y > 72) el.classList.add("danger");
+    el.style.left = `${inv.x}%`;
+    el.style.top = `${inv.y}%`;
+    el.textContent = inv.item.term;
+    el.addEventListener("click", ()=>fireSpaceLane(inv.lane));
+    board.appendChild(el);
+  });
+  SPACE.shots.forEach(shot=>{
+    const el = document.createElement("div");
+    el.className = "spaceShot";
+    el.style.left = `${shot.x}%`;
+    el.style.bottom = `${shot.bottom}%`;
+    board.appendChild(el);
+  });
+}
+function updateSpaceHud(){
+  const topicTitle = SPACE.topicId === "MIXED" ? "Mixed" : (TOPICS.find(t=>t.id===SPACE.topicId)?.title || "Mixed");
+  $("spaceTopicPill").textContent = `Topic: ${topicTitle}`;
+  $("spaceScorePill").textContent = `Score: ${SPACE.score}`;
+  $("spaceLivesPill").textContent = `Shields: ${SPACE.lives}`;
+  $("spaceBestPill").textContent = `🏆 Best: ${SPACE.best}`;
+}
+function fireSpaceLane(lane){
+  if(!SPACE.running || SPACE.resolved) return;
+  const laneInv = SPACE.board.find(inv=>inv.lane===lane);
+  SPACE.shots.push({ lane, x: lane * 25.5 + 12, bottom: 0, hitY: laneInv ? laneInv.y : 72 });
+  if(laneInv && laneInv.item.term === SPACE.target?.term){
+    SPACE.resolved = true;
+    SPACE.score++;
+    SPACE.best = Math.max(SPACE.best, SPACE.score);
+    try{ localStorage.setItem("spaceKeywordsBest", String(SPACE.best)); }catch(_err){}
+    $("spaceMsg").textContent = `✅ ${SPACE.target.term} destroyed.`;
+    updateSpaceHud();
+    window.setTimeout(()=>{
+      SPACE.shots = [];
+      fillSpaceBoard();
+      if(SPACE.score >= 8) endSpaceKeywordsGame(true);
+    }, 320);
+  }else{
+    SPACE.resolved = true;
+    loseSpaceLife("❌ Wrong target. One shield lost.");
+  }
+  renderSpaceBoard();
+}
+function loseSpaceLife(message){
+  SPACE.lives = Math.max(0, SPACE.lives - 1);
+  $("spaceMsg").textContent = message;
+  updateSpaceHud();
+  if(SPACE.lives <= 0){
+    endSpaceKeywordsGame(false);
+    return;
+  }
+  window.setTimeout(()=>{
+    SPACE.shots = [];
+    fillSpaceBoard();
+  }, 420);
+}
+function endSpaceKeywordsGame(won){
+  SPACE.running = false;
+  if(SPACE.timer) clearInterval(SPACE.timer);
+  SPACE.timer = null;
+  SPACE.shots = [];
+  renderSpaceBoard();
+  if(won){
+    $("spaceMsg").textContent = SPACE.score >= 8 ? "🏆 Mission complete. You cleared all 8 waves." : "Mission clear.";
+    confetti.burst(140);
+  }else{
+    $("spaceMsg").textContent = `Game over. Final score: ${SPACE.score}. Tap Start mission to try again.`;
+  }
+}
+function spaceTick(){
+  if(!SPACE.running) return;
+  SPACE.shots = SPACE.shots.map(shot=>({ ...shot, bottom: shot.bottom + 11 })).filter(shot=>shot.bottom < 100);
+  if(SPACE.resolved){ renderSpaceBoard(); return; }
+  SPACE.board.forEach(inv=>{ inv.y += inv.speed; });
+  const breached = SPACE.board.some(inv=>inv.y >= 80 && inv.item.term === SPACE.target?.term);
+  if(breached){
+    SPACE.resolved = true;
+    loseSpaceLife("💥 The correct keyword broke through your shield.");
+  }
+  renderSpaceBoard();
+}
+$("btnStartSpaceKeywords")?.addEventListener("click", startSpaceKeywordsGame);
+$("spaceTopicSelect")?.addEventListener("change", ()=>{
+  $("spaceDefinitionText").textContent = "Topic changed. Start a fresh mission when ready.";
+  $("spaceMsg").textContent = "Wrong shots or missed targets cost a shield.";
+});
+$("spaceLaneBtns")?.querySelectorAll(".spaceLaneBtn").forEach(btn=>{
+  btn.addEventListener("click", ()=>fireSpaceLane(Number(btn.dataset.lane)));
+});
+document.addEventListener("keydown", (e)=>{
+  if($("gamesSpaceKeywordsPane")?.classList.contains("hidden")) return;
+  if(["1","2","3","4"].includes(e.key)){
+    e.preventDefault();
+    fireSpaceLane(Number(e.key) - 1);
+  }
+});
+
 /* ==========================================================
    MATCHING GAME
    ========================================================== */
@@ -21776,6 +22165,7 @@ function init(){
     $("emojiTopicSelect").value = "MIXED";
     $("matchTopicSelect").value = "MIXED";
     if($("snakeTopicSelect")) $("snakeTopicSelect").value = "MIXED";
+    if($("spaceTopicSelect")) $("spaceTopicSelect").value = "MIXED";
     $("examTopicSelect").value = "ALL";
 
     renderExamSelect();
