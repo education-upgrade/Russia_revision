@@ -9781,6 +9781,13 @@ function markJourneyQuizQuestionComplete(question){
   STATE.journey.completedQuizQuestions ||= {};
   STATE.journey.completedQuizQuestions[questionId] = 1;
 }
+function resetJourneyQuizQuestionComplete(question){
+  const questionId = question?.id;
+  if(!questionId) return;
+  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
+  STATE.journey.completedQuizQuestions ||= {};
+  delete STATE.journey.completedQuizQuestions[questionId];
+}
 function getJourneyCardsForTopic(topicId){
   return ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId) && !isJourneyCardComplete(c.id));
 }
@@ -18682,8 +18689,11 @@ function getJourneyStageProgress(topicId){
   const lessonPercent = topic ? getTopicProgressSummary(topic).percent : 0;
   const journeyStudy = getJourneyStudyStats(topicId);
   const studyPercent = journeyStudy.total > 0 ? Math.round((journeyStudy.done / journeyStudy.total) * 100) : 100;
-  const quiz = topicQuizStats(topicId);
-  const quizPercent = Math.max(0, Math.min(100, Number(quiz.quizBestPercent||0)));
+  const topicQuizPool = getQuizPool(topicId);
+  const totalQuizQuestions = topicQuizPool.length;
+  const remainingQuizQuestions = getJourneyQuizPool(topicId).length;
+  const completedQuizQuestions = Math.max(0, totalQuizQuestions - remainingQuizQuestions);
+  const quizPercent = totalQuizQuestions > 0 ? Math.round((completedQuizQuestions / totalQuizQuestions) * 100) : 100;
   const stats = touchTopicStats(topicId);
   const gamesDone = Number(stats.gameCompletions||0);
   const gamesPercent = Math.max(0, Math.min(100, Math.round((gamesDone / 6) * 100)));
@@ -20496,7 +20506,7 @@ function getJourneyQuizPool(topicId){
 
 /* QUIZ state + streaks */
 const QUIZ_FEEDBACK_DELAY_MS = 800;
-let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED", fromDailyChallenge:false, feedbackTimer:null };
+let QUIZ = { list:[], idx:0, score:0, locked:false, streak:0, best:0, errorBank:[], mode:"standard", topicId:"MIXED", fromDailyChallenge:false, feedbackTimer:null, usingErrorBank:false };
 
 function inferChoiceType(answer){
   const a = String(answer||"").trim();
@@ -20735,6 +20745,7 @@ function startQuiz(useErrorBank=false){
   QUIZ.topicId = topicId;
   QUIZ.mode = mode;
   QUIZ.fromDailyChallenge = !!(NEXT_QUIZ_FROM_DAILY_CHALLENGE || (useErrorBank && QUIZ.fromDailyChallenge));
+  QUIZ.usingErrorBank = !!useErrorBank;
   clearTimeout(QUIZ.feedbackTimer);
   QUIZ.feedbackTimer = null;
   NEXT_QUIZ_FROM_DAILY_CHALLENGE = false;
@@ -20862,7 +20873,7 @@ function renderQuizQ(){
       buttons.forEach(btn=>btn.disabled = true);
       if(correct){
         QUIZ.score++;
-        markJourneyQuizQuestionComplete(q);
+        if(!QUIZ.usingErrorBank) markJourneyQuizQuestionComplete(q);
         STATE.quiz.correct = (STATE.quiz.correct||0) + 1;
         bucket.correct += 1;
 
@@ -20877,6 +20888,7 @@ function renderQuizQ(){
           confetti.burst(90);
         }
       }else{
+        resetJourneyQuizQuestionComplete(q);
         QUIZ.streak = 0;
         b.classList.add("wrong", "feedbackFlash");
         const correctButton = buttons.find(btn=>btn.textContent === q.answer);
