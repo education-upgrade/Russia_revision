@@ -4219,8 +4219,8 @@ section#games.gamePaneActive .gamesHeroCard{
       </button>
 
       <button class="gamePillBtn" type="button" id="openSnakeQuizBtn">
-        <div class="gamePillTop"><div class="gamePillTitle">Snake Quiz</div><span class="gameMetaTag">Arcade recall</span></div>
-        <div class="gamePillDesc">Steer the snake to A/B/C answers. Eat the correct one to grow.</div>
+        <div class="gamePillTop"><div class="gamePillTitle">Pac-Man Keyword Chase</div><span class="gameMetaTag">Arcade recall</span></div>
+        <div class="gamePillDesc">Chase the correct keyword for the definition before a ghost or wrong pick ends the round.</div>
       </button>
 
       <button class="gamePillBtn" type="button" id="openSpaceKeywordsBtn">
@@ -4468,12 +4468,18 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
       <div class="card gameStageCard">
         <div class="snakeHeaderCompact">
-          <div class="gameMissionTitle">Snake Quiz</div>
-          <p class="gameMissionHint">Eat the correct A/B/C block to grow. Wrong answer ends the run.</p>
+          <div class="gameMissionTitle">Pac-Man Keyword Chase</div>
+          <p class="gameMissionHint">Read the definition, chase the correct keyword, and avoid ghosts. One mistake ends the run.</p>
+        </div>
+
+        <div class="snakeQuestionBox" style="margin-top:10px">
+          <div class="spaceDefinitionLabel">Definition target</div>
+          <div id="snakeDefinitionText" class="spaceDefinitionText" style="margin-top:0;color:var(--textStrong)">Press start to load a definition.</div>
+          <div class="note" id="snakeChoiceLegend">Correct keyword and decoys will appear inside the maze.</div>
         </div>
 
         <div class="snakeQuizCanvasWrap" style="margin-top:10px">
-          <canvas id="snakeQuizCanvas" width="520" height="520" aria-label="Snake quiz board"></canvas>
+          <canvas id="snakeQuizCanvas" width="520" height="520" aria-label="Pac-Man keyword chase board"></canvas>
           <div class="snakePad" aria-label="Snake controls">
             <span></span><button class="btn" id="snakeDirUp" type="button">⬆️</button><span></span>
             <button class="btn" id="snakeDirLeft" type="button">⬅️</button>
@@ -4482,14 +4488,14 @@ section#games.gamePaneActive .gamesHeroCard{
           </div>
         </div>
 
-        <div class="connMsg" id="snakeQuizMsg">Use arrow keys or buttons. Walls and wrong answers end the run.</div>
+        <div class="connMsg" id="snakeQuizMsg">Use arrow keys or buttons. Ghost contact or a wrong keyword ends the run.</div>
 
-        <div class="snakeRunControls" aria-label="Snake run controls and stats">
-          <button class="btn primary" id="btnStartSnakeQuiz" type="button">🐍 Start run</button>
+        <div class="snakeRunControls" aria-label="Pac-Man run controls and stats">
+          <button class="btn primary" id="btnStartSnakeQuiz" type="button">🟡 Start chase</button>
           <div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap">
-            <div class="pill" id="snakeQuizLenPill">Length: 3</div>
+            <div class="pill" id="snakeQuizLenPill">Lives: 1</div>
             <div class="pill" id="snakeQuizScorePill">Correct: 0</div>
-            <div class="pill" id="snakeQuizBestPill">🏆 Best length: 3</div>
+            <div class="pill" id="snakeQuizBestPill">🏆 Best streak: 0</div>
           </div>
         </div>
 
@@ -9350,123 +9356,184 @@ function bcSubmit(){
 })();
 
 /* =========================
-   Snake Quiz game logic
+   Pac-Man Keyword Chase game logic
    ========================= */
+const PACMAN_MAZE = [
+  "#############",
+  "#.....#.....#",
+  "#.###.#.###.#",
+  "#...........#",
+  "#.###.#.###.#",
+  "#.#.......#.#",
+  "#.#.##.##.#.#",
+  "#...........#",
+  "#.##.#.#.##.#",
+  "#....#.#....#",
+  "#.##.....##.#",
+  "#.....#.....#",
+  "#############"
+];
+
 const SNAKE_QUIZ = {
-  board: 13,
-  snake: [],
-  dir: {x:1,y:0},
-  nextDir: {x:1,y:0},
-  tickMs: 170,
-  questionPreviewMs: 6000,
-  timer: null,
-  countdownTimer: null,
+  board: PACMAN_MAZE.length,
+  walls: new Set(),
   running: false,
+  timer: null,
+  tickMs: 210,
+  topicId: "MIXED",
+  player: {x:1,y:1},
+  dir: {x:0,y:0},
+  nextDir: {x:0,y:0},
   score: 0,
-  best: Number(localStorage.getItem("snake_quiz_best_length") || 3),
+  best: Number(localStorage.getItem("pacman_keyword_best") || 0),
   q: null,
-  topicId: "MIXED"
+  ghosts: [],
+  lives: 1
 };
 
+PACMAN_MAZE.forEach((row,y)=>{
+  row.split("").forEach((cell,x)=>{
+    if(cell === "#") SNAKE_QUIZ.walls.add(`${x},${y}`);
+  });
+});
+
 function snakeEl(id){ return document.getElementById(id); }
-
-function snakeSetMsg(msg){
-  const el = snakeEl("snakeQuizMsg");
-  if(el) el.textContent = msg;
-}
-
-function snakeCloseQuestionDialog(){
-  snakeEl("snakeQuestionOverlay")?.classList.add("hidden");
-  if(SNAKE_QUIZ.countdownTimer){
-    clearInterval(SNAKE_QUIZ.countdownTimer);
-    SNAKE_QUIZ.countdownTimer = null;
-  }
-}
-
-function snakeShowQuestionDialog(onDone, previewMs = SNAKE_QUIZ.questionPreviewMs){
-  const overlay = snakeEl("snakeQuestionOverlay");
-  const q = SNAKE_QUIZ.q;
-  if(!overlay || !q){
-    onDone?.();
-    return;
-  }
-  const countdownEl = snakeEl("snakeQuestionCountdown");
-  const bodyEl = snakeEl("snakeQuestionDialogBody");
-  const choicesEl = snakeEl("snakeQuestionDialogChoices");
-  if(bodyEl) bodyEl.textContent = q.prompt;
-  if(choicesEl){
-    choicesEl.innerHTML = "";
-    q.cells.forEach(c=>{
-      const li = document.createElement("li");
-      li.innerHTML = `<strong>${c.letter}.</strong> ${c.choice}`;
-      choicesEl.appendChild(li);
-    });
-  }
-  const seconds = Math.max(1, Math.ceil((Number(previewMs) || 0) / 1000));
-  let countdown = seconds;
-  if(countdownEl) countdownEl.textContent = String(countdown);
-  overlay.classList.remove("hidden");
-  if(SNAKE_QUIZ.countdownTimer) clearInterval(SNAKE_QUIZ.countdownTimer);
-  SNAKE_QUIZ.countdownTimer = setInterval(()=>{
-    countdown -= 1;
-    if(countdownEl) countdownEl.textContent = String(Math.max(0, countdown));
-    if(countdown <= 0){
-      snakeCloseQuestionDialog();
-      onDone?.();
-    }
-  }, 1000);
-}
-
-function snakeStartTicker(){
-  if(SNAKE_QUIZ.timer) clearInterval(SNAKE_QUIZ.timer);
-  SNAKE_QUIZ.timer = setInterval(snakeTick, SNAKE_QUIZ.tickMs);
-}
-
-function snakeStopTicker(){
-  if(!SNAKE_QUIZ.timer) return;
-  clearInterval(SNAKE_QUIZ.timer);
-  SNAKE_QUIZ.timer = null;
-}
+function snakeCellKey(pos){ return `${pos.x},${pos.y}`; }
+function snakeIsWall(pos){ return SNAKE_QUIZ.walls.has(snakeCellKey(pos)); }
+function snakeSameCell(a,b){ return !!a && !!b && a.x===b.x && a.y===b.y; }
+function snakeSetMsg(msg){ const el = snakeEl("snakeQuizMsg"); if(el) el.textContent = msg; }
 
 function snakePool(topicId){
   return getQuizPool(topicId).filter(q=>Array.isArray(q.choices) && q.choices.length >= 3);
+}
+
+function snakeFreeCells(){
+  const blocked = new Set(SNAKE_QUIZ.ghosts.map(g=>snakeCellKey(g.pos)));
+  blocked.add(snakeCellKey(SNAKE_QUIZ.player));
+  if(SNAKE_QUIZ.q?.cells) SNAKE_QUIZ.q.cells.forEach(c=>blocked.add(snakeCellKey(c.pos)));
+  const cells = [];
+  for(let y=0;y<SNAKE_QUIZ.board;y++){
+    for(let x=0;x<SNAKE_QUIZ.board;x++){
+      const pos = {x,y};
+      if(snakeIsWall(pos)) continue;
+      const key = snakeCellKey(pos);
+      if(blocked.has(key)) continue;
+      cells.push(pos);
+    }
+  }
+  return cells;
+}
+
+function snakeResetActors(){
+  SNAKE_QUIZ.player = {x:1,y:1};
+  SNAKE_QUIZ.dir = {x:0,y:0};
+  SNAKE_QUIZ.nextDir = {x:0,y:0};
+  SNAKE_QUIZ.ghosts = [
+    { pos:{x:11,y:1}, color:"#d94f70" },
+    { pos:{x:11,y:11}, color:"#7b6cf6" },
+    { pos:{x:1,y:11}, color:"#5f9dd9" }
+  ];
+}
+
+function snakeMove(pos, dir){ return {x:pos.x + dir.x, y:pos.y + dir.y}; }
+
+function snakeAvailableDirs(pos, forbidReverse){
+  const dirs = [
+    {x:1,y:0},
+    {x:-1,y:0},
+    {x:0,y:1},
+    {x:0,y:-1}
+  ];
+  return dirs.filter(dir=>{
+    if(forbidReverse && forbidReverse.x === -dir.x && forbidReverse.y === -dir.y) return false;
+    return !snakeIsWall(snakeMove(pos, dir));
+  });
+}
+
+function snakeChooseGhostDir(ghost){
+  const choices = snakeAvailableDirs(ghost.pos, ghost.dir || null);
+  if(!choices.length) return {x:0,y:0};
+  const ranked = choices.slice().sort((a,b)=>{
+    const aPos = snakeMove(ghost.pos, a);
+    const bPos = snakeMove(ghost.pos, b);
+    const aDist = Math.abs(aPos.x - SNAKE_QUIZ.player.x) + Math.abs(aPos.y - SNAKE_QUIZ.player.y);
+    const bDist = Math.abs(bPos.x - SNAKE_QUIZ.player.x) + Math.abs(bPos.y - SNAKE_QUIZ.player.y);
+    return aDist - bDist;
+  });
+  return Math.random() < 0.72 ? ranked[0] : ranked[Math.floor(Math.random()*ranked.length)];
+}
+
+function snakeUpdatePrompt(){
+  const defEl = snakeEl("snakeDefinitionText");
+  const legendEl = snakeEl("snakeChoiceLegend");
+  if(defEl) defEl.textContent = SNAKE_QUIZ.q?.prompt || "Press start to load a definition.";
+  if(legendEl){
+    legendEl.textContent = SNAKE_QUIZ.q?.cells?.map((c, idx)=>`${idx+1}. ${c.choice}`).join(" • ") || "Correct keyword and decoys will appear inside the maze.";
+  }
 }
 
 function snakeNewQuestion(){
   const pool = snakePool(SNAKE_QUIZ.topicId);
   if(!pool.length){
     SNAKE_QUIZ.q = null;
-    snakeSetMsg("Pick another topic and start again.");
+    snakeUpdatePrompt();
+    snakeSetMsg("No keyword set available for this topic. Pick another topic.");
     snakeStop();
     return false;
   }
-
   const pick = pool[Math.floor(Math.random()*pool.length)];
-  const distractors = shuffle(pick.choices.filter(c=>c!==pick.answer)).slice(0,2);
-  const top3 = shuffle([pick.answer, ...distractors]);
-  const answerIdx = top3.findIndex(c=>c===pick.answer);
-  const letters = ["A","B","C"];
-  const occupied = new Set(SNAKE_QUIZ.snake.map(p=>`${p.x},${p.y}`));
-  const available = [];
-  for(let y=0;y<SNAKE_QUIZ.board;y++){
-    for(let x=0;x<SNAKE_QUIZ.board;x++){
-      const key = `${x},${y}`;
-      if(!occupied.has(key)) available.push({x,y});
-    }
+  const distractors = shuffle((pick.choices || []).filter(c=>c!==pick.answer)).slice(0,2);
+  const choices = shuffle([pick.answer, ...distractors]).slice(0,3);
+  const free = shuffle(snakeFreeCells()).slice(0,3);
+  if(free.length < 3){
+    snakeSetMsg("Maze reset for a new chase.");
+    snakeResetActors();
+    return snakeNewQuestion();
   }
-  if(available.length < 3){
-    snakeSetMsg("Board full — huge run. Starting fresh.");
-    snakeStart();
-    return false;
-  }
-
-  const spots = shuffle(available).slice(0,3);
   SNAKE_QUIZ.q = {
     prompt: pick.q,
-    answerIdx,
-    cells: spots.map((pos, idx)=>({ ...pos, letter:letters[idx], idx, choice:top3[idx] }))
+    answer: pick.answer,
+    cells: choices.map((choice, idx)=>(
+      { pos: free[idx], choice, correct: choice===pick.answer }
+    ))
   };
+  snakeUpdatePrompt();
   return true;
+}
+
+function snakeDrawRoundedRect(ctx,x,y,w,h,r){
+  const radius = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+radius,y);
+  ctx.arcTo(x+w,y,x+w,y+h,radius);
+  ctx.arcTo(x+w,y+h,x,y+h,radius);
+  ctx.arcTo(x,y+h,x,y,radius);
+  ctx.arcTo(x,y,x+w,y,radius);
+  ctx.closePath();
+}
+
+function snakeDrawTextBlock(ctx,text,x,y,w,h){
+  const words = String(text).split(/\s+/).filter(Boolean);
+  const lines = [];
+  let current = words.shift() || "";
+  words.forEach(word=>{
+    const test = current ? `${current} ${word}` : word;
+    if(ctx.measureText(test).width <= w - 10){
+      current = test;
+    }else{
+      lines.push(current);
+      current = word;
+    }
+  });
+  if(current) lines.push(current);
+  const maxLines = 3;
+  const clipped = lines.slice(0, maxLines);
+  if(lines.length > maxLines){
+    clipped[maxLines-1] = `${clipped[maxLines-1].slice(0, Math.max(0, clipped[maxLines-1].length-1))}…`;
+  }
+  const lineHeight = Math.min(16, h / Math.max(2, clipped.length+0.25));
+  const startY = y + (h - lineHeight * clipped.length) / 2 + lineHeight/2;
+  clipped.forEach((line, idx)=>ctx.fillText(line, x + w/2, startY + idx*lineHeight));
 }
 
 function snakeDraw(){
@@ -9476,132 +9543,175 @@ function snakeDraw(){
   if(!ctx) return;
   const size = canvas.width;
   const cell = size / SNAKE_QUIZ.board;
-
   ctx.clearRect(0,0,size,size);
-  ctx.fillStyle = "#f4f9ff";
+  ctx.fillStyle = "#091a2f";
   ctx.fillRect(0,0,size,size);
-  ctx.strokeStyle = "rgba(22,45,91,.08)";
-  ctx.lineWidth = 1;
-  for(let i=0;i<=SNAKE_QUIZ.board;i++){
-    const p = Math.round(i*cell)+0.5;
-    ctx.beginPath(); ctx.moveTo(p,0); ctx.lineTo(p,size); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0,p); ctx.lineTo(size,p); ctx.stroke();
+
+  for(let y=0;y<SNAKE_QUIZ.board;y++){
+    for(let x=0;x<SNAKE_QUIZ.board;x++){
+      const px = x*cell, py = y*cell;
+      if(SNAKE_QUIZ.walls.has(`${x},${y}`)){
+        ctx.fillStyle = "#224f87";
+        snakeDrawRoundedRect(ctx, px+2, py+2, cell-4, cell-4, 8);
+        ctx.fill();
+      }else{
+        ctx.fillStyle = "rgba(255,255,255,.04)";
+        ctx.fillRect(px,py,cell,cell);
+        ctx.fillStyle = "rgba(255,240,160,.35)";
+        ctx.beginPath();
+        ctx.arc(px + cell/2, py + cell/2, Math.max(1.6, cell*0.06), 0, Math.PI*2);
+        ctx.fill();
+      }
+    }
   }
 
-  if(SNAKE_QUIZ.q){
-    SNAKE_QUIZ.q.cells.forEach(c=>{
-      const x = c.x*cell, y = c.y*cell;
-      const correct = c.idx === SNAKE_QUIZ.q.answerIdx;
-      ctx.fillStyle = correct ? "rgba(126,185,170,.32)" : "rgba(183,142,161,.22)";
-      ctx.fillRect(x+2,y+2,cell-4,cell-4);
-      ctx.strokeStyle = correct ? "rgba(126,185,170,.95)" : "rgba(183,142,161,.95)";
-      ctx.strokeRect(x+2,y+2,cell-4,cell-4);
+  if(SNAKE_QUIZ.q?.cells){
+    SNAKE_QUIZ.q.cells.forEach(target=>{
+      const px = target.pos.x*cell + 4;
+      const py = target.pos.y*cell + 4;
+      ctx.fillStyle = target.correct ? "rgba(126,185,170,.92)" : "rgba(183,142,161,.92)";
+      snakeDrawRoundedRect(ctx, px, py, cell-8, cell-8, 10);
+      ctx.fill();
+      ctx.strokeStyle = target.correct ? "rgba(202,244,231,.95)" : "rgba(255,224,235,.92)";
+      ctx.lineWidth = 2;
+      ctx.stroke();
       ctx.fillStyle = "#11233a";
-      ctx.font = `${Math.floor(cell*0.46)}px Inter, sans-serif`;
+      ctx.font = `900 ${Math.floor(cell*0.18)}px Inter, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText(c.letter, x + cell/2, y + cell/2);
+      snakeDrawTextBlock(ctx, target.choice, px, py, cell-8, cell-8);
     });
   }
 
-  SNAKE_QUIZ.snake.forEach((p, idx)=>{
-    const x = p.x*cell, y = p.y*cell;
-    ctx.fillStyle = idx===0 ? "#4f7fc2" : "#6e90ca";
-    ctx.fillRect(x+2,y+2,cell-4,cell-4);
+  SNAKE_QUIZ.ghosts.forEach(ghost=>{
+    const cx = ghost.pos.x*cell + cell/2;
+    const cy = ghost.pos.y*cell + cell/2;
+    const r = cell*0.28;
+    ctx.fillStyle = ghost.color;
+    ctx.beginPath();
+    ctx.arc(cx, cy-r*0.15, r, Math.PI, 0);
+    ctx.lineTo(cx+r, cy+r*0.9);
+    for(let i=0;i<3;i++){
+      const waveX = cx + r - ((i+1) * (2*r/3));
+      ctx.quadraticCurveTo(waveX + r/6, cy+r*0.55, waveX, cy+r*0.9);
+    }
+    ctx.lineTo(cx-r, cy-r*0.15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = "#fff";
+    ctx.beginPath(); ctx.arc(cx-r*0.35, cy-r*0.1, r*0.24, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*0.35, cy-r*0.1, r*0.24, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "#11233a";
+    ctx.beginPath(); ctx.arc(cx-r*0.3, cy-r*0.08, r*0.1, 0, Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+r*0.3, cy-r*0.08, r*0.1, 0, Math.PI*2); ctx.fill();
   });
+
+  const player = SNAKE_QUIZ.player;
+  const mouthOpen = SNAKE_QUIZ.running ? Math.PI/5 : Math.PI/10;
+  const angle = SNAKE_QUIZ.dir.x === 1 ? 0 : SNAKE_QUIZ.dir.x === -1 ? Math.PI : SNAKE_QUIZ.dir.y === 1 ? Math.PI/2 : -Math.PI/2;
+  const cx = player.x*cell + cell/2;
+  const cy = player.y*cell + cell/2;
+  ctx.fillStyle = "#ffd84d";
+  ctx.beginPath();
+  ctx.moveTo(cx,cy);
+  ctx.arc(cx, cy, cell*0.32, angle + mouthOpen, angle + (Math.PI*2 - mouthOpen));
+  ctx.closePath();
+  ctx.fill();
 }
 
 function snakeUpdateHud(){
-  snakeEl("snakeQuizLenPill").textContent = `Length: ${SNAKE_QUIZ.snake.length || 0}`;
+  snakeEl("snakeQuizLenPill").textContent = `Lives: ${SNAKE_QUIZ.lives}`;
   snakeEl("snakeQuizScorePill").textContent = `Correct: ${SNAKE_QUIZ.score}`;
-  snakeEl("snakeQuizBestPill").textContent = `🏆 Best length: ${SNAKE_QUIZ.best}`;
+  snakeEl("snakeQuizBestPill").textContent = `🏆 Best streak: ${SNAKE_QUIZ.best}`;
 }
 
 function snakeStop(){
-  snakeStopTicker();
-  snakeCloseQuestionDialog();
+  if(SNAKE_QUIZ.timer) clearInterval(SNAKE_QUIZ.timer);
+  SNAKE_QUIZ.timer = null;
   SNAKE_QUIZ.running = false;
 }
 
 function snakeGameOver(reason){
   snakeStop();
-  snakeSetMsg(`${reason} Final length ${SNAKE_QUIZ.snake.length}. Press Start run to play again.`);
+  snakeSetMsg(`${reason} Final streak: ${SNAKE_QUIZ.score}. Press Start chase to try again.`);
+  snakeDraw();
+}
+
+function snakeResolveTargetHit(nextPos){
+  const target = SNAKE_QUIZ.q?.cells?.find(cell=>snakeSameCell(cell.pos, nextPos));
+  if(!target) return false;
+  if(target.correct){
+    SNAKE_QUIZ.player = {...nextPos};
+    SNAKE_QUIZ.score += 1;
+    if(SNAKE_QUIZ.score > SNAKE_QUIZ.best){
+      SNAKE_QUIZ.best = SNAKE_QUIZ.score;
+      localStorage.setItem("pacman_keyword_best", String(SNAKE_QUIZ.best));
+    }
+    snakeSetMsg("✅ Correct keyword collected. New definition loaded.");
+    snakeResetActors();
+    snakeUpdateHud();
+    snakeNewQuestion();
+    snakeDraw();
+    return true;
+  }
+  snakeGameOver(`❌ ${target.choice} does not match the definition.`);
+  return true;
 }
 
 function snakeTick(){
   if(!SNAKE_QUIZ.running) return;
-  SNAKE_QUIZ.dir = { ...SNAKE_QUIZ.nextDir };
-  const head = SNAKE_QUIZ.snake[0];
-  const next = { x: head.x + SNAKE_QUIZ.dir.x, y: head.y + SNAKE_QUIZ.dir.y };
-
-  if(next.x < 0 || next.y < 0 || next.x >= SNAKE_QUIZ.board || next.y >= SNAKE_QUIZ.board){
-    snakeGameOver("🧱 You hit a wall.");
-    return;
-  }
-  if(SNAKE_QUIZ.snake.some(s=>s.x===next.x && s.y===next.y)){
-    snakeGameOver("🌀 You ran into your tail.");
-    return;
+  const desired = snakeMove(SNAKE_QUIZ.player, SNAKE_QUIZ.nextDir);
+  if(!snakeIsWall(desired)) SNAKE_QUIZ.dir = {...SNAKE_QUIZ.nextDir};
+  const next = snakeMove(SNAKE_QUIZ.player, SNAKE_QUIZ.dir);
+  if(!snakeIsWall(next)){
+    if(snakeResolveTargetHit(next)) return;
+    SNAKE_QUIZ.player = next;
   }
 
-  let ate = null;
-  if(SNAKE_QUIZ.q) ate = SNAKE_QUIZ.q.cells.find(c=>c.x===next.x && c.y===next.y) || null;
-  SNAKE_QUIZ.snake.unshift(next);
+  if(SNAKE_QUIZ.ghosts.some(ghost=>snakeSameCell(ghost.pos, SNAKE_QUIZ.player))){
+    snakeGameOver("👻 A ghost caught you.");
+    return;
+  }
 
-  if(ate){
-    if(ate.idx === SNAKE_QUIZ.q.answerIdx){
-      SNAKE_QUIZ.score += 1;
-      if(SNAKE_QUIZ.snake.length > SNAKE_QUIZ.best){
-        SNAKE_QUIZ.best = SNAKE_QUIZ.snake.length;
-        localStorage.setItem("snake_quiz_best_length", String(SNAKE_QUIZ.best));
-      }
-      snakeSetMsg("✅ Correct! Review the next question in the pop-up.");
-      snakeUpdateHud();
-      if(!snakeNewQuestion()) return;
-      snakeDraw();
-      snakeStopTicker();
-      snakeShowQuestionDialog(()=>{
-        if(!SNAKE_QUIZ.running) return;
-        snakeSetMsg("Run resumed. Eat the correct A/B/C tile.");
-        snakeStartTicker();
-      });
-      return;
-    }else{
-      snakeGameOver(`❌ Wrong — ${ate.letter} was incorrect.`);
+  for(const ghost of SNAKE_QUIZ.ghosts){
+    ghost.dir = snakeChooseGhostDir(ghost);
+    const step = snakeMove(ghost.pos, ghost.dir);
+    if(!snakeIsWall(step)) ghost.pos = step;
+    if(snakeSameCell(ghost.pos, SNAKE_QUIZ.player)){
+      snakeGameOver("👻 A ghost caught you.");
       return;
     }
-  }else{
-    SNAKE_QUIZ.snake.pop();
   }
 
-  snakeUpdateHud();
+  if(SNAKE_QUIZ.ghosts.some(ghost=>snakeSameCell(ghost.pos, SNAKE_QUIZ.player))){
+    snakeGameOver("👻 A ghost caught you.");
+    return;
+  }
+
   snakeDraw();
 }
 
+function snakeStartTicker(){
+  if(SNAKE_QUIZ.timer) clearInterval(SNAKE_QUIZ.timer);
+  SNAKE_QUIZ.timer = setInterval(snakeTick, SNAKE_QUIZ.tickMs);
+}
+
 function snakeSetDirection(dx,dy){
-  if(!SNAKE_QUIZ.running) return;
-  const cur = SNAKE_QUIZ.dir;
-  if(cur.x === -dx && cur.y === -dy) return;
   SNAKE_QUIZ.nextDir = {x:dx,y:dy};
 }
 
 function snakeStart(){
   snakeStop();
-  const sel = snakeEl("snakeTopicSelect");
-  SNAKE_QUIZ.topicId = sel?.value || "MIXED";
-  SNAKE_QUIZ.snake = [{x:2,y:6},{x:1,y:6},{x:0,y:6}];
-  SNAKE_QUIZ.dir = {x:1,y:0};
-  SNAKE_QUIZ.nextDir = {x:1,y:0};
+  SNAKE_QUIZ.topicId = snakeEl("snakeTopicSelect")?.value || "MIXED";
   SNAKE_QUIZ.score = 0;
+  SNAKE_QUIZ.lives = 1;
+  snakeResetActors();
   SNAKE_QUIZ.running = true;
   snakeUpdateHud();
   if(!snakeNewQuestion()) return;
   snakeDraw();
-  snakeSetMsg("Memorise the question in the pop-up. Snake starts in 4 seconds.");
-  snakeShowQuestionDialog(()=>{
-    if(!SNAKE_QUIZ.running) return;
-    snakeStartTicker();
-    snakeSetMsg("Run started. Eat the correct A/B/C tile.");
-  });
+  snakeSetMsg("Chase the correct keyword and stay clear of ghosts.");
+  snakeStartTicker();
 }
 
 (()=>{
@@ -9613,7 +9723,7 @@ function snakeStart(){
   snakeEl("snakeDirLeft")?.addEventListener("click", ()=>snakeSetDirection(-1,0));
   snakeEl("snakeDirRight")?.addEventListener("click", ()=>snakeSetDirection(1,0));
   document.addEventListener("keydown", (ev)=>{
-    if(!SNAKE_QUIZ.running) return;
+    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(ev.key)) ev.preventDefault();
     if(ev.key === "ArrowUp") snakeSetDirection(0,-1);
     if(ev.key === "ArrowDown") snakeSetDirection(0,1);
     if(ev.key === "ArrowLeft") snakeSetDirection(-1,0);
@@ -9623,6 +9733,7 @@ function snakeStart(){
     if(SNAKE_QUIZ.running) snakeStart();
   });
   snakeUpdateHud();
+  snakeUpdatePrompt();
   snakeDraw();
 })();
 
@@ -10954,7 +11065,8 @@ const GAME_LABELS = {
   gamesMatchPane: "Match-Up",
   gamesTimelinePane: "Timeline Tension",
   gamesBeatClockPane: "Beat the Clock",
-  gamesSnakeQuizPane: "Snake Quiz"
+  gamesSnakeQuizPane: "Pac-Man Keyword Chase",
+  gamesSpaceKeywordsPane: "Space Keywords"
 };
 let LAST_GAME_PANE = null;
 
@@ -19243,7 +19355,7 @@ function getJourneyStageProgress(topicId){
   const quizPercent = totalQuizQuestions > 0 ? Math.round((completedQuizQuestions / totalQuizQuestions) * 100) : 100;
   const stats = touchTopicStats(topicId);
   const gamesDone = Number(stats.gameCompletions||0);
-  const gamesPercent = Math.max(0, Math.min(100, Math.round((gamesDone / 6) * 100)));
+  const gamesPercent = Math.max(0, Math.min(100, Math.round((gamesDone / 7) * 100)));
   return {
     lessons: lessonPercent,
     study: studyPercent,
