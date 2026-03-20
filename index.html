@@ -3656,10 +3656,10 @@ section#games.gamePaneActive .gamesHeroCard{
         <div class="educationUpgradeLogo upgraded-logo" id="educationUpgradeLogo" aria-label="Education Upgrade" aria-hidden="true">
           <img class="educationUpgradeLogoImage" src="Lesson infographics/App logo title.png" alt="Education Upgrade logo">
         </div>
-        <button class="pill streakCountPill" id="streakProgressBtn" type="button" aria-label="Open progress tab from current streak" title="View progress">
+        <div class="pill streakCountPill" id="streakProgressBtn" aria-label="Current streak" title="Current streak">
           <span class="streakCountLabel">Streak</span>
           <span class="streakCountNum" id="streakBigNum">0</span>
-        </button>
+        </div>
       </div>
     </div>
 
@@ -3753,61 +3753,6 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
   </section>
 
-  <!-- PROGRESS -->
-  <section id="progress" class="tabpane hidden">
-    <div class="card">
-      <div class="quizPanelTitle" aria-hidden="true">
-        <svg class="quizPanelTitleIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 19h16"></path><path d="M7 16V9"></path><path d="M12 16V5"></path><path d="M17 16v-4"></path></svg>
-        <span class="quizPanelTitleText">Progress</span>
-      </div>
-      <div class="note">A clean view of growth and readiness.</div>
-
-      <div style="margin-top:12px;font-weight:900">Overall readiness <span id="overallReadinessVal">0%</span></div>
-      <div class="progressHeadlineBar">
-        <div class="progressTrack"><div id="overallReadinessFill" class="progressFill"></div></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div style="font-weight:900">This week</div>
-      <div id="thisWeekMetrics" class="metricGrid"></div>
-    </div>
-
-    <div class="card">
-      <div style="font-weight:900">Topic XP bars</div>
-      <div class="note">XP combines flashcards, quiz best, and exam planning.</div>
-      <div class="topicXpArrowKey" aria-label="Arrow legend for topic retention trend">
-        <span class="topicXpArrowLegendItem"><span class="topicRetentionArrow up" aria-hidden="true">↑</span><span>improving recall</span></span>
-        <span class="topicXpArrowLegendItem"><span class="topicRetentionArrow flat" aria-hidden="true">→</span><span>steady recall</span></span>
-        <span class="topicXpArrowLegendItem"><span class="topicRetentionArrow down" aria-hidden="true">↓</span><span>fading recall</span></span>
-      </div>
-      <div id="topicXpList" class="topicXpList"></div>
-    </div>
-
-  </section>
-
-  <div id="topicArrowDialog" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Topic trend explanation">
-    <div class="onboardingModal" aria-labelledby="topicArrowDialogTitle" aria-describedby="topicArrowDialogBody">
-      <h3 id="topicArrowDialogTitle" class="topicArrowDialogTitle">Topic trend</h3>
-      <div id="topicArrowDialogBody" class="topicArrowDialogBody"></div>
-      <div id="topicArrowDialogMeta" class="topicArrowDialogMeta"></div>
-      <div class="nextUpActions">
-        <button type="button" id="topicArrowDialogClose" class="btn primary">Got it</button>
-      </div>
-    </div>
-  </div>
-
-
-
-  <div id="lessonDefinitionDialog" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Lesson definition">
-    <div class="onboardingModal" aria-labelledby="lessonDefinitionDialogTitle" aria-describedby="lessonDefinitionDialogBody">
-      <h3 id="lessonDefinitionDialogTitle" class="topicArrowDialogTitle">Definition</h3>
-      <div id="lessonDefinitionDialogBody" class="lessonDefinitionBody"></div>
-      <div class="nextUpActions">
-        <button type="button" id="lessonDefinitionDialogClose" class="btn primary">Close</button>
-      </div>
-    </div>
-  </div>
   <!-- STUDY -->
   <section id="study" class="tabpane hidden">
     <div class="studyWrap">
@@ -4559,7 +4504,6 @@ section#games.gamePaneActive .gamesHeroCard{
 <!-- Bottom nav -->
 <nav>
   <div class="navBtn active" data-tab="home"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5 9.5V21h14V9.5"></path></svg><div class="navLabel">Home</div></div>
-  <div class="navBtn" data-tab="progress"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"></path><path d="M7 16V9"></path><path d="M12 16V5"></path><path d="M17 16v-4"></path></svg><div class="navLabel">Progress</div></div>
   <div class="navBtn" data-tab="study"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 6h6a4 4 0 0 1 4 4v11a3 3 0 0 0-3-3H2z"></path><path d="M22 6h-6a4 4 0 0 0-4 4v11a3 3 0 0 1 3-3h7z"></path><path d="M12 10v11"></path></svg><div class="navLabel">Study</div></div>
   <div class="navBtn" data-tab="quiz"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="m13 2-8 12h6l-1 8 8-12h-6z"></path></svg><div class="navLabel">Quiz</div></div>
   <div class="navBtn" data-tab="games"><svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg><div class="navLabel">Games</div></div>
@@ -10796,9 +10740,6 @@ function setTab(tabId){
   if(tabId === "home"){
     renderHomeRecommendation();
   }
-  if(tabId === "progress"){
-    renderProgressReport();
-  }
   if(tabId === "lessons"){
     renderLessons();
   }
@@ -10806,11 +10747,6 @@ function setTab(tabId){
 document.querySelectorAll(".navBtn").forEach(btn=>{
   btn.addEventListener("click", ()=>setTab(btn.dataset.tab));
 });
-
-const streakProgressBtn = $("streakProgressBtn");
-if(streakProgressBtn){
-  streakProgressBtn.addEventListener("click", ()=>setTab("progress"));
-}
 
 /* Games hub navigation */
 const GAME_PANES = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakeQuizPane"];
