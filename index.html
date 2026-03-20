@@ -2185,8 +2185,9 @@ section#games.gamePaneActive .gamesHeroCard{
 .spaceCannon{
   position:absolute;
   bottom:18px;
-  left:50%;
+  left:37.5%;
   transform:translateX(-50%);
+  transition:left 160ms ease;
   width:min(130px, 32vw);
   height:62px;
   border-radius:22px 22px 16px 16px;
@@ -2214,12 +2215,12 @@ section#games.gamePaneActive .gamesHeroCard{
   background:linear-gradient(180deg, #fff6c9, #ffd54d);
   box-shadow:0 0 12px rgba(255,221,112,.9);
 }
-.spaceLaneBtns{
+.spaceControls{
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:repeat(3,minmax(0,1fr));
   gap:8px;
 }
-.spaceLaneBtn{
+.spaceControlBtn{
   min-height:58px;
   border-radius:16px;
   border:1px solid color-mix(in srgb, var(--line) 70%, var(--accent2) 30%);
@@ -2227,14 +2228,19 @@ section#games.gamePaneActive .gamesHeroCard{
   font-weight:900;
   font-size:15px;
 }
-.spaceLaneBtn small{ display:block; font-size:11px; color:var(--muted); margin-top:3px; }
+.spaceControlBtn.fire{
+  background:linear-gradient(180deg, rgba(255,245,214,.98), rgba(255,214,120,.96));
+}
+.spaceControlBtn.active{
+  box-shadow:inset 0 0 0 2px rgba(110,144,202,.6);
+}
+.spaceControlBtn small{ display:block; font-size:11px; color:var(--muted); margin-top:3px; }
 .spaceKeyHint{ font-size:12px; color:var(--muted); font-weight:800; }
 @media (max-width:700px){
   .spaceArena{ min-height:500px; }
   .spaceDefinitionText{ font-size:16px; }
   .spaceBoard{ inset:112px 8px 92px; }
   .spaceInvader{ width:23.5%; font-size:11px; min-height:64px; padding:8px 6px; }
-  .spaceLaneBtns{ grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
 
 .gamePaneTop{
@@ -4529,18 +4535,17 @@ section#games.gamePaneActive .gamesHeroCard{
             <div class="spaceDefinitionText" id="spaceDefinitionText">Launch the mission to receive a definition.</div>
           </div>
           <div class="spaceBoard" id="spaceBoard"></div>
-          <div class="spaceCannon" aria-hidden="true"></div>
+          <div class="spaceCannon" id="spaceCannon" aria-hidden="true"></div>
         </div>
 
-        <div class="spaceLaneBtns" id="spaceLaneBtns">
-          <button class="spaceLaneBtn" type="button" data-lane="0">Lane 1<small>Press 1</small></button>
-          <button class="spaceLaneBtn" type="button" data-lane="1">Lane 2<small>Press 2</small></button>
-          <button class="spaceLaneBtn" type="button" data-lane="2">Lane 3<small>Press 3</small></button>
-          <button class="spaceLaneBtn" type="button" data-lane="3">Lane 4<small>Press 4</small></button>
+        <div class="spaceControls" id="spaceControls" aria-label="Space Keywords controls">
+          <button class="spaceControlBtn" type="button" data-action="left">⬅️ Left<small>← key</small></button>
+          <button class="spaceControlBtn fire" type="button" data-action="fire">🔥 Fire<small>Space / Enter</small></button>
+          <button class="spaceControlBtn" type="button" data-action="right">Right ➡️<small>→ key</small></button>
         </div>
 
         <div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap">
-          <div class="spaceKeyHint">Tap a lane or press keys 1–4 to fire. Clear 8 invaders for a perfect run.</div>
+          <div class="spaceKeyHint">Move left or right, then fire at the matching keyword. Each correct shot starts a fresh fall with a new definition. Clear 8 invaders for a perfect run.</div>
           <div class="connMsg" id="spaceMsg">Wrong shots or missed targets cost a shield.</div>
         </div>
 
@@ -21621,7 +21626,8 @@ let SPACE = {
   running: false,
   tickMs: 260,
   shots: [],
-  timer: null
+  timer: null,
+  cannonLane: 1
 };
 
 function getSpaceKeywordPool(topicId){
@@ -21657,7 +21663,8 @@ function startSpaceKeywordsGame(){
     running: true,
     tickMs: 260,
     shots: [],
-    timer: null
+    timer: null,
+    cannonLane: 1
   };
   fillSpaceBoard();
   updateSpaceHud();
@@ -21674,8 +21681,10 @@ function fillSpaceBoard(){
   SPACE.board = choices.map((item, lane)=>(
     { lane, item, x: lane * 25.5 + 1, y: 0, speed: 1.3 + Math.random() * .45 }
   ));
+  if(!Number.isInteger(SPACE.cannonLane)) SPACE.cannonLane = 1;
   $("spaceDefinitionText").textContent = target.meaning;
   renderSpaceBoard();
+  renderSpaceControls();
 }
 function renderSpaceBoard(){
   const board = $("spaceBoard");
@@ -21689,7 +21698,6 @@ function renderSpaceBoard(){
     el.style.left = `${inv.x}%`;
     el.style.top = `${inv.y}%`;
     el.textContent = inv.item.term;
-    el.addEventListener("click", ()=>fireSpaceLane(inv.lane));
     board.appendChild(el);
   });
   SPACE.shots.forEach(shot=>{
@@ -21707,7 +21715,22 @@ function updateSpaceHud(){
   $("spaceLivesPill").textContent = `Shields: ${SPACE.lives}`;
   $("spaceBestPill").textContent = `🏆 Best: ${SPACE.best}`;
 }
-function fireSpaceLane(lane){
+function renderSpaceControls(){
+  const cannon = $("spaceCannon");
+  if(cannon){
+    cannon.style.left = `${SPACE.cannonLane * 25.5 + 12}%`;
+  }
+  $("spaceControls")?.querySelectorAll(".spaceControlBtn").forEach(btn=>{
+    const action = btn.dataset.action;
+    btn.classList.toggle("active", (action === "left" && SPACE.cannonLane === 0) || (action === "right" && SPACE.cannonLane === 3));
+  });
+}
+function moveSpaceCannon(delta){
+  if(!SPACE.running) return;
+  SPACE.cannonLane = Math.max(0, Math.min(3, SPACE.cannonLane + delta));
+  renderSpaceControls();
+}
+function fireSpaceLane(lane = SPACE.cannonLane){
   if(!SPACE.running || SPACE.resolved) return;
   const laneInv = SPACE.board.find(inv=>inv.lane===lane);
   SPACE.shots.push({ lane, x: lane * 25.5 + 12, bottom: 0, hitY: laneInv ? laneInv.y : 72 });
@@ -21748,6 +21771,7 @@ function endSpaceKeywordsGame(won){
   SPACE.timer = null;
   SPACE.shots = [];
   renderSpaceBoard();
+  renderSpaceControls();
   if(won){
     $("spaceMsg").textContent = SPACE.score >= 8 ? "🏆 Mission complete. You cleared all 8 waves." : "Mission clear.";
     confetti.burst(140);
@@ -21772,16 +21796,28 @@ $("spaceTopicSelect")?.addEventListener("change", ()=>{
   $("spaceDefinitionText").textContent = "Topic changed. Start a fresh mission when ready.";
   $("spaceMsg").textContent = "Wrong shots or missed targets cost a shield.";
 });
-$("spaceLaneBtns")?.querySelectorAll(".spaceLaneBtn").forEach(btn=>{
-  btn.addEventListener("click", ()=>fireSpaceLane(Number(btn.dataset.lane)));
+$("spaceControls")?.querySelectorAll(".spaceControlBtn").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    const action = btn.dataset.action;
+    if(action === "left") moveSpaceCannon(-1);
+    else if(action === "right") moveSpaceCannon(1);
+    else if(action === "fire") fireSpaceLane();
+  });
 });
 document.addEventListener("keydown", (e)=>{
   if($("gamesSpaceKeywordsPane")?.classList.contains("hidden")) return;
-  if(["1","2","3","4"].includes(e.key)){
+  if(e.key === "ArrowLeft"){
     e.preventDefault();
-    fireSpaceLane(Number(e.key) - 1);
+    moveSpaceCannon(-1);
+  }else if(e.key === "ArrowRight"){
+    e.preventDefault();
+    moveSpaceCannon(1);
+  }else if(e.key === " " || e.key === "Enter"){
+    e.preventDefault();
+    fireSpaceLane();
   }
 });
+renderSpaceControls();
 
 /* ==========================================================
    MATCHING GAME
