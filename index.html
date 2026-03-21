@@ -19441,6 +19441,42 @@ function getJourneyResumeConfig(topicId){
   };
 }
 
+function getDirectiveFlowConfig(topicId){
+  const d = ensureDaily();
+  const dailyStep = nextDailyAction(d);
+  const dailyRoute = resolveDailyActivityRoute(dailyStep);
+  const dailyTopicId = (d.topicId && isTopicEnabled(d.topicId)) ? d.topicId : (enabledTopicIds()[0] || null);
+  const dailyTopic = TOPICS.find(t=>t.id===dailyTopicId) || null;
+  const dailyTopicTitle = dailyTopic?.title || "today’s topic";
+
+  if(!d.completed && dailyStep && dailyRoute){
+    const stepLabel = challengeStepName(dailyStep) || "Daily Challenge";
+    return {
+      mode: "daily",
+      topicId: dailyTopicId,
+      topicTitle: dailyTopicTitle,
+      ctaLabel: `Go to ${stepLabel}`,
+      shortLabel: "Daily Challenge",
+      message: `Start with today’s Daily Challenge: ${stepLabel.toLowerCase()} for ${dailyTopicTitle}. Once that’s complete, come back to continue your Learning Journey.`,
+      action: ()=>dailyRoute(dailyTopicId)
+    };
+  }
+
+  const resume = getJourneyResumeConfig(topicId || getCurrentJourneyTopicId() || dailyTopicId);
+  return {
+    mode: "journey",
+    topicId: resume.topicId,
+    topicTitle: resume.topicTitle,
+    ctaLabel: resume.nextStep?.ctaLabel || "Continue Learning Journey",
+    shortLabel: "Learning Journey",
+    message: resume.nextStep
+      ? `Next up in your Learning Journey for ${resume.topicTitle}: ${resume.nextStep.sub}.`
+      : `You’re up to date in ${resume.topicTitle}. Review the topic whenever you want.`,
+    action: resume.action,
+    nextStep: resume.nextStep
+  };
+}
+
 function getFirstEnabledTopicId(){
   return enabledTopicIds()[0] || null;
 }
@@ -20540,6 +20576,7 @@ function openDailyCoachDialog(forceRefresh=false){
   const resumeTopicId = (currentJourneyTopicId && isTopicEnabled(currentJourneyTopicId))
     ? currentJourneyTopicId
     : (doneToday ? recoTopicId : daily.topicId);
+  const directive = getDirectiveFlowConfig(resumeTopicId);
   const resume = getJourneyResumeConfig(resumeTopicId);
 
   const titleNode = $("dailyCoachTitle");
@@ -20549,15 +20586,11 @@ function openDailyCoachDialog(forceRefresh=false){
   const studyTitleNode = $("coachStudyBtnTitle");
   const quizTitleNode = $("coachQuizBtnTitle");
 
-  if(titleNode) titleNode.textContent = doneToday ? "Challenge complete" : "Welcome back";
-  if(msgNode){
-    msgNode.textContent = resume.nextStep
-      ? `Pick up where you left off in ${resume.topicTitle}: ${resume.nextStep.sub}.`
-      : `You’re up to date in ${resume.topicTitle}. Review the topic whenever you want.`;
-  }
+  if(titleNode) titleNode.textContent = directive.mode === "daily" ? "Welcome back" : "Challenge complete";
+  if(msgNode) msgNode.textContent = directive.message;
 
-  if(studyTitleNode) studyTitleNode.textContent = doneToday ? "Study topic" : "Review topic";
-  if(quizTitleNode) quizTitleNode.textContent = resume.nextStep?.ctaLabel || "Continue journey";
+  if(studyTitleNode) studyTitleNode.textContent = directive.mode === "daily" ? "Open Learning Journey" : "Study topic";
+  if(quizTitleNode) quizTitleNode.textContent = directive.mode === "daily" ? "Go to Daily Challenge" : (directive.ctaLabel || "Continue journey");
 
   if(studyBtn){
     studyBtn.classList.toggle("hidden", false);
@@ -20571,7 +20604,7 @@ function openDailyCoachDialog(forceRefresh=false){
   if(quizBtn){
     quizBtn.onclick = ()=>{
       overlay.classList.add("hidden");
-      resume.action();
+      directive.action();
     };
   }
 
@@ -21321,19 +21354,15 @@ function showDailyChallengeCompleteModal(topicId){
   const focusBtn = $("btnDailyCompleteFocus");
   const focusLabel = focusBtn?.querySelector(".quizCompleteActionLabel");
   const explain = $("dailyCompleteExplain");
-  const resume = getJourneyResumeConfig(topicId || getCurrentJourneyTopicId());
+  const directive = getDirectiveFlowConfig(topicId || getCurrentJourneyTopicId());
 
   if(focusBtn){
-    focusBtn.disabled = !resume.nextStep;
+    focusBtn.disabled = directive.mode !== "journey" || !directive.action;
     focusBtn.classList.remove("hidden");
-    focusBtn.dataset.topicId = resume.topicId || "";
+    focusBtn.dataset.topicId = directive.topicId || "";
   }
-  if(focusLabel) focusLabel.textContent = resume.nextStep?.ctaLabel || "Continue Learning Journey";
-  if(explain){
-    explain.textContent = resume.nextStep
-      ? `Next up in your Learning Journey for ${resume.topicTitle}: ${resume.nextStep.sub}.`
-      : `You’ve completed the current Learning Journey steps for ${resume.topicTitle}.`;
-  }
+  if(focusLabel) focusLabel.textContent = directive.ctaLabel || "Continue Learning Journey";
+  if(explain) explain.textContent = directive.message;
 
   overlay.classList.remove("hidden");
 }
@@ -21354,7 +21383,7 @@ function showQuizCompleteModal(){
   const fixBtn = $("btnQuizCompleteFix");
   const flashBtn = $("btnQuizCompleteFlashcards");
   const flashBtnLabel = flashBtn?.querySelector(".quizCompleteActionLabel");
-  const resume = getJourneyResumeConfig(QUIZ.topicId);
+  const directive = getDirectiveFlowConfig(QUIZ.topicId);
 
   if(title) title.textContent = perfect ? "🎉 Perfect score!" : (fromDailyChallenge ? "Daily Challenge quiz check" : "Quiz complete");
   if(status){
@@ -21371,9 +21400,11 @@ function showQuizCompleteModal(){
 
   if(explainNode){
     if(perfect){
-      explainNode.textContent = resume.nextStep
-        ? `Suggestion: jump straight to ${resume.nextStep.sub.toLowerCase()}.`
-        : "Suggestion: continue your learning journey from the current topic.";
+      explainNode.textContent = directive.mode === "daily"
+        ? directive.message
+        : directive.nextStep
+          ? `Suggestion: jump straight to ${directive.nextStep.sub.toLowerCase()}.`
+          : "Suggestion: continue your learning journey from the current topic.";
     }else if(fromDailyChallenge){
       explainNode.textContent = "Keep going until you hit 100% to complete the Daily quiz activity.";
     }else{
@@ -21383,7 +21414,7 @@ function showQuizCompleteModal(){
 
   if(fixBtn) fixBtn.classList.toggle("hidden", perfect || misses === 0);
   if(flashBtn) flashBtn.classList.toggle("hidden", !perfect);
-  if(flashBtnLabel) flashBtnLabel.textContent = resume.nextStep?.ctaLabel || "Continue Learning Journey";
+  if(flashBtnLabel) flashBtnLabel.textContent = directive.ctaLabel || "Continue Learning Journey";
 
   overlay.classList.remove("hidden");
 }
