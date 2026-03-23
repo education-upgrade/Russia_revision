@@ -10199,33 +10199,74 @@ function baseState(){
     journey:{ completedCards:{}, completedQuizQuestions:{} },
   };
 }
+function ensureStateShape(source){
+  const s = (source && typeof source === "object") ? source : baseState();
+  s.reviews ||= {};
+  s.stats ||= { studied:0 };
+  s.quiz ||= { attempted:0, correct:0, bestStreakAllTime:0 };
+  s.weekly ||= {};
+  s.topicLevels ||= {};
+  s.daily ||= {};
+  s.dailyStreak ||= { count:0, best:0, lastDate:null };
+  s.topicStats ||= {};
+  s.userStats ||= { lastActionType:null, lastActiveAt:0, sessionsToday:0 };
+  s.analytics ||= { daily:{} };
+  s.disabledTopics ||= {};
+  s.journey ||= { completedCards:{}, completedQuizQuestions:{} };
+  s.journey.completedCards ||= {};
+  s.journey.completedQuizQuestions ||= {};
+  return s;
+}
 function loadState(){
   try{
     const raw = localStorage.getItem(STORAGE_KEY);
-    if(!raw) return baseState();
-    const s = JSON.parse(raw);
-    s.reviews ||= {};
-    s.stats ||= { studied:0 };
-    s.quiz ||= { attempted:0, correct:0, bestStreakAllTime:0 };
-    s.weekly ||= {};
-    s.topicLevels ||= {};
-    s.daily ||= {};
-    s.dailyStreak ||= { count:0, best:0, lastDate:null };
-    s.topicStats ||= {};
-    s.userStats ||= { lastActionType:null, lastActiveAt:0, sessionsToday:0 };
-    s.analytics ||= { daily:{} };
-    s.disabledTopics ||= {};
-    s.journey ||= { completedCards:{}, completedQuizQuestions:{} };
-    s.journey.completedCards ||= {};
-    s.journey.completedQuizQuestions ||= {};
-    return s;
+    if(!raw) return ensureStateShape(baseState());
+    return ensureStateShape(JSON.parse(raw));
   }catch{
-    return baseState();
+    return ensureStateShape(baseState());
   }
 }
 var STATE = loadState();
-function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE)); }
-
+function saveState(){
+  ensureStateShape(STATE);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(STATE));
+}
+function ensureJourneyState(){
+  ensureStateShape(STATE);
+  return STATE.journey;
+}
+function ensureTopicStats(topicId){
+  ensureStateShape(STATE);
+  if(!topicId) return {
+    quizAttempts:0,
+    quizBestPercent:0,
+    flashcardsDone:0,
+    flashcardsTotal:0,
+    totalEarnedXp:0,
+    planStarted:false,
+    lastStudiedAt:0,
+    planLastSavedAt:0,
+    failedCards:0,
+    previousRetention:0,
+    gameCompletions:0,
+    flashcardsRemaining:0
+  };
+  STATE.topicStats[topicId] ||= {
+    quizAttempts:0,
+    quizBestPercent:0,
+    flashcardsDone:0,
+    flashcardsTotal:0,
+    totalEarnedXp:0,
+    planStarted:false,
+    lastStudiedAt:0,
+    planLastSavedAt:0,
+    failedCards:0,
+    previousRetention:0,
+    gameCompletions:0,
+    flashcardsRemaining:0
+  };
+  return STATE.topicStats[topicId];
+}
 
 function isTopicEnabled(topicId){
   if(!STATE) STATE = loadState();
@@ -10305,16 +10346,13 @@ function isJourneyStudyMode(mode){
 }
 function isJourneyCardComplete(cardId){
   if(!cardId) return false;
-  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
-  STATE.journey.completedCards ||= {};
-  return !!STATE.journey.completedCards[cardId];
+  const journey = ensureJourneyState();
+  return !!journey.completedCards[cardId];
 }
 function markJourneyCardComplete(cardId){
   if(!cardId) return;
-  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
-  STATE.journey.completedCards ||= {};
-  STATE.journey.completedQuizQuestions ||= {};
-  STATE.journey.completedCards[cardId] = 1;
+  const journey = ensureJourneyState();
+  journey.completedCards[cardId] = 1;
 }
 function getJourneyQuizQuestionKey(question){
   if(question?.id) return String(question.id);
@@ -10327,23 +10365,20 @@ function getJourneyQuizQuestionKey(question){
 function isJourneyQuizQuestionComplete(question){
   const questionId = getJourneyQuizQuestionKey(question);
   if(!questionId) return false;
-  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
-  STATE.journey.completedQuizQuestions ||= {};
-  return !!STATE.journey.completedQuizQuestions[questionId];
+  const journey = ensureJourneyState();
+  return !!journey.completedQuizQuestions[questionId];
 }
 function markJourneyQuizQuestionComplete(question){
   const questionId = getJourneyQuizQuestionKey(question);
   if(!questionId) return;
-  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
-  STATE.journey.completedQuizQuestions ||= {};
-  STATE.journey.completedQuizQuestions[questionId] = 1;
+  const journey = ensureJourneyState();
+  journey.completedQuizQuestions[questionId] = 1;
 }
 function resetJourneyQuizQuestionComplete(question){
   const questionId = getJourneyQuizQuestionKey(question);
   if(!questionId) return;
-  STATE.journey ||= { completedCards:{}, completedQuizQuestions:{} };
-  STATE.journey.completedQuizQuestions ||= {};
-  delete STATE.journey.completedQuizQuestions[questionId];
+  const journey = ensureJourneyState();
+  delete journey.completedQuizQuestions[questionId];
 }
 function getJourneyCardsForTopic(topicId){
   return ALL_CARDS.filter(c=>c.topicId===topicId && isTopicEnabled(c.topicId) && !isJourneyCardComplete(c.id));
@@ -19343,35 +19378,71 @@ function initTopicArrowDialog(){
 }
 
 
-function getJourneyStageProgress(topicId){
-  const topic = lessonsData.find(t=>t.id===topicId);
-  const lessonPercent = topic ? getTopicProgressSummary(topic).percent : 0;
-  const journeyStudy = getJourneyStudyStats(topicId);
-  const studyPercent = journeyStudy.total > 0 ? Math.round((journeyStudy.done / journeyStudy.total) * 100) : 100;
-  const topicQuizPool = getQuizPool(topicId);
-  const totalQuizQuestions = topicQuizPool.length;
-  const remainingQuizQuestions = getJourneyQuizPool(topicId).length;
-  const completedQuizQuestions = Math.max(0, totalQuizQuestions - remainingQuizQuestions);
-  const quizPercent = totalQuizQuestions > 0 ? Math.round((completedQuizQuestions / totalQuizQuestions) * 100) : 100;
-  const stats = touchTopicStats(topicId);
-  const gamesDone = Number(stats.gameCompletions||0);
-  const gamesPercent = Math.max(0, Math.min(100, Math.round((gamesDone / 7) * 100)));
+const JOURNEY_STAGE_ORDER = Object.freeze(["lessons", "study", "quiz", "games"]);
+const JOURNEY_GAME_TARGET = 7;
+
+function getJourneyStagePercent(topicId, stageKey){
+  if(!topicId) return 0;
+  if(stageKey === "lessons"){
+    const topic = lessonsData.find(t=>t.id===topicId);
+    return topic ? getTopicProgressSummary(topic).percent : 0;
+  }
+  if(stageKey === "study"){
+    const journeyStudy = getJourneyStudyStats(topicId);
+    return journeyStudy.total > 0 ? Math.round((journeyStudy.done / journeyStudy.total) * 100) : 100;
+  }
+  if(stageKey === "quiz"){
+    const topicQuizPool = getQuizPool(topicId);
+    const totalQuizQuestions = topicQuizPool.length;
+    const remainingQuizQuestions = getJourneyQuizPool(topicId).length;
+    const completedQuizQuestions = Math.max(0, totalQuizQuestions - remainingQuizQuestions);
+    return totalQuizQuestions > 0 ? Math.round((completedQuizQuestions / totalQuizQuestions) * 100) : 100;
+  }
+  if(stageKey === "games"){
+    const stats = ensureTopicStats(topicId);
+    const gamesDone = Number(stats.gameCompletions||0);
+    return Math.max(0, Math.min(100, Math.round((gamesDone / JOURNEY_GAME_TARGET) * 100)));
+  }
+  return 0;
+}
+
+function getCanonicalTopicProgress(topicId){
+  const stages = JOURNEY_STAGE_ORDER.reduce((acc, key)=>{
+    acc[key] = getJourneyStagePercent(topicId, key);
+    return acc;
+  }, {});
+  const values = JOURNEY_STAGE_ORDER.map(key=>Number(stages[key]||0));
+  const overallPercent = values.length ? Math.round(values.reduce((sum, value)=>sum + value, 0) / values.length) : 0;
+  const nextStageKey = JOURNEY_STAGE_ORDER.find(key=>Number(stages[key]||0) < 100) || null;
+  const isComplete = nextStageKey === null;
+  const statusLabel = isComplete ? "Secure" : (overallPercent >= 35 ? "Building" : "New");
   return {
-    lessons: lessonPercent,
-    study: studyPercent,
-    quiz: quizPercent,
-    games: gamesPercent
+    topicId,
+    stages,
+    overallPercent,
+    nextStageKey,
+    isComplete,
+    statusLabel,
+    completedStageCount: JOURNEY_STAGE_ORDER.filter(key=>Number(stages[key]||0) >= 100).length
+  };
+}
+
+function getJourneyStageProgress(topicId){
+  return getCanonicalTopicProgress(topicId).stages;
+}
+
+function getJourneyOverview(){
+  const topics = TOPICS.filter(t=>isTopicEnabled(t.id)).map(topic=>({ topic, progress:getCanonicalTopicProgress(topic.id) }));
+  const current = topics.find(entry=>!entry.progress.isComplete) || topics[0] || null;
+  return {
+    topics,
+    currentTopicId: current?.topic?.id || null,
+    overallPercent: topics.length ? Math.round(topics.reduce((sum, entry)=>sum + entry.progress.overallPercent, 0) / topics.length) : 0
   };
 }
 
 function getCurrentJourneyTopicId(){
-  const enabled = TOPICS.filter(t=>isTopicEnabled(t.id));
-  if(!enabled.length) return null;
-  const firstIncomplete = enabled.find(topic=>{
-    const p = getJourneyStageProgress(topic.id);
-    return [p.lessons, p.study, p.quiz, p.games].some(v=>v < 100);
-  });
-  return (firstIncomplete || enabled[0]).id;
+  return getJourneyOverview().currentTopicId;
 }
 
 function renderJourneyMapStops(currentTopicId){
@@ -19380,8 +19451,9 @@ function renderJourneyMapStops(currentTopicId){
 
   layer.innerHTML = JOURNEY_TOPIC_STOPS.map(stop=>{
     const enabled = isTopicEnabled(stop.id);
-    const progress = getJourneyStageProgress(stop.id);
-    const pct = Math.round((progress.lessons + progress.study + progress.quiz + progress.games) / 4);
+    const topicProgress = getCanonicalTopicProgress(stop.id);
+    const progress = topicProgress.stages;
+    const pct = topicProgress.overallPercent;
     const isCurrent = enabled && stop.id === currentTopicId;
     const isComplete = enabled && pct >= 100;
     const statusClass = `${isCurrent ? 'is-current' : ''} ${isComplete ? 'is-complete' : ''} ${enabled ? '' : 'is-locked'}`.trim();
@@ -19409,19 +19481,15 @@ function renderJourneyMapStops(currentTopicId){
 }
 
 function getTopicJourneyStatusLabel(topicId){
-  const p = getJourneyStageProgress(topicId);
-  const avg = Math.round((p.lessons + p.study + p.quiz + p.games) / 4);
-  if(avg >= 85) return "Secure";
-  if(avg >= 35) return "Building";
-  return "New";
+  return getCanonicalTopicProgress(topicId).statusLabel;
 }
 
 function getJourneyNextStep(topicId){
-  const p = getJourneyStageProgress(topicId);
-  if(p.lessons < 100) return { key:"lessons", label:"Complete Lessons", ctaLabel:"Continue Lessons", sub:"Move through key enquiries", action:()=>{ if(openRecommendedLessonForTopic(topicId)){ setTab("lessons"); return; } setTab("lessons"); } };
-  if(p.study < 100) return { key:"study", label:"Complete Study", ctaLabel:"Continue Study", sub:"Review flashcards for this topic", action:()=>openStudyForTopic(topicId, "journey") };
-  if(p.quiz < 100) return { key:"quiz", label:"Start Quiz", ctaLabel:"Continue Quiz", sub:"Check secure retrieval", action:()=>goDailyQuiz(topicId) };
-  if(p.games < 100) return { key:"games", label:"Play Games", ctaLabel:"Continue Game", sub:"Strengthen speed and recall", action:()=>{ setTab("games"); } };
+  const progress = getCanonicalTopicProgress(topicId);
+  if(progress.nextStageKey === "lessons") return { key:"lessons", label:"Complete Lessons", ctaLabel:"Continue Lessons", sub:"Move through key enquiries", action:()=>{ if(openRecommendedLessonForTopic(topicId)){ setTab("lessons"); return; } setTab("lessons"); } };
+  if(progress.nextStageKey === "study") return { key:"study", label:"Complete Study", ctaLabel:"Continue Study", sub:"Review flashcards for this topic", action:()=>openStudyForTopic(topicId, "journey") };
+  if(progress.nextStageKey === "quiz") return { key:"quiz", label:"Start Quiz", ctaLabel:"Continue Quiz", sub:"Check secure retrieval", action:()=>goDailyQuiz(topicId) };
+  if(progress.nextStageKey === "games") return { key:"games", label:"Play Games", ctaLabel:"Continue Game", sub:"Strengthen speed and recall", action:()=>{ setTab("games"); } };
   return null;
 }
 
@@ -19543,7 +19611,8 @@ function renderTopicDashboard(){
     t4: "./Lesson infographics/Topic 4 line .PNG"
   };
 
-  const currentTopicId = getCurrentJourneyTopicId();
+  const journeyOverview = getJourneyOverview();
+  const currentTopicId = journeyOverview.currentTopicId;
   renderJourneyMapStops(currentTopicId);
   const stageMeta = [
     { key:"lessons", icon:'<svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"></rect><path d="M6 8h12"></path><path d="M6 12h7"></path><path d="m13 19 6-6"></path><path d="m18.4 12.6 1.9 1.9"></path></svg>', label:"Lessons" },
@@ -19555,9 +19624,10 @@ function renderTopicDashboard(){
   el.innerHTML = TOPICS.map((topic, index)=>{
     const topicId = topic.id;
     const enabled = isTopicEnabled(topicId);
-    const progress = getJourneyStageProgress(topicId);
-    const statusLabel = getTopicJourneyStatusLabel(topicId);
-    const milestoneProgress = Math.round((progress.lessons + progress.study + progress.quiz + progress.games) / 4);
+    const topicProgress = getCanonicalTopicProgress(topicId);
+    const progress = topicProgress.stages;
+    const statusLabel = topicProgress.statusLabel;
+    const milestoneProgress = topicProgress.overallPercent;
     const isCurrent = topicId === currentTopicId && enabled;
     const showStages = isCurrent;
     const titleParts = splitTopicTitleAndYears(getHomeTopicTitle(topic));
@@ -19802,10 +19872,7 @@ function bumpHeaderSessions(){
 }
 
 function computeProgressScore(){
-  const attempted = STATE.quiz?.attempted || 0;
-  const correct = STATE.quiz?.correct || 0;
-  if(attempted <= 0) return 0;
-  return Math.round((correct / attempted) * 100);
+  return getJourneyOverview().overallPercent;
 }
 
 function computeFocusCount(){
@@ -19819,8 +19886,11 @@ function computeFocusCount(){
 }
 
 function computeStatusLine(){
-  const completed = STATE.stats?.studied || 0;
-  return `Exam revision in progress · ${completed} cards completed`;
+  const journey = getJourneyOverview();
+  const currentTopic = TOPICS.find(topic=>topic.id === journey.currentTopicId);
+  const completedTopics = journey.topics.filter(entry=>entry.progress.isComplete).length;
+  const currentLabel = currentTopic ? getHomeTopicTitle(currentTopic) : "Learning Journey";
+  return `Learning Journey ${journey.overallPercent}% complete · ${completedTopics}/${journey.topics.length || 0} topics secured · Current focus: ${currentLabel}`;
 }
 
 function pickHook(){
@@ -20047,21 +20117,7 @@ function trackTaskStarted(taskType, topicId){
   logEvent("task_started", { taskType, topicId });
 }
 function touchTopicStats(topicId){
-  STATE.topicStats ||= {};
-  STATE.topicStats[topicId] ||= {
-    quizAttempts:0,
-    quizBestPercent:0,
-    flashcardsDone:0,
-    flashcardsTotal:0,
-    totalEarnedXp:0,
-    planStarted:false,
-    lastStudiedAt:0,
-    planLastSavedAt:0,
-    failedCards:0,
-    previousRetention:0,
-    gameCompletions:0
-  };
-  return STATE.topicStats[topicId];
+  return ensureTopicStats(topicId);
 }
 function getMagicMomentMetric(topicId){
   const streak = Number(STATE.dailyStreak?.count || 0);
@@ -20144,21 +20200,28 @@ function trackTaskCompleted(taskType, topicId, extra={}){
 function topicFlashcardStats(topicId){
   const pool = ALL_CARDS.filter(c=>c.topicId===topicId);
   const journeyStudy = getJourneyStudyStats(topicId);
+  const stats = ensureTopicStats(topicId);
   let weak = 0;
   pool.forEach(c=>{ if((getReview(c.id)?.score ?? 2) <= 1) weak++; });
+  stats.flashcardsDone = Math.max(Number(stats.flashcardsDone||0), Number(journeyStudy.done||0));
+  stats.flashcardsTotal = Math.max(Number(stats.flashcardsTotal||0), Number(pool.length||0));
+  stats.flashcardsRemaining = Math.max(0, Number(journeyStudy.remaining||0));
+  stats.failedCards = Math.max(Number(stats.failedCards||0), weak);
   return {
     total: pool.length,
     done: journeyStudy.done,
     remaining: journeyStudy.remaining,
-    failedCards: weak
+    failedCards: weak,
+    percent: pool.length ? Math.round((journeyStudy.done / pool.length) * 100) : 100
   };
 }
 function topicQuizStats(topicId){
-  const s = touchTopicStats(topicId);
-
+  const s = ensureTopicStats(topicId);
+  const topicProgress = getCanonicalTopicProgress(topicId);
   return {
     quizAttempts: Number(s.quizAttempts||0),
-    quizBestPercent: Number(s.quizBestPercent||0)
+    quizBestPercent: Number(s.quizBestPercent||0),
+    journeyQuizPercent: Number(topicProgress.stages.quiz||0)
   };
 }
 function topicPlanStats(topicId){
@@ -20166,12 +20229,13 @@ function topicPlanStats(topicId){
   return { planStarted: !!s.planStarted, planLastSavedAt: Number(s.planLastSavedAt||0) };
 }
 function dueForReview(topicId, now=Date.now()){
-  const s = touchTopicStats(topicId);
+  const s = ensureTopicStats(topicId);
+  const topicProgress = getCanonicalTopicProgress(topicId);
   const last = Number(s.lastStudiedAt||0);
-  const quizBestPercent = Number(s.quizBestPercent||0);
+  const masterySignal = Math.max(Number(s.quizBestPercent||0), Number(topicProgress.stages.study||0), Number(topicProgress.stages.quiz||0));
   if(!last) return true;
   const daysSince = (now - last) / 86400000;
-  return (daysSince >= 2 && quizBestPercent < 80) || (daysSince >= 5 && quizBestPercent >= 80);
+  return (daysSince >= 2 && masterySignal < 80) || (daysSince >= 5 && masterySignal >= 80);
 }
 function candidateRoute(taskType, topicId){
   if(taskType === "FLASHCARDS") return `study?topic=${encodeURIComponent(topicId)}&mode=all`;
@@ -20184,7 +20248,8 @@ function buildCandidate(taskType, topicId){
   const flash = topicFlashcardStats(topicId);
   const quiz = topicQuizStats(topicId);
   const plan = topicPlanStats(topicId);
-  const topic = touchTopicStats(topicId);
+  const topic = ensureTopicStats(topicId);
+  const progress = getCanonicalTopicProgress(topicId);
   return {
     taskType,
     topicId,
@@ -20192,9 +20257,13 @@ function buildCandidate(taskType, topicId){
     flashcardsRemaining: flash.remaining,
     flashcardsTotal: flash.total,
     flashcardsDone: flash.done,
+    flashcardsPercent: flash.percent,
     failedCards: flash.failedCards,
     quizAttempts: quiz.quizAttempts,
     quizBestPercent: quiz.quizBestPercent,
+    journeyQuizPercent: quiz.journeyQuizPercent,
+    journeyOverallPercent: progress.overallPercent,
+    nextJourneyStage: progress.nextStageKey,
     planStarted: plan.planStarted,
     planLastSavedAt: plan.planLastSavedAt,
     lastStudiedAt: Number(topic.lastStudiedAt||0)
