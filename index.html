@@ -3822,7 +3822,7 @@ section#games.gamePaneActive .gamesHeroCard{
         </button>
       </div>
 
-      <button class="protectBtn" id="protectStreakBtn" type="button"><span class="protectBtnText"><span class="protectBtnTitle">Continue learning</span><span class="protectBtnTopic">Your next task</span></span></button>
+      <button class="protectBtn" id="protectStreakBtn" type="button"><span class="protectBtnText"><span class="protectBtnTitle">Start daily target</span><span class="protectBtnTopic">Your next task</span></span></button>
     </div>
 
     <div class="card homeSecondaryCard streakAwardsPanel" aria-label="Streak awards">
@@ -4090,9 +4090,9 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
   </div>
 
-  <div id="dailyChallengeCompleteOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily Challenge complete options">
+  <div id="dailyChallengeCompleteOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily target complete options">
     <div class="onboardingModal quizResultModal">
-      <h3 class="onboardingTitle">🏆 Daily Challenge complete!</h3>
+      <h3 class="onboardingTitle">🏆 Daily target complete!</h3>
       <div class="quizResultStatus good">Streak protected. Keep the momentum going.</div>
       <div class="note quizResultExplain" id="dailyCompleteExplain">Choose your next step.</div>
       <div class="quizCompleteActions">
@@ -4112,7 +4112,7 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
   </div>
 
-  <div id="dailyNextTaskOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily Challenge next task">
+  <div id="dailyNextTaskOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily target next task">
     <div class="onboardingModal quizResultModal">
       <h3 class="onboardingTitle" id="dailyNextTaskTitle">Great work!</h3>
       <div class="quizResultStatus good" id="dailyNextTaskStatus">Section complete.</div>
@@ -4151,7 +4151,7 @@ section#games.gamePaneActive .gamesHeroCard{
         <button class="btn" id="coachChallengeBtn" type="button">
           <span class="btnIconLabel">
             <svg class="navIcon" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="12" height="15" rx="2"></rect><path d="M8 9h4"></path><path d="M8 13h4"></path><path d="M18 8h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8"></path></svg>
-            <span class="coachActionTitle" id="coachQuizBtnTitle">Continue journey</span>
+            <span class="coachActionTitle" id="coachQuizBtnTitle">Go to Daily Target</span>
           </span>
         </button>
       </div>
@@ -19518,14 +19518,14 @@ function getDirectiveFlowConfig(topicId){
   const dailyTopicTitle = dailyTopic?.title || "today’s topic";
 
   if(!d.completed && dailyStep && dailyRoute){
-    const stepLabel = challengeStepName(dailyStep) || "Daily Challenge";
+    const stepLabel = challengeStepName(dailyStep) || "Daily Target";
     return {
       mode: "daily",
       topicId: dailyTopicId,
       topicTitle: dailyTopicTitle,
       ctaLabel: `Go to ${stepLabel}`,
-      shortLabel: "Daily Challenge",
-      message: `Start with today’s Daily Challenge: ${stepLabel.toLowerCase()} for ${dailyTopicTitle}. Once that’s complete, come back to continue your Learning Journey.`,
+      shortLabel: "Daily Target",
+      message: `Start with today’s Daily Target: ${stepLabel.toLowerCase()} for ${dailyTopicTitle}. Once that’s complete, come back to continue learning.`,
       action: ()=>dailyRoute(dailyTopicId)
     };
   }
@@ -20655,11 +20655,11 @@ function openDailyCoachDialog(forceRefresh=false){
   const studyTitleNode = $("coachStudyBtnTitle");
   const quizTitleNode = $("coachQuizBtnTitle");
 
-  if(titleNode) titleNode.textContent = directive.mode === "daily" ? "Welcome back" : "Challenge complete";
+  if(titleNode) titleNode.textContent = directive.mode === "daily" ? "Welcome back" : "Daily target complete";
   if(msgNode) msgNode.textContent = directive.message;
 
   if(studyTitleNode) studyTitleNode.textContent = directive.mode === "daily" ? "Open Learning Journey" : "Study topic";
-  if(quizTitleNode) quizTitleNode.textContent = directive.mode === "daily" ? "Go to Daily Challenge" : (directive.ctaLabel || "Continue journey");
+  if(quizTitleNode) quizTitleNode.textContent = directive.mode === "daily" ? "Go to Daily Target" : (directive.ctaLabel || "Continue journey");
 
   if(studyBtn){
     studyBtn.classList.toggle("hidden", false);
@@ -20735,12 +20735,21 @@ function closeWelcomeVideoDialog(showCoach=true){
 function getChallengeCtaConfig(d){
   const dailyTopicId = getActiveDailyTopicId();
   const topicTitle = compactTopicTitle(getHomeTopicTitle(TOPICS.find(t=>t.id===dailyTopicId))) || "Today's topic";
-  const step = nextDailyAction(d || ensureDaily());
+  const daily = d || ensureDaily();
+  const step = nextDailyAction(daily);
+  const hasStartedTarget = Array.isArray(daily?.activities) && daily.activities.some(activity=>{
+    if(!activity) return false;
+    if(activity.type === "quiz"){
+      return Number(activity.bestPercent || 0) > 0;
+    }
+    return Number(activity.progress || 0) > 0;
+  });
+  const actionTitle = hasStartedTarget ? "Continue daily target" : "Start daily target";
 
-  if(step === "study") return { title:"Continue learning", topic:`${topicTitle} · Study cards`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyFocus) };
-  if(step === "quiz") return { title:"Continue learning", topic:`${topicTitle} · Topic quiz`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(()=>goDailyQuiz(dailyTopicId)) };
-  if(step === "lesson") return { title:"Continue learning", topic:`${topicTitle} · Lesson`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyLesson) };
-  if(step === "game") return { title:"Continue learning", topic:`${topicTitle} · Game`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyGame) };
+  if(step === "study") return { title:actionTitle, topic:`${topicTitle} · Study cards`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyFocus) };
+  if(step === "quiz") return { title:actionTitle, topic:`${topicTitle} · Topic quiz`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(()=>goDailyQuiz(dailyTopicId)) };
+  if(step === "lesson") return { title:actionTitle, topic:`${topicTitle} · Lesson`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyLesson) };
+  if(step === "game") return { title:actionTitle, topic:`${topicTitle} · Game`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyGame) };
   return { title:"Continue learning", topic:`${topicTitle} · Review`, accentColor:null, disabled:false, onClick:()=>playJourneyIntroThen(goDailyFocus) };
 }
 
@@ -21397,7 +21406,7 @@ function showDailyNextTaskModal(topicId){
   const goLabelNode = $("dailyNextTaskBtnLabel");
 
   if(titleNode) titleNode.textContent = "✅ Section complete";
-  if(statusNode) statusNode.textContent = `${stepLabel} is next in today’s challenge.`;
+  if(statusNode) statusNode.textContent = `${stepLabel} is next in today’s daily target.`;
   if(explainNode) explainNode.textContent = `Continue with ${stepLabel.toLowerCase()} for ${topicTitle}. Opening now…`;
   if(goLabelNode) goLabelNode.textContent = `Go to ${stepLabel}`;
 
