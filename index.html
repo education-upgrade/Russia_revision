@@ -10194,6 +10194,7 @@ function baseState(){
     topicStats:{},
     userStats:{ lastActionType:null, lastActiveAt:0, sessionsToday:0 },
     analytics:{ daily:{} },
+    quizMistakes:{},
     // topics toggled off are excluded from flashcards/quizzes/daily challenge
     disabledTopics:{},
     journey:{ completedCards:{}, completedQuizQuestions:{} },
@@ -10211,6 +10212,7 @@ function ensureStateShape(source){
   s.topicStats ||= {};
   s.userStats ||= { lastActionType:null, lastActiveAt:0, sessionsToday:0 };
   s.analytics ||= { daily:{} };
+  s.quizMistakes ||= {};
   s.disabledTopics ||= {};
   s.journey ||= { completedCards:{}, completedQuizQuestions:{} };
   s.journey.completedCards ||= {};
@@ -10408,8 +10410,8 @@ function topicHasQuizRemaining(topicId){
   return getJourneyQuizPool(topicId).length > 0;
 }
 function topicHasGameRemaining(topicId){
-  const s = touchTopicStats(topicId);
-  return Number(s.gameCompletions||0) < 1;
+  if(!topicId || !isTopicEnabled(topicId)) return false;
+  return true;
 }
 function isDailyTypeValidForTopic(type, topicId){
   if(type === "lesson") return topicHasLessonRemaining(topicId);
@@ -10457,19 +10459,14 @@ function syncDailyActivityProgress(daily){
   daily.activities.forEach(activity=>{
     if(!activity || !activity.type) return;
     if(activity.type === "lesson"){
-      const topic = lessonsData.find(t=>t.id===topicId);
-      const lessons = topic ? getTopicLessons(topic) : [];
-      const done = lessons.reduce((n,l)=>n + (getLessonJourneyState(l.id) === "completed" ? 1 : 0), 0);
-      activity.progress = Math.min(activity.target||1, done > 0 ? 1 : 0);
+      activity.progress = Math.min(activity.target||1, Number(activity.progress||0));
     }else if(activity.type === "study"){
       activity.progress = Math.min(activity.target||10, Number(activity.progress||0));
     }else if(activity.type === "quiz"){
-      const stats = topicQuizStats(topicId);
-      activity.bestPercent = Math.max(Number(activity.bestPercent||0), Number(stats.quizBestPercent||0));
+      activity.bestPercent = Math.max(0, Math.min(100, Number(activity.bestPercent||0)));
       activity.progress = Number(activity.bestPercent||0) >= 100 ? Number(activity.target||1) : 0;
     }else if(activity.type === "game"){
-      const stats = touchTopicStats(topicId);
-      activity.progress = Math.min(activity.target||1, Number(stats.gameCompletions||0) > 0 ? 1 : 0);
+      activity.progress = Math.min(activity.target||1, Number(activity.progress||0));
     }
     activity.completed = isDailyActivityDone(activity);
   });
@@ -10953,6 +10950,17 @@ function unique(arr){
     if(seen.has(k)) continue;
     seen.add(k);
     out.push(x);
+  }
+  return out;
+}
+function uniqueBy(arr, keyFn){
+  const seen = new Set();
+  const out = [];
+  for(const item of (Array.isArray(arr) ? arr : [])){
+    const key = String(keyFn ? keyFn(item) : item);
+    if(seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
   }
   return out;
 }
@@ -20834,7 +20842,16 @@ $("goDailyAct3")?.addEventListener("click", ()=>goDailyActivity(2));
 let CURRENT = { list:[], idx:0, card:null };
 
 function pickDailyFlashcards(topicId, count=(DAILY_ACTIVITY_TARGETS.study||10)){
-  const pool = getJourneyCardsForTopic(topicId);
+  const incomplete = getJourneyCardsForTopic(topicId);
+  const struggled = ALL_CARDS.filter(card=>{
+    if(card.topicId !== topicId) return false;
+    const review = getReview(card.id);
+    if(!review) return false;
+    return Number(review.score||0) <= 1;
+  });
+  const pool = incomplete.length
+    ? uniqueBy([...incomplete, ...struggled], card=>card.id)
+    : uniqueBy([...struggled, ...ALL_CARDS.filter(card=>card.topicId===topicId)], card=>card.id);
   return shuffle(pool).slice(0, Math.min(count, pool.length));
 }
 
@@ -21301,6 +21318,65 @@ function getQuizPool(topicId){
 function getJourneyQuizPool(topicId){
   return getQuizPool(topicId).filter(q=>!isJourneyQuizQuestionComplete(q));
 }
+function recordQuizMistake(question){
+  if(!question) return;
+  ensureStateShape(STATE);
+  const key = getJourneyQuizQuestionKey(question);
+  if(!key) return;
+  const prev = STATE.quizMistakes[key] || {};
+  STATE.quizMistakes[key] = {
+    misses: Math.max(1, Number(prev.misses || 0) + 1),
+    lastMissAt: Date.now(),
+    topicId: question.topicId || prev.topicId || null
+  };
+}
+function recordQuizRecovery(question){
+  if(!question) return;
+  ensureStateShape(STATE);
+  const key = getJourneyQuizQuestionKey(question);
+  if(!key || !STATE.quizMistakes[key]) return;
+  const prev = STATE.quizMistakes[key];
+  const misses = Math.max(0, Number(prev.misses || 0) - 1);
+  if(misses <= 0){
+    delete STATE.quizMistakes[key];
+    return;
+  }
+  STATE.quizMistakes[key] = { ...prev, misses };
+}
+function getTroubleQuizPool(topicId){
+  ensureStateShape(STATE);
+  const bank = getQuizPool(topicId);
+  if(!bank.length) return [];
+  const byKey = new Map(bank.map(q=>[getJourneyQuizQuestionKey(q), q]));
+  const entries = Object.entries(STATE.quizMistakes || {})
+    .filter(([,meta])=>{
+      if(topicId === "MIXED") return true;
+      return !meta?.topicId || meta.topicId === topicId;
+    })
+    .map(([key,meta])=>({ key, meta }));
+  entries.sort((a,b)=>{
+    const missDelta = Number(b.meta?.misses || 0) - Number(a.meta?.misses || 0);
+    if(missDelta !== 0) return missDelta;
+    return Number(b.meta?.lastMissAt || 0) - Number(a.meta?.lastMissAt || 0);
+  });
+  return entries.map(entry=>byKey.get(entry.key)).filter(Boolean);
+}
+function getDailyQuizPool(topicId){
+  const incomplete = getJourneyQuizPool(topicId);
+  const trouble = getTroubleQuizPool(topicId);
+  if(!incomplete.length && !trouble.length) return getQuizPool(topicId);
+  const picked = [];
+  const used = new Set();
+  const pushUnique = (q)=>{
+    const key = getJourneyQuizQuestionKey(q);
+    if(!key || used.has(key)) return;
+    used.add(key);
+    picked.push(q);
+  };
+  trouble.forEach(pushUnique);
+  incomplete.forEach(pushUnique);
+  return picked;
+}
 
 /* QUIZ state + streaks */
 const QUIZ_FEEDBACK_DELAY_MS = 800;
@@ -21534,7 +21610,9 @@ function startQuiz(useErrorBank=false){
   const mode = $("quizModeSelect")?.value || "standard";
   if(topicId !== "MIXED") trackTaskStarted("QUIZ", topicId);
 
-  const pool = useErrorBank ? QUIZ.errorBank.map(x=>x.sourceQ) : getJourneyQuizPool(topicId);
+  const pool = useErrorBank
+    ? QUIZ.errorBank.map(x=>x.sourceQ)
+    : (NEXT_QUIZ_FROM_DAILY_CHALLENGE ? getDailyQuizPool(topicId) : getJourneyQuizPool(topicId));
   let list = shuffle(pool).slice(0, Math.min(count, pool.length));
   if(mode === "exam") list = list.map(buildExamisedQuestion);
 
@@ -21676,6 +21754,7 @@ function renderQuizQ(){
       if(correct){
         QUIZ.score++;
         if(!QUIZ.usingErrorBank) markJourneyQuizQuestionComplete(q);
+        recordQuizRecovery(q);
         STATE.quiz.correct = (STATE.quiz.correct||0) + 1;
         bucket.correct += 1;
 
@@ -21691,6 +21770,7 @@ function renderQuizQ(){
         }
       }else{
         resetJourneyQuizQuestionComplete(q);
+        recordQuizMistake(q);
         QUIZ.streak = 0;
         b.classList.add("wrong", "feedbackFlash");
         const correctButton = buttons.find(btn=>btn.textContent === q.answer);
