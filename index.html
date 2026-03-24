@@ -22531,9 +22531,33 @@ function init(){
     $("dailyChallengeCompleteOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyChallengeCompleteOverlay") closeDailyChallengeCompleteModal(); });
     $("dailyNextTaskOverlay")?.addEventListener("click", (e)=>{ if(e.target && e.target.id === "dailyNextTaskOverlay") closeDailyNextTaskModal(); });
 
+    let lastVisibleDayKey = todayKey();
     document.addEventListener("visibilitychange", ()=>{
-      if(document.visibilityState === "hidden") endSession();
-      if(document.visibilityState === "visible") startSession("tab_switch");
+      if(document.visibilityState === "hidden"){
+        endSession();
+        return;
+      }
+      if(document.visibilityState === "visible"){
+        const reopenedDayKey = todayKey();
+        const crossedIntoNewDay = reopenedDayKey !== lastVisibleDayKey;
+        lastVisibleDayKey = reopenedDayKey;
+
+        startSession("tab_switch");
+        try{
+          // Always refresh Home state when resuming from the background.
+          // This prevents stale “completed” daily activities from a prior day
+          // when the app remains open across midnight.
+          updateDailyUI();
+          computeKpis();
+          renderHomeRecommendation();
+          updateStudyLaunchCta();
+          if(crossedIntoNewDay){
+            buildDailyCoachRecommendation();
+          }
+        }catch(e){
+          console.warn("Resume refresh failed", e);
+        }
+      }
     });
     window.addEventListener("beforeunload", endSession);
   }catch(e){
