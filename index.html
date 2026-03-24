@@ -4090,9 +4090,9 @@ section#games.gamePaneActive .gamesHeroCard{
     </div>
   </div>
 
-  <div id="dailyChallengeCompleteOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily target complete options">
+  <div id="dailyChallengeCompleteOverlay" class="modalBackdrop hidden" role="dialog" aria-modal="true" aria-live="polite" aria-label="Daily Target Complete Options">
     <div class="onboardingModal quizResultModal">
-      <h3 class="onboardingTitle">🏆 Daily target complete!</h3>
+      <h3 class="onboardingTitle">🏆 Daily Target Complete!</h3>
       <div class="quizResultStatus good">Streak protected. Keep the momentum going.</div>
       <div class="note quizResultExplain" id="dailyCompleteExplain">Choose your next step.</div>
       <div class="quizCompleteActions">
@@ -19494,7 +19494,7 @@ function getTopicJourneyStatusLabel(topicId){
 
 function getJourneyNextStep(topicId){
   const progress = getCanonicalTopicProgress(topicId);
-  if(progress.nextStageKey === "lessons") return { key:"lessons", label:"Complete Lessons", ctaLabel:"Continue Lessons", sub:"Move through key enquiries", action:()=>{ if(openRecommendedLessonForTopic(topicId)){ setTab("lessons"); return; } setTab("lessons"); } };
+  if(progress.nextStageKey === "lessons") return { key:"lessons", label:"Complete Lessons", ctaLabel:"Continue Lessons", action:()=>{ if(openRecommendedLessonForTopic(topicId)){ setTab("lessons"); return; } setTab("lessons"); } };
   if(progress.nextStageKey === "study") return { key:"study", label:"Complete Study", ctaLabel:"Continue Study", sub:"Review flashcards for this topic", action:()=>openStudyForTopic(topicId, "journey") };
   if(progress.nextStageKey === "quiz") return { key:"quiz", label:"Start Quiz", ctaLabel:"Continue Quiz", sub:"Check secure retrieval", action:()=>goDailyQuiz(topicId) };
   if(progress.nextStageKey === "games") return { key:"games", label:"Play Games", ctaLabel:"Continue Game", sub:"Strengthen speed and recall", action:()=>{ setTab("games"); } };
@@ -19546,7 +19546,9 @@ function getDirectiveFlowConfig(topicId){
     ctaLabel: resume.nextStep?.ctaLabel || "Continue Learning Journey",
     shortLabel: "Learning Journey",
     message: resume.nextStep
-      ? `Next up in your Learning Journey for ${resume.topicTitle}: ${resume.nextStep.sub}.`
+      ? (resume.nextStep.sub
+        ? `Next up in your Learning Journey for ${resume.topicTitle}: ${resume.nextStep.sub}.`
+        : `Next up in your Learning Journey for ${resume.topicTitle}.`)
       : `You’re up to date in ${resume.topicTitle}. Review the topic whenever you want.`,
     action: resume.action,
     nextStep: resume.nextStep
@@ -20663,7 +20665,7 @@ function openDailyCoachDialog(forceRefresh=false){
   const studyTitleNode = $("coachStudyBtnTitle");
   const quizTitleNode = $("coachQuizBtnTitle");
 
-  if(titleNode) titleNode.textContent = directive.mode === "daily" ? "Welcome back" : "Daily target complete";
+  if(titleNode) titleNode.textContent = directive.mode === "daily" ? "Welcome Back" : "Daily Target Complete";
   if(msgNode) msgNode.textContent = directive.message;
 
   if(studyTitleNode) studyTitleNode.textContent = directive.mode === "daily" ? "Open Learning Journey" : "Study topic";
