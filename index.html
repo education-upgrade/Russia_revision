@@ -4746,6 +4746,7 @@ section#games.gamePaneActive .gamesHeroCard{
    TOPICS (SoW order)
    ========================================================== */
 const TOPICS = [
+  { id:"t0", title:"An Introduction to Russia" },
   { id:"t1", title:"Autocracy, Reform and Reaction (1855–1894)" },
   { id:"t2", title:"Industrialisation, War and Revolution (1894–1917)" },
   { id:"t3", title:"Revolution and Consolidation (1917–1941)" },
@@ -4753,6 +4754,7 @@ const TOPICS = [
 ];
 
 const JOURNEY_TOPIC_STOPS = Object.freeze([
+  { id:"t0", title:"Introduction to Russia", years:"Context", x:86.2, y:88.6, labelClass:"right" },
   { id:"t1", title:"Preserving Autocracy", years:"1855–1894", x:81.5, y:78.4, labelClass:"right" },
   { id:"t2", title:"Failure of Autocracy", years:"1894–1917", x:57.4, y:60.9, labelClass:"left" },
   { id:"t3", title:"Establishing Communist Rule", years:"1917–1941", x:69.5, y:43.4, labelClass:"right" },
@@ -4763,6 +4765,21 @@ const JOURNEY_TOPIC_STOPS = Object.freeze([
    FACT_BANK (UNCHANGED content - fully populated)
    ========================================================== */
 const FACT_BANK = {
+  t0: {
+    title: "0. An Introduction to Russia",
+    terms:[
+      { term:"Autocracy", date:"", meaning:"A political system in which the Tsar ruled with supreme personal authority and no constitutional limit.", significance:"It is the core constitutional starting point for understanding Russian politics before 1905." },
+      { term:"Orthodoxy", date:"", meaning:"The religious tradition of the Russian Orthodox Church.", significance:"Orthodoxy helped legitimise the Tsar by presenting rule as sacred and socially unifying." },
+      { term:"Official Nationality", date:"1833", meaning:"The doctrine of Orthodoxy, Autocracy, and Nationality associated with Nicholas I.", significance:"It provided an ideological framework for state loyalty and suspicion of liberal ideas." },
+      { term:"Crimean War", date:"1853–1856", meaning:"A war between Russia and an alliance including Britain, France, and the Ottoman Empire.", significance:"Defeat exposed military and administrative weaknesses and helped trigger reform debates." },
+      { term:"Serfdom", date:"", meaning:"A labour and social system binding most peasants to landowners until 1861.", significance:"It limited mobility, productivity, and social flexibility, shaping long-term Russian development." },
+      { term:"Intelligentsia", date:"", meaning:"Educated groups of writers, students, officials and professionals engaged in social and political debate.", significance:"They became a major channel for criticism, reform ideas, and later radical ideologies." },
+      { term:"Marxism", date:"", meaning:"A socialist theory centred on class conflict and historical change driven by economic structures.", significance:"In Russia it offered an influential framework for analysing autocracy, capitalism and revolution." },
+      { term:"Okhrana", date:"", meaning:"The Tsarist political police in the late imperial period.", significance:"It symbolised the state’s reliance on surveillance and repression to contain opposition." }
+    ],
+    people:[],
+    events:[]
+  },
   t1: {
     title: "1. Preserving Autocracy 1855-1894",
     terms:[
@@ -12690,6 +12707,219 @@ const lessonKeyQuestionMap = {
 };
 
 const lessonsData = [
+  {
+    id:"t0",
+    title:"An introduction to Russia topic",
+    topicOverview:{
+      tension:"Russia appeared vast and powerful, but its geography, social structure, and governing model created deep pressures before the major crises of the late nineteenth century.",
+      examWants:[
+        "Use secure contextual knowledge to frame later change and continuity judgements.",
+        "Explain key terms precisely: autocracy, Orthodoxy, serfdom, intelligentsia, and Marxism.",
+        "Link structural context (war, geography, society, ideology) to political outcomes."
+      ],
+      pathway:["Foundations & Context"]
+    },
+    themes:[
+      {
+        id:"foundations-context",
+        title:"Foundations & Context",
+        lessons:[
+          {
+            id:"t0-fc-russia-1855",
+            keyQuestionId:0,
+            keyQuestionTitle:"What core context is needed before studying modern Russia?",
+            keyQuestionOverview:"This lesson sets the baseline for all later study by explaining how Russia looked in 1855 politically, socially and economically.",
+            title:"What did Russia look like in 1855?",
+            yearLabel:"1855",
+            theme:"Foundations & Context",
+            heroImage:"./topic1.png",
+            contentPack:{
+              hero:{ titleLine:"Before reforms and revolutions, Russia in 1855 combined imperial scale with deep internal weaknesses.", subtitleLine:"What did Russia look like in 1855?" },
+              bigPicture:"Russia in 1855 was an autocratic empire with huge territory, peasant-majority society, and limited industrial development. Formal authority was strong, but state capacity and social flexibility were weaker than appearances suggested.",
+              sf:{
+                briefings:[
+                  { heading:"Micro-briefing 1: Political structure", text:"Russia was ruled by Tsarist autocracy, with no national representative parliament and no constitutional constraints on sovereign authority. Ministers served the Tsar rather than an elected assembly. This created command unity, but weak legal accountability." },
+                  { heading:"Micro-briefing 2: Social and economic profile", text:"Most people were peasants, and until 1861 many were serfs tied to noble estates. Urban middle classes and industrial workers were comparatively small in 1855. Russia had pockets of industrialisation, but remained predominantly agrarian." },
+                  { heading:"Micro-briefing 3: Why 1855 matters", text:"1855 is a turning-point year because Alexander II succeeded Nicholas I during the Crimean War. Military crisis exposed weaknesses in transport, administration and logistics, pushing elites to debate how far reform was needed to preserve Tsarist rule." }
+                ],
+                checks:[
+                  { heading:"Context check 1", prompt:"Which statement best describes Russia’s political system in 1855?", options:["A constitutional monarchy dominated by parliament.","An autocracy where the Tsar held supreme authority.","A federal democracy led by elected governors.","A one-party socialist state."], correctIndex:1 },
+                  { heading:"Context check 2", prompt:"What best describes Russia’s social structure in 1855?", options:["Mostly urban and industrial.","Mostly peasant and rural.","Mostly professional middle class.","Mostly military officials."], correctIndex:1 },
+                  { heading:"Context check 3", prompt:"Why is 1855 an important baseline date?", options:["It marks the creation of the Duma.","It marks the abolition of serfdom.","It marks a leadership change during wartime crisis.","It marks the beginning of Soviet rule."], correctIndex:2 },
+                  { heading:"Context check 4", prompt:"Which judgement is strongest?", options:["Russia was fully modern by 1855.","Russia had formal political strength but structural weaknesses.","Russia had no state institutions at all.","Russia had already solved the peasant question."], correctIndex:1 }
+                ]
+              },
+              ambition:{
+                briefings:[{ heading:"Ambition: baseline judgement", text:"High-level answers use 1855 as a benchmark, then test how far later reforms altered structural weaknesses. Treat 1855 as a starting model of strong authority but limited modern capacity." }],
+                task:{ heading:"Ambition task", prompt:"Which is the best baseline judgement for essays?", options:["1855 shows complete modernisation before reform.","1855 shows strong autocratic authority with major social and economic constraints.","1855 is irrelevant to later developments.","1855 marks the end of autocracy."], correctIndex:1 }
+              },
+              quickCheck:{ heading:"Quick check", prompt:"What is the most accurate summary of Russia in 1855?", options:["An advanced liberal democracy.","A vast autocratic empire with deep structural limits.","A fully industrial state.","A decentralised republic."], correctIndex:1 }
+            }
+          },
+          {
+            id:"t0-fc-crimean-war",
+            keyQuestionId:0,
+            keyQuestionTitle:"What core context is needed before studying modern Russia?",
+            keyQuestionOverview:"This lesson introduces the Crimean War as a catalyst that exposed state weakness and made reform an urgent political question.",
+            title:"Why did the Crimean War matter so much?",
+            yearLabel:"1853–1856",
+            theme:"Foundations & Context",
+            heroImage:"./topic1.png",
+            contentPack:{
+              hero:{ titleLine:"The Crimean War damaged Russia’s prestige and revealed how far military image exceeded administrative reality.", subtitleLine:"Why did the Crimean War matter so much?" },
+              bigPicture:"The Crimean War mattered because defeat highlighted logistical, technological and organisational weaknesses in the Russian state. It helped convince elites that reform from above was necessary to preserve great-power status.",
+              sf:{
+                briefings:[
+                  { heading:"Micro-briefing 1: What the war revealed", text:"Russia struggled with supply, rail transport, modern weaponry, and command coordination. The issue was not only battlefield setbacks but system-wide state capacity limits in communication, finance, and infrastructure." },
+                  { heading:"Micro-briefing 2: Political consequences", text:"The war weakened the aura of invincibility associated with Nicholas I’s system. When Alexander II came to power in 1855, reform became tied to regime survival: officials increasingly accepted that selective modernisation was essential." },
+                  { heading:"Micro-briefing 3: Historical significance", text:"The conflict did not automatically end autocracy, but it shifted elite debate from preserving the old order unchanged to preserving it through controlled change. This logic shaped reforms of the 1860s and 1870s." }
+                ],
+                checks:[
+                  { heading:"Context check 1", prompt:"Which weakness did the Crimean War expose most clearly?", options:["Over-powerful parliament.","Logistical and infrastructural weakness.","Too much industrial strength.","Excess democratic participation."], correctIndex:1 },
+                  { heading:"Context check 2", prompt:"Why was the war politically significant for Alexander II?", options:["It removed the monarchy.","It forced immediate constitutional democracy.","It made reform appear necessary for state strength.","It eliminated all opposition."], correctIndex:2 },
+                  { heading:"Context check 3", prompt:"Which statement is most accurate?", options:["Crimea ended autocracy in 1856.","Crimea had no domestic impact.","Crimea encouraged reform while autocracy remained intact.","Crimea made Russia militarily dominant."], correctIndex:2 },
+                  { heading:"Context check 4", prompt:"What is the best exam use of Crimea?", options:["As isolated military narrative only.","As evidence for structural state weakness and reform pressure.","As proof Russia was liberal.","As proof peasants controlled politics."], correctIndex:1 }
+                ]
+              },
+              ambition:{
+                briefings:[{ heading:"Ambition: causation framing", text:"Use Crimea as a causal bridge: military defeat -> exposed structural limits -> reform to preserve autocracy. This creates strong analytical chains in essays." }],
+                task:{ heading:"Ambition task", prompt:"Which is the strongest causal judgement?", options:["Defeat mattered little to domestic policy.","Defeat made reform politically urgent but within autocratic limits.","Defeat instantly democratised Russia.","Defeat ended social hierarchy."], correctIndex:1 }
+              },
+              quickCheck:{ heading:"Quick check", prompt:"Why does the Crimean War appear frequently in Russian history essays?", options:["It explains why Russia became a republic in 1856.","It exposed structural weaknesses that shaped reform debates.","It ended all foreign policy conflict.","It solved the peasant question."], correctIndex:1 }
+            }
+          },
+          {
+            id:"t0-fc-autocracy",
+            keyQuestionId:0,
+            keyQuestionTitle:"What core context is needed before studying modern Russia?",
+            keyQuestionOverview:"This lesson clarifies autocracy as both an ideological claim and a practical system of governance.",
+            title:"How did Tsarist autocracy actually work?",
+            yearLabel:"19th century context",
+            theme:"Foundations & Context",
+            heroImage:"./topic1.png",
+            contentPack:{
+              hero:{ titleLine:"Autocracy was more than ‘strong ruler’ — it combined sacred legitimacy, central command, and coercive enforcement.", subtitleLine:"How did Tsarist autocracy actually work?" },
+              bigPicture:"Tsarist autocracy rested on personal sovereignty, bureaucratic hierarchy, and coercive tools such as censorship and political policing. It could enforce obedience effectively, but often struggled to modernise flexibly.",
+              sf:{
+                briefings:[
+                  { heading:"Micro-briefing 1: Core features", text:"Autocracy meant the Tsar’s authority was not constitutionally shared with elected national institutions. Rule was justified by divine sanction and historical tradition. Policy flowed downward through ministers, governors, officials and local elites." },
+                  { heading:"Micro-briefing 2: Supporting pillars", text:"The Orthodox Church, noble service tradition, army loyalty, and state bureaucracy supported political control. Censorship and surveillance limited open dissent. In theory this produced stability; in practice administration could be slow and uneven across the empire." },
+                  { heading:"Micro-briefing 3: Strengths and limits", text:"Autocracy allowed decisive top-down action, especially in crises. Yet dependence on obedience and coercion could suppress feedback, making policy errors harder to correct. This tension explains why reform and reaction repeatedly alternated." }
+                ],
+                checks:[
+                  { heading:"Context check 1", prompt:"Which definition best fits Tsarist autocracy?", options:["Rule limited by an elected national parliament.","Rule by the Tsar without constitutional sharing of sovereignty.","Rule by local soviets.","Rule by military junta."], correctIndex:1 },
+                  { heading:"Context check 2", prompt:"Which institution helped legitimise autocracy ideologically?", options:["Russian Orthodox Church.","State Duma before 1905.","Soviet congresses.","Independent judiciary elected by workers."], correctIndex:0 },
+                  { heading:"Context check 3", prompt:"Which pair best shows autocratic enforcement?", options:["Universal suffrage and party competition.","Censorship and political policing.","Independent trade unions and free press.","Local referendums and coalition cabinets."], correctIndex:1 },
+                  { heading:"Context check 4", prompt:"What is a key limitation of autocracy?", options:["Too much parliamentary compromise.","Difficulty adapting because criticism and feedback were constrained.","Lack of central authority.","Inability to issue laws."], correctIndex:1 }
+                ]
+              },
+              ambition:{
+                briefings:[{ heading:"Ambition: conceptual precision", text:"Top responses distinguish autocracy as constitutional principle (who holds sovereignty) from state capacity (how effectively policies are delivered)." }],
+                task:{ heading:"Ambition task", prompt:"Which is the best analytical sentence?", options:["Autocracy means any policy by a king.","Autocracy is personal sovereign rule, but its effectiveness depends on bureaucracy, coercion and social support.","Autocracy equals democracy with strong leadership.","Autocracy prevented all social change."], correctIndex:1 }
+              },
+              quickCheck:{ heading:"Quick check", prompt:"Which summary is strongest?", options:["Autocracy was only ceremonial.","Autocracy fused personal sovereignty with bureaucratic and coercive control.","Autocracy depended on universal elections.","Autocracy had no ideological basis."], correctIndex:1 }
+            }
+          },
+          {
+            id:"t0-fc-orthodoxy",
+            keyQuestionId:0,
+            keyQuestionTitle:"What core context is needed before studying modern Russia?",
+            keyQuestionOverview:"This lesson explains how Orthodoxy and Official Nationality shaped identity, legitimacy, and state control.",
+            title:"Why were Orthodoxy and Official Nationality important?",
+            yearLabel:"19th century context",
+            theme:"Foundations & Context",
+            heroImage:"./topic1.png",
+            contentPack:{
+              hero:{ titleLine:"Orthodoxy was not only faith — it was political language used to bind ruler, state and society.", subtitleLine:"Why were Orthodoxy and Official Nationality important?" },
+              bigPicture:"Orthodoxy and Official Nationality provided ideological legitimacy for Tsarism. They promoted loyalty and social cohesion for many subjects, while also narrowing political pluralism and deepening tensions in a multi-ethnic empire.",
+              sf:{
+                briefings:[
+                  { heading:"Micro-briefing 1: The doctrine", text:"Official Nationality (Orthodoxy, Autocracy, Nationality) was articulated in the 1830s and remained influential later. It framed loyalty to the Tsar as moral and patriotic duty, countering liberal and revolutionary ideas from Europe." },
+                  { heading:"Micro-briefing 2: Institutions and practice", text:"Church structures were integrated with state oversight through the Holy Synod and Over-Procurator. Education, censorship and symbolic rituals reinforced this worldview, especially among elites and local officials." },
+                  { heading:"Micro-briefing 3: Limits and contradictions", text:"Ideological unity was difficult in a vast empire with many ethnicities, languages and religions. Policies tied to Russification could generate resistance. Thus Orthodoxy strengthened legitimacy in some contexts but sharpened opposition in others." }
+                ],
+                checks:[
+                  { heading:"Context check 1", prompt:"Official Nationality combined which ideas?", options:["Socialism, federalism, secularism.","Orthodoxy, Autocracy, Nationality.","Liberalism, parliamentarism, capitalism.","Republicanism, atheism, decentralisation."], correctIndex:1 },
+                  { heading:"Context check 2", prompt:"What political role did Orthodoxy play?", options:["It replaced the army.","It legitimised Tsarist authority and social obedience.","It created elected local councils.","It promoted party competition."], correctIndex:1 },
+                  { heading:"Context check 3", prompt:"Why could this ideology have limits?", options:["Russia was small and culturally uniform.","Multi-ethnic diversity made one identity formula difficult to impose.","It guaranteed religious freedom everywhere.","It reduced censorship."], correctIndex:1 },
+                  { heading:"Context check 4", prompt:"Which judgement is best?", options:["Orthodoxy was irrelevant to governance.","Orthodoxy only weakened autocracy.","Orthodoxy was a major support for autocracy, but could not solve all imperial tensions.","Orthodoxy created constitutional democracy."], correctIndex:2 }
+                ]
+              },
+              ambition:{
+                briefings:[{ heading:"Ambition: ideology as power", text:"Higher-level answers treat ideology as a governance tool: legitimacy can strengthen compliance, but overuse can harden exclusion and resistance." }],
+                task:{ heading:"Ambition task", prompt:"Which is the strongest extent judgement?", options:["Ideology had no practical effect.","Ideology supported autocracy significantly, but its reach was uneven across a diverse empire.","Ideology instantly solved political conflict.","Ideology replaced coercion entirely."], correctIndex:1 }
+              },
+              quickCheck:{ heading:"Quick check", prompt:"What is the best way to use Orthodoxy in argument?", options:["As purely private belief.","As part of the state’s legitimacy strategy.","As proof of democracy.","As a synonym for industrialisation."], correctIndex:1 }
+            }
+          },
+          {
+            id:"t0-fc-marxism",
+            keyQuestionId:0,
+            keyQuestionTitle:"What core context is needed before studying modern Russia?",
+            keyQuestionOverview:"This lesson introduces Marxism’s arrival in Russia and why it appealed to parts of the intelligentsia and labour movement.",
+            title:"How did Marxism enter Russian politics?",
+            yearLabel:"Late 19th century context",
+            theme:"Foundations & Context",
+            heroImage:"./topic1.png",
+            contentPack:{
+              hero:{ titleLine:"Marxism offered a new way to explain inequality, class conflict and revolution in a changing Russian society.", subtitleLine:"How did Marxism enter Russian politics?" },
+              bigPicture:"Marxist ideas spread through translations, exile networks and activist circles in the late nineteenth century. In Russia, Marxism competed with populism and liberalism, gradually influencing urban political opposition.",
+              sf:{
+                briefings:[
+                  { heading:"Micro-briefing 1: Core Marxist concepts", text:"Marxism analysed history through class struggle and argued that capitalism would produce conflict between bourgeois owners and proletarian workers. It predicted revolutionary transformation led by class politics rather than dynastic authority." },
+                  { heading:"Micro-briefing 2: Russian adaptation", text:"Russian thinkers debated whether Marxism fit a mostly agrarian society. Figures such as Plekhanov promoted Marxist analysis, arguing that industrial development and worker organisation would increasingly shape politics." },
+                  { heading:"Micro-briefing 3: Why it mattered", text:"Marxism gave opposition movements a systematic critique of autocracy and capitalism. While initially limited in social reach, it provided language, strategy, and organisational identity that later became central in the revolutionary era." }
+                ],
+                checks:[
+                  { heading:"Context check 1", prompt:"Which is a core Marxist idea?", options:["History driven by divine kingship.","History shaped by class conflict and economic structures.","History controlled by nobles alone.","History determined by climate only."], correctIndex:1 },
+                  { heading:"Context check 2", prompt:"Why was Marxism initially debated in Russia?", options:["Russia had no educated groups.","Russia was mostly agrarian, so fit with classical Marxist sequence was contested.","The Tsar promoted Marxism officially.","Workers already controlled parliament."], correctIndex:1 },
+                  { heading:"Context check 3", prompt:"Which figure is linked to early Russian Marxism?", options:["Plekhanov.","Pobedonostsev.","Nicholas I.","Stolypin."], correctIndex:0 },
+                  { heading:"Context check 4", prompt:"What is the best significance judgement?", options:["Marxism had immediate mass dominance everywhere.","Marxism was irrelevant before 1917.","Marxism began as a minority current but became an important long-term framework for opposition.","Marxism ended class conflict in the 1890s."], correctIndex:2 }
+                ]
+              },
+              ambition:{
+                briefings:[{ heading:"Ambition: long-term significance", text:"Strong essays show scale and timing: limited immediate reach does not mean low significance if an ideology later structures major political movements." }],
+                task:{ heading:"Ambition task", prompt:"Which analytical judgement is strongest?", options:["Marxism mattered only after 1917, so ignore it earlier.","Marxism had modest initial reach but high long-term significance for Russian opposition politics.","Marxism replaced all other ideas immediately.","Marxism was just a cultural movement with no political impact."], correctIndex:1 }
+              },
+              quickCheck:{ heading:"Quick check", prompt:"How should Marxism be described in this introductory context?", options:["An immediate ruling ideology in the 1850s.","A developing opposition framework that grew in influence over time.","A religious doctrine.","A policy of the Orthodox Church."], correctIndex:1 }
+            }
+          },
+          {
+            id:"t0-fc-geography-society",
+            keyQuestionId:0,
+            keyQuestionTitle:"What core context is needed before studying modern Russia?",
+            keyQuestionOverview:"This lesson links geography and social composition to recurring state challenges in governance, economy, and political control.",
+            title:"How did geography and society shape Russia?",
+            yearLabel:"Long-term context",
+            theme:"Foundations & Context",
+            heroImage:"./topic1.png",
+            contentPack:{
+              hero:{ titleLine:"Russia’s size, climate and social diversity shaped every major political and economic problem of the period.", subtitleLine:"How did geography and society shape Russia?" },
+              bigPicture:"Russia’s immense distances, uneven development, rural majority, and ethnic diversity made governance complex. Geography and social structure did not determine outcomes alone, but they strongly conditioned state capacity and reform choices.",
+              sf:{
+                briefings:[
+                  { heading:"Micro-briefing 1: Scale and distance", text:"The empire stretched across vast territory with difficult transport routes and climate extremes. Slow communication and weak infrastructure complicated tax collection, military mobilisation, and policy implementation from the centre." },
+                  { heading:"Micro-briefing 2: Social composition", text:"Russian society was highly stratified: nobility and officials held power, while peasants formed the majority. Industrial workers grew later in selected regions, creating new urban social tensions without replacing rural realities." },
+                  { heading:"Micro-briefing 3: Diversity and governance", text:"The empire included many nationalities, religions, and regional identities. Policies promoting central control and Russification sometimes strengthened state authority, but also generated resentment that could undermine long-term cohesion." }
+                ],
+                checks:[
+                  { heading:"Context check 1", prompt:"How did geography affect governance?", options:["It made administration uniformly easy.","It made communication, transport and control more difficult across long distances.","It had no effect on state policy.","It automatically industrialised all regions."], correctIndex:1 },
+                  { heading:"Context check 2", prompt:"Which group formed the majority for much of the period?", options:["Urban factory managers.","Peasants.","Professional politicians.","Army officers."], correctIndex:1 },
+                  { heading:"Context check 3", prompt:"Why does diversity matter for Russian political history?", options:["It removed all conflict.","It meant one policy model could face uneven acceptance across regions.","It made ideology unnecessary.","It made reform impossible in every case."], correctIndex:1 },
+                  { heading:"Context check 4", prompt:"Which is the strongest overall judgement?", options:["Geography alone determined everything.","Social structure alone determined everything.","Geography and society created constraints that shaped, but did not fully predetermine, state choices.","Neither geography nor society mattered."], correctIndex:2 }
+                ]
+              },
+              ambition:{
+                briefings:[{ heading:"Ambition: structural analysis", text:"Top-band responses use geography and social structure as explanatory context, then connect them to specific policies, crises, and outcomes instead of treating them as background description only." }],
+                task:{ heading:"Ambition task", prompt:"Which is the best essay approach?", options:["Mention geography once and move on.","Link distance, transport and social composition to concrete governance problems and policy responses.","Assume diversity had no political effects.","Treat structure as destiny with no role for leadership."], correctIndex:1 }
+              },
+              quickCheck:{ heading:"Quick check", prompt:"How should geography and society be used in historical argument?", options:["As structural context shaping opportunities and constraints.","As irrelevant background.","As proof that leaders do not matter.","As evidence that reform was impossible."], correctIndex:0 }
+            }
+          }
+        ]
+      }
+    ]
+  },
   {
     id:"t1",
     title:"Autocracy, Reform and Reaction (1855–1894)",
