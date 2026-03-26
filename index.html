@@ -21689,14 +21689,18 @@ function resolveDailyActivityRoute(step){
 function showDailyNextTaskModal(topicId){
   const d = ensureDaily();
   const incomplete = (Array.isArray(d.activities) ? d.activities : []).filter(a=>a && !isDailyActivityDone(a));
-  if(incomplete.length !== 1){
+  if(incomplete.length === 0 || d.completed){
     closeDailyNextTaskModal();
     showDailyChallengeCompleteModal(topicId || d.topicId);
     return;
   }
+  if(incomplete.length !== 1){
+    closeDailyNextTaskModal();
+    return;
+  }
   const step = incomplete[0]?.type;
   const routeToStep = resolveDailyActivityRoute(step);
-  if(d.completed || !step || !routeToStep){
+  if(!step || !routeToStep){
     closeDailyNextTaskModal();
     return;
   }
@@ -21734,6 +21738,12 @@ function showDailyNextTaskModal(topicId){
 }
 
 function showDailyChallengeCompleteModal(topicId){
+  const d = ensureDaily();
+  if(!d.completed){
+    closeDailyChallengeCompleteModal();
+    return;
+  }
+
   const overlay = $("dailyChallengeCompleteOverlay");
   if(!overlay) return;
 
