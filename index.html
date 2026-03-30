@@ -4219,8 +4219,8 @@ section#games.gamePaneActive .gamesHeroCard{
       </button>
 
       <button class="gamePillBtn" type="button" id="openSnakeQuizBtn">
-        <div class="gamePillTop"><div class="gamePillTitle">Pac-Man Keyword Chase</div><span class="gameMetaTag">Arcade recall</span></div>
-        <div class="gamePillDesc">Chase the correct keyword for the definition before a ghost or wrong pick ends the round.</div>
+        <div class="gamePillTop"><div class="gamePillTitle">Revolution Rush</div><span class="gameMetaTag">Arcade recall</span></div>
+        <div class="gamePillDesc">Read the question, collect the correct answer, and avoid the tsars. One mistake ends the run.</div>
       </button>
 
       <button class="gamePillBtn" type="button" id="openClassicSnakeBtn">
@@ -4473,18 +4473,18 @@ section#games.gamePaneActive .gamesHeroCard{
       </div>
       <div class="card gameStageCard">
         <div class="snakeHeaderCompact">
-          <div class="gameMissionTitle">Pac-Man Keyword Chase</div>
-          <p class="gameMissionHint">Read the definition, chase the correct keyword, and avoid ghosts. One mistake ends the run.</p>
+          <div class="gameMissionTitle">Revolution Rush</div>
+          <p class="gameMissionHint">Read the question, collect the correct answer, and avoid the tsars. One mistake ends the run.</p>
         </div>
 
         <div class="snakeQuestionBox" style="margin-top:10px">
-          <div class="spaceDefinitionLabel">Definition target</div>
-          <div id="snakeDefinitionText" class="spaceDefinitionText" style="margin-top:0;color:var(--textStrong)">Press start to load a definition.</div>
-          <div class="note" id="snakeChoiceLegend">Correct keyword and decoys will appear inside the maze.</div>
+          <div class="spaceDefinitionLabel">Question</div>
+          <div id="snakeDefinitionText" class="spaceDefinitionText" style="margin-top:0;color:var(--textStrong)">Press start to load a question.</div>
+          <div class="note" id="snakeChoiceLegend">A, B, and C answer tokens appear inside the maze.</div>
         </div>
 
         <div class="snakeQuizCanvasWrap" style="margin-top:10px">
-          <canvas id="snakeQuizCanvas" width="520" height="520" aria-label="Pac-Man keyword chase board"></canvas>
+          <canvas id="snakeQuizCanvas" width="520" height="520" aria-label="Revolution Rush board"></canvas>
           <div class="snakePad" aria-label="Snake controls">
             <span></span><button class="btn" id="snakeDirUp" type="button">⬆️</button><span></span>
             <button class="btn" id="snakeDirLeft" type="button">⬅️</button>
@@ -4493,10 +4493,10 @@ section#games.gamePaneActive .gamesHeroCard{
           </div>
         </div>
 
-        <div class="connMsg" id="snakeQuizMsg">Use arrow keys or buttons. Ghost contact or a wrong keyword ends the run.</div>
+        <div class="connMsg" id="snakeQuizMsg">Use arrow keys or buttons. A tsar collision or wrong answer ends the run.</div>
 
-        <div class="snakeRunControls" aria-label="Pac-Man run controls and stats">
-          <button class="btn primary" id="btnStartSnakeQuiz" type="button">🟡 Start chase</button>
+        <div class="snakeRunControls" aria-label="Revolution Rush controls and stats">
+          <button class="btn primary" id="btnStartSnakeQuiz" type="button">🚩 Start run</button>
           <div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap">
             <div class="pill" id="snakeQuizLenPill">Lives: 1</div>
             <div class="pill" id="snakeQuizScorePill">Correct: 0</div>
@@ -9433,9 +9433,9 @@ function bcSubmit(){
 })();
 
 /* =========================
-   Pac-Man Keyword Chase game logic
+   Revolution Rush game logic
    ========================= */
-const PACMAN_MAZE = [
+const REVOLUTION_MAZE = [
   "#############",
   "#.....#.....#",
   "#.###.#.###.#",
@@ -9451,8 +9451,8 @@ const PACMAN_MAZE = [
   "#############"
 ];
 
-const SNAKE_QUIZ = {
-  board: PACMAN_MAZE.length,
+const REVOLUTION_CHASE = {
+  board: REVOLUTION_MAZE.length,
   walls: new Set(),
   running: false,
   timer: null,
@@ -9462,38 +9462,38 @@ const SNAKE_QUIZ = {
   dir: {x:0,y:0},
   nextDir: {x:0,y:0},
   score: 0,
-  best: Number(localStorage.getItem("pacman_keyword_best") || 0),
-  q: null,
-  ghosts: [],
+  best: Number(localStorage.getItem("revolution_rush_best") || 0),
+  currentQuestion: null,
+  enemies: [],
   lives: 1
 };
 
-PACMAN_MAZE.forEach((row,y)=>{
+REVOLUTION_MAZE.forEach((row,y)=>{
   row.split("").forEach((cell,x)=>{
-    if(cell === "#") SNAKE_QUIZ.walls.add(`${x},${y}`);
+    if(cell === "#") REVOLUTION_CHASE.walls.add(`${x},${y}`);
   });
 });
 
-function snakeEl(id){ return document.getElementById(id); }
-function snakeCellKey(pos){ return `${pos.x},${pos.y}`; }
-function snakeIsWall(pos){ return SNAKE_QUIZ.walls.has(snakeCellKey(pos)); }
-function snakeSameCell(a,b){ return !!a && !!b && a.x===b.x && a.y===b.y; }
-function snakeSetMsg(msg){ const el = snakeEl("snakeQuizMsg"); if(el) el.textContent = msg; }
+function chaseEl(id){ return document.getElementById(id); }
+function chaseCellKey(pos){ return `${pos.x},${pos.y}`; }
+function chaseIsWall(pos){ return REVOLUTION_CHASE.walls.has(chaseCellKey(pos)); }
+function chaseSameCell(a,b){ return !!a && !!b && a.x===b.x && a.y===b.y; }
+function chaseSetMsg(msg){ const el = chaseEl("snakeQuizMsg"); if(el) el.textContent = msg; }
 
-function snakePool(topicId){
-  return getQuizPool(topicId).filter(q=>Array.isArray(q.choices) && q.choices.length >= 3);
+function chasePool(topicId){
+  return getQuizPool(topicId).filter(q=>Array.isArray(q.choices) && q.choices.length >= 3 && q.answer && q.q);
 }
 
-function snakeFreeCells(){
-  const blocked = new Set(SNAKE_QUIZ.ghosts.map(g=>snakeCellKey(g.pos)));
-  blocked.add(snakeCellKey(SNAKE_QUIZ.player));
-  if(SNAKE_QUIZ.q?.cells) SNAKE_QUIZ.q.cells.forEach(c=>blocked.add(snakeCellKey(c.pos)));
+function chaseFreeCells(){
+  const blocked = new Set(REVOLUTION_CHASE.enemies.map(enemy=>chaseCellKey(enemy.pos)));
+  blocked.add(chaseCellKey(REVOLUTION_CHASE.player));
+  if(REVOLUTION_CHASE.currentQuestion?.tokens) REVOLUTION_CHASE.currentQuestion.tokens.forEach(token=>blocked.add(chaseCellKey(token.pos)));
   const cells = [];
-  for(let y=0;y<SNAKE_QUIZ.board;y++){
-    for(let x=0;x<SNAKE_QUIZ.board;x++){
+  for(let y=0;y<REVOLUTION_CHASE.board;y++){
+    for(let x=0;x<REVOLUTION_CHASE.board;x++){
       const pos = {x,y};
-      if(snakeIsWall(pos)) continue;
-      const key = snakeCellKey(pos);
+      if(chaseIsWall(pos)) continue;
+      const key = chaseCellKey(pos);
       if(blocked.has(key)) continue;
       cells.push(pos);
     }
@@ -9501,20 +9501,20 @@ function snakeFreeCells(){
   return cells;
 }
 
-function snakeResetActors(){
-  SNAKE_QUIZ.player = {x:1,y:1};
-  SNAKE_QUIZ.dir = {x:0,y:0};
-  SNAKE_QUIZ.nextDir = {x:0,y:0};
-  SNAKE_QUIZ.ghosts = [
-    { pos:{x:11,y:1}, color:"#d94f70" },
-    { pos:{x:11,y:11}, color:"#7b6cf6" },
-    { pos:{x:1,y:11}, color:"#5f9dd9" }
+function chaseResetActors(){
+  REVOLUTION_CHASE.player = {x:1,y:1};
+  REVOLUTION_CHASE.dir = {x:0,y:0};
+  REVOLUTION_CHASE.nextDir = {x:0,y:0};
+  REVOLUTION_CHASE.enemies = [
+    { pos:{x:11,y:1}, color:"#cf5d6f" },
+    { pos:{x:11,y:11}, color:"#8668d7" },
+    { pos:{x:1,y:11}, color:"#5b8fcb" }
   ];
 }
 
-function snakeMove(pos, dir){ return {x:pos.x + dir.x, y:pos.y + dir.y}; }
+function chaseMove(pos, dir){ return {x:pos.x + dir.x, y:pos.y + dir.y}; }
 
-function snakeAvailableDirs(pos, forbidReverse){
+function chaseAvailableDirs(pos, forbidReverse){
   const dirs = [
     {x:1,y:0},
     {x:-1,y:0},
@@ -9523,62 +9523,76 @@ function snakeAvailableDirs(pos, forbidReverse){
   ];
   return dirs.filter(dir=>{
     if(forbidReverse && forbidReverse.x === -dir.x && forbidReverse.y === -dir.y) return false;
-    return !snakeIsWall(snakeMove(pos, dir));
+    return !chaseIsWall(chaseMove(pos, dir));
   });
 }
 
-function snakeChooseGhostDir(ghost){
-  const choices = snakeAvailableDirs(ghost.pos, ghost.dir || null);
+function chaseChooseEnemyDir(enemy){
+  const choices = chaseAvailableDirs(enemy.pos, enemy.dir || null);
   if(!choices.length) return {x:0,y:0};
   const ranked = choices.slice().sort((a,b)=>{
-    const aPos = snakeMove(ghost.pos, a);
-    const bPos = snakeMove(ghost.pos, b);
-    const aDist = Math.abs(aPos.x - SNAKE_QUIZ.player.x) + Math.abs(aPos.y - SNAKE_QUIZ.player.y);
-    const bDist = Math.abs(bPos.x - SNAKE_QUIZ.player.x) + Math.abs(bPos.y - SNAKE_QUIZ.player.y);
+    const aPos = chaseMove(enemy.pos, a);
+    const bPos = chaseMove(enemy.pos, b);
+    const aDist = Math.abs(aPos.x - REVOLUTION_CHASE.player.x) + Math.abs(aPos.y - REVOLUTION_CHASE.player.y);
+    const bDist = Math.abs(bPos.x - REVOLUTION_CHASE.player.x) + Math.abs(bPos.y - REVOLUTION_CHASE.player.y);
     return aDist - bDist;
   });
   return Math.random() < 0.72 ? ranked[0] : ranked[Math.floor(Math.random()*ranked.length)];
 }
 
-function snakeUpdatePrompt(){
-  const defEl = snakeEl("snakeDefinitionText");
-  const legendEl = snakeEl("snakeChoiceLegend");
-  if(defEl) defEl.textContent = SNAKE_QUIZ.q?.prompt || "Press start to load a definition.";
-  if(legendEl){
-    legendEl.textContent = SNAKE_QUIZ.q?.cells?.map((c, idx)=>`${idx+1}. ${c.choice}`).join(" • ") || "Correct keyword and decoys will appear inside the maze.";
+function chaseUpdatePrompt(){
+  const questionEl = chaseEl("snakeDefinitionText");
+  const choicesEl = chaseEl("snakeChoiceLegend");
+  if(questionEl) questionEl.textContent = REVOLUTION_CHASE.currentQuestion?.question || "Press start to load a question.";
+  if(choicesEl){
+    if(REVOLUTION_CHASE.currentQuestion?.choices){
+      const {A,B,C} = REVOLUTION_CHASE.currentQuestion.choices;
+      choicesEl.innerHTML = `A. ${A}<br>B. ${B}<br>C. ${C}`;
+    }else{
+      choicesEl.textContent = "A, B, and C answer tokens appear in the maze.";
+    }
   }
 }
 
-function snakeNewQuestion(){
-  const pool = snakePool(SNAKE_QUIZ.topicId);
+function chaseBuildQuestion(){
+  const pool = chasePool(REVOLUTION_CHASE.topicId);
   if(!pool.length){
-    SNAKE_QUIZ.q = null;
-    snakeUpdatePrompt();
-    snakeSetMsg("No keyword set available for this topic. Pick another topic.");
-    snakeStop();
+    REVOLUTION_CHASE.currentQuestion = null;
+    chaseUpdatePrompt();
+    chaseSetMsg("No question set available for this topic. Pick another topic.");
+    chaseStop();
     return false;
   }
+
   const pick = pool[Math.floor(Math.random()*pool.length)];
-  const distractors = shuffle((pick.choices || []).filter(c=>c!==pick.answer)).slice(0,2);
-  const choices = shuffle([pick.answer, ...distractors]).slice(0,3);
-  const free = shuffle(snakeFreeCells()).slice(0,3);
-  if(free.length < 3){
-    snakeSetMsg("Maze reset for a new chase.");
-    snakeResetActors();
-    return snakeNewQuestion();
-  }
-  SNAKE_QUIZ.q = {
-    prompt: pick.q,
-    answer: pick.answer,
-    cells: choices.map((choice, idx)=>(
-      { pos: free[idx], choice, correct: choice===pick.answer }
-    ))
+  const distractors = shuffle((pick.choices || []).filter(choice=>choice!==pick.answer)).slice(0,2);
+  const optionTexts = shuffle([pick.answer, ...distractors]).slice(0,3);
+  const labels = ["A","B","C"];
+  const choices = {
+    A: optionTexts[0],
+    B: optionTexts[1],
+    C: optionTexts[2]
   };
-  snakeUpdatePrompt();
+  const correctAnswer = labels.find(label=>choices[label]===pick.answer) || "A";
+
+  const tokenCells = shuffle(chaseFreeCells()).slice(0,3);
+  if(tokenCells.length < 3){
+    chaseSetMsg("Board reset for a fresh run.");
+    chaseResetActors();
+    return chaseBuildQuestion();
+  }
+
+  REVOLUTION_CHASE.currentQuestion = {
+    question: pick.q,
+    choices,
+    correctAnswer,
+    tokens: labels.map((label, idx)=>({ label, pos: tokenCells[idx] }))
+  };
+  chaseUpdatePrompt();
   return true;
 }
 
-function snakeDrawRoundedRect(ctx,x,y,w,h,r){
+function chaseDrawRoundedRect(ctx,x,y,w,h,r){
   const radius = Math.min(r, w/2, h/2);
   ctx.beginPath();
   ctx.moveTo(x+radius,y);
@@ -9589,229 +9603,231 @@ function snakeDrawRoundedRect(ctx,x,y,w,h,r){
   ctx.closePath();
 }
 
-function snakeDrawTextBlock(ctx,text,x,y,w,h){
-  const words = String(text).split(/\s+/).filter(Boolean);
-  const lines = [];
-  let current = words.shift() || "";
-  words.forEach(word=>{
-    const test = current ? `${current} ${word}` : word;
-    if(ctx.measureText(test).width <= w - 10){
-      current = test;
-    }else{
-      lines.push(current);
-      current = word;
-    }
-  });
-  if(current) lines.push(current);
-  const maxLines = 3;
-  const clipped = lines.slice(0, maxLines);
-  if(lines.length > maxLines){
-    clipped[maxLines-1] = `${clipped[maxLines-1].slice(0, Math.max(0, clipped[maxLines-1].length-1))}…`;
-  }
-  const lineHeight = Math.min(16, h / Math.max(2, clipped.length+0.25));
-  const startY = y + (h - lineHeight * clipped.length) / 2 + lineHeight/2;
-  clipped.forEach((line, idx)=>ctx.fillText(line, x + w/2, startY + idx*lineHeight));
+function chaseDrawTsarEnemy(ctx, enemy, cell){
+  const cx = enemy.pos.x*cell + cell/2;
+  const cy = enemy.pos.y*cell + cell/2;
+  const r = cell*0.3;
+
+  ctx.fillStyle = enemy.color;
+  ctx.beginPath();
+  ctx.arc(cx, cy + r*0.08, r, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle = "#f7d8be";
+  ctx.beginPath();
+  ctx.arc(cx, cy - r*0.05, r*0.66, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle = "#dcb86a";
+  ctx.beginPath();
+  ctx.moveTo(cx-r*0.78, cy-r*0.52);
+  ctx.lineTo(cx-r*0.46, cy-r*1.02);
+  ctx.lineTo(cx-r*0.12, cy-r*0.55);
+  ctx.lineTo(cx+r*0.12, cy-r*1.02);
+  ctx.lineTo(cx+r*0.46, cy-r*0.55);
+  ctx.lineTo(cx+r*0.78, cy-r*1.02);
+  ctx.lineTo(cx+r*0.78, cy-r*0.42);
+  ctx.lineTo(cx-r*0.78, cy-r*0.42);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#1b2f4e";
+  ctx.beginPath(); ctx.arc(cx-r*0.22, cy-r*0.02, r*0.09, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.22, cy-r*0.02, r*0.09, 0, Math.PI*2); ctx.fill();
+  ctx.fillRect(cx-r*0.18, cy+r*0.22, r*0.36, r*0.08);
 }
 
-function snakeDraw(){
-  const canvas = snakeEl("snakeQuizCanvas");
+function chaseDrawLeninPlayer(ctx, player, cell){
+  const cx = player.x*cell + cell/2;
+  const cy = player.y*cell + cell/2;
+  const r = cell*0.32;
+
+  ctx.fillStyle = "#f5d7bf";
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.fillStyle = "#6f4a34";
+  ctx.beginPath();
+  ctx.ellipse(cx-r*0.15, cy-r*0.7, r*0.85, r*0.45, -0.25, 0, Math.PI*2);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(cx-r*0.3, cy+r*0.15);
+  ctx.lineTo(cx+r*0.3, cy+r*0.15);
+  ctx.lineTo(cx, cy+r*0.78);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#14233b";
+  ctx.beginPath(); ctx.arc(cx-r*0.22, cy-r*0.05, r*0.09, 0, Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx+r*0.22, cy-r*0.05, r*0.09, 0, Math.PI*2); ctx.fill();
+  ctx.fillRect(cx-r*0.2, cy+r*0.23, r*0.4, r*0.08);
+}
+
+function chaseDraw(){
+  const canvas = chaseEl("snakeQuizCanvas");
   if(!canvas) return;
   const ctx = canvas.getContext("2d");
   if(!ctx) return;
   const size = canvas.width;
-  const cell = size / SNAKE_QUIZ.board;
+  const cell = size / REVOLUTION_CHASE.board;
   ctx.clearRect(0,0,size,size);
   ctx.fillStyle = "#091a2f";
   ctx.fillRect(0,0,size,size);
 
-  for(let y=0;y<SNAKE_QUIZ.board;y++){
-    for(let x=0;x<SNAKE_QUIZ.board;x++){
+  for(let y=0;y<REVOLUTION_CHASE.board;y++){
+    for(let x=0;x<REVOLUTION_CHASE.board;x++){
       const px = x*cell, py = y*cell;
-      if(SNAKE_QUIZ.walls.has(`${x},${y}`)){
+      if(REVOLUTION_CHASE.walls.has(`${x},${y}`)){
         ctx.fillStyle = "#224f87";
-        snakeDrawRoundedRect(ctx, px+2, py+2, cell-4, cell-4, 8);
+        chaseDrawRoundedRect(ctx, px+2, py+2, cell-4, cell-4, 8);
         ctx.fill();
       }else{
         ctx.fillStyle = "rgba(255,255,255,.04)";
         ctx.fillRect(px,py,cell,cell);
-        ctx.fillStyle = "rgba(255,240,160,.35)";
-        ctx.beginPath();
-        ctx.arc(px + cell/2, py + cell/2, Math.max(1.6, cell*0.06), 0, Math.PI*2);
-        ctx.fill();
       }
     }
   }
 
-  if(SNAKE_QUIZ.q?.cells){
-    SNAKE_QUIZ.q.cells.forEach(target=>{
-      const px = target.pos.x*cell + 4;
-      const py = target.pos.y*cell + 4;
-      ctx.fillStyle = target.correct ? "rgba(126,185,170,.92)" : "rgba(183,142,161,.92)";
-      snakeDrawRoundedRect(ctx, px, py, cell-8, cell-8, 10);
+  if(REVOLUTION_CHASE.currentQuestion?.tokens){
+    REVOLUTION_CHASE.currentQuestion.tokens.forEach(token=>{
+      const px = token.pos.x*cell + cell/2;
+      const py = token.pos.y*cell + cell/2;
+      const radius = cell*0.26;
+      ctx.fillStyle = "rgba(130,193,178,.95)";
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, Math.PI*2);
       ctx.fill();
-      ctx.strokeStyle = target.correct ? "rgba(202,244,231,.95)" : "rgba(255,224,235,.92)";
+      ctx.strokeStyle = "rgba(226,251,243,.95)";
       ctx.lineWidth = 2;
       ctx.stroke();
-      ctx.fillStyle = "#11233a";
-      ctx.font = `900 ${Math.floor(cell*0.18)}px Inter, sans-serif`;
+      ctx.fillStyle = "#10243d";
+      ctx.font = `900 ${Math.floor(cell*0.34)}px Inter, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      snakeDrawTextBlock(ctx, target.choice, px, py, cell-8, cell-8);
+      ctx.fillText(token.label, px, py+1);
     });
   }
 
-  SNAKE_QUIZ.ghosts.forEach(ghost=>{
-    const cx = ghost.pos.x*cell + cell/2;
-    const cy = ghost.pos.y*cell + cell/2;
-    const r = cell*0.28;
-    ctx.fillStyle = ghost.color;
-    ctx.beginPath();
-    ctx.arc(cx, cy-r*0.15, r, Math.PI, 0);
-    ctx.lineTo(cx+r, cy+r*0.9);
-    for(let i=0;i<3;i++){
-      const waveX = cx + r - ((i+1) * (2*r/3));
-      ctx.quadraticCurveTo(waveX + r/6, cy+r*0.55, waveX, cy+r*0.9);
+  REVOLUTION_CHASE.enemies.forEach(enemy=>chaseDrawTsarEnemy(ctx, enemy, cell));
+  chaseDrawLeninPlayer(ctx, REVOLUTION_CHASE.player, cell);
+}
+
+function chaseUpdateHud(){
+  chaseEl("snakeQuizLenPill").textContent = `Lives: ${REVOLUTION_CHASE.lives}`;
+  chaseEl("snakeQuizScorePill").textContent = `Correct: ${REVOLUTION_CHASE.score}`;
+  chaseEl("snakeQuizBestPill").textContent = `🏆 Best streak: ${REVOLUTION_CHASE.best}`;
+}
+
+function chaseStop(){
+  if(REVOLUTION_CHASE.timer) clearInterval(REVOLUTION_CHASE.timer);
+  REVOLUTION_CHASE.timer = null;
+  REVOLUTION_CHASE.running = false;
+}
+
+function chaseGameOver(reason){
+  chaseStop();
+  chaseSetMsg(`${reason} Final streak: ${REVOLUTION_CHASE.score}. Press Start run to try again.`);
+  chaseDraw();
+}
+
+function chaseResolveTokenHit(nextPos){
+  const token = REVOLUTION_CHASE.currentQuestion?.tokens?.find(item=>chaseSameCell(item.pos, nextPos));
+  if(!token) return false;
+
+  if(token.label === REVOLUTION_CHASE.currentQuestion.correctAnswer){
+    REVOLUTION_CHASE.player = {...nextPos};
+    REVOLUTION_CHASE.score += 1;
+    if(REVOLUTION_CHASE.score > REVOLUTION_CHASE.best){
+      REVOLUTION_CHASE.best = REVOLUTION_CHASE.score;
+      localStorage.setItem("revolution_rush_best", String(REVOLUTION_CHASE.best));
     }
-    ctx.lineTo(cx-r, cy-r*0.15);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = "#fff";
-    ctx.beginPath(); ctx.arc(cx-r*0.35, cy-r*0.1, r*0.24, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+r*0.35, cy-r*0.1, r*0.24, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = "#11233a";
-    ctx.beginPath(); ctx.arc(cx-r*0.3, cy-r*0.08, r*0.1, 0, Math.PI*2); ctx.fill();
-    ctx.beginPath(); ctx.arc(cx+r*0.3, cy-r*0.08, r*0.1, 0, Math.PI*2); ctx.fill();
-  });
-
-  const player = SNAKE_QUIZ.player;
-  const mouthOpen = SNAKE_QUIZ.running ? Math.PI/5 : Math.PI/10;
-  const angle = SNAKE_QUIZ.dir.x === 1 ? 0 : SNAKE_QUIZ.dir.x === -1 ? Math.PI : SNAKE_QUIZ.dir.y === 1 ? Math.PI/2 : -Math.PI/2;
-  const cx = player.x*cell + cell/2;
-  const cy = player.y*cell + cell/2;
-  ctx.fillStyle = "#ffd84d";
-  ctx.beginPath();
-  ctx.moveTo(cx,cy);
-  ctx.arc(cx, cy, cell*0.32, angle + mouthOpen, angle + (Math.PI*2 - mouthOpen));
-  ctx.closePath();
-  ctx.fill();
-}
-
-function snakeUpdateHud(){
-  snakeEl("snakeQuizLenPill").textContent = `Lives: ${SNAKE_QUIZ.lives}`;
-  snakeEl("snakeQuizScorePill").textContent = `Correct: ${SNAKE_QUIZ.score}`;
-  snakeEl("snakeQuizBestPill").textContent = `🏆 Best streak: ${SNAKE_QUIZ.best}`;
-}
-
-function snakeStop(){
-  if(SNAKE_QUIZ.timer) clearInterval(SNAKE_QUIZ.timer);
-  SNAKE_QUIZ.timer = null;
-  SNAKE_QUIZ.running = false;
-}
-
-function snakeGameOver(reason){
-  snakeStop();
-  snakeSetMsg(`${reason} Final streak: ${SNAKE_QUIZ.score}. Press Start chase to try again.`);
-  snakeDraw();
-}
-
-function snakeResolveTargetHit(nextPos){
-  const target = SNAKE_QUIZ.q?.cells?.find(cell=>snakeSameCell(cell.pos, nextPos));
-  if(!target) return false;
-  if(target.correct){
-    SNAKE_QUIZ.player = {...nextPos};
-    SNAKE_QUIZ.score += 1;
-    if(SNAKE_QUIZ.score > SNAKE_QUIZ.best){
-      SNAKE_QUIZ.best = SNAKE_QUIZ.score;
-      localStorage.setItem("pacman_keyword_best", String(SNAKE_QUIZ.best));
-    }
-    snakeSetMsg("✅ Correct keyword collected. New definition loaded.");
-    snakeResetActors();
-    snakeUpdateHud();
-    snakeNewQuestion();
-    snakeDraw();
+    chaseSetMsg("✅ Correct answer captured. Next question loaded.");
+    chaseResetActors();
+    chaseUpdateHud();
+    chaseBuildQuestion();
+    chaseDraw();
     return true;
   }
-  snakeGameOver(`❌ ${target.choice} does not match the definition.`);
+
+  const wrongText = REVOLUTION_CHASE.currentQuestion.choices[token.label];
+  chaseGameOver(`❌ ${token.label}. ${wrongText} is not correct.`);
   return true;
 }
 
-function snakeTick(){
-  if(!SNAKE_QUIZ.running) return;
-  const desired = snakeMove(SNAKE_QUIZ.player, SNAKE_QUIZ.nextDir);
-  if(!snakeIsWall(desired)) SNAKE_QUIZ.dir = {...SNAKE_QUIZ.nextDir};
-  const next = snakeMove(SNAKE_QUIZ.player, SNAKE_QUIZ.dir);
-  if(!snakeIsWall(next)){
-    if(snakeResolveTargetHit(next)) return;
-    SNAKE_QUIZ.player = next;
+function chaseTick(){
+  if(!REVOLUTION_CHASE.running) return;
+  const desired = chaseMove(REVOLUTION_CHASE.player, REVOLUTION_CHASE.nextDir);
+  if(!chaseIsWall(desired)) REVOLUTION_CHASE.dir = {...REVOLUTION_CHASE.nextDir};
+  const next = chaseMove(REVOLUTION_CHASE.player, REVOLUTION_CHASE.dir);
+  if(!chaseIsWall(next)){
+    if(chaseResolveTokenHit(next)) return;
+    REVOLUTION_CHASE.player = next;
   }
 
-  if(SNAKE_QUIZ.ghosts.some(ghost=>snakeSameCell(ghost.pos, SNAKE_QUIZ.player))){
-    snakeGameOver("👻 A ghost caught you.");
+  if(REVOLUTION_CHASE.enemies.some(enemy=>chaseSameCell(enemy.pos, REVOLUTION_CHASE.player))){
+    chaseGameOver("👑 A tsar guard intercepted you.");
     return;
   }
 
-  for(const ghost of SNAKE_QUIZ.ghosts){
-    ghost.dir = snakeChooseGhostDir(ghost);
-    const step = snakeMove(ghost.pos, ghost.dir);
-    if(!snakeIsWall(step)) ghost.pos = step;
-    if(snakeSameCell(ghost.pos, SNAKE_QUIZ.player)){
-      snakeGameOver("👻 A ghost caught you.");
+  for(const enemy of REVOLUTION_CHASE.enemies){
+    enemy.dir = chaseChooseEnemyDir(enemy);
+    const step = chaseMove(enemy.pos, enemy.dir);
+    if(!chaseIsWall(step)) enemy.pos = step;
+    if(chaseSameCell(enemy.pos, REVOLUTION_CHASE.player)){
+      chaseGameOver("👑 A tsar guard intercepted you.");
       return;
     }
   }
 
-  if(SNAKE_QUIZ.ghosts.some(ghost=>snakeSameCell(ghost.pos, SNAKE_QUIZ.player))){
-    snakeGameOver("👻 A ghost caught you.");
-    return;
-  }
-
-  snakeDraw();
+  chaseDraw();
 }
 
-function snakeStartTicker(){
-  if(SNAKE_QUIZ.timer) clearInterval(SNAKE_QUIZ.timer);
-  SNAKE_QUIZ.timer = setInterval(snakeTick, SNAKE_QUIZ.tickMs);
+function chaseStartTicker(){
+  if(REVOLUTION_CHASE.timer) clearInterval(REVOLUTION_CHASE.timer);
+  REVOLUTION_CHASE.timer = setInterval(chaseTick, REVOLUTION_CHASE.tickMs);
 }
 
-function snakeSetDirection(dx,dy){
-  SNAKE_QUIZ.nextDir = {x:dx,y:dy};
+function chaseSetDirection(dx,dy){
+  REVOLUTION_CHASE.nextDir = {x:dx,y:dy};
 }
 
-function snakeStart(){
-  snakeStop();
-  SNAKE_QUIZ.topicId = snakeEl("snakeTopicSelect")?.value || "MIXED";
-  SNAKE_QUIZ.score = 0;
-  SNAKE_QUIZ.lives = 1;
-  snakeResetActors();
-  SNAKE_QUIZ.running = true;
-  snakeUpdateHud();
-  if(!snakeNewQuestion()) return;
-  snakeDraw();
-  snakeSetMsg("Chase the correct keyword and stay clear of ghosts.");
-  snakeStartTicker();
+function chaseStart(){
+  chaseStop();
+  REVOLUTION_CHASE.topicId = chaseEl("snakeTopicSelect")?.value || "MIXED";
+  REVOLUTION_CHASE.score = 0;
+  REVOLUTION_CHASE.lives = 1;
+  chaseResetActors();
+  REVOLUTION_CHASE.running = true;
+  chaseUpdateHud();
+  if(!chaseBuildQuestion()) return;
+  chaseDraw();
+  chaseSetMsg("Collect the correct answer token and avoid the tsars.");
+  chaseStartTicker();
 }
 
 (()=>{
-  const startBtn = snakeEl("btnStartSnakeQuiz");
+  const startBtn = chaseEl("btnStartSnakeQuiz");
   if(!startBtn) return;
-  startBtn.addEventListener("click", snakeStart);
-  snakeEl("snakeDirUp")?.addEventListener("click", ()=>snakeSetDirection(0,-1));
-  snakeEl("snakeDirDown")?.addEventListener("click", ()=>snakeSetDirection(0,1));
-  snakeEl("snakeDirLeft")?.addEventListener("click", ()=>snakeSetDirection(-1,0));
-  snakeEl("snakeDirRight")?.addEventListener("click", ()=>snakeSetDirection(1,0));
+  startBtn.addEventListener("click", chaseStart);
+  chaseEl("snakeDirUp")?.addEventListener("click", ()=>chaseSetDirection(0,-1));
+  chaseEl("snakeDirDown")?.addEventListener("click", ()=>chaseSetDirection(0,1));
+  chaseEl("snakeDirLeft")?.addEventListener("click", ()=>chaseSetDirection(-1,0));
+  chaseEl("snakeDirRight")?.addEventListener("click", ()=>chaseSetDirection(1,0));
   document.addEventListener("keydown", (ev)=>{
     if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(ev.key)) ev.preventDefault();
-    if(ev.key === "ArrowUp") snakeSetDirection(0,-1);
-    if(ev.key === "ArrowDown") snakeSetDirection(0,1);
-    if(ev.key === "ArrowLeft") snakeSetDirection(-1,0);
-    if(ev.key === "ArrowRight") snakeSetDirection(1,0);
+    if(ev.key === "ArrowUp") chaseSetDirection(0,-1);
+    if(ev.key === "ArrowDown") chaseSetDirection(0,1);
+    if(ev.key === "ArrowLeft") chaseSetDirection(-1,0);
+    if(ev.key === "ArrowRight") chaseSetDirection(1,0);
   });
-  snakeEl("snakeTopicSelect")?.addEventListener("change", ()=>{
-    if(SNAKE_QUIZ.running) snakeStart();
+  chaseEl("snakeTopicSelect")?.addEventListener("change", ()=>{
+    if(REVOLUTION_CHASE.running) chaseStart();
   });
-  snakeUpdateHud();
-  snakeUpdatePrompt();
-  snakeDraw();
+  chaseUpdateHud();
+  chaseUpdatePrompt();
+  chaseDraw();
 })();
 
 /* ==========================================================
@@ -11185,7 +11201,7 @@ const GAME_LABELS = {
   gamesMatchPane: "Match-Up",
   gamesTimelinePane: "Timeline Tension",
   gamesBeatClockPane: "Beat the Clock",
-  gamesSnakeQuizPane: "Pac-Man Keyword Chase",
+  gamesSnakeQuizPane: "Revolution Rush",
   gamesClassicSnakePane: "Classic Snake Keywords",
   gamesSpaceKeywordsPane: "Space Keywords"
 };
@@ -22290,7 +22306,7 @@ function classicSnakeOccupied(){
 function classicSnakeUpdatePrompt(){
   const defEl = classicSnakeEl("classicSnakeDefinitionText");
   const legendEl = classicSnakeEl("classicSnakeChoiceLegend");
-  if(defEl) defEl.textContent = CLASSIC_SNAKE.q?.prompt || "Press start to load a definition.";
+  if(defEl) defEl.textContent = CLASSIC_SNAKE.q?.prompt || "Press start to load a question.";
   if(legendEl){
     legendEl.textContent = CLASSIC_SNAKE.q?.fruits?.map((f, idx)=>`${idx+1}. ${f.choice}`).join(" • ") || "Target and decoys appear as colored fruit blocks.";
   }
