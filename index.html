@@ -4223,6 +4223,11 @@ section#games.gamePaneActive .gamesHeroCard{
         <div class="gamePillDesc">Chase the correct keyword for the definition before a ghost or wrong pick ends the round.</div>
       </button>
 
+      <button class="gamePillBtn" type="button" id="openClassicSnakeBtn">
+        <div class="gamePillTop"><div class="gamePillTitle">Classic Snake Keywords</div><span class="gameMetaTag">Old-school snake</span></div>
+        <div class="gamePillDesc">Keep the snake alive, collect the matching keyword, and avoid crashing into walls or yourself.</div>
+      </button>
+
       <button class="gamePillBtn" type="button" id="openSpaceKeywordsBtn">
         <div class="gamePillTop"><div class="gamePillTitle">Space Keywords</div><span class="gameMetaTag">Definition blaster</span></div>
         <div class="gamePillDesc">Shoot the correct keyword before the invaders break through your shield.</div>
@@ -4505,6 +4510,61 @@ section#games.gamePaneActive .gamesHeroCard{
             <div class="grow" style="min-width:220px">
               <label>Topic</label>
               <select id="snakeTopicSelect"></select>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+
+
+
+    <!-- Classic Snake game screen -->
+    <div id="gamesClassicSnakePane" class="gamePane hidden">
+      <div class="gamePaneTop">
+        <button class="gamesBackPill" type="button" id="backFromClassicSnake" aria-label="Back to Games">
+          <svg class="gamesHeroIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="8" width="18" height="10" rx="4"></rect><path d="M8 13h4"></path><path d="M10 11v4"></path><circle cx="16.5" cy="12" r="1"></circle><circle cx="18.5" cy="14" r="1"></circle></svg>
+          <span>Games</span>
+        </button>
+      </div>
+      <div class="card gameStageCard">
+        <div class="snakeHeaderCompact">
+          <div class="gameMissionTitle">Classic Snake Keywords</div>
+          <p class="gameMissionHint">Collect the correct keyword fruit for each definition. Wrong fruit, wall hits, or self-collision end the run.</p>
+        </div>
+
+        <div class="snakeQuestionBox" style="margin-top:10px">
+          <div class="spaceDefinitionLabel">Definition target</div>
+          <div id="classicSnakeDefinitionText" class="spaceDefinitionText" style="margin-top:0;color:var(--textStrong)">Press start to load a definition.</div>
+          <div class="note" id="classicSnakeChoiceLegend">Target and decoys appear as colored fruit blocks.</div>
+        </div>
+
+        <div class="snakeQuizCanvasWrap" style="margin-top:10px">
+          <canvas id="classicSnakeCanvas" width="520" height="520" aria-label="Classic snake keyword board"></canvas>
+          <div class="snakePad" aria-label="Classic snake controls">
+            <span></span><button class="btn" id="classicSnakeDirUp" type="button">⬆️</button><span></span>
+            <button class="btn" id="classicSnakeDirLeft" type="button">⬅️</button>
+            <button class="btn" id="classicSnakeDirDown" type="button">⬇️</button>
+            <button class="btn" id="classicSnakeDirRight" type="button">➡️</button>
+          </div>
+        </div>
+
+        <div class="connMsg" id="classicSnakeMsg">Use arrow keys or buttons. Keep moving and collect the correct term.</div>
+
+        <div class="snakeRunControls" aria-label="Classic snake controls and stats">
+          <button class="btn primary" id="btnStartClassicSnake" type="button">🐍 Start snake</button>
+          <div class="row" style="justify-content:space-between;gap:8px;flex-wrap:wrap">
+            <div class="pill" id="classicSnakeLenPill">Length: 4</div>
+            <div class="pill" id="classicSnakeScorePill">Correct: 0</div>
+            <div class="pill" id="classicSnakeBestPill">🏆 Best streak: 0</div>
+          </div>
+        </div>
+
+        <details class="gameTuning">
+          <summary>Adjust game options</summary>
+          <div class="gameTuningBody row" style="margin:0;align-items:flex-end">
+            <div class="grow" style="min-width:220px">
+              <label>Topic</label>
+              <select id="classicSnakeTopicSelect"></select>
             </div>
           </div>
         </details>
@@ -11118,7 +11178,7 @@ document.querySelectorAll(".navBtn").forEach(btn=>{
 });
 
 /* Games hub navigation */
-const GAME_PANES = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakeQuizPane","gamesSpaceKeywordsPane"];
+const GAME_PANES = ["gamesConnPane","gamesEmojiPane","gamesMatchPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakeQuizPane","gamesClassicSnakePane","gamesSpaceKeywordsPane"];
 const GAME_LABELS = {
   gamesConnPane: "Connections",
   gamesEmojiPane: "Emoji Multiple Choice",
@@ -11126,6 +11186,7 @@ const GAME_LABELS = {
   gamesTimelinePane: "Timeline Tension",
   gamesBeatClockPane: "Beat the Clock",
   gamesSnakeQuizPane: "Pac-Man Keyword Chase",
+  gamesClassicSnakePane: "Classic Snake Keywords",
   gamesSpaceKeywordsPane: "Space Keywords"
 };
 let LAST_GAME_PANE = null;
@@ -11167,8 +11228,8 @@ function openGamePane(paneId){
   window.scrollTo(0,0);
 }
 window.addEventListener("DOMContentLoaded", ()=>{
-  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn"), openSnakeQuiz = $("openSnakeQuizBtn"), openSpaceKeywords = $("openSpaceKeywordsBtn");
-  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock"), backSnakeQuiz = $("backFromSnakeQuiz"), backSpaceKeywords = $("backFromSpaceKeywords");
+  const openConn = $("openConnBtn"), openEmoji = $("openEmojiBtn"), openMatch = $("openMatchBtn"), openTimeline = $("openTimelineBtn"), openBeatClock = $("openBeatClockBtn"), openSnakeQuiz = $("openSnakeQuizBtn"), openClassicSnake = $("openClassicSnakeBtn"), openSpaceKeywords = $("openSpaceKeywordsBtn");
+  const backConn = $("backFromConn"), backEmoji = $("backFromEmoji"), backMatch = $("backFromMatch"), backTimeline = $("backFromTimeline"), backBeatClock = $("backFromBeatClock"), backSnakeQuiz = $("backFromSnakeQuiz"), backClassicSnake = $("backFromClassicSnake"), backSpaceKeywords = $("backFromSpaceKeywords");
   const quickStart = $("gamesQuickStartBtn");
   const resume = $("gamesResumeBtn");
 
@@ -11208,6 +11269,11 @@ window.addEventListener("DOMContentLoaded", ()=>{
       if(btn) btn.click();
       return;
     }
+    if(pane === "gamesClassicSnakePane"){
+      const btn = $("btnStartClassicSnake");
+      if(btn) btn.click();
+      return;
+    }
     if(pane === "gamesSpaceKeywordsPane"){
       const btn = $("btnStartSpaceKeywords");
       if(btn) btn.click();
@@ -11224,6 +11290,11 @@ window.addEventListener("DOMContentLoaded", ()=>{
     markGameSessionCompleted("snake_quiz", topic === "MIXED" ? getDailyTopicId() : topic);
     launchGameNow("gamesSnakeQuizPane");
   });
+  if(openClassicSnake) openClassicSnake.addEventListener("click", ()=>{
+    const topic = $("classicSnakeTopicSelect")?.value || "MIXED";
+    markGameSessionCompleted("classic_snake", topic === "MIXED" ? getDailyTopicId() : topic);
+    launchGameNow("gamesClassicSnakePane");
+  });
   if(openSpaceKeywords) openSpaceKeywords.addEventListener("click", ()=>{
     const topic = $("spaceTopicSelect")?.value || "MIXED";
     markGameSessionCompleted("space_keywords", topic === "MIXED" ? getDailyTopicId() : topic);
@@ -11231,7 +11302,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   });
 
   if(quickStart) quickStart.addEventListener("click", ()=>{
-    const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakeQuizPane","gamesSpaceKeywordsPane"];
+    const picker = ["gamesConnPane","gamesMatchPane","gamesEmojiPane","gamesTimelinePane","gamesBeatClockPane","gamesSnakeQuizPane","gamesClassicSnakePane","gamesSpaceKeywordsPane"];
     const pane = picker[Math.floor(Math.random()*picker.length)];
     launchGameNow(pane);
   });
@@ -11243,6 +11314,7 @@ window.addEventListener("DOMContentLoaded", ()=>{
   if(backTimeline) backTimeline.addEventListener("click", gamesShowHub);
   if(backBeatClock) backBeatClock.addEventListener("click", gamesShowHub);
   if(backSnakeQuiz) backSnakeQuiz.addEventListener("click", gamesShowHub);
+  if(backClassicSnake) backClassicSnake.addEventListener("click", gamesShowHub);
   if(backSpaceKeywords) backSpaceKeywords.addEventListener("click", gamesShowHub);
 
   updateGamesHubMeta();
@@ -19986,6 +20058,7 @@ function populateTopics(){
   const selMatch = $("matchTopicSelect");
   const selEmoji = $("emojiTopicSelect");
   const selSnake = $("snakeTopicSelect");
+  const selClassicSnake = $("classicSnakeTopicSelect");
   const selSpace = $("spaceTopicSelect");
   const selExamFilter = $("examTopicSelect");
 
@@ -19994,6 +20067,7 @@ function populateTopics(){
   selMatch.innerHTML = "";
   selEmoji.innerHTML = "";
   selSnake.innerHTML = "";
+  selClassicSnake.innerHTML = "";
   selSpace.innerHTML = "";
   selExamFilter.innerHTML = "";
 
@@ -20012,6 +20086,7 @@ function populateTopics(){
   addMixed(selMatch);
   addMixed(selEmoji);
   addMixed(selSnake);
+  addMixed(selClassicSnake);
   addMixed(selSpace);
 
   const exAll = document.createElement("option");
@@ -20046,11 +20121,15 @@ function populateTopics(){
 
     const o6 = document.createElement("option");
     o6.value = t.id; o6.textContent = t.title;
-    selSpace.appendChild(o6);
+    selClassicSnake.appendChild(o6);
 
     const o7 = document.createElement("option");
     o7.value = t.id; o7.textContent = t.title;
-    selExamFilter.appendChild(o7);
+    selSpace.appendChild(o7);
+
+    const o8 = document.createElement("option");
+    o8.value = t.id; o8.textContent = t.title;
+    selExamFilter.appendChild(o8);
   });
 }
 
@@ -22154,6 +22233,242 @@ $("emojiTopicSelect").addEventListener("change", startEmojiRound);
 $("emojiMode").addEventListener("change", startEmojiRound);
 
 
+
+/* ==========================================================
+   CLASSIC SNAKE KEYWORDS GAME
+   ========================================================== */
+const CLASSIC_SNAKE = {
+  board: 13,
+  running: false,
+  timer: null,
+  tickMs: 180,
+  topicId: "MIXED",
+  snake: [],
+  dir: {x:1,y:0},
+  nextDir: {x:1,y:0},
+  score: 0,
+  best: Number(localStorage.getItem("classic_snake_keyword_best") || 0),
+  q: null
+};
+
+function classicSnakeEl(id){ return document.getElementById(id); }
+function classicSnakeKey(pos){ return `${pos.x},${pos.y}`; }
+function classicSnakeSetMsg(msg){ const el = classicSnakeEl("classicSnakeMsg"); if(el) el.textContent = msg; }
+
+function classicSnakePool(topicId){
+  return getQuizPool(topicId).filter(q=>Array.isArray(q.choices) && q.choices.length >= 3);
+}
+
+function classicSnakeUpdateHud(){
+  classicSnakeEl("classicSnakeLenPill").textContent = `Length: ${CLASSIC_SNAKE.snake.length || 4}`;
+  classicSnakeEl("classicSnakeScorePill").textContent = `Correct: ${CLASSIC_SNAKE.score}`;
+  classicSnakeEl("classicSnakeBestPill").textContent = `🏆 Best streak: ${CLASSIC_SNAKE.best}`;
+}
+
+function classicSnakeStop(){
+  if(CLASSIC_SNAKE.timer) clearInterval(CLASSIC_SNAKE.timer);
+  CLASSIC_SNAKE.timer = null;
+  CLASSIC_SNAKE.running = false;
+}
+
+function classicSnakeResetActors(){
+  const mid = Math.floor(CLASSIC_SNAKE.board / 2);
+  CLASSIC_SNAKE.snake = [
+    {x:mid, y:mid},
+    {x:mid-1, y:mid},
+    {x:mid-2, y:mid},
+    {x:mid-3, y:mid}
+  ];
+  CLASSIC_SNAKE.dir = {x:1,y:0};
+  CLASSIC_SNAKE.nextDir = {x:1,y:0};
+}
+
+function classicSnakeOccupied(){
+  return new Set(CLASSIC_SNAKE.snake.map(classicSnakeKey));
+}
+
+function classicSnakeUpdatePrompt(){
+  const defEl = classicSnakeEl("classicSnakeDefinitionText");
+  const legendEl = classicSnakeEl("classicSnakeChoiceLegend");
+  if(defEl) defEl.textContent = CLASSIC_SNAKE.q?.prompt || "Press start to load a definition.";
+  if(legendEl){
+    legendEl.textContent = CLASSIC_SNAKE.q?.fruits?.map((f, idx)=>`${idx+1}. ${f.choice}`).join(" • ") || "Target and decoys appear as colored fruit blocks.";
+  }
+}
+
+function classicSnakeNewQuestion(){
+  const pool = classicSnakePool(CLASSIC_SNAKE.topicId);
+  if(!pool.length){
+    CLASSIC_SNAKE.q = null;
+    classicSnakeUpdatePrompt();
+    classicSnakeSetMsg("No keyword set available for this topic. Pick another topic.");
+    classicSnakeStop();
+    return false;
+  }
+
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  const distractors = shuffle((pick.choices || []).filter(c=>c !== pick.answer)).slice(0,2);
+  const choices = shuffle([pick.answer, ...distractors]).slice(0,3);
+  const blocked = classicSnakeOccupied();
+
+  const free = [];
+  for(let y=0; y<CLASSIC_SNAKE.board; y++){
+    for(let x=0; x<CLASSIC_SNAKE.board; x++){
+      const pos = {x,y};
+      if(blocked.has(classicSnakeKey(pos))) continue;
+      free.push(pos);
+    }
+  }
+  const fruitSpots = shuffle(free).slice(0,3);
+  if(fruitSpots.length < 3){
+    classicSnakeSetMsg("Board reset for a fresh run.");
+    classicSnakeResetActors();
+    return classicSnakeNewQuestion();
+  }
+
+  CLASSIC_SNAKE.q = {
+    prompt: pick.q,
+    answer: pick.answer,
+    fruits: choices.map((choice, idx)=>({ pos:fruitSpots[idx], choice, correct: choice === pick.answer }))
+  };
+  classicSnakeUpdatePrompt();
+  return true;
+}
+
+function classicSnakeDraw(){
+  const canvas = classicSnakeEl("classicSnakeCanvas");
+  if(!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if(!ctx) return;
+
+  const size = canvas.width;
+  const cell = size / CLASSIC_SNAKE.board;
+  ctx.clearRect(0,0,size,size);
+  ctx.fillStyle = "#08192a";
+  ctx.fillRect(0,0,size,size);
+
+  for(let y=0;y<CLASSIC_SNAKE.board;y++){
+    for(let x=0;x<CLASSIC_SNAKE.board;x++){
+      const px = x*cell, py = y*cell;
+      ctx.fillStyle = "rgba(255,255,255,.05)";
+      ctx.fillRect(px+1, py+1, cell-2, cell-2);
+    }
+  }
+
+  if(CLASSIC_SNAKE.q?.fruits){
+    CLASSIC_SNAKE.q.fruits.forEach((fruit, idx)=>{
+      const px = fruit.pos.x*cell + 5;
+      const py = fruit.pos.y*cell + 5;
+      ctx.fillStyle = fruit.correct ? "rgba(126,185,170,.95)" : ["rgba(183,142,161,.95)","rgba(157,173,224,.95)"][idx % 2];
+      ctx.fillRect(px, py, cell-10, cell-10);
+      ctx.strokeStyle = "rgba(255,255,255,.9)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(px, py, cell-10, cell-10);
+      ctx.fillStyle = "#10233a";
+      ctx.font = `900 ${Math.floor(cell*0.17)}px Inter, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      snakeDrawTextBlock(ctx, fruit.choice, px, py, cell-10, cell-10);
+    });
+  }
+
+  CLASSIC_SNAKE.snake.forEach((seg, i)=>{
+    const px = seg.x*cell + 3;
+    const py = seg.y*cell + 3;
+    ctx.fillStyle = i===0 ? "#ffd84d" : "#f3b91f";
+    snakeDrawRoundedRect(ctx, px, py, cell-6, cell-6, 8);
+    ctx.fill();
+  });
+}
+
+function classicSnakeGameOver(reason){
+  classicSnakeStop();
+  classicSnakeSetMsg(`${reason} Final streak: ${CLASSIC_SNAKE.score}. Press Start snake to try again.`);
+  classicSnakeDraw();
+}
+
+function classicSnakeSetDirection(dx,dy){
+  if(CLASSIC_SNAKE.dir.x === -dx && CLASSIC_SNAKE.dir.y === -dy) return;
+  CLASSIC_SNAKE.nextDir = {x:dx,y:dy};
+}
+
+function classicSnakeTick(){
+  if(!CLASSIC_SNAKE.running) return;
+  CLASSIC_SNAKE.dir = {...CLASSIC_SNAKE.nextDir};
+
+  const head = CLASSIC_SNAKE.snake[0];
+  const next = { x: head.x + CLASSIC_SNAKE.dir.x, y: head.y + CLASSIC_SNAKE.dir.y };
+
+  if(next.x < 0 || next.y < 0 || next.x >= CLASSIC_SNAKE.board || next.y >= CLASSIC_SNAKE.board){
+    classicSnakeGameOver("💥 Wall collision.");
+    return;
+  }
+
+  const bodyHit = CLASSIC_SNAKE.snake.some(seg=>seg.x===next.x && seg.y===next.y);
+  if(bodyHit){
+    classicSnakeGameOver("🌀 Self collision.");
+    return;
+  }
+
+  const fruit = CLASSIC_SNAKE.q?.fruits?.find(f=>f.pos.x===next.x && f.pos.y===next.y);
+  CLASSIC_SNAKE.snake.unshift(next);
+
+  if(fruit){
+    if(!fruit.correct){
+      classicSnakeGameOver(`❌ ${fruit.choice} does not match the definition.`);
+      return;
+    }
+    CLASSIC_SNAKE.score += 1;
+    if(CLASSIC_SNAKE.score > CLASSIC_SNAKE.best){
+      CLASSIC_SNAKE.best = CLASSIC_SNAKE.score;
+      localStorage.setItem("classic_snake_keyword_best", String(CLASSIC_SNAKE.best));
+    }
+    classicSnakeUpdateHud();
+    classicSnakeSetMsg("✅ Correct keyword collected. Keep the snake alive!");
+    if(!classicSnakeNewQuestion()) return;
+  }else{
+    CLASSIC_SNAKE.snake.pop();
+  }
+
+  classicSnakeDraw();
+}
+
+function classicSnakeStart(){
+  classicSnakeStop();
+  CLASSIC_SNAKE.topicId = classicSnakeEl("classicSnakeTopicSelect")?.value || "MIXED";
+  CLASSIC_SNAKE.score = 0;
+  classicSnakeResetActors();
+  CLASSIC_SNAKE.running = true;
+  classicSnakeUpdateHud();
+  if(!classicSnakeNewQuestion()) return;
+  classicSnakeSetMsg("Collect the correct keyword fruit and avoid crashing.");
+  classicSnakeDraw();
+  CLASSIC_SNAKE.timer = setInterval(classicSnakeTick, CLASSIC_SNAKE.tickMs);
+}
+
+(()=>{
+  const startBtn = classicSnakeEl("btnStartClassicSnake");
+  if(!startBtn) return;
+  startBtn.addEventListener("click", classicSnakeStart);
+  classicSnakeEl("classicSnakeDirUp")?.addEventListener("click", ()=>classicSnakeSetDirection(0,-1));
+  classicSnakeEl("classicSnakeDirDown")?.addEventListener("click", ()=>classicSnakeSetDirection(0,1));
+  classicSnakeEl("classicSnakeDirLeft")?.addEventListener("click", ()=>classicSnakeSetDirection(-1,0));
+  classicSnakeEl("classicSnakeDirRight")?.addEventListener("click", ()=>classicSnakeSetDirection(1,0));
+  document.addEventListener("keydown", (ev)=>{
+    if($("gamesClassicSnakePane")?.classList.contains("hidden")) return;
+    if(ev.key === "ArrowUp") classicSnakeSetDirection(0,-1);
+    if(ev.key === "ArrowDown") classicSnakeSetDirection(0,1);
+    if(ev.key === "ArrowLeft") classicSnakeSetDirection(-1,0);
+    if(ev.key === "ArrowRight") classicSnakeSetDirection(1,0);
+  });
+  classicSnakeEl("classicSnakeTopicSelect")?.addEventListener("change", ()=>{
+    if(CLASSIC_SNAKE.running) classicSnakeStart();
+  });
+  classicSnakeUpdateHud();
+  classicSnakeUpdatePrompt();
+  classicSnakeDraw();
+})();
+
 /* ==========================================================
    SPACE KEYWORDS GAME
    ========================================================== */
@@ -22744,6 +23059,7 @@ function init(){
     $("emojiTopicSelect").value = "MIXED";
     $("matchTopicSelect").value = "MIXED";
     if($("snakeTopicSelect")) $("snakeTopicSelect").value = "MIXED";
+    if($("classicSnakeTopicSelect")) $("classicSnakeTopicSelect").value = "MIXED";
     if($("spaceTopicSelect")) $("spaceTopicSelect").value = "MIXED";
     $("examTopicSelect").value = "ALL";
 
