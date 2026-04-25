@@ -1,7 +1,10 @@
 /* service-worker.js
-   Minimal PWA cache with explicit precache list (includes header-bg.jpg)
+   Minimal PWA cache with explicit precache list.
+   Notes:
+   - Keep the install step resilient (cache each file independently).
+   - Avoid very large/non-critical assets in precache.
 */
-const CACHE_NAME = "eduupgrade-russia-v3";
+const CACHE_NAME = "eduupgrade-russia-v4";
 
 const PRECACHE_URLS = [
   "./",
@@ -29,16 +32,17 @@ const PRECACHE_URLS = [
   "./Lesson Timelines/topic_2.png",
   "./Lesson Timelines/topic_3.png",
   "./Lesson Timelines/topic_4.png",
-  "./Lesson infographics/Alexander-II-Reforms-1.png",
-  "./gemini_generated_video_EA512AAF.mp4",
-  "./README_PWA.txt"
+  "./Lesson infographics/Alexander-II-Reforms-1.png"
 ];
 
 // Install: pre-cache core assets
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)).catch(() => {})
+    (async () => {
+      const cache = await caches.open(CACHE_NAME);
+      await Promise.allSettled(PRECACHE_URLS.map((url) => cache.add(url)));
+    })()
   );
 });
 

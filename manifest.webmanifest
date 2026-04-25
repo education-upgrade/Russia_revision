@@ -4,8 +4,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#070912",
-  "theme_color": "#070912",
+  "background_color": "#f3f7fb",
+  "theme_color": "#f3f7fb",
   "description": "AQA A-Level History 1H: Tsarist and Communist Russia 1855\u20131964 revision app.",
   "icons": [
     {
